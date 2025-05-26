@@ -1,13 +1,14 @@
-
 import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import TravelDocumentsModal from "@/components/modals/TravelDocumentsModal";
+import NotificationsModal from "@/components/modals/NotificationsModal";
 
 const ProfileSection = () => {
   const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
+  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
 
   const menuItems = [
     { 
@@ -17,7 +18,13 @@ const ProfileSection = () => {
       color: "text-blue-600",
       onClick: () => setIsTravelDocumentsModalOpen(true)
     },
-    { icon: Bell, title: "Notifications", subtitle: "Manage alerts & updates", color: "text-green-600" },
+    { 
+      icon: Bell, 
+      title: "Notifications", 
+      subtitle: "Manage alerts & updates", 
+      color: "text-green-600",
+      onClick: () => setIsNotificationsModalOpen(true)
+    },
     { icon: Award, title: "Travel Achievements", subtitle: "Your travel milestones", color: "text-purple-600" },
     { icon: Share, title: "Share Profile", subtitle: "Connect with travelers", color: "text-orange-600" },
     { icon: Settings, title: "Settings", subtitle: "App preferences", color: "text-gray-600" },
@@ -134,6 +141,12 @@ const ProfileSection = () => {
       <TravelDocumentsModal
         isOpen={isTravelDocumentsModalOpen}
         onClose={() => setIsTravelDocumentsModalOpen(false)}
+      />
+
+      {/* Notifications Modal */}
+      <NotificationsModal
+        isOpen={isNotificationsModalOpen}
+        onClose={() => setIsNotificationsModalOpen(false)}
       />
     </div>
   );
