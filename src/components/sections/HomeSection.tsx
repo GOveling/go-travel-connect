@@ -7,6 +7,7 @@ import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal
 import AddMemoryModal from "@/components/modals/AddMemoryModal";
 import InstaTripModal from "@/components/modals/InstaTripModal";
 import ProfilePublicationModal from "@/components/modals/ProfilePublicationModal";
+import NewTripModal from "@/components/modals/NewTripModal";
 
 interface InstaTripImage {
   id: string;
@@ -31,9 +32,11 @@ const HomeSection = () => {
   const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
   const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
   const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
+  const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(5);
   const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
   const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
+  const [trips, setTrips] = useState<any[]>([]);
 
   // Clean up expired images periodically
   useEffect(() => {
@@ -96,6 +99,14 @@ const HomeSection = () => {
       tripId: tripId
     };
     setProfilePosts(prev => [newPost, ...prev]);
+  };
+
+  const handleCreateTrip = (tripData: any) => {
+    setTrips(prev => [...prev, tripData]);
+  };
+
+  const handleAddToTrip = () => {
+    setIsNewTripModalOpen(true);
   };
 
   const formatTimeAgo = (timestamp: number) => {
@@ -308,14 +319,29 @@ const HomeSection = () => {
                 </div>
                 <p className="text-sm text-gray-700">{post.text}</p>
                 {post.location && (
-                  <div className="flex items-center space-x-1 text-xs text-gray-500">
-                    <MapPin size={12} />
-                    <span>{post.location}</span>
-                    {post.tripId && (
-                      <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                        Added to trip
-                      </span>
-                    )}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-1 text-xs text-gray-500">
+                        <MapPin size={12} />
+                        <span>{post.location}</span>
+                        {post.tripId && (
+                          <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                            Added to trip
+                          </span>
+                        )}
+                      </div>
+                      {!post.tripId && (
+                        <Button
+                          onClick={handleAddToTrip}
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Plus size={12} className="mr-1" />
+                          Add to Trip
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
                 <p className="text-xs text-gray-500">{formatTimeAgo(post.createdAt)}</p>
@@ -354,6 +380,12 @@ const HomeSection = () => {
         isOpen={isProfilePublicationModalOpen}
         onClose={() => setIsProfilePublicationModalOpen(false)}
         onAddPublication={handleAddProfilePost}
+      />
+
+      <NewTripModal
+        isOpen={isNewTripModalOpen}
+        onClose={() => setIsNewTripModalOpen(false)}
+        onCreateTrip={handleCreateTrip}
       />
     </div>
   );
