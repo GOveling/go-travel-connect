@@ -1,4 +1,4 @@
-import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2 } from "lucide-react";
+import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -6,6 +6,7 @@ import TripMap from "@/components/maps/TripMap";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
+import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
@@ -13,6 +14,7 @@ const TripsSection = () => {
   const [showTripDetail, setShowTripDetail] = useState(false);
   const [showNewTripModal, setShowNewTripModal] = useState(false);
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
+  const [showGroupOptionsModal, setShowGroupOptionsModal] = useState(false);
   
   const [trips, setTrips] = useState([
     {
@@ -120,6 +122,11 @@ const TripsSection = () => {
     setShowInviteFriendsModal(true);
   };
 
+  const handleGroupOptions = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowGroupOptionsModal(true);
+  };
+
   if (showMap) {
     return (
       <div className="min-h-screen p-4 space-y-6">
@@ -217,9 +224,22 @@ const TripsSection = () => {
                         </div>
                       )}
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
-                      {trip.status}
-                    </span>
+                    <div className="flex flex-col items-end space-y-1">
+                      <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
+                        {trip.status}
+                      </span>
+                      {trip.isGroupTrip && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleGroupOptions(trip)}
+                          className="text-xs px-2 py-1 h-6 border-purple-200 text-purple-600 hover:bg-purple-50"
+                        >
+                          <Settings size={12} className="mr-1" />
+                          Group Options
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Collaborators for group trips */}
@@ -368,6 +388,16 @@ const TripsSection = () => {
         isOpen={showInviteFriendsModal}
         onClose={() => {
           setShowInviteFriendsModal(false);
+          setSelectedTrip(null);
+        }}
+      />
+
+      {/* Group Options Modal */}
+      <GroupOptionsModal
+        trip={selectedTrip}
+        isOpen={showGroupOptionsModal}
+        onClose={() => {
+          setShowGroupOptionsModal(false);
           setSelectedTrip(null);
         }}
       />
