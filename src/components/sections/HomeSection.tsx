@@ -1,5 +1,5 @@
 
-import { MapPin, Calendar, Camera, Bell } from "lucide-react";
+import { MapPin, Calendar, Camera, Bell, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,23 +20,41 @@ const HomeSection = () => {
     setIsAddMemoryModalOpen(true);
   };
 
+  const handleInstaTripClick = () => {
+    console.log("InstanTrip button clicked");
+    // TODO: Implement InstanTrip functionality
+  };
+
   const handleMarkAllNotificationsRead = () => {
     setNotificationCount(0);
   };
 
   return (
     <div className="min-h-screen p-4 space-y-6">
-      {/* Header with Notification Bell */}
-      <div className="text-center pt-8 pb-4">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1"></div>
-          <div className="flex justify-center flex-1">
+      {/* Header with Logo on left, InstanTrip button in center, and Notification Bell on right */}
+      <div className="pt-8 pb-4">
+        <div className="flex justify-between items-center mb-4">
+          {/* Logo on the left */}
+          <div className="flex-1 flex justify-start">
             <img 
               src="/lovable-uploads/3e9a8a6e-d543-437e-a44d-2f16fac6303f.png" 
               alt="GOveling Logo" 
-              className="h-24 w-auto"
+              className="h-16 w-auto"
             />
           </div>
+          
+          {/* InstanTrip button in the center */}
+          <div className="flex-1 flex justify-center">
+            <Button
+              onClick={handleInstaTripClick}
+              className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white px-6 py-2 rounded-full shadow-lg"
+            >
+              <Plus size={20} className="mr-2" />
+              InstanTrip
+            </Button>
+          </div>
+          
+          {/* Notification bell on the right */}
           <div className="flex-1 flex justify-end">
             <div className="relative">
               <Button
@@ -58,7 +76,7 @@ const HomeSection = () => {
             </div>
           </div>
         </div>
-        <p className="text-gray-600 mt-2">Your smart travel companion</p>
+        <p className="text-gray-600 mt-2 text-center">Your smart travel companion</p>
       </div>
 
       {/* Quick Stats */}
