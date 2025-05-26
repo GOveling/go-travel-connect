@@ -22,9 +22,20 @@ interface SavedPlacesRouteMapProps {
   onClose: () => void;
   destinationName: string;
   places: SavedPlace[];
+  tripDates?: string;
+  destinationIndex?: number;
+  totalDestinations?: number;
 }
 
-const SavedPlacesRouteMap = ({ isOpen, onClose, destinationName, places }: SavedPlacesRouteMapProps) => {
+const SavedPlacesRouteMap = ({ 
+  isOpen, 
+  onClose, 
+  destinationName, 
+  places, 
+  tripDates, 
+  destinationIndex = 0, 
+  totalDestinations = 1 
+}: SavedPlacesRouteMapProps) => {
   const [isGeneratingRoute, setIsGeneratingRoute] = useState(false);
   const [routeGenerated, setRouteGenerated] = useState(false);
 
@@ -50,18 +61,73 @@ const SavedPlacesRouteMap = ({ isOpen, onClose, destinationName, places }: Saved
     }
   };
 
-  // Function to calculate dates for each place in the route
+  // Function to calculate dates for each place in the route based on trip dates
   const getPlaceDate = (placeIndex: number) => {
-    const today = new Date();
-    const dateForPlace = new Date(today);
-    dateForPlace.setDate(today.getDate() + placeIndex);
-    
-    const formatDate = (date: Date) => {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[date.getMonth()]} ${date.getDate()}`;
-    };
-    
-    return formatDate(dateForPlace);
+    if (!tripDates) {
+      // Fallback to sequential days if no trip dates provided
+      const today = new Date();
+      const dateForPlace = new Date(today);
+      dateForPlace.setDate(today.getDate() + placeIndex);
+      
+      const formatDate = (date: Date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}`;
+      };
+      
+      return formatDate(dateForPlace);
+    }
+
+    try {
+      // Parse dates like "Dec 15 - Dec 25, 2024"
+      const dateRange = tripDates.split(' - ');
+      if (dateRange.length !== 2) return `Day ${placeIndex + 1}`;
+      
+      const startDateStr = dateRange[0];
+      const endDateStr = dateRange[1];
+      
+      // Extract year from end date
+      const year = endDateStr.split(', ')[1] || new Date().getFullYear().toString();
+      
+      // Parse start date
+      const startMonth = startDateStr.split(' ')[0];
+      const startDay = parseInt(startDateStr.split(' ')[1]);
+      
+      // Parse end date
+      const endMonth = endDateStr.split(' ')[0];
+      const endDay = parseInt(endDateStr.split(' ')[1].split(',')[0]);
+      
+      // Convert month names to numbers
+      const monthMap: { [key: string]: number } = {
+        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+      };
+      
+      const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
+      const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
+      
+      // Calculate days per destination
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysPerDestination = Math.ceil(totalDays / totalDestinations);
+      
+      // Calculate destination start date
+      const destStartDate = new Date(startDate);
+      destStartDate.setDate(startDate.getDate() + (destinationIndex * daysPerDestination));
+      
+      // Calculate specific place date within the destination period
+      const placeDate = new Date(destStartDate);
+      placeDate.setDate(destStartDate.getDate() + placeIndex);
+      
+      // Format date
+      const formatDate = (date: Date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}`;
+      };
+      
+      return formatDate(placeDate);
+    } catch (error) {
+      // Fallback to day format if parsing fails
+      return `Day ${placeIndex + 1}`;
+    }
   };
 
   // Sort places by priority for optimal route

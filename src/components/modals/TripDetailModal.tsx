@@ -60,6 +60,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
   const [showRouteMap, setShowRouteMap] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>("");
   const [selectedPlaces, setSelectedPlaces] = useState<SavedPlace[]>([]);
+  const [selectedDestinationIndex, setSelectedDestinationIndex] = useState<number>(0);
 
   // Mock saved places data for each destination
   const savedPlacesByDestination = {
@@ -263,9 +264,10 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
     }
   };
 
-  const handleViewRoute = (destination: string, places: SavedPlace[]) => {
+  const handleViewRoute = (destination: string, places: SavedPlace[], destinationIndex: number) => {
     setSelectedDestination(destination);
     setSelectedPlaces(places);
+    setSelectedDestinationIndex(destinationIndex);
     setShowRouteMap(true);
   };
 
@@ -574,7 +576,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => handleViewRoute(destination.name, placesForDestination)}
+                            onClick={() => handleViewRoute(destination.name, placesForDestination, destIndex)}
                             className="border-blue-500 text-blue-600 hover:bg-blue-50"
                           >
                             <Map size={16} className="mr-1" />
@@ -710,6 +712,9 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
         onClose={() => setShowRouteMap(false)}
         destinationName={selectedDestination}
         places={selectedPlaces}
+        tripDates={trip?.dates}
+        destinationIndex={selectedDestinationIndex}
+        totalDestinations={trip?.coordinates.length || 1}
       />
     </>
   );
