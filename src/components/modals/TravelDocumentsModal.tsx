@@ -2,13 +2,12 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Plus, Edit, Trash2, Download, Upload, Wifi, WifiOff, AlertTriangle, Clock, Camera, X } from "lucide-react";
+import { FileText, Plus, Download, Wifi, WifiOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import DocumentForm from "./travel-documents/DocumentForm";
+import DocumentCard from "./travel-documents/DocumentCard";
 
 interface TravelDocument {
   id: string;
@@ -18,7 +17,7 @@ interface TravelDocument {
   expiryDate: string;
   issuingCountry: string;
   notes?: string;
-  photo?: string; // base64 encoded image
+  photo?: string;
 }
 
 interface TravelDocumentsModalProps {
@@ -66,71 +65,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     localStorage.setItem('offlineMode', JSON.stringify(isOfflineMode));
   }, [isOfflineMode]);
 
-  const calculateDaysToExpiry = (expiryDate: string) => {
-    if (!expiryDate) return null;
-    
-    const today = new Date();
-    const expiry = new Date(expiryDate);
-    const timeDiff = expiry.getTime() - today.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
-    return daysDiff;
-  };
-
-  const getExpiryStatus = (daysToExpiry: number | null) => {
-    if (daysToExpiry === null) return null;
-    
-    if (daysToExpiry < 0) {
-      return { status: 'expired', color: 'text-red-600', bgColor: 'bg-red-50', text: 'Expired' };
-    } else if (daysToExpiry <= 30) {
-      return { status: 'expiring-soon', color: 'text-orange-600', bgColor: 'bg-orange-50', text: `${daysToExpiry} days left` };
-    } else if (daysToExpiry <= 90) {
-      return { status: 'expires-soon', color: 'text-yellow-600', bgColor: 'bg-yellow-50', text: `${daysToExpiry} days left` };
-    } else {
-      return { status: 'valid', color: 'text-green-600', bgColor: 'bg-green-50', text: `${daysToExpiry} days left` };
-    }
-  };
-
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "File size must be less than 5MB",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Error",
-        description: "Please upload an image file",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      setNewDocument({ ...newDocument, photo: base64 });
-      toast({
-        title: "Success",
-        description: "Photo uploaded successfully"
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removePhoto = () => {
-    setNewDocument({ ...newDocument, photo: '' });
-  };
-
   const handleAddDocument = () => {
     if (!newDocument.type || !newDocument.documentNumber) {
       toast({
@@ -147,16 +81,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     };
 
     setDocuments([...documents, document]);
-    setNewDocument({
-      type: '',
-      documentNumber: '',
-      issueDate: '',
-      expiryDate: '',
-      issuingCountry: '',
-      notes: '',
-      photo: ''
-    });
-    setIsAddingDocument(false);
+    resetForm();
     
     toast({
       title: "Success",
@@ -179,16 +104,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
     setDocuments(updatedDocuments);
     setEditingDocument(null);
-    setNewDocument({
-      type: '',
-      documentNumber: '',
-      issueDate: '',
-      expiryDate: '',
-      issuingCountry: '',
-      notes: '',
-      photo: ''
-    });
-    setIsAddingDocument(false);
+    resetForm();
     
     toast({
       title: "Success",
@@ -202,6 +118,19 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       title: "Success",
       description: "Document deleted successfully"
     });
+  };
+
+  const resetForm = () => {
+    setNewDocument({
+      type: '',
+      documentNumber: '',
+      issueDate: '',
+      expiryDate: '',
+      issuingCountry: '',
+      notes: '',
+      photo: ''
+    });
+    setIsAddingDocument(false);
   };
 
   const exportDocuments = () => {
@@ -219,42 +148,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       description: "Documents exported successfully"
     });
   };
-
-  const documentTypes = [
-    'Passport',
-    'Visa',
-    'Driver\'s License',
-    'Travel Insurance',
-    'Flight Ticket',
-    'Hotel Booking',
-    'Vaccination Certificate',
-    'Travel Permit',
-    'Other'
-  ];
-
-  // Load documents from localStorage on component mount
-  useEffect(() => {
-    const savedDocuments = localStorage.getItem('travelDocuments');
-    const savedOfflineMode = localStorage.getItem('offlineMode');
-    
-    if (savedDocuments) {
-      setDocuments(JSON.parse(savedDocuments));
-    }
-    
-    if (savedOfflineMode) {
-      setIsOfflineMode(JSON.parse(savedOfflineMode));
-    }
-  }, []);
-
-  // Save documents to localStorage whenever documents change
-  useEffect(() => {
-    localStorage.setItem('travelDocuments', JSON.stringify(documents));
-  }, [documents]);
-
-  // Save offline mode preference
-  useEffect(() => {
-    localStorage.setItem('offlineMode', JSON.stringify(isOfflineMode));
-  }, [isOfflineMode]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -309,157 +202,16 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
         {/* Add/Edit Document Form */}
         {isAddingDocument && (
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>
-                {editingDocument ? 'Edit Document' : 'Add New Document'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="type">Document Type *</Label>
-                  <select
-                    id="type"
-                    value={newDocument.type}
-                    onChange={(e) => setNewDocument({...newDocument, type: e.target.value})}
-                    className="w-full p-2 border rounded-md"
-                  >
-                    <option value="">Select type</option>
-                    {documentTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="documentNumber">Document Number *</Label>
-                  <Input
-                    id="documentNumber"
-                    value={newDocument.documentNumber}
-                    onChange={(e) => setNewDocument({...newDocument, documentNumber: e.target.value})}
-                    placeholder="Enter document number"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="issueDate">Issue Date</Label>
-                  <Input
-                    id="issueDate"
-                    type="date"
-                    value={newDocument.issueDate}
-                    onChange={(e) => setNewDocument({...newDocument, issueDate: e.target.value})}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="expiryDate">Expiry Date</Label>
-                  <Input
-                    id="expiryDate"
-                    type="date"
-                    value={newDocument.expiryDate}
-                    onChange={(e) => setNewDocument({...newDocument, expiryDate: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="issuingCountry">Issuing Country</Label>
-                <Input
-                  id="issuingCountry"
-                  value={newDocument.issuingCountry}
-                  onChange={(e) => setNewDocument({...newDocument, issuingCountry: e.target.value})}
-                  placeholder="Enter issuing country"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={newDocument.notes}
-                  onChange={(e) => setNewDocument({...newDocument, notes: e.target.value})}
-                  placeholder="Additional notes..."
-                  rows={3}
-                />
-              </div>
-
-              {/* Photo Upload Section */}
-              <div>
-                <Label htmlFor="photo">Document Photo</Label>
-                <div className="mt-2">
-                  {newDocument.photo ? (
-                    <div className="relative">
-                      <img
-                        src={newDocument.photo}
-                        alt="Document preview"
-                        className="w-32 h-32 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
-                        onClick={removePhoto}
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600 mb-2">Upload a photo of your document</p>
-                      <input
-                        type="file"
-                        id="photo"
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => document.getElementById('photo')?.click()}
-                        className="flex items-center space-x-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        <span>Choose Photo</span>
-                      </Button>
-                      <p className="text-xs text-gray-500 mt-2">Max size: 5MB</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex space-x-2">
-                <Button
-                  onClick={editingDocument ? handleUpdateDocument : handleAddDocument}
-                >
-                  {editingDocument ? 'Update' : 'Add'} Document
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsAddingDocument(false);
-                    setEditingDocument(null);
-                    setNewDocument({
-                      type: '',
-                      documentNumber: '',
-                      issueDate: '',
-                      expiryDate: '',
-                      issuingCountry: '',
-                      notes: '',
-                      photo: ''
-                    });
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <DocumentForm
+            document={newDocument}
+            onDocumentChange={setNewDocument}
+            onSubmit={editingDocument ? handleUpdateDocument : handleAddDocument}
+            onCancel={() => {
+              setEditingDocument(null);
+              resetForm();
+            }}
+            isEditing={!!editingDocument}
+          />
         )}
 
         {/* Documents List */}
@@ -473,106 +225,14 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               </CardContent>
             </Card>
           ) : (
-            documents.map((document) => {
-              const daysToExpiry = calculateDaysToExpiry(document.expiryDate);
-              const expiryStatus = getExpiryStatus(daysToExpiry);
-              
-              return (
-                <Card key={document.id}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <FileText className="w-4 h-4 text-blue-600" />
-                            <h3 className="font-medium">{document.type}</h3>
-                          </div>
-                          
-                          {expiryStatus && (
-                            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${expiryStatus.bgColor} ${expiryStatus.color}`}>
-                              {expiryStatus.status === 'expired' ? (
-                                <AlertTriangle className="w-3 h-3" />
-                              ) : (
-                                <Clock className="w-3 h-3" />
-                              )}
-                              <span>{expiryStatus.text}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex space-x-4">
-                          {/* Document Photo */}
-                          {document.photo && (
-                            <div className="flex-shrink-0">
-                              <img
-                                src={document.photo}
-                                alt="Document"
-                                className="w-20 h-20 object-cover rounded-lg border"
-                              />
-                            </div>
-                          )}
-
-                          {/* Document Details */}
-                          <div className="flex-1">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <p className="text-gray-600">Document Number</p>
-                                <p className="font-medium">{document.documentNumber}</p>
-                              </div>
-                              
-                              {document.issuingCountry && (
-                                <div>
-                                  <p className="text-gray-600">Issuing Country</p>
-                                  <p className="font-medium">{document.issuingCountry}</p>
-                                </div>
-                              )}
-                              
-                              {document.issueDate && (
-                                <div>
-                                  <p className="text-gray-600">Issue Date</p>
-                                  <p className="font-medium">{new Date(document.issueDate).toLocaleDateString()}</p>
-                                </div>
-                              )}
-                              
-                              {document.expiryDate && (
-                                <div>
-                                  <p className="text-gray-600">Expiry Date</p>
-                                  <p className="font-medium">{new Date(document.expiryDate).toLocaleDateString()}</p>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {document.notes && (
-                              <div className="mt-3">
-                                <p className="text-gray-600 text-sm">Notes</p>
-                                <p className="text-sm">{document.notes}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex space-x-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditDocument(document)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteDocument(document.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
+            documents.map((document) => (
+              <DocumentCard
+                key={document.id}
+                document={document}
+                onEdit={handleEditDocument}
+                onDelete={handleDeleteDocument}
+              />
+            ))
           )}
         </div>
       </DialogContent>
