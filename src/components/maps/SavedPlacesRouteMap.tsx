@@ -119,10 +119,16 @@ const SavedPlacesRouteMap = ({ destination, places, onClose }: SavedPlacesRouteM
               </Button>
             ) : (
               <div className="text-center">
-                <Badge className="bg-green-100 text-green-800 px-4 py-2">
-                  <Navigation size={14} className="mr-1" />
-                  Optimal Route Generated
-                </Badge>
+                <div className="flex items-center justify-center space-x-4">
+                  <Badge className="bg-green-100 text-green-800 px-4 py-2">
+                    <Navigation size={14} className="mr-1" />
+                    Optimal Route Generated
+                  </Badge>
+                  <Button variant="outline" size="sm" onClick={onClose}>
+                    <X size={16} className="mr-1" />
+                    Close Route
+                  </Button>
+                </div>
                 <p className="text-sm text-gray-600 mt-2">
                   Total estimated time: {totalEstimatedTime} hours
                 </p>
