@@ -1,10 +1,10 @@
-
 import { useState } from "react";
-import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X } from "lucide-react";
+import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Collaborator {
   id: string;
@@ -76,7 +76,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold text-gray-800 flex items-center space-x-3">
@@ -106,26 +106,15 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-            {["overview", "itinerary", "collaborators"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors capitalize ${
-                  activeTab === tab
-                    ? "bg-white text-purple-700 shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+          {/* Tab Navigation using shadcn Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
+              <TabsTrigger value="collaborators">Collaborators</TabsTrigger>
+            </TabsList>
 
-          {/* Tab Content */}
-          {activeTab === "overview" && (
-            <div className="space-y-4">
+            <TabsContent value="overview" className="space-y-4 mt-6">
               <div>
                 <h4 className="font-semibold text-gray-800 mb-2">About This Trip</h4>
                 <p className="text-gray-600 text-sm leading-relaxed">
@@ -154,34 +143,171 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                   <p className="text-gray-600 text-sm">{trip.transportation || "Flights, trains, and local transport"}</p>
                 </CardContent>
               </Card>
-            </div>
-          )}
+            </TabsContent>
 
-          {activeTab === "itinerary" && (
-            <div className="space-y-4">
-              <h4 className="font-semibold text-gray-800">Destinations</h4>
-              <div className="space-y-3">
+            <TabsContent value="itinerary" className="space-y-6 mt-6">
+              {/* Flight Booking Section */}
+              <Card className="border-purple-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center space-x-2">
+                    <Plane className="text-purple-600" size={20} />
+                    <span>Flight Booking</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h5 className="font-medium text-purple-800 mb-2">Round-trip Flight</h5>
+                    <p className="text-sm text-purple-600 mb-3">
+                      From your location to {trip.coordinates[0]?.name}
+                    </p>
+                    <div className="flex space-x-2">
+                      <Button className="bg-purple-600 hover:bg-purple-700">
+                        Search Flights
+                      </Button>
+                      <Button variant="outline" className="border-purple-300 text-purple-600">
+                        Compare Prices
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Destinations and Booking Options */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-gray-800 flex items-center space-x-2">
+                  <MapPin size={18} />
+                  <span>Destinations & Bookings</span>
+                </h4>
+                
                 {trip.coordinates.map((location, index) => (
-                  <Card key={index}>
+                  <Card key={index} className="border-l-4 border-l-orange-400">
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h5 className="font-medium text-gray-800">{location.name}</h5>
-                          <p className="text-gray-600 text-sm">Day {index + 1} - {index + 2}</p>
+                      <div className="space-y-4">
+                        {/* Destination Info */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium text-gray-800">{location.name}</h5>
+                            <p className="text-gray-600 text-sm">Day {index + 1} - {index + 2}</p>
+                          </div>
+                          <div className="text-gray-400 text-sm">
+                            {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                          </div>
                         </div>
-                        <div className="text-gray-400 text-sm">
-                          {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+
+                        {/* Booking Options */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Airport Transfer */}
+                          {index === 0 && (
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Car className="text-blue-600" size={16} />
+                                <h6 className="font-medium text-blue-800">Airport Transfer</h6>
+                              </div>
+                              <p className="text-xs text-blue-600 mb-2">
+                                From airport to accommodation
+                              </p>
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs">
+                                Book Transfer
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Hotel Booking */}
+                          <div className="bg-green-50 p-3 rounded-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Building className="text-green-600" size={16} />
+                              <h6 className="font-medium text-green-800">Hotel Options</h6>
+                            </div>
+                            <p className="text-xs text-green-600 mb-2">
+                              Best rates in {location.name}
+                            </p>
+                            <div className="flex space-x-2">
+                              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-xs">
+                                Search Hotels
+                              </Button>
+                              <Button size="sm" variant="outline" className="border-green-300 text-green-600 text-xs">
+                                View Deals
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* Local Transport (for destinations after the first) */}
+                          {index > 0 && (
+                            <div className="bg-orange-50 p-3 rounded-lg">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Car className="text-orange-600" size={16} />
+                                <h6 className="font-medium text-orange-800">Transport to {location.name}</h6>
+                              </div>
+                              <p className="text-xs text-orange-600 mb-2">
+                                From {trip.coordinates[index - 1]?.name}
+                              </p>
+                              <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-xs">
+                                Book Transport
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Activities */}
+                          <div className="bg-purple-50 p-3 rounded-lg">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <MapPin className="text-purple-600" size={16} />
+                              <h6 className="font-medium text-purple-800">Activities & Tours</h6>
+                            </div>
+                            <p className="text-xs text-purple-600 mb-2">
+                              Explore {location.name}
+                            </p>
+                            <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-xs">
+                              Find Tours
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Quick Info */}
+                        <div className="border-t pt-3 mt-3">
+                          <div className="grid grid-cols-3 gap-4 text-xs text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Clock size={12} />
+                              <span>2-3 days</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Building size={12} />
+                              <span>Hotels available</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <ExternalLink size={12} />
+                              <span>Book online</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-            </div>
-          )}
 
-          {activeTab === "collaborators" && (
-            <div className="space-y-4">
+              {/* Package Deals */}
+              <Card className="bg-gradient-to-r from-purple-50 to-orange-50 border-0">
+                <CardHeader>
+                  <CardTitle className="text-lg text-gray-800">Package Deals</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="bg-white p-4 rounded-lg border">
+                    <h5 className="font-medium text-gray-800 mb-2">Complete Trip Package</h5>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Flights + Hotels + Transfers for the entire trip
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-green-600">Save up to 25%</span>
+                      <Button className="bg-gradient-to-r from-purple-600 to-orange-500">
+                        Book Package
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="collaborators" className="space-y-4 mt-6">
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold text-gray-800">Trip Collaborators</h4>
                 {trip.isGroupTrip && (
@@ -222,8 +348,8 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                   <p className="text-sm">Convert to group trip to add collaborators</p>
                 </div>
               )}
-            </div>
-          )}
+            </TabsContent>
+          </Tabs>
 
           {/* Action Buttons */}
           <div className="flex space-x-3 pt-4 border-t">
