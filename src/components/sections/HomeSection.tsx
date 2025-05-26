@@ -123,7 +123,11 @@ const HomeSection = () => {
             </div>
           </div>
         </div>
-        <p className="text-gray-600 mt-2 text-center">Your smart travel companion</p>
+        <p className="mt-2 text-center">
+          <span className="text-purple-600 font-semibold">Travel Smart</span>
+          <span className="text-gray-600">, </span>
+          <span className="text-orange-500 font-semibold">Travel More</span>
+        </p>
       </div>
 
       {/* Quick Stats */}
