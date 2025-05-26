@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Plus, Edit, Trash2, Download, Upload, Wifi, WifiOff, AlertTriangle, Clock } from "lucide-react";
+import { FileText, Plus, Edit, Trash2, Download, Upload, Wifi, WifiOff, AlertTriangle, Clock, Camera, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface TravelDocument {
@@ -18,6 +18,7 @@ interface TravelDocument {
   expiryDate: string;
   issuingCountry: string;
   notes?: string;
+  photo?: string; // base64 encoded image
 }
 
 interface TravelDocumentsModalProps {
@@ -36,7 +37,8 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     issueDate: '',
     expiryDate: '',
     issuingCountry: '',
-    notes: ''
+    notes: '',
+    photo: ''
   });
   const { toast } = useToast();
 
@@ -89,6 +91,46 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     }
   };
 
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "File size must be less than 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Please upload an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setNewDocument({ ...newDocument, photo: base64 });
+      toast({
+        title: "Success",
+        description: "Photo uploaded successfully"
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removePhoto = () => {
+    setNewDocument({ ...newDocument, photo: '' });
+  };
+
   const handleAddDocument = () => {
     if (!newDocument.type || !newDocument.documentNumber) {
       toast({
@@ -111,7 +153,8 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       issueDate: '',
       expiryDate: '',
       issuingCountry: '',
-      notes: ''
+      notes: '',
+      photo: ''
     });
     setIsAddingDocument(false);
     
@@ -142,7 +185,8 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       issueDate: '',
       expiryDate: '',
       issuingCountry: '',
-      notes: ''
+      notes: '',
+      photo: ''
     });
     setIsAddingDocument(false);
     
@@ -187,6 +231,30 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     'Travel Permit',
     'Other'
   ];
+
+  // Load documents from localStorage on component mount
+  useEffect(() => {
+    const savedDocuments = localStorage.getItem('travelDocuments');
+    const savedOfflineMode = localStorage.getItem('offlineMode');
+    
+    if (savedDocuments) {
+      setDocuments(JSON.parse(savedDocuments));
+    }
+    
+    if (savedOfflineMode) {
+      setIsOfflineMode(JSON.parse(savedOfflineMode));
+    }
+  }, []);
+
+  // Save documents to localStorage whenever documents change
+  useEffect(() => {
+    localStorage.setItem('travelDocuments', JSON.stringify(documents));
+  }, [documents]);
+
+  // Save offline mode preference
+  useEffect(() => {
+    localStorage.setItem('offlineMode', JSON.stringify(isOfflineMode));
+  }, [isOfflineMode]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -318,6 +386,53 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                 />
               </div>
 
+              {/* Photo Upload Section */}
+              <div>
+                <Label htmlFor="photo">Document Photo</Label>
+                <div className="mt-2">
+                  {newDocument.photo ? (
+                    <div className="relative">
+                      <img
+                        src={newDocument.photo}
+                        alt="Document preview"
+                        className="w-32 h-32 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+                        onClick={removePhoto}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                      <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600 mb-2">Upload a photo of your document</p>
+                      <input
+                        type="file"
+                        id="photo"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('photo')?.click()}
+                        className="flex items-center space-x-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        <span>Choose Photo</span>
+                      </Button>
+                      <p className="text-xs text-gray-500 mt-2">Max size: 5MB</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex space-x-2">
                 <Button
                   onClick={editingDocument ? handleUpdateDocument : handleAddDocument}
@@ -335,7 +450,8 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                       issueDate: '',
                       expiryDate: '',
                       issuingCountry: '',
-                      notes: ''
+                      notes: '',
+                      photo: ''
                     });
                   }}
                 >
@@ -383,41 +499,57 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                             </div>
                           )}
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-600">Document Number</p>
-                            <p className="font-medium">{document.documentNumber}</p>
+
+                        <div className="flex space-x-4">
+                          {/* Document Photo */}
+                          {document.photo && (
+                            <div className="flex-shrink-0">
+                              <img
+                                src={document.photo}
+                                alt="Document"
+                                className="w-20 h-20 object-cover rounded-lg border"
+                              />
+                            </div>
+                          )}
+
+                          {/* Document Details */}
+                          <div className="flex-1">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-gray-600">Document Number</p>
+                                <p className="font-medium">{document.documentNumber}</p>
+                              </div>
+                              
+                              {document.issuingCountry && (
+                                <div>
+                                  <p className="text-gray-600">Issuing Country</p>
+                                  <p className="font-medium">{document.issuingCountry}</p>
+                                </div>
+                              )}
+                              
+                              {document.issueDate && (
+                                <div>
+                                  <p className="text-gray-600">Issue Date</p>
+                                  <p className="font-medium">{new Date(document.issueDate).toLocaleDateString()}</p>
+                                </div>
+                              )}
+                              
+                              {document.expiryDate && (
+                                <div>
+                                  <p className="text-gray-600">Expiry Date</p>
+                                  <p className="font-medium">{new Date(document.expiryDate).toLocaleDateString()}</p>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {document.notes && (
+                              <div className="mt-3">
+                                <p className="text-gray-600 text-sm">Notes</p>
+                                <p className="text-sm">{document.notes}</p>
+                              </div>
+                            )}
                           </div>
-                          
-                          {document.issuingCountry && (
-                            <div>
-                              <p className="text-gray-600">Issuing Country</p>
-                              <p className="font-medium">{document.issuingCountry}</p>
-                            </div>
-                          )}
-                          
-                          {document.issueDate && (
-                            <div>
-                              <p className="text-gray-600">Issue Date</p>
-                              <p className="font-medium">{new Date(document.issueDate).toLocaleDateString()}</p>
-                            </div>
-                          )}
-                          
-                          {document.expiryDate && (
-                            <div>
-                              <p className="text-gray-600">Expiry Date</p>
-                              <p className="font-medium">{new Date(document.expiryDate).toLocaleDateString()}</p>
-                            </div>
-                          )}
                         </div>
-                        
-                        {document.notes && (
-                          <div className="mt-3">
-                            <p className="text-gray-600 text-sm">Notes</p>
-                            <p className="text-sm">{document.notes}</p>
-                          </div>
-                        )}
                       </div>
                       
                       <div className="flex space-x-2 ml-4">
