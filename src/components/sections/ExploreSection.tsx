@@ -1,8 +1,8 @@
-
-import { Search, Star, MapPin, Filter } from "lucide-react";
+import { Search, Star, MapPin, Filter, Bell } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
@@ -11,6 +11,9 @@ import TravelersSection from "./TravelersSection";
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Notification count state
+  const [notificationCount] = useState(5); // Example count for new notifications
 
   const popularPlaces = [
     {
@@ -71,12 +74,37 @@ const ExploreSection = () => {
     setSelectedPlace(null);
   };
 
+  const handleNotificationClick = () => {
+    // This could open a notification dropdown or modal
+    console.log("Notification bell clicked - showing new travelers, messages, places");
+  };
+
   return (
     <div className="min-h-screen p-4 space-y-6">
-      {/* Header */}
-      <div className="pt-8 pb-4">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Explore</h2>
-        <p className="text-gray-600">Discover amazing places and connect with fellow travelers</p>
+      {/* Header with Notification Bell */}
+      <div className="pt-8 pb-4 flex justify-between items-start">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">Explore</h2>
+          <p className="text-gray-600">Discover amazing places and connect with fellow travelers</p>
+        </div>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleNotificationClick}
+            className="relative p-2 hover:bg-gray-100 rounded-full"
+          >
+            <Bell size={24} className="text-gray-600" />
+            {notificationCount > 0 && (
+              <Badge
+                variant="destructive"
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 min-w-[20px]"
+              >
+                {notificationCount > 9 ? '9+' : notificationCount}
+              </Badge>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Search Bar */}
