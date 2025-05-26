@@ -11,6 +11,7 @@ interface InstaTripImage {
   id: string;
   src: string;
   addedAt: number;
+  text?: string;
 }
 
 const HomeSection = () => {
@@ -51,11 +52,12 @@ const HomeSection = () => {
     setNotificationCount(0);
   };
 
-  const handleAddInstaTripImage = (imageSrc: string) => {
+  const handleAddInstaTripImage = (imageSrc: string, text?: string) => {
     const newImage: InstaTripImage = {
       id: Date.now().toString(),
       src: imageSrc,
-      addedAt: Date.now()
+      addedAt: Date.now(),
+      text: text
     };
     setInstaTripImages(prev => [...prev, newImage]);
   };

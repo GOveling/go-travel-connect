@@ -9,6 +9,7 @@ interface InstaTripImage {
   id: string;
   src: string;
   addedAt: number;
+  text?: string;
 }
 
 interface InstaTripModalProps {
@@ -94,6 +95,13 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
+                    {image.text && (
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="bg-black/70 text-white p-3 rounded-lg backdrop-blur-sm">
+                          <p className="text-sm">{image.text}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CarouselItem>
               ))}
