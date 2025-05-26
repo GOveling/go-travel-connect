@@ -27,7 +27,8 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     description: "",
     isGroupTrip: false,
     accommodation: "",
-    transportation: ""
+    transportation: "",
+    datesNotSet: false
   });
 
   const handleInputChange = (field: string, value: any) => {
@@ -37,13 +38,31 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     }));
   };
 
+  const handleNotSureYet = () => {
+    setFormData(prev => ({
+      ...prev,
+      startDate: "",
+      endDate: "",
+      datesNotSet: true
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.destination || !formData.startDate || !formData.endDate) {
+    if (!formData.name || !formData.destination) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in the trip name and destination.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.datesNotSet && (!formData.startDate || !formData.endDate)) {
+      toast({
+        title: "Missing Dates",
+        description: "Please select dates or click 'Not sure yet' to continue without dates.",
         variant: "destructive"
       });
       return;
@@ -53,7 +72,9 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       id: Date.now(),
       name: formData.name,
       destination: formData.destination,
-      dates: `${new Date(formData.startDate).toLocaleDateString()} - ${new Date(formData.endDate).toLocaleDateString()}`,
+      dates: formData.datesNotSet 
+        ? "Dates TBD" 
+        : `${new Date(formData.startDate).toLocaleDateString()} - ${new Date(formData.endDate).toLocaleDateString()}`,
       status: "planning",
       travelers: formData.travelers,
       image: "🌍",
@@ -63,6 +84,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       accommodation: formData.accommodation,
       transportation: formData.transportation,
       coordinates: [],
+      datesNotSet: formData.datesNotSet,
       ...(formData.isGroupTrip && {
         collaborators: [
           { id: "1", name: "You", email: "you@example.com", avatar: "YO", role: "owner" as const }
@@ -88,7 +110,8 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       description: "",
       isGroupTrip: false,
       accommodation: "",
-      transportation: ""
+      transportation: "",
+      datesNotSet: false
     });
 
     onClose();
@@ -138,34 +161,64 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="startDate" className="text-sm font-medium flex items-center gap-1">
-                  <Calendar size={16} />
-                  Start Date *
-                </Label>
-                <Input
-                  id="startDate"
-                  type="date"
-                  value={formData.startDate}
-                  onChange={(e) => handleInputChange("startDate", e.target.value)}
-                  className="mt-1"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="endDate" className="text-sm font-medium">
-                  End Date *
-                </Label>
-                <Input
-                  id="endDate"
-                  type="date"
-                  value={formData.endDate}
-                  onChange={(e) => handleInputChange("endDate", e.target.value)}
-                  className="mt-1"
-                  required
-                />
-              </div>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium flex items-center gap-1">
+                <Calendar size={16} />
+                Travel Dates
+              </Label>
+              
+              {formData.datesNotSet ? (
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-700 mb-2">Dates will be decided later</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleInputChange("datesNotSet", false)}
+                    className="text-blue-600 border-blue-300"
+                  >
+                    Set Dates Now
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="startDate" className="text-sm font-medium">
+                        Start Date
+                      </Label>
+                      <Input
+                        id="startDate"
+                        type="date"
+                        value={formData.startDate}
+                        onChange={(e) => handleInputChange("startDate", e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="endDate" className="text-sm font-medium">
+                        End Date
+                      </Label>
+                      <Input
+                        id="endDate"
+                        type="date"
+                        value={formData.endDate}
+                        onChange={(e) => handleInputChange("endDate", e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNotSureYet}
+                    className="w-full text-gray-600 border-gray-300 hover:bg-gray-50"
+                  >
+                    Not sure yet
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div>
