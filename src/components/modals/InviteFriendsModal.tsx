@@ -127,11 +127,17 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   const handleCreateDecision = () => {
     if (!newDecision.title || newDecision.options.some(opt => !opt.trim())) return;
     
+    const validOptions = newDecision.options.filter(opt => opt.trim());
+    const initialVotes: Record<string, number> = {};
+    validOptions.forEach(option => {
+      initialVotes[option] = 0;
+    });
+    
     const decision = {
       id: Date.now(),
       title: newDecision.title,
-      options: newDecision.options.filter(opt => opt.trim()),
-      votes: {},
+      options: validOptions,
+      votes: initialVotes,
       status: "active",
       endDate: newDecision.endDate
     };
