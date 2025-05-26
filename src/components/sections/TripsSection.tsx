@@ -1,12 +1,14 @@
-
 import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import TripMap from "@/components/maps/TripMap";
+import TripDetailModal from "@/components/modals/TripDetailModal";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const [showTripDetail, setShowTripDetail] = useState(false);
   
   const trips = [
     {
@@ -27,7 +29,11 @@ const TripsSection = () => {
         { name: "Paris", lat: 48.8566, lng: 2.3522 },
         { name: "Rome", lat: 41.9028, lng: 12.4964 },
         { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
-      ]
+      ],
+      description: "A wonderful journey through Europe's most iconic cities, exploring rich history, amazing cuisine, and beautiful architecture.",
+      budget: "$3,500 per person",
+      accommodation: "Mix of boutique hotels and Airbnb",
+      transportation: "Flights and high-speed trains"
     },
     {
       id: 2,
@@ -40,7 +46,11 @@ const TripsSection = () => {
       isGroupTrip: false,
       coordinates: [
         { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
-      ]
+      ],
+      description: "Immerse yourself in Japanese culture, from traditional temples to modern technology and incredible food experiences.",
+      budget: "$2,800 per person",
+      accommodation: "Traditional ryokan and modern hotels",
+      transportation: "JR Pass and local trains"
     },
     {
       id: 3,
@@ -58,7 +68,11 @@ const TripsSection = () => {
       ],
       coordinates: [
         { name: "Bali", lat: -8.3405, lng: 115.0920 }
-      ]
+      ],
+      description: "A relaxing retreat in paradise with yoga sessions, beautiful beaches, and spiritual experiences in temples.",
+      budget: "$1,800 per person",
+      accommodation: "Beach resort and villas",
+      transportation: "Private transfers and scooters"
     }
   ];
 
@@ -86,6 +100,11 @@ const TripsSection = () => {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const handleViewDetails = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowTripDetail(true);
   };
 
   if (showMap) {
@@ -246,7 +265,11 @@ const TripsSection = () => {
                         Share Trip
                       </Button>
                     )}
-                    <Button size="sm" className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500">
+                    <Button 
+                      size="sm" 
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
+                      onClick={() => handleViewDetails(trip)}
+                    >
                       View Details
                     </Button>
                   </div>
@@ -307,6 +330,16 @@ const TripsSection = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Trip Detail Modal */}
+      <TripDetailModal 
+        trip={selectedTrip}
+        isOpen={showTripDetail}
+        onClose={() => {
+          setShowTripDetail(false);
+          setSelectedTrip(null);
+        }}
+      />
     </div>
   );
 };
