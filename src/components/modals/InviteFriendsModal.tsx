@@ -40,6 +40,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   const [shareMessage, setShareMessage] = useState("");
   const [linkCopied, setLinkCopied] = useState(false);
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
+  const [collaborators, setCollaborators] = useState(trip?.collaborators || []);
   
   // Mock data for demonstration
   const [expenses, setExpenses] = useState<Expense[]>([
@@ -210,6 +211,18 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     }
   };
 
+  const handleDeleteCollaborator = (collaboratorId: string) => {
+    setCollaborators(collaborators.filter((collab: any) => collab.id !== collaboratorId));
+  };
+
+  const handleChangeCollaboratorRole = (collaboratorId: string, newRole: string) => {
+    setCollaborators(collaborators.map((collab: any) => 
+      collab.id === collaboratorId 
+        ? { ...collab, role: newRole }
+        : collab
+    ));
+  };
+
   if (!trip) return null;
 
   return (
@@ -299,7 +312,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {trip.collaborators?.map((collaborator: any) => (
+                  {collaborators?.map((collaborator: any) => (
                     <div key={collaborator.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-white text-sm">
@@ -310,9 +323,56 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                           <p className="text-sm text-gray-600">{collaborator.email}</p>
                         </div>
                       </div>
-                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
-                        {collaborator.role}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        {collaborator.role !== 'owner' ? (
+                          <>
+                            <Select
+                              value={collaborator.role}
+                              onValueChange={(value) => handleChangeCollaboratorRole(collaborator.id, value)}
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="editor">Editor</SelectItem>
+                                <SelectItem value="viewer">Viewer</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <X size={16} />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Remove Collaborator</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to remove {collaborator.name} from this trip? They will lose access to the trip and all collaboration features.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteCollaborator(collaborator.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Remove
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </>
+                        ) : (
+                          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full">
+                            {collaborator.role}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
