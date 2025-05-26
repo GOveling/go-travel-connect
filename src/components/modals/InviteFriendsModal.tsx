@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Share2, DollarSign, Vote, Calendar, MapPin, Send, Copy, Check, Edit } from "lucide-react";
+import { Users, Share2, DollarSign, Vote, Calendar, MapPin, Send, Copy, Check, Edit, X } from "lucide-react";
 
 interface InviteFriendsModalProps {
   isOpen: boolean;
@@ -146,6 +147,10 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
       splitBetween: expense.splitBetween
     });
     setEditingExpenseId(expense.id);
+  };
+
+  const handleDeleteExpense = (expenseId: number) => {
+    setExpenses(expenses.filter(expense => expense.id !== expenseId));
   };
 
   const handleCancelEdit = () => {
@@ -411,14 +416,44 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                         <TableCell>{expense.splitBetween.join(", ")}</TableCell>
                         <TableCell>{expense.date}</TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditExpense(expense)}
-                          >
-                            <Edit size={16} className="mr-1" />
-                            Edit
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditExpense(expense)}
+                            >
+                              <Edit size={16} className="mr-1" />
+                              Edit
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <X size={16} />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete the expense "{expense.description}"? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteExpense(expense.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
