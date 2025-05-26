@@ -1,16 +1,38 @@
-
 import { MapPin, Calendar, Camera, Bell, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import AddMemoryModal from "@/components/modals/AddMemoryModal";
+import InstaTripModal from "@/components/modals/InstaTripModal";
+
+interface InstaTripImage {
+  id: string;
+  src: string;
+  addedAt: number;
+}
 
 const HomeSection = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(5); // Example count for new notifications
+  const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(5);
+  const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
+
+  // Clean up expired images periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const twelveHoursAgo = now - (12 * 60 * 60 * 1000);
+      
+      setInstaTripImages(prev => 
+        prev.filter(image => image.addedAt >= twelveHoursAgo)
+      );
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleNotificationClick = () => {
     setIsNotificationModalOpen(true);
@@ -22,11 +44,24 @@ const HomeSection = () => {
 
   const handleInstaTripClick = () => {
     console.log("InstanTrip button clicked");
-    // TODO: Implement InstanTrip functionality
+    setIsInstaTripModalOpen(true);
   };
 
   const handleMarkAllNotificationsRead = () => {
     setNotificationCount(0);
+  };
+
+  const handleAddInstaTripImage = (imageSrc: string) => {
+    const newImage: InstaTripImage = {
+      id: Date.now().toString(),
+      src: imageSrc,
+      addedAt: Date.now()
+    };
+    setInstaTripImages(prev => [...prev, newImage]);
+  };
+
+  const handleRemoveInstaTripImage = (id: string) => {
+    setInstaTripImages(prev => prev.filter(image => image.id !== id));
   };
 
   return (
@@ -45,13 +80,23 @@ const HomeSection = () => {
           
           {/* InstanTrip button in the center */}
           <div className="flex-1 flex justify-center">
-            <Button
-              onClick={handleInstaTripClick}
-              className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white px-6 py-2 rounded-full shadow-lg"
-            >
-              <Plus size={20} className="mr-2" />
-              InstanTrip
-            </Button>
+            <div className="relative">
+              <Button
+                onClick={handleInstaTripClick}
+                className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white px-6 py-2 rounded-full shadow-lg"
+              >
+                <Plus size={20} className="mr-2" />
+                InstanTrip
+              </Button>
+              {instaTripImages.length > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 min-w-[20px]"
+                >
+                  {instaTripImages.length > 9 ? '9+' : instaTripImages.length}
+                </Badge>
+              )}
+            </div>
           </div>
           
           {/* Notification bell on the right */}
@@ -171,6 +216,14 @@ const HomeSection = () => {
       <AddMemoryModal
         isOpen={isAddMemoryModalOpen}
         onClose={() => setIsAddMemoryModalOpen(false)}
+        onAddInstaTripImage={handleAddInstaTripImage}
+      />
+
+      <InstaTripModal
+        isOpen={isInstaTripModalOpen}
+        onClose={() => setIsInstaTripModalOpen(false)}
+        images={instaTripImages}
+        onRemoveImage={handleRemoveInstaTripImage}
       />
     </div>
   );

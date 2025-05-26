@@ -1,18 +1,63 @@
 
-import { Camera, MapPin, Share, Plus } from "lucide-react";
+import { Camera, MapPin, Share, Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddInstaTripImage?: (image: string) => void;
 }
 
-const AddMemoryModal = ({ isOpen, onClose }: AddMemoryModalProps) => {
+const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModalProps) => {
+  const { toast } = useToast();
+
   const handleInstanTrip = () => {
     console.log("Add InstanTrip clicked");
-    // TODO: Implement InstanTrip functionality
-    onClose();
+    
+    // Create file input for image selection
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "File size must be less than 5MB",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Please upload an image file",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        onAddInstaTripImage?.(base64);
+        toast({
+          title: "Success",
+          description: "Photo added to InstanTrip!"
+        });
+        onClose();
+      };
+      reader.readAsDataURL(file);
+    };
+    
+    input.click();
   };
 
   const handleCreatePublication = () => {
@@ -43,11 +88,11 @@ const AddMemoryModal = ({ isOpen, onClose }: AddMemoryModalProps) => {
             className="w-full h-16 flex items-center justify-start gap-4 text-left border-2 border-purple-200 hover:bg-purple-50 text-purple-700 p-4"
           >
             <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <Plus size={20} className="text-purple-600" />
+              <Upload size={20} className="text-purple-600" />
             </div>
             <div>
               <p className="font-medium">Add InstanTrip</p>
-              <p className="text-sm text-gray-500">Create a quick trip memory</p>
+              <p className="text-sm text-gray-500">Upload a photo for your InstanTrip story</p>
             </div>
           </Button>
 
