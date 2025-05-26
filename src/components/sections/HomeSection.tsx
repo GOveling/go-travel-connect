@@ -2,18 +2,55 @@
 import { MapPin, Calendar, Camera, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 
 const HomeSection = () => {
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(5); // Example count for new notifications
+
+  const handleNotificationClick = () => {
+    setIsNotificationModalOpen(true);
+  };
+
+  const handleMarkAllNotificationsRead = () => {
+    setNotificationCount(0);
+  };
+
   return (
     <div className="min-h-screen p-4 space-y-6">
-      {/* Header */}
+      {/* Header with Notification Bell */}
       <div className="text-center pt-8 pb-4">
-        <div className="flex justify-center mb-4">
-          <img 
-            src="/lovable-uploads/3e9a8a6e-d543-437e-a44d-2f16fac6303f.png" 
-            alt="GOveling Logo" 
-            className="h-24 w-auto"
-          />
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1"></div>
+          <div className="flex justify-center flex-1">
+            <img 
+              src="/lovable-uploads/3e9a8a6e-d543-437e-a44d-2f16fac6303f.png" 
+              alt="GOveling Logo" 
+              className="h-24 w-auto"
+            />
+          </div>
+          <div className="flex-1 flex justify-end">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleNotificationClick}
+                className="relative p-2 hover:bg-gray-100 rounded-full"
+              >
+                <Bell size={24} className="text-gray-600" />
+                {notificationCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 min-w-[20px]"
+                  >
+                    {notificationCount > 9 ? '9+' : notificationCount}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
         <p className="text-gray-600 mt-2">Your smart travel companion</p>
       </div>
@@ -95,6 +132,13 @@ const HomeSection = () => {
           </div>
         </CardContent>
       </Card>
+
+      <NotificationAlertsModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        notificationCount={notificationCount}
+        onMarkAllRead={handleMarkAllNotificationsRead}
+      />
     </div>
   );
 };
