@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Plus, Edit, Trash2, Download, Upload, Wifi, WifiOff } from "lucide-react";
+import { FileText, Plus, Edit, Trash2, Download, Upload, Wifi, WifiOff, AlertTriangle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface TravelDocument {
@@ -63,6 +63,31 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   useEffect(() => {
     localStorage.setItem('offlineMode', JSON.stringify(isOfflineMode));
   }, [isOfflineMode]);
+
+  const calculateDaysToExpiry = (expiryDate: string) => {
+    if (!expiryDate) return null;
+    
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const timeDiff = expiry.getTime() - today.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    return daysDiff;
+  };
+
+  const getExpiryStatus = (daysToExpiry: number | null) => {
+    if (daysToExpiry === null) return null;
+    
+    if (daysToExpiry < 0) {
+      return { status: 'expired', color: 'text-red-600', bgColor: 'bg-red-50', text: 'Expired' };
+    } else if (daysToExpiry <= 30) {
+      return { status: 'expiring-soon', color: 'text-orange-600', bgColor: 'bg-orange-50', text: `${daysToExpiry} days left` };
+    } else if (daysToExpiry <= 90) {
+      return { status: 'expires-soon', color: 'text-yellow-600', bgColor: 'bg-yellow-50', text: `${daysToExpiry} days left` };
+    } else {
+      return { status: 'valid', color: 'text-green-600', bgColor: 'bg-green-50', text: `${daysToExpiry} days left` };
+    }
+  };
 
   const handleAddDocument = () => {
     if (!newDocument.type || !newDocument.documentNumber) {
@@ -332,72 +357,90 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               </CardContent>
             </Card>
           ) : (
-            documents.map((document) => (
-              <Card key={document.id}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <FileText className="w-4 h-4 text-blue-600" />
-                        <h3 className="font-medium">{document.type}</h3>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-600">Document Number</p>
-                          <p className="font-medium">{document.documentNumber}</p>
+            documents.map((document) => {
+              const daysToExpiry = calculateDaysToExpiry(document.expiryDate);
+              const expiryStatus = getExpiryStatus(daysToExpiry);
+              
+              return (
+                <Card key={document.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <FileText className="w-4 h-4 text-blue-600" />
+                            <h3 className="font-medium">{document.type}</h3>
+                          </div>
+                          
+                          {expiryStatus && (
+                            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${expiryStatus.bgColor} ${expiryStatus.color}`}>
+                              {expiryStatus.status === 'expired' ? (
+                                <AlertTriangle className="w-3 h-3" />
+                              ) : (
+                                <Clock className="w-3 h-3" />
+                              )}
+                              <span>{expiryStatus.text}</span>
+                            </div>
+                          )}
                         </div>
                         
-                        {document.issuingCountry && (
+                        <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p className="text-gray-600">Issuing Country</p>
-                            <p className="font-medium">{document.issuingCountry}</p>
+                            <p className="text-gray-600">Document Number</p>
+                            <p className="font-medium">{document.documentNumber}</p>
                           </div>
-                        )}
+                          
+                          {document.issuingCountry && (
+                            <div>
+                              <p className="text-gray-600">Issuing Country</p>
+                              <p className="font-medium">{document.issuingCountry}</p>
+                            </div>
+                          )}
+                          
+                          {document.issueDate && (
+                            <div>
+                              <p className="text-gray-600">Issue Date</p>
+                              <p className="font-medium">{new Date(document.issueDate).toLocaleDateString()}</p>
+                            </div>
+                          )}
+                          
+                          {document.expiryDate && (
+                            <div>
+                              <p className="text-gray-600">Expiry Date</p>
+                              <p className="font-medium">{new Date(document.expiryDate).toLocaleDateString()}</p>
+                            </div>
+                          )}
+                        </div>
                         
-                        {document.issueDate && (
-                          <div>
-                            <p className="text-gray-600">Issue Date</p>
-                            <p className="font-medium">{new Date(document.issueDate).toLocaleDateString()}</p>
-                          </div>
-                        )}
-                        
-                        {document.expiryDate && (
-                          <div>
-                            <p className="text-gray-600">Expiry Date</p>
-                            <p className="font-medium">{new Date(document.expiryDate).toLocaleDateString()}</p>
+                        {document.notes && (
+                          <div className="mt-3">
+                            <p className="text-gray-600 text-sm">Notes</p>
+                            <p className="text-sm">{document.notes}</p>
                           </div>
                         )}
                       </div>
                       
-                      {document.notes && (
-                        <div className="mt-3">
-                          <p className="text-gray-600 text-sm">Notes</p>
-                          <p className="text-sm">{document.notes}</p>
-                        </div>
-                      )}
+                      <div className="flex space-x-2 ml-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditDocument(document)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteDocument(document.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                    
-                    <div className="flex space-x-2 ml-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditDocument(document)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteDocument(document.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              );
+            })
           )}
         </div>
       </DialogContent>
