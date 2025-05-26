@@ -180,10 +180,10 @@ const ExploreSection = () => {
             </div>
           </Card>
 
-          {/* Popular Places */}
+          {/* Trending Places */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">Popular Places</h3>
+              <h3 className="text-xl font-semibold text-gray-800">Trending Places</h3>
               <Button variant="ghost" size="sm" className="text-purple-600">
                 View All
               </Button>
