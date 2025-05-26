@@ -1,15 +1,25 @@
 
 import { useState, useEffect } from "react";
-import { X, Camera } from "lucide-react";
+import { X, Camera, MapPin, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface InstaTripImage {
   id: string;
   src: string;
   addedAt: number;
   text?: string;
+  location?: string;
+  tripId?: number;
+}
+
+interface Trip {
+  id: number;
+  name: string;
+  destination: string;
 }
 
 interface InstaTripModalProps {
@@ -20,7 +30,15 @@ interface InstaTripModalProps {
 }
 
 const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripModalProps) => {
+  const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Mock trips data - in a real app this would come from props or context
+  const trips: Trip[] = [
+    { id: 1, name: "European Adventure", destination: "Paris → Rome → Barcelona" },
+    { id: 2, name: "Tokyo Discovery", destination: "Tokyo, Japan" },
+    { id: 3, name: "Bali Retreat", destination: "Bali, Indonesia" }
+  ];
 
   // Auto-advance images every 15 seconds
   useEffect(() => {
@@ -44,6 +62,16 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
       }
     });
   }, [images, onRemoveImage]);
+
+  const handleAddToTrip = (imageLocation: string, tripId: number) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (trip) {
+      toast({
+        title: "Location Added to Trip",
+        description: `${imageLocation} has been added to ${trip.name}`,
+      });
+    }
+  };
 
   if (images.length === 0) {
     return (
@@ -95,13 +123,49 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
-                    {image.text && (
-                      <div className="absolute bottom-4 left-4 right-4">
+                    
+                    {/* Location and trip info overlay */}
+                    <div className="absolute bottom-4 left-4 right-4 space-y-2">
+                      {image.location && (
+                        <div className="bg-black/70 text-white p-3 rounded-lg backdrop-blur-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <MapPin size={16} />
+                            <span className="text-sm font-medium">{image.location}</span>
+                          </div>
+                          
+                          {/* Add to trip options */}
+                          <div className="space-y-2">
+                            <p className="text-xs text-gray-300">Add this place to a trip:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {trips.map((trip) => (
+                                <Button
+                                  key={trip.id}
+                                  size="sm"
+                                  variant="secondary"
+                                  className="text-xs bg-white/20 hover:bg-white/30 text-white border-white/30"
+                                  onClick={() => handleAddToTrip(image.location!, trip.id)}
+                                >
+                                  <Plus size={12} className="mr-1" />
+                                  {trip.name}
+                                </Button>
+                              ))}
+                            </div>
+                            
+                            {image.tripId && (
+                              <Badge variant="default" className="bg-blue-600 text-white">
+                                Already in: {trips.find(t => t.id === image.tripId)?.name}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {image.text && (
                         <div className="bg-black/70 text-white p-3 rounded-lg backdrop-blur-sm">
                           <p className="text-sm">{image.text}</p>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </CarouselItem>
               ))}
