@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Camera, Bell, Plus } from "lucide-react";
+import { MapPin, Calendar, Camera, Bell, Plus, Share } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import AddMemoryModal from "@/components/modals/AddMemoryModal";
 import InstaTripModal from "@/components/modals/InstaTripModal";
+import ProfilePublicationModal from "@/components/modals/ProfilePublicationModal";
 
 interface InstaTripImage {
   id: string;
@@ -14,12 +15,21 @@ interface InstaTripImage {
   text?: string;
 }
 
+interface ProfilePost {
+  id: string;
+  images: string[];
+  text: string;
+  createdAt: number;
+}
+
 const HomeSection = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
   const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
+  const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(5);
   const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
+  const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
 
   // Clean up expired images periodically
   useEffect(() => {
@@ -48,6 +58,10 @@ const HomeSection = () => {
     setIsInstaTripModalOpen(true);
   };
 
+  const handleProfilePublicationClick = () => {
+    setIsProfilePublicationModalOpen(true);
+  };
+
   const handleMarkAllNotificationsRead = () => {
     setNotificationCount(0);
   };
@@ -64,6 +78,31 @@ const HomeSection = () => {
 
   const handleRemoveInstaTripImage = (id: string) => {
     setInstaTripImages(prev => prev.filter(image => image.id !== id));
+  };
+
+  const handleAddProfilePost = (images: string[], text: string) => {
+    const newPost: ProfilePost = {
+      id: Date.now().toString(),
+      images,
+      text,
+      createdAt: Date.now()
+    };
+    setProfilePosts(prev => [newPost, ...prev]);
+  };
+
+  const formatTimeAgo = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days > 0) {
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      return 'Just now';
+    }
   };
 
   return (
@@ -212,6 +251,66 @@ const HomeSection = () => {
         </CardContent>
       </Card>
 
+      {/* Profile Publication */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-lg">Profile Publications</CardTitle>
+          <Button
+            onClick={handleProfilePublicationClick}
+            size="sm"
+            className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+          >
+            <Plus size={16} className="mr-1" />
+            Add Post
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {profilePosts.length === 0 ? (
+            <div className="text-center py-8">
+              <Share size={32} className="mx-auto text-gray-400 mb-2" />
+              <p className="text-gray-500">No publications yet</p>
+              <p className="text-xs text-gray-400">Share your travel memories with the world!</p>
+            </div>
+          ) : (
+            profilePosts.slice(0, 3).map((post) => (
+              <div key={post.id} className="border rounded-lg p-3 space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  {post.images.slice(0, 3).map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Post image ${index + 1}`}
+                      className="w-full h-20 object-cover rounded"
+                    />
+                  ))}
+                  {post.images.length > 3 && (
+                    <div className="relative">
+                      <img
+                        src={post.images[3]}
+                        alt="More images"
+                        className="w-full h-20 object-cover rounded"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">
+                          +{post.images.length - 3}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-gray-700">{post.text}</p>
+                <p className="text-xs text-gray-500">{formatTimeAgo(post.createdAt)}</p>
+              </div>
+            ))
+          )}
+          {profilePosts.length > 3 && (
+            <Button variant="outline" className="w-full">
+              View All Publications
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
       <NotificationAlertsModal
         isOpen={isNotificationModalOpen}
         onClose={() => setIsNotificationModalOpen(false)}
@@ -230,6 +329,12 @@ const HomeSection = () => {
         onClose={() => setIsInstaTripModalOpen(false)}
         images={instaTripImages}
         onRemoveImage={handleRemoveInstaTripImage}
+      />
+
+      <ProfilePublicationModal
+        isOpen={isProfilePublicationModalOpen}
+        onClose={() => setIsProfilePublicationModalOpen(false)}
+        onAddPublication={handleAddProfilePost}
       />
     </div>
   );
