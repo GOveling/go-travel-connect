@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import AddToTripModal from "./AddToTripModal";
 
 interface InstaTripImage {
   id: string;
@@ -20,6 +21,9 @@ interface Trip {
   id: number;
   name: string;
   destination: string;
+  dates: string;
+  status: string;
+  image: string;
 }
 
 interface InstaTripModalProps {
@@ -32,12 +36,27 @@ interface InstaTripModalProps {
 const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripModalProps) => {
   const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [selectedImageForTrip, setSelectedImageForTrip] = useState<InstaTripImage | null>(null);
 
   // Mock trips data - in a real app this would come from props or context
   const trips: Trip[] = [
-    { id: 1, name: "European Adventure", destination: "Paris → Rome → Barcelona" },
-    { id: 2, name: "Tokyo Discovery", destination: "Tokyo, Japan" },
-    { id: 3, name: "Bali Retreat", destination: "Bali, Indonesia" }
+    {
+      id: 1,
+      name: "European Adventure",
+      destination: "Paris → Rome → Barcelona",
+      dates: "Dec 15 - Dec 25, 2024",
+      status: "upcoming",
+      image: "🇪🇺"
+    },
+    {
+      id: 2,
+      name: "Tokyo Discovery",
+      destination: "Tokyo, Japan",
+      dates: "Jan 8 - Jan 15, 2025",
+      status: "planning",
+      image: "🇯🇵"
+    }
   ];
 
   // Auto-advance images every 15 seconds
@@ -63,14 +82,30 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
     });
   }, [images, onRemoveImage]);
 
-  const handleAddToTrip = (imageLocation: string, tripId: number) => {
-    const trip = trips.find(t => t.id === tripId);
-    if (trip) {
-      toast({
-        title: "Location Added to Trip",
-        description: `${imageLocation} has been added to ${trip.name}`,
-      });
+  const handleAddToTrip = (image: InstaTripImage) => {
+    setSelectedImageForTrip(image);
+    setIsAddToTripModalOpen(true);
+  };
+
+  const handleAddToExistingTrip = (tripId: number) => {
+    if (selectedImageForTrip) {
+      // Update the image to mark it as added to trip
+      const trip = trips.find(t => t.id === tripId);
+      if (trip) {
+        toast({
+          title: "Added to Trip!",
+          description: `${selectedImageForTrip.location} has been added to ${trip.name}.`
+        });
+      }
     }
+  };
+
+  const handleCreateNewTripFromImage = () => {
+    setIsAddToTripModalOpen(false);
+    toast({
+      title: "Create New Trip",
+      description: "Opening trip creation form..."
+    });
   };
 
   if (images.length === 0) {
@@ -133,25 +168,18 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
                             <span className="text-sm font-medium">{image.location}</span>
                           </div>
                           
-                          {/* Add to trip options */}
+                          {/* Add to trip button */}
                           <div className="space-y-2">
-                            <p className="text-xs text-gray-300">Add this place to a trip:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {trips.map((trip) => (
-                                <Button
-                                  key={trip.id}
-                                  size="sm"
-                                  variant="secondary"
-                                  className="text-xs bg-white/20 hover:bg-white/30 text-white border-white/30"
-                                  onClick={() => handleAddToTrip(image.location!, trip.id)}
-                                >
-                                  <Plus size={12} className="mr-1" />
-                                  {trip.name}
-                                </Button>
-                              ))}
-                            </div>
-                            
-                            {image.tripId && (
+                            {!image.tripId ? (
+                              <Button
+                                onClick={() => handleAddToTrip(image)}
+                                size="sm"
+                                className="bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 text-white"
+                              >
+                                <Plus size={12} className="mr-1" />
+                                Add to Trip
+                              </Button>
+                            ) : (
                               <Badge variant="default" className="bg-blue-600 text-white">
                                 Already in: {trips.find(t => t.id === image.tripId)?.name}
                               </Badge>
@@ -191,6 +219,18 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
             </div>
           )}
         </div>
+
+        <AddToTripModal
+          isOpen={isAddToTripModalOpen}
+          onClose={() => {
+            setIsAddToTripModalOpen(false);
+            setSelectedImageForTrip(null);
+          }}
+          existingTrips={trips.filter(trip => trip.status !== 'completed')}
+          onAddToExistingTrip={handleAddToExistingTrip}
+          onCreateNewTrip={handleCreateNewTripFromImage}
+          postLocation={selectedImageForTrip?.location}
+        />
       </DialogContent>
     </Dialog>
   );
