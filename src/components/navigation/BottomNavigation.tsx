@@ -28,8 +28,8 @@ const BottomNavigation = ({ activeTab, setActiveTab }: BottomNavigationProps) =>
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${
                 isActive
-                  ? "bg-gradient-to-r from-blue-500 to-orange-500 text-white scale-105"
-                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                  ? "bg-gradient-to-r from-purple-600 to-orange-500 text-white scale-105"
+                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
               }`}
             >
               <Icon size={22} className="mb-1" />

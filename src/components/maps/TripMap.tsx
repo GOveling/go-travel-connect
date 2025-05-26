@@ -40,7 +40,7 @@ const TripMap = ({ trips }: TripMapProps) => {
       case "upcoming":
         return "bg-green-500";
       case "planning":
-        return "bg-blue-500";
+        return "bg-purple-600";
       case "completed":
         return "bg-gray-500";
       default:
@@ -53,7 +53,7 @@ const TripMap = ({ trips }: TripMapProps) => {
       case "owner":
         return "bg-purple-100 text-purple-800";
       case "editor":
-        return "bg-blue-100 text-blue-800";
+        return "bg-orange-100 text-orange-800";
       case "viewer":
         return "bg-gray-100 text-gray-800";
       default:
@@ -66,10 +66,10 @@ const TripMap = ({ trips }: TripMapProps) => {
   return (
     <div className="space-y-6">
       {/* Map Placeholder */}
-      <Card className="h-96 bg-gradient-to-br from-blue-100 to-green-100 border-2 border-dashed border-blue-300">
+      <Card className="h-96 bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300">
         <CardContent className="h-full flex items-center justify-center">
           <div className="text-center">
-            <MapPin size={48} className="mx-auto text-blue-500 mb-4" />
+            <MapPin size={48} className="mx-auto text-purple-600 mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-2">Interactive Map Coming Soon</h3>
             <p className="text-gray-600">Your trip destinations will be displayed here</p>
             <p className="text-sm text-gray-500 mt-2">Connect to mapping service to enable full map functionality</p>
@@ -84,7 +84,7 @@ const TripMap = ({ trips }: TripMapProps) => {
           <Card key={trip.id} className="border-0 shadow-md">
             <CardContent className="p-4">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-orange-500 rounded-lg flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-orange-500 rounded-lg flex items-center justify-center text-2xl">
                   {trip.image}
                 </div>
                 <div className="flex-1">
@@ -92,9 +92,9 @@ const TripMap = ({ trips }: TripMapProps) => {
                     <h4 className="font-semibold text-lg">{trip.name}</h4>
                     <span className={`w-3 h-3 rounded-full ${getStatusColor(trip.status)}`}></span>
                     {trip.isGroupTrip && (
-                      <div className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full">
-                        <Users size={12} className="text-blue-600" />
-                        <span className="text-xs text-blue-600 font-medium">Group Trip</span>
+                      <div className="flex items-center space-x-1 bg-purple-100 px-2 py-1 rounded-full">
+                        <Users size={12} className="text-purple-600" />
+                        <span className="text-xs text-purple-600 font-medium">Group Trip</span>
                       </div>
                     )}
                   </div>
@@ -107,7 +107,7 @@ const TripMap = ({ trips }: TripMapProps) => {
                       <div className="flex flex-wrap gap-2">
                         {trip.collaborators.map((collaborator) => (
                           <div key={collaborator.id} className="flex items-center space-x-2 bg-white border rounded-lg px-2 py-1">
-                            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                            <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
                               {collaborator.avatar}
                             </div>
                             <span className="text-xs text-gray-700">{collaborator.name}</span>
@@ -123,7 +123,7 @@ const TripMap = ({ trips }: TripMapProps) => {
                   <div className="space-y-1">
                     {trip.coordinates.map((coord, index) => (
                       <div key={index} className="flex items-center space-x-2 text-sm">
-                        <MapPin size={14} className="text-blue-500" />
+                        <MapPin size={14} className="text-purple-600" />
                         <span className="text-gray-700">{coord.name}</span>
                         <span className="text-gray-500">({coord.lat.toFixed(4)}, {coord.lng.toFixed(4)})</span>
                       </div>
@@ -146,7 +146,7 @@ const TripMap = ({ trips }: TripMapProps) => {
               <span className="text-sm text-gray-700">Upcoming</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <div className="w-3 h-3 rounded-full bg-purple-600"></div>
               <span className="text-sm text-gray-700">Planning</span>
             </div>
             <div className="flex items-center space-x-2">
