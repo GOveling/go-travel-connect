@@ -8,6 +8,7 @@ import AddMemoryModal from "@/components/modals/AddMemoryModal";
 import InstaTripModal from "@/components/modals/InstaTripModal";
 import ProfilePublicationModal from "@/components/modals/ProfilePublicationModal";
 import NewTripModal from "@/components/modals/NewTripModal";
+import AddToTripModal from "@/components/modals/AddToTripModal";
 
 interface InstaTripImage {
   id: string;
@@ -33,10 +34,29 @@ const HomeSection = () => {
   const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
   const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
   const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(5);
   const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
   const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
-  const [trips, setTrips] = useState<any[]>([]);
+  const [trips, setTrips] = useState<any[]>([
+    {
+      id: 1,
+      name: "European Adventure",
+      destination: "Paris → Rome → Barcelona",
+      dates: "Dec 15 - Dec 25, 2024",
+      status: "upcoming",
+      image: "🇪🇺"
+    },
+    {
+      id: 2,
+      name: "Tokyo Discovery",
+      destination: "Tokyo, Japan",
+      dates: "Jan 8 - Jan 15, 2025",
+      status: "planning",
+      image: "🇯🇵"
+    }
+  ]);
+  const [selectedPostForTrip, setSelectedPostForTrip] = useState<ProfilePost | null>(null);
 
   // Clean up expired images periodically
   useEffect(() => {
@@ -105,7 +125,26 @@ const HomeSection = () => {
     setTrips(prev => [...prev, tripData]);
   };
 
-  const handleAddToTrip = () => {
+  const handleAddToTrip = (post: ProfilePost) => {
+    setSelectedPostForTrip(post);
+    setIsAddToTripModalOpen(true);
+  };
+
+  const handleAddToExistingTrip = (tripId: number) => {
+    if (selectedPostForTrip) {
+      // Update the post to mark it as added to trip
+      setProfilePosts(prev => 
+        prev.map(post => 
+          post.id === selectedPostForTrip.id 
+            ? { ...post, tripId } 
+            : post
+        )
+      );
+    }
+  };
+
+  const handleCreateNewTripFromPost = () => {
+    setIsAddToTripModalOpen(false);
     setIsNewTripModalOpen(true);
   };
 
@@ -332,7 +371,7 @@ const HomeSection = () => {
                       </div>
                       {!post.tripId && (
                         <Button
-                          onClick={handleAddToTrip}
+                          onClick={() => handleAddToTrip(post)}
                           size="sm"
                           variant="outline"
                           className="h-6 px-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
@@ -386,6 +425,18 @@ const HomeSection = () => {
         isOpen={isNewTripModalOpen}
         onClose={() => setIsNewTripModalOpen(false)}
         onCreateTrip={handleCreateTrip}
+      />
+
+      <AddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => {
+          setIsAddToTripModalOpen(false);
+          setSelectedPostForTrip(null);
+        }}
+        existingTrips={trips.filter(trip => trip.status !== 'completed')}
+        onAddToExistingTrip={handleAddToExistingTrip}
+        onCreateNewTrip={handleCreateNewTripFromPost}
+        postLocation={selectedPostForTrip?.location}
       />
     </div>
   );
