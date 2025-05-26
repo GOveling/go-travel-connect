@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Users, Share2, DollarSign, Vote, Calendar, MapPin, Send, Copy, Check } from "lucide-react";
+import { Users, Share2, DollarSign, Vote, Calendar, MapPin, Send, Copy, Check, Edit } from "lucide-react";
 
 interface InviteFriendsModalProps {
   isOpen: boolean;
@@ -38,6 +38,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   const [inviteEmail, setInviteEmail] = useState("");
   const [shareMessage, setShareMessage] = useState("");
   const [linkCopied, setLinkCopied] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
   
   // Mock data for demonstration
   const [expenses, setExpenses] = useState<Expense[]>([
@@ -107,17 +108,49 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   const handleAddExpense = () => {
     if (newExpense.description && newExpense.amount && newExpense.paidBy) {
-      const expense: Expense = {
-        id: expenses.length + 1,
-        description: newExpense.description,
-        amount: parseFloat(newExpense.amount),
-        paidBy: newExpense.paidBy,
-        splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy],
-        date: new Date().toISOString().split('T')[0]
-      };
-      setExpenses([...expenses, expense]);
+      if (editingExpenseId) {
+        // Update existing expense
+        setExpenses(expenses.map(expense => 
+          expense.id === editingExpenseId 
+            ? {
+                ...expense,
+                description: newExpense.description,
+                amount: parseFloat(newExpense.amount),
+                paidBy: newExpense.paidBy,
+                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy]
+              }
+            : expense
+        ));
+        setEditingExpenseId(null);
+      } else {
+        // Add new expense
+        const expense: Expense = {
+          id: expenses.length + 1,
+          description: newExpense.description,
+          amount: parseFloat(newExpense.amount),
+          paidBy: newExpense.paidBy,
+          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy],
+          date: new Date().toISOString().split('T')[0]
+        };
+        setExpenses([...expenses, expense]);
+      }
       setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
     }
+  };
+
+  const handleEditExpense = (expense: Expense) => {
+    setNewExpense({
+      description: expense.description,
+      amount: expense.amount.toString(),
+      paidBy: expense.paidBy,
+      splitBetween: expense.splitBetween
+    });
+    setEditingExpenseId(expense.id);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingExpenseId(null);
+    setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
   };
 
   const handleCreateDecision = () => {
@@ -366,6 +399,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                       <TableHead>Paid By</TableHead>
                       <TableHead>Split Between</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -376,6 +410,16 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                         <TableCell>{expense.paidBy}</TableCell>
                         <TableCell>{expense.splitBetween.join(", ")}</TableCell>
                         <TableCell>{expense.date}</TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditExpense(expense)}
+                          >
+                            <Edit size={16} className="mr-1" />
+                            Edit
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -385,7 +429,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Add New Expense</CardTitle>
+                <CardTitle className="text-lg">
+                  {editingExpenseId ? "Edit Expense" : "Add New Expense"}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -462,9 +508,16 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     )}
                   </div>
                 </div>
-                <Button onClick={handleAddExpense} className="w-full">
-                  Add Expense
-                </Button>
+                <div className="flex space-x-2">
+                  <Button onClick={handleAddExpense} className="flex-1">
+                    {editingExpenseId ? "Update Expense" : "Add Expense"}
+                  </Button>
+                  {editingExpenseId && (
+                    <Button onClick={handleCancelEdit} variant="outline" className="flex-1">
+                      Cancel
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
