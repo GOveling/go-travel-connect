@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Share2, DollarSign, Vote, Calendar, MapPin, Send, Copy, Check } from "lucide-react";
 
 interface InviteFriendsModalProps {
@@ -395,12 +396,26 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                   </div>
                   <div>
                     <Label htmlFor="paidBy">Paid By</Label>
-                    <Input
-                      id="paidBy"
-                      placeholder="Person's name"
-                      value={newExpense.paidBy}
-                      onChange={(e) => setNewExpense({...newExpense, paidBy: e.target.value})}
-                    />
+                    <Select 
+                      value={newExpense.paidBy} 
+                      onValueChange={(value) => setNewExpense({...newExpense, paidBy: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select collaborator" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {trip.collaborators?.map((collaborator: any) => (
+                          <SelectItem key={collaborator.id} value={collaborator.name}>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                                {collaborator.avatar}
+                              </div>
+                              <span>{collaborator.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <Button onClick={handleAddExpense} className="w-full">
