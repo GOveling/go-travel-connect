@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import TripMap from "@/components/maps/TripMap";
 import TripDetailModal from "@/components/modals/TripDetailModal";
+import NewTripModal from "@/components/modals/NewTripModal";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [showTripDetail, setShowTripDetail] = useState(false);
+  const [showNewTripModal, setShowNewTripModal] = useState(false);
   
-  const trips = [
+  const [trips, setTrips] = useState([
     {
       id: 1,
       name: "European Adventure",
@@ -74,7 +76,7 @@ const TripsSection = () => {
       accommodation: "Beach resort and villas",
       transportation: "Private transfers and scooters"
     }
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -105,6 +107,10 @@ const TripsSection = () => {
   const handleViewDetails = (trip: any) => {
     setSelectedTrip(trip);
     setShowTripDetail(true);
+  };
+
+  const handleCreateTrip = (tripData: any) => {
+    setTrips(prev => [...prev, tripData]);
   };
 
   if (showMap) {
@@ -151,7 +157,10 @@ const TripsSection = () => {
               <Map size={20} className="mr-2" />
               Map View
             </Button>
-            <Button className="bg-gradient-to-r from-blue-500 to-orange-500 border-0">
+            <Button 
+              className="bg-gradient-to-r from-blue-500 to-orange-500 border-0"
+              onClick={() => setShowNewTripModal(true)}
+            >
               <Plus size={20} className="mr-2" />
               New Trip
             </Button>
@@ -163,19 +172,19 @@ const TripsSection = () => {
       <div className="grid grid-cols-3 gap-4">
         <Card className="text-center">
           <CardContent className="p-4">
-            <p className="text-2xl font-bold text-blue-600">3</p>
+            <p className="text-2xl font-bold text-blue-600">{trips.length}</p>
             <p className="text-sm text-gray-600">Total Trips</p>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="p-4">
-            <p className="text-2xl font-bold text-green-600">1</p>
+            <p className="text-2xl font-bold text-green-600">{trips.filter(t => t.status === 'upcoming').length}</p>
             <p className="text-sm text-gray-600">Upcoming</p>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="p-4">
-            <p className="text-2xl font-bold text-orange-600">2</p>
+            <p className="text-2xl font-bold text-orange-600">{trips.filter(t => t.isGroupTrip).length}</p>
             <p className="text-sm text-gray-600">Group Trips</p>
           </CardContent>
         </Card>
@@ -330,6 +339,13 @@ const TripsSection = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* New Trip Modal */}
+      <NewTripModal 
+        isOpen={showNewTripModal}
+        onClose={() => setShowNewTripModal(false)}
+        onCreateTrip={handleCreateTrip}
+      />
 
       {/* Trip Detail Modal */}
       <TripDetailModal 
