@@ -1,0 +1,98 @@
+
+import { MapPin, Calendar, Camera, Bell } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+const HomeSection = () => {
+  return (
+    <div className="min-h-screen p-4 space-y-6">
+      {/* Header */}
+      <div className="text-center pt-8 pb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
+          GOveling
+        </h1>
+        <p className="text-gray-600 mt-2">Your smart travel companion</p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
+          <CardContent className="p-4 text-center">
+            <MapPin className="mx-auto mb-2" size={24} />
+            <p className="text-2xl font-bold">12</p>
+            <p className="text-sm opacity-90">Places Saved</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
+          <CardContent className="p-4 text-center">
+            <Calendar className="mx-auto mb-2" size={24} />
+            <p className="text-2xl font-bold">3</p>
+            <p className="text-sm opacity-90">Upcoming Trips</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Current Trip */}
+      <Card className="overflow-hidden border-0 shadow-lg">
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-white">
+          <h3 className="font-semibold">Current Trip</h3>
+          <p className="text-sm opacity-90">Paris, France</p>
+        </div>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-center mb-3">
+            <p className="text-sm text-gray-600">Day 2 of 7</p>
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full w-2/7"></div>
+          </div>
+          <p className="text-sm text-gray-700 mb-3">Next: Visit Louvre Museum</p>
+          <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 border-0">
+            View Itinerary
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 gap-4">
+        <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-blue-200 hover:bg-blue-50">
+          <Bell size={20} />
+          <span className="text-sm">Nearby Alerts</span>
+        </Button>
+        <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50">
+          <Camera size={20} />
+          <span className="text-sm">Add Memory</span>
+        </Button>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <MapPin size={16} className="text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Saved Eiffel Tower</p>
+              <p className="text-xs text-gray-500">2 hours ago</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <Calendar size={16} className="text-green-600" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Booked hotel in Rome</p>
+              <p className="text-xs text-gray-500">1 day ago</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default HomeSection;
