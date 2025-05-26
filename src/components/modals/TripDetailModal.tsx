@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,17 @@ interface TripCoordinate {
   name: string;
   lat: number;
   lng: number;
+}
+
+interface SavedPlace {
+  id: string;
+  name: string;
+  category: string;
+  rating: number;
+  image: string;
+  description: string;
+  estimatedTime: string;
+  priority: "high" | "medium" | "low";
 }
 
 interface Trip {
@@ -46,6 +57,150 @@ interface TripDetailModalProps {
 const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Mock saved places data for each destination
+  const savedPlacesByDestination = {
+    "Paris": [
+      {
+        id: "1",
+        name: "Eiffel Tower",
+        category: "Landmark",
+        rating: 4.8,
+        image: "🗼",
+        description: "Iconic iron tower and symbol of Paris",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "2",
+        name: "Louvre Museum",
+        category: "Museum",
+        rating: 4.7,
+        image: "🎨",
+        description: "World's largest art museum",
+        estimatedTime: "4-6 hours",
+        priority: "high" as const
+      },
+      {
+        id: "3",
+        name: "Café de Flore",
+        category: "Restaurant",
+        rating: 4.3,
+        image: "☕",
+        description: "Historic café in Saint-Germain",
+        estimatedTime: "1-2 hours",
+        priority: "medium" as const
+      }
+    ],
+    "Rome": [
+      {
+        id: "4",
+        name: "Colosseum",
+        category: "Landmark",
+        rating: 4.9,
+        image: "🏛️",
+        description: "Ancient Roman amphitheater",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "5",
+        name: "Vatican Museums",
+        category: "Museum",
+        rating: 4.8,
+        image: "🎨",
+        description: "Pope's art collection and Sistine Chapel",
+        estimatedTime: "3-4 hours",
+        priority: "high" as const
+      },
+      {
+        id: "6",
+        name: "Trevi Fountain",
+        category: "Landmark",
+        rating: 4.6,
+        image: "⛲",
+        description: "Famous baroque fountain",
+        estimatedTime: "30 minutes",
+        priority: "medium" as const
+      }
+    ],
+    "Barcelona": [
+      {
+        id: "7",
+        name: "Sagrada Familia",
+        category: "Landmark",
+        rating: 4.9,
+        image: "⛪",
+        description: "Gaudí's masterpiece basilica",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "8",
+        name: "Park Güell",
+        category: "Park",
+        rating: 4.7,
+        image: "🌳",
+        description: "Colorful mosaic park by Gaudí",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "9",
+        name: "La Boqueria Market",
+        category: "Market",
+        rating: 4.4,
+        image: "🍅",
+        description: "Famous food market on Las Ramblas",
+        estimatedTime: "1-2 hours",
+        priority: "medium" as const
+      }
+    ],
+    "Tokyo": [
+      {
+        id: "10",
+        name: "Senso-ji Temple",
+        category: "Temple",
+        rating: 4.6,
+        image: "⛩️",
+        description: "Tokyo's oldest Buddhist temple",
+        estimatedTime: "1-2 hours",
+        priority: "high" as const
+      },
+      {
+        id: "11",
+        name: "Shibuya Crossing",
+        category: "Landmark",
+        rating: 4.5,
+        image: "🚦",
+        description: "World's busiest pedestrian crossing",
+        estimatedTime: "30 minutes",
+        priority: "medium" as const
+      }
+    ],
+    "Bali": [
+      {
+        id: "12",
+        name: "Tanah Lot Temple",
+        category: "Temple",
+        rating: 4.5,
+        image: "🏛️",
+        description: "Temple on a rock formation in the sea",
+        estimatedTime: "2 hours",
+        priority: "high" as const
+      },
+      {
+        id: "13",
+        name: "Rice Terraces of Jatiluwih",
+        category: "Nature",
+        rating: 4.7,
+        image: "🌾",
+        description: "UNESCO World Heritage rice terraces",
+        estimatedTime: "3-4 hours",
+        priority: "high" as const
+      }
+    ]
+  };
+
   if (!trip) return null;
 
   const getStatusColor = (status: string) => {
@@ -68,6 +223,19 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
       case "editor":
         return "bg-blue-100 text-blue-800";
       case "viewer":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
         return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -108,9 +276,10 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
 
           {/* Tab Navigation using shadcn Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
+              <TabsTrigger value="saved-places">Saved Places</TabsTrigger>
               <TabsTrigger value="collaborators">Collaborators</TabsTrigger>
             </TabsList>
 
@@ -305,6 +474,93 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="saved-places" className="space-y-4 mt-6">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-gray-800 flex items-center space-x-2">
+                  <Heart size={18} className="text-red-500" />
+                  <span>Saved Places</span>
+                </h4>
+                <Button size="sm" variant="outline">
+                  <MapPin size={16} className="mr-1" />
+                  Add Place
+                </Button>
+              </div>
+
+              {trip.coordinates.map((destination, destIndex) => {
+                const placesForDestination = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
+                
+                return (
+                  <div key={destIndex} className="space-y-3">
+                    <div className="flex items-center space-x-2 border-b pb-2">
+                      <MapPin size={16} className="text-orange-500" />
+                      <h5 className="font-medium text-gray-800">{destination.name}</h5>
+                      <Badge variant="outline" className="text-xs">
+                        {placesForDestination.length} place{placesForDestination.length !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+
+                    {placesForDestination.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {placesForDestination.map((place) => (
+                          <Card key={place.id} className="border-l-4 border-l-red-400">
+                            <CardContent className="p-4">
+                              <div className="space-y-3">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    <span className="text-2xl">{place.image}</span>
+                                    <div>
+                                      <h6 className="font-medium text-gray-800">{place.name}</h6>
+                                      <p className="text-xs text-gray-600">{place.category}</p>
+                                    </div>
+                                  </div>
+                                  <Badge className={`text-xs px-2 py-1 ${getPriorityColor(place.priority)}`}>
+                                    {place.priority}
+                                  </Badge>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex items-center space-x-1">
+                                    <Star size={12} className="text-yellow-500 fill-current" />
+                                    <span className="text-xs text-gray-600">{place.rating}</span>
+                                  </div>
+                                  <span className="text-xs text-gray-400">•</span>
+                                  <span className="text-xs text-gray-600">{place.estimatedTime}</span>
+                                </div>
+
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                  {place.description}
+                                </p>
+
+                                <div className="flex space-x-2">
+                                  <Button size="sm" variant="outline" className="flex-1 text-xs">
+                                    View Details
+                                  </Button>
+                                  <Button size="sm" className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500 text-xs">
+                                    Add to Schedule
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      <Card className="border-dashed border-2 border-gray-200">
+                        <CardContent className="p-6 text-center">
+                          <MapPin size={32} className="mx-auto mb-2 text-gray-300" />
+                          <p className="text-gray-500 text-sm">No places saved for {destination.name}</p>
+                          <p className="text-gray-400 text-xs">Explore and save places you want to visit</p>
+                          <Button size="sm" variant="outline" className="mt-3">
+                            Browse Places
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                );
+              })}
             </TabsContent>
 
             <TabsContent value="collaborators" className="space-y-4 mt-6">
