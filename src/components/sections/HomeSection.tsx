@@ -5,13 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
+import AddMemoryModal from "@/components/modals/AddMemoryModal";
 
 const HomeSection = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(5); // Example count for new notifications
 
   const handleNotificationClick = () => {
     setIsNotificationModalOpen(true);
+  };
+
+  const handleAddMemoryClick = () => {
+    setIsAddMemoryModalOpen(true);
   };
 
   const handleMarkAllNotificationsRead = () => {
@@ -100,7 +106,11 @@ const HomeSection = () => {
           <Bell size={20} />
           <span className="text-sm">Nearby Alerts</span>
         </Button>
-        <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50 text-orange-700">
+        <Button 
+          onClick={handleAddMemoryClick}
+          variant="outline" 
+          className="h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50 text-orange-700"
+        >
           <Camera size={20} />
           <span className="text-sm">Add Memory</span>
         </Button>
@@ -138,6 +148,11 @@ const HomeSection = () => {
         onClose={() => setIsNotificationModalOpen(false)}
         notificationCount={notificationCount}
         onMarkAllRead={handleMarkAllNotificationsRead}
+      />
+
+      <AddMemoryModal
+        isOpen={isAddMemoryModalOpen}
+        onClose={() => setIsAddMemoryModalOpen(false)}
       />
     </div>
   );
