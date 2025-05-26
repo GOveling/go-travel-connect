@@ -205,6 +205,64 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
     ]
   };
 
+  // Function to parse trip dates and calculate destination dates
+  const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
+    try {
+      // Parse dates like "Dec 15 - Dec 25, 2024"
+      const dateRange = tripDates.split(' - ');
+      if (dateRange.length !== 2) return `Day ${destinationIndex + 1}`;
+      
+      const startDateStr = dateRange[0];
+      const endDateStr = dateRange[1];
+      
+      // Extract year from end date
+      const year = endDateStr.split(', ')[1] || new Date().getFullYear().toString();
+      
+      // Parse start date
+      const startMonth = startDateStr.split(' ')[0];
+      const startDay = parseInt(startDateStr.split(' ')[1]);
+      
+      // Parse end date
+      const endMonth = endDateStr.split(' ')[0];
+      const endDay = parseInt(endDateStr.split(' ')[1].split(',')[0]);
+      
+      // Convert month names to numbers
+      const monthMap: { [key: string]: number } = {
+        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+      };
+      
+      const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
+      const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
+      
+      // Calculate days per destination
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysPerDestination = Math.ceil(totalDays / totalDestinations);
+      
+      // Calculate destination start and end dates
+      const destStartDate = new Date(startDate);
+      destStartDate.setDate(startDate.getDate() + (destinationIndex * daysPerDestination));
+      
+      const destEndDate = new Date(destStartDate);
+      destEndDate.setDate(destStartDate.getDate() + daysPerDestination - 1);
+      
+      // Format dates
+      const formatDate = (date: Date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}`;
+      };
+      
+      if (destStartDate.getTime() === destEndDate.getTime()) {
+        return formatDate(destStartDate);
+      } else {
+        return `${formatDate(destStartDate)} - ${formatDate(destEndDate)}`;
+      }
+    } catch (error) {
+      // Fallback to day format if parsing fails
+      return `Day ${destinationIndex + 1}`;
+    }
+  };
+
   const handleViewRoute = (destination: string, places: SavedPlace[]) => {
     setSelectedDestination(destination);
     setSelectedPlaces(places);
@@ -367,7 +425,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                           <div className="flex items-center justify-between">
                             <div>
                               <h5 className="font-medium text-gray-800">{location.name}</h5>
-                              <p className="text-gray-600 text-sm">Day {index + 1} - {index + 2}</p>
+                              <p className="text-gray-600 text-sm">{getDestinationDates(trip.dates, index, trip.coordinates.length)}</p>
                             </div>
                             <div className="text-gray-400 text-sm">
                               {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
