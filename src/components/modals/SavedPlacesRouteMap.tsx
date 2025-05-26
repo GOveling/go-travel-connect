@@ -50,6 +50,20 @@ const SavedPlacesRouteMap = ({ isOpen, onClose, destinationName, places }: Saved
     }
   };
 
+  // Function to calculate dates for each place in the route
+  const getPlaceDate = (placeIndex: number) => {
+    const today = new Date();
+    const dateForPlace = new Date(today);
+    dateForPlace.setDate(today.getDate() + placeIndex);
+    
+    const formatDate = (date: Date) => {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[date.getMonth()]} ${date.getDate()}`;
+    };
+    
+    return formatDate(dateForPlace);
+  };
+
   // Sort places by priority for optimal route
   const sortedPlaces = [...places].sort((a, b) => {
     const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -152,7 +166,10 @@ const SavedPlacesRouteMap = ({ isOpen, onClose, destinationName, places }: Saved
                             <span className="text-2xl">{place.image}</span>
                             <div>
                               <h4 className="font-medium text-gray-800">{place.name}</h4>
-                              <p className="text-sm text-gray-600">{place.category} • {place.estimatedTime}</p>
+                              <div className="flex items-center space-x-3 text-sm text-gray-600">
+                                <span>{place.category} • {place.estimatedTime}</span>
+                                <span className="text-blue-600 font-medium">{getPlaceDate(index)}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
