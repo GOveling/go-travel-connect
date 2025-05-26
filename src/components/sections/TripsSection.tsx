@@ -1,5 +1,5 @@
 
-import { Plus, Calendar, MapPin, Users, Edit, Map } from "lucide-react";
+import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -17,6 +17,12 @@ const TripsSection = () => {
       status: "upcoming",
       travelers: 2,
       image: "🇪🇺",
+      isGroupTrip: true,
+      collaborators: [
+        { id: "1", name: "Alice Johnson", email: "alice@example.com", avatar: "AJ", role: "owner" as const },
+        { id: "2", name: "Bob Smith", email: "bob@example.com", avatar: "BS", role: "editor" as const },
+        { id: "3", name: "Carol Davis", email: "carol@example.com", avatar: "CD", role: "viewer" as const }
+      ],
       coordinates: [
         { name: "Paris", lat: 48.8566, lng: 2.3522 },
         { name: "Rome", lat: 41.9028, lng: 12.4964 },
@@ -31,6 +37,7 @@ const TripsSection = () => {
       status: "planning",
       travelers: 1,
       image: "🇯🇵",
+      isGroupTrip: false,
       coordinates: [
         { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
       ]
@@ -43,6 +50,12 @@ const TripsSection = () => {
       status: "completed",
       travelers: 3,
       image: "🇮🇩",
+      isGroupTrip: true,
+      collaborators: [
+        { id: "1", name: "You", email: "you@example.com", avatar: "YO", role: "owner" as const },
+        { id: "4", name: "Emma Wilson", email: "emma@example.com", avatar: "EW", role: "editor" as const },
+        { id: "5", name: "David Brown", email: "david@example.com", avatar: "DB", role: "editor" as const }
+      ],
       coordinates: [
         { name: "Bali", lat: -8.3405, lng: 115.0920 }
       ]
@@ -56,6 +69,19 @@ const TripsSection = () => {
       case "planning":
         return "bg-blue-100 text-blue-800";
       case "completed":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case "owner":
+        return "bg-purple-100 text-purple-800";
+      case "editor":
+        return "bg-blue-100 text-blue-800";
+      case "viewer":
         return "bg-gray-100 text-gray-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -130,8 +156,8 @@ const TripsSection = () => {
         </Card>
         <Card className="text-center">
           <CardContent className="p-4">
-            <p className="text-2xl font-bold text-orange-600">8</p>
-            <p className="text-sm text-gray-600">Countries</p>
+            <p className="text-2xl font-bold text-orange-600">2</p>
+            <p className="text-sm text-gray-600">Group Trips</p>
           </CardContent>
         </Card>
       </div>
@@ -147,12 +173,49 @@ const TripsSection = () => {
                 </div>
                 <div className="flex-1 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">{trip.name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-semibold text-lg">{trip.name}</h3>
+                      {trip.isGroupTrip && (
+                        <div className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full">
+                          <Users size={12} className="text-blue-600" />
+                          <span className="text-xs text-blue-600 font-medium">Group</span>
+                        </div>
+                      )}
+                    </div>
                     <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
                       {trip.status}
                     </span>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-600">
+
+                  {/* Collaborators for group trips */}
+                  {trip.collaborators && trip.collaborators.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Users size={14} className="text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Collaborators:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {trip.collaborators.slice(0, 3).map((collaborator) => (
+                          <div key={collaborator.id} className="flex items-center space-x-1 bg-white border rounded-lg px-2 py-1">
+                            <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                              {collaborator.avatar}
+                            </div>
+                            <span className="text-xs text-gray-700">{collaborator.name}</span>
+                            <span className={`text-xs px-1 py-0.5 rounded-full ${getRoleColor(collaborator.role)}`}>
+                              {collaborator.role}
+                            </span>
+                          </div>
+                        ))}
+                        {trip.collaborators.length > 3 && (
+                          <div className="flex items-center justify-center w-5 h-5 bg-gray-200 rounded-full">
+                            <span className="text-xs text-gray-600">+{trip.collaborators.length - 3}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 text-sm text-gray-600 mb-3">
                     <div className="flex items-center space-x-2">
                       <MapPin size={16} />
                       <span>{trip.destination}</span>
@@ -166,11 +229,23 @@ const TripsSection = () => {
                       <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
                     </div>
                   </div>
-                  <div className="flex space-x-2 mt-4">
+
+                  <div className="flex space-x-2">
                     <Button size="sm" variant="outline" className="flex-1">
                       <Edit size={16} className="mr-1" />
                       Edit
                     </Button>
+                    {trip.isGroupTrip ? (
+                      <Button size="sm" variant="outline" className="flex-1">
+                        <UserPlus size={16} className="mr-1" />
+                        Manage Group
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" className="flex-1">
+                        <Share2 size={16} className="mr-1" />
+                        Share Trip
+                      </Button>
+                    )}
                     <Button size="sm" className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500">
                       View Details
                     </Button>
@@ -204,6 +279,32 @@ const TripsSection = () => {
             <span className="text-xl">🎒</span>
             <span className="text-sm">Backpacking</span>
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Group Trip Features */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <Users size={20} className="text-blue-600" />
+            <span>Group Trip Features</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <h4 className="font-medium text-blue-800 mb-1">Collaborate with Friends</h4>
+            <p className="text-sm text-blue-600">Invite friends to plan trips together. Share itineraries, split costs, and make group decisions.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="justify-start">
+              <UserPlus size={16} className="mr-2" />
+              Invite Friends
+            </Button>
+            <Button variant="outline" className="justify-start">
+              <Share2 size={16} className="mr-2" />
+              Share Trip Link
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

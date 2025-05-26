@@ -1,11 +1,20 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import { MapPin, Users, UserPlus, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TripCoordinate {
   name: string;
   lat: number;
   lng: number;
+}
+
+interface Collaborator {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: "owner" | "editor" | "viewer";
 }
 
 interface Trip {
@@ -17,6 +26,8 @@ interface Trip {
   travelers: number;
   image: string;
   coordinates: TripCoordinate[];
+  collaborators?: Collaborator[];
+  isGroupTrip?: boolean;
 }
 
 interface TripMapProps {
@@ -34,6 +45,19 @@ const TripMap = ({ trips }: TripMapProps) => {
         return "bg-gray-500";
       default:
         return "bg-gray-500";
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case "owner":
+        return "bg-purple-100 text-purple-800";
+      case "editor":
+        return "bg-blue-100 text-blue-800";
+      case "viewer":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -67,8 +91,35 @@ const TripMap = ({ trips }: TripMapProps) => {
                   <div className="flex items-center space-x-2 mb-2">
                     <h4 className="font-semibold text-lg">{trip.name}</h4>
                     <span className={`w-3 h-3 rounded-full ${getStatusColor(trip.status)}`}></span>
+                    {trip.isGroupTrip && (
+                      <div className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full">
+                        <Users size={12} className="text-blue-600" />
+                        <span className="text-xs text-blue-600 font-medium">Group Trip</span>
+                      </div>
+                    )}
                   </div>
                   <p className="text-gray-600 text-sm mb-2">{trip.dates}</p>
+                  
+                  {/* Collaborators */}
+                  {trip.collaborators && trip.collaborators.length > 0 && (
+                    <div className="mb-3">
+                      <h5 className="text-sm font-medium text-gray-700 mb-2">Collaborators:</h5>
+                      <div className="flex flex-wrap gap-2">
+                        {trip.collaborators.map((collaborator) => (
+                          <div key={collaborator.id} className="flex items-center space-x-2 bg-white border rounded-lg px-2 py-1">
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                              {collaborator.avatar}
+                            </div>
+                            <span className="text-xs text-gray-700">{collaborator.name}</span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full ${getRoleColor(collaborator.role)}`}>
+                              {collaborator.role}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-1">
                     {trip.coordinates.map((coord, index) => (
                       <div key={index} className="flex items-center space-x-2 text-sm">
