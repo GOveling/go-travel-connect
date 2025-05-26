@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { X, Camera, Clock } from "lucide-react";
+import { X, Camera } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -64,19 +64,6 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
     );
   }
 
-  const formatTimeRemaining = (addedAt: number) => {
-    const now = Date.now();
-    const expiresAt = addedAt + (12 * 60 * 60 * 1000);
-    const remaining = expiresAt - now;
-    
-    if (remaining <= 0) return "Expired";
-    
-    const hours = Math.floor(remaining / (60 * 60 * 1000));
-    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-    
-    return `${hours}h ${minutes}m remaining`;
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh]">
@@ -97,11 +84,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
                       alt={`InstanTrip memory ${index + 1}`}
                       className="w-full h-96 object-cover rounded-lg"
                     />
-                    <div className="absolute top-2 right-2 flex gap-2">
-                      <div className="bg-black/70 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatTimeRemaining(image.addedAt)}
-                      </div>
+                    <div className="absolute top-2 right-2">
                       <Button
                         variant="destructive"
                         size="sm"
