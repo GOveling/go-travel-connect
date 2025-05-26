@@ -1,21 +1,23 @@
-
 import { useState, useRef } from "react";
 import { Camera, Upload, Image as ImageIcon, Send } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import LocationSelector from "./LocationSelector";
 
 interface InstaTripUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddInstaTripImage: (imageSrc: string, text?: string) => void;
+  onAddInstaTripImage: (imageSrc: string, text?: string, location?: string, tripId?: number) => void;
 }
 
 const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTripUploadModalProps) => {
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [text, setText] = useState("");
+  const [location, setLocation] = useState("");
+  const [tripId, setTripId] = useState<number | undefined>();
   const [isUsingCamera, setIsUsingCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -99,6 +101,11 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
     setText(prev => prev + emoji);
   };
 
+  const handleLocationSelected = (selectedLocation: string, selectedTripId?: number) => {
+    setLocation(selectedLocation);
+    setTripId(selectedTripId);
+  };
+
   const handlePost = () => {
     if (!selectedImage) {
       toast({
@@ -109,15 +116,26 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
       return;
     }
 
-    onAddInstaTripImage(selectedImage, text);
+    if (!location.trim()) {
+      toast({
+        title: "Error",
+        description: "Please add a location for your photo",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onAddInstaTripImage(selectedImage, text, location, tripId);
     toast({
       title: "Success",
-      description: "Posted to InstanTrip!"
+      description: tripId ? "Posted to InstanTrip and added to trip!" : "Posted to InstanTrip!"
     });
     
     // Reset form
     setSelectedImage("");
     setText("");
+    setLocation("");
+    setTripId(undefined);
     onClose();
   };
 
@@ -125,6 +143,8 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
     stopCamera();
     setSelectedImage("");
     setText("");
+    setLocation("");
+    setTripId(undefined);
     onClose();
   };
 
@@ -189,52 +209,60 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
           )}
 
           {selectedImage && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <img
                 src={selectedImage}
                 alt="Selected"
                 className="w-full h-64 object-cover rounded-lg"
               />
               
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Add a caption:</label>
-                <Textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Share your moment..."
-                  className="min-h-[80px]"
-                />
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Add emojis:</label>
-                  <div className="grid grid-cols-8 gap-1">
-                    {emojis.map((emoji, index) => (
-                      <Button
-                        key={index}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => addEmoji(emoji)}
-                        className="h-8 w-8 p-0 text-lg hover:bg-gray-100"
-                      >
-                        {emoji}
-                      </Button>
-                    ))}
+              <LocationSelector
+                onLocationSelected={handleLocationSelected}
+              />
+
+              {location && (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Add a caption:</label>
+                    <Textarea
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      placeholder="Share your moment..."
+                      className="min-h-[80px]"
+                    />
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Add emojis:</label>
+                      <div className="grid grid-cols-8 gap-1">
+                        {emojis.map((emoji, index) => (
+                          <Button
+                            key={index}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => addEmoji(emoji)}
+                            className="h-8 w-8 p-0 text-lg hover:bg-gray-100"
+                          >
+                            {emoji}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button onClick={handlePost} className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500">
+                      <Send size={16} className="mr-2" />
+                      Post to InstanTrip
+                    </Button>
+                    <Button 
+                      onClick={() => setSelectedImage("")} 
+                      variant="outline"
+                    >
+                      Change Photo
+                    </Button>
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button onClick={handlePost} className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500">
-                  <Send size={16} className="mr-2" />
-                  Post to InstanTrip
-                </Button>
-                <Button 
-                  onClick={() => setSelectedImage("")} 
-                  variant="outline"
-                >
-                  Change Photo
-                </Button>
-              </div>
+              )}
             </div>
           )}
         </div>

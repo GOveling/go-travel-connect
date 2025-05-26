@@ -8,7 +8,7 @@ import InstaTripUploadModal from "./InstaTripUploadModal";
 interface AddMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddInstaTripImage?: (image: string, text?: string) => void;
+  onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: number) => void;
 }
 
 const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModalProps) => {
@@ -30,8 +30,8 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
     onClose();
   };
 
-  const handleInstaTripUpload = (imageSrc: string, text?: string) => {
-    onAddInstaTripImage?.(imageSrc, text);
+  const handleInstaTripUpload = (imageSrc: string, text?: string, location?: string, tripId?: number) => {
+    onAddInstaTripImage?.(imageSrc, text, location, tripId);
     setIsInstaTripUploadOpen(false);
     onClose();
   };
@@ -57,7 +57,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
               </div>
               <div>
                 <p className="font-medium">Add InstanTrip</p>
-                <p className="text-sm text-gray-500">Upload a photo for your InstanTrip story</p>
+                <p className="text-sm text-gray-500">Upload a photo with location for your InstanTrip story</p>
               </div>
             </Button>
 
@@ -71,7 +71,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
               </div>
               <div>
                 <p className="font-medium">Create Publication</p>
-                <p className="text-sm text-gray-500">Share to your feed profile</p>
+                <p className="text-sm text-gray-500">Share to your feed profile with location</p>
               </div>
             </Button>
 
@@ -85,7 +85,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
               </div>
               <div>
                 <p className="font-medium">Add Image</p>
-                <p className="text-sm text-gray-500">Add photo to saved places</p>
+                <p className="text-sm text-gray-500">Add photo with location to saved places</p>
               </div>
             </Button>
           </div>

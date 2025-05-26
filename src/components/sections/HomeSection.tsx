@@ -13,6 +13,8 @@ interface InstaTripImage {
   src: string;
   addedAt: number;
   text?: string;
+  location?: string;
+  tripId?: number;
 }
 
 interface ProfilePost {
@@ -20,6 +22,8 @@ interface ProfilePost {
   images: string[];
   text: string;
   createdAt: number;
+  location?: string;
+  tripId?: number;
 }
 
 const HomeSection = () => {
@@ -66,12 +70,14 @@ const HomeSection = () => {
     setNotificationCount(0);
   };
 
-  const handleAddInstaTripImage = (imageSrc: string, text?: string) => {
+  const handleAddInstaTripImage = (imageSrc: string, text?: string, location?: string, tripId?: number) => {
     const newImage: InstaTripImage = {
       id: Date.now().toString(),
       src: imageSrc,
       addedAt: Date.now(),
-      text: text
+      text: text,
+      location: location,
+      tripId: tripId
     };
     setInstaTripImages(prev => [...prev, newImage]);
   };
@@ -80,12 +86,14 @@ const HomeSection = () => {
     setInstaTripImages(prev => prev.filter(image => image.id !== id));
   };
 
-  const handleAddProfilePost = (images: string[], text: string) => {
+  const handleAddProfilePost = (images: string[], text: string, location?: string, tripId?: number) => {
     const newPost: ProfilePost = {
       id: Date.now().toString(),
       images,
       text,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      location: location,
+      tripId: tripId
     };
     setProfilePosts(prev => [newPost, ...prev]);
   };
@@ -299,6 +307,17 @@ const HomeSection = () => {
                   )}
                 </div>
                 <p className="text-sm text-gray-700">{post.text}</p>
+                {post.location && (
+                  <div className="flex items-center space-x-1 text-xs text-gray-500">
+                    <MapPin size={12} />
+                    <span>{post.location}</span>
+                    {post.tripId && (
+                      <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                        Added to trip
+                      </span>
+                    )}
+                  </div>
+                )}
                 <p className="text-xs text-gray-500">{formatTimeAgo(post.createdAt)}</p>
               </div>
             ))
