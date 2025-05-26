@@ -3,10 +3,20 @@ import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share } from "lu
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useState } from "react";
+import TravelDocumentsModal from "@/components/modals/TravelDocumentsModal";
 
 const ProfileSection = () => {
+  const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
+
   const menuItems = [
-    { icon: FileText, title: "Travel Documents", subtitle: "Passports, visas, tickets", color: "text-blue-600" },
+    { 
+      icon: FileText, 
+      title: "Travel Documents", 
+      subtitle: "Passports, visas, tickets", 
+      color: "text-blue-600",
+      onClick: () => setIsTravelDocumentsModalOpen(true)
+    },
     { icon: Bell, title: "Notifications", subtitle: "Manage alerts & updates", color: "text-green-600" },
     { icon: Award, title: "Travel Achievements", subtitle: "Your travel milestones", color: "text-purple-600" },
     { icon: Share, title: "Share Profile", subtitle: "Connect with travelers", color: "text-orange-600" },
@@ -96,7 +106,11 @@ const ProfileSection = () => {
                     <h3 className="font-medium text-gray-800">{item.title}</h3>
                     <p className="text-sm text-gray-600">{item.subtitle}</p>
                   </div>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={item.onClick || (() => {})}
+                  >
                     →
                   </Button>
                 </div>
@@ -115,6 +129,12 @@ const ProfileSection = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Travel Documents Modal */}
+      <TravelDocumentsModal
+        isOpen={isTravelDocumentsModalOpen}
+        onClose={() => setIsTravelDocumentsModalOpen(false)}
+      />
     </div>
   );
 };
