@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Users, Share2, DollarSign, Vote, Calendar, MapPin, Send, Copy, Check } from "lucide-react";
 
 interface InviteFriendsModalProps {
@@ -82,7 +82,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     description: "",
     amount: "",
     paidBy: "",
-    splitBetween: []
+    splitBetween: [] as string[]
   });
 
   const [newDecision, setNewDecision] = useState({
@@ -156,6 +156,20 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   const getTotalExpenses = () => {
     return expenses.reduce((total, expense) => total + expense.amount, 0);
+  };
+
+  const handleSplitBetweenChange = (collaboratorName: string, checked: boolean) => {
+    if (checked) {
+      setNewExpense({
+        ...newExpense,
+        splitBetween: [...newExpense.splitBetween, collaboratorName]
+      });
+    } else {
+      setNewExpense({
+        ...newExpense,
+        splitBetween: newExpense.splitBetween.filter(name => name !== collaboratorName)
+      });
+    }
   };
 
   if (!trip) return null;
@@ -416,6 +430,36 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div>
+                    <Label>Split Between</Label>
+                    <div className="border rounded-md p-3 space-y-2 max-h-32 overflow-y-auto">
+                      {trip.collaborators?.map((collaborator: any) => (
+                        <div key={collaborator.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`split-${collaborator.id}`}
+                            checked={newExpense.splitBetween.includes(collaborator.name)}
+                            onCheckedChange={(checked) => 
+                              handleSplitBetweenChange(collaborator.name, checked as boolean)
+                            }
+                          />
+                          <label 
+                            htmlFor={`split-${collaborator.id}`} 
+                            className="flex items-center space-x-2 cursor-pointer"
+                          >
+                            <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                              {collaborator.avatar}
+                            </div>
+                            <span className="text-sm">{collaborator.name}</span>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    {newExpense.splitBetween.length > 0 && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        Selected: {newExpense.splitBetween.join(", ")}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <Button onClick={handleAddExpense} className="w-full">
