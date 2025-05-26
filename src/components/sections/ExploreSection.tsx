@@ -7,13 +7,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import TravelersSection from "./TravelersSection";
+import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   
   // Notification count state
-  const [notificationCount] = useState(5); // Example count for new notifications
+  const [notificationCount, setNotificationCount] = useState(5); // Example count for new notifications
 
   const popularPlaces = [
     {
@@ -75,8 +77,11 @@ const ExploreSection = () => {
   };
 
   const handleNotificationClick = () => {
-    // This could open a notification dropdown or modal
-    console.log("Notification bell clicked - showing new travelers, messages, places");
+    setIsNotificationModalOpen(true);
+  };
+
+  const handleMarkAllNotificationsRead = () => {
+    setNotificationCount(0);
   };
 
   return (
@@ -226,6 +231,13 @@ const ExploreSection = () => {
         place={selectedPlace}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+      />
+
+      <NotificationAlertsModal
+        isOpen={isNotificationModalOpen}
+        onClose={() => setIsNotificationModalOpen(false)}
+        notificationCount={notificationCount}
+        onMarkAllRead={handleMarkAllNotificationsRead}
       />
     </div>
   );
