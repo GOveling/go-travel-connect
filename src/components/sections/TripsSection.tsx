@@ -5,12 +5,14 @@ import { useState } from "react";
 import TripMap from "@/components/maps/TripMap";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import NewTripModal from "@/components/modals/NewTripModal";
+import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [showTripDetail, setShowTripDetail] = useState(false);
   const [showNewTripModal, setShowNewTripModal] = useState(false);
+  const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
   
   const [trips, setTrips] = useState([
     {
@@ -111,6 +113,11 @@ const TripsSection = () => {
 
   const handleCreateTrip = (tripData: any) => {
     setTrips(prev => [...prev, tripData]);
+  };
+
+  const handleInviteFriends = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowInviteFriendsModal(true);
   };
 
   if (showMap) {
@@ -263,17 +270,15 @@ const TripsSection = () => {
                       <Edit size={16} className="mr-1" />
                       Edit
                     </Button>
-                    {trip.isGroupTrip ? (
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <UserPlus size={16} className="mr-1" />
-                        Manage Group
-                      </Button>
-                    ) : (
-                      <Button size="sm" variant="outline" className="flex-1">
-                        <Share2 size={16} className="mr-1" />
-                        Share Trip
-                      </Button>
-                    )}
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => handleInviteFriends(trip)}
+                    >
+                      <UserPlus size={16} className="mr-1" />
+                      Invite Friends
+                    </Button>
                     <Button 
                       size="sm" 
                       className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
@@ -353,6 +358,16 @@ const TripsSection = () => {
         isOpen={showTripDetail}
         onClose={() => {
           setShowTripDetail(false);
+          setSelectedTrip(null);
+        }}
+      />
+
+      {/* Invite Friends Modal */}
+      <InviteFriendsModal
+        trip={selectedTrip}
+        isOpen={showInviteFriendsModal}
+        onClose={() => {
+          setShowInviteFriendsModal(false);
           setSelectedTrip(null);
         }}
       />
