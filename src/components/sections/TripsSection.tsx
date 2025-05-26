@@ -1,9 +1,13 @@
 
-import { Plus, Calendar, MapPin, Users, Edit } from "lucide-react";
+import { Plus, Calendar, MapPin, Users, Edit, Map } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import TripMap from "@/components/maps/TripMap";
 
 const TripsSection = () => {
+  const [showMap, setShowMap] = useState(false);
+  
   const trips = [
     {
       id: 1,
@@ -12,7 +16,12 @@ const TripsSection = () => {
       dates: "Dec 15 - Dec 25, 2024",
       status: "upcoming",
       travelers: 2,
-      image: "🇪🇺"
+      image: "🇪🇺",
+      coordinates: [
+        { name: "Paris", lat: 48.8566, lng: 2.3522 },
+        { name: "Rome", lat: 41.9028, lng: 12.4964 },
+        { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
+      ]
     },
     {
       id: 2,
@@ -21,7 +30,10 @@ const TripsSection = () => {
       dates: "Jan 8 - Jan 15, 2025",
       status: "planning",
       travelers: 1,
-      image: "🇯🇵"
+      image: "🇯🇵",
+      coordinates: [
+        { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
+      ]
     },
     {
       id: 3,
@@ -30,7 +42,10 @@ const TripsSection = () => {
       dates: "Nov 20 - Nov 27, 2024",
       status: "completed",
       travelers: 3,
-      image: "🇮🇩"
+      image: "🇮🇩",
+      coordinates: [
+        { name: "Bali", lat: -8.3405, lng: 115.0920 }
+      ]
     }
   ];
 
@@ -47,6 +62,32 @@ const TripsSection = () => {
     }
   };
 
+  if (showMap) {
+    return (
+      <div className="min-h-screen p-4 space-y-6">
+        {/* Header */}
+        <div className="pt-8 pb-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">Trip Map</h2>
+              <p className="text-gray-600">View all your trip destinations</p>
+            </div>
+            <Button 
+              variant="outline"
+              onClick={() => setShowMap(false)}
+              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+            >
+              Back to List
+            </Button>
+          </div>
+        </div>
+
+        {/* Map Component */}
+        <TripMap trips={trips} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
@@ -56,10 +97,20 @@ const TripsSection = () => {
             <h2 className="text-3xl font-bold text-gray-800 mb-2">My Trips</h2>
             <p className="text-gray-600">Plan and manage your adventures</p>
           </div>
-          <Button className="bg-gradient-to-r from-blue-500 to-orange-500 border-0">
-            <Plus size={20} className="mr-2" />
-            New Trip
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline"
+              onClick={() => setShowMap(true)}
+              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+            >
+              <Map size={20} className="mr-2" />
+              Map View
+            </Button>
+            <Button className="bg-gradient-to-r from-blue-500 to-orange-500 border-0">
+              <Plus size={20} className="mr-2" />
+              New Trip
+            </Button>
+          </div>
         </div>
       </div>
 
