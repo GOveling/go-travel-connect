@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -33,6 +32,14 @@ interface Decision {
   votes: Record<string, number>;
   status: string;
   endDate: string;
+}
+
+interface Collaborator {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
 }
 
 const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) => {
@@ -93,8 +100,32 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     options: ["", ""]
   });
 
-  // New state for managing collaborators
-  const [collaborators, setCollaborators] = useState(trip?.collaborators || []);
+  // Initialize collaborators with mock data if trip doesn't have collaborators
+  const [collaborators, setCollaborators] = useState<Collaborator[]>(
+    trip?.collaborators || [
+      {
+        id: 1,
+        name: "Alice Johnson",
+        email: "alice@example.com",
+        avatar: "A",
+        role: "owner"
+      },
+      {
+        id: 2,
+        name: "Bob Smith",
+        email: "bob@example.com",
+        avatar: "B",
+        role: "editor"
+      },
+      {
+        id: 3,
+        name: "Carol Davis",
+        email: "carol@example.com",
+        avatar: "C",
+        role: "viewer"
+      }
+    ]
+  );
 
   const handleInvite = () => {
     if (inviteEmail.trim()) {
@@ -214,9 +245,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     }
   };
 
-  // New functions for collaborator management
+  // Functions for collaborator management
   const handleRoleChange = (collaboratorId: number, newRole: string) => {
-    setCollaborators(collaborators.map((collaborator: any) => 
+    setCollaborators(collaborators.map(collaborator => 
       collaborator.id === collaboratorId 
         ? { ...collaborator, role: newRole }
         : collaborator
@@ -224,7 +255,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   };
 
   const handleDeleteCollaborator = (collaboratorId: number) => {
-    setCollaborators(collaborators.filter((collaborator: any) => collaborator.id !== collaboratorId));
+    setCollaborators(collaborators.filter(collaborator => collaborator.id !== collaboratorId));
   };
 
   if (!trip) return null;
@@ -316,7 +347,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {collaborators?.map((collaborator: any) => (
+                  {collaborators.map((collaborator) => (
                     <div key={collaborator.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-white text-sm">
@@ -563,7 +594,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                         <SelectValue placeholder="Select collaborator" />
                       </SelectTrigger>
                       <SelectContent>
-                        {collaborators?.map((collaborator: any) => (
+                        {collaborators.map((collaborator) => (
                           <SelectItem key={collaborator.id} value={collaborator.name}>
                             <div className="flex items-center space-x-2">
                               <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
@@ -579,7 +610,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                   <div>
                     <Label>Split Between</Label>
                     <div className="border rounded-md p-3 space-y-2 max-h-32 overflow-y-auto">
-                      {collaborators?.map((collaborator: any) => (
+                      {collaborators.map((collaborator) => (
                         <div key={collaborator.id} className="flex items-center space-x-2">
                           <Checkbox
                             id={`split-${collaborator.id}`}
@@ -626,7 +657,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {collaborators?.map((collaborator: any) => {
+                  {collaborators.map((collaborator) => {
                     const balance = calculatePersonBalance(collaborator.name);
                     return (
                       <div key={collaborator.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
