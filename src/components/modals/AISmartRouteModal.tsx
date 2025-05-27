@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Brain, X, Route, Navigation, Star, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface Collaborator {
   id: string;
@@ -74,7 +75,321 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [isGenerating, setIsGenerating] = useState(false);
   const [routeGenerated, setRouteGenerated] = useState(false);
   const [activeTab, setActiveTab] = useState("itinerary");
+  const [selectedRouteType, setSelectedRouteType] = useState("current");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
+
+  // Different route configurations
+  const routeConfigurations = {
+    current: {
+      name: "Current Route",
+      description: "Optimal balance of time and experience",
+      duration: "2 days",
+      efficiency: "92%",
+      itinerary: [
+        {
+          day: 1,
+          date: "Dec 15, 2024",
+          places: [
+            {
+              id: "1",
+              name: "Eiffel Tower",
+              category: "Landmark",
+              rating: 4.8,
+              image: "🗼",
+              description: "Iconic iron tower and symbol of Paris",
+              estimatedTime: "2-3 hours",
+              priority: "high" as const,
+              lat: 48.8584,
+              lng: 2.2945,
+              aiRecommendedDuration: "2.5 hours",
+              bestTimeToVisit: "9:00 AM",
+              orderInRoute: 1
+            },
+            {
+              id: "2",
+              name: "Louvre Museum",
+              category: "Museum",
+              rating: 4.7,
+              image: "🎨",
+              description: "World's largest art museum",
+              estimatedTime: "4-6 hours",
+              priority: "high" as const,
+              lat: 48.8606,
+              lng: 2.3376,
+              aiRecommendedDuration: "3 hours",
+              bestTimeToVisit: "2:00 PM",
+              orderInRoute: 2
+            },
+            {
+              id: "3",
+              name: "Café de Flore",
+              category: "Restaurant",
+              rating: 4.3,
+              image: "☕",
+              description: "Historic café in Saint-Germain",
+              estimatedTime: "1-2 hours",
+              priority: "medium" as const,
+              lat: 48.8542,
+              lng: 2.3320,
+              aiRecommendedDuration: "1 hour",
+              bestTimeToVisit: "6:00 PM",
+              orderInRoute: 3
+            }
+          ],
+          totalTime: "6.5 hours",
+          walkingTime: "45 minutes",
+          transportTime: "30 minutes",
+          freeTime: "2 hours"
+        },
+        {
+          day: 2,
+          date: "Dec 16, 2024",
+          places: [
+            {
+              id: "4",
+              name: "Notre-Dame Cathedral",
+              category: "Landmark",
+              rating: 4.6,
+              image: "⛪",
+              description: "Gothic cathedral masterpiece",
+              estimatedTime: "1-2 hours",
+              priority: "high" as const,
+              lat: 48.8530,
+              lng: 2.3499,
+              aiRecommendedDuration: "1.5 hours",
+              bestTimeToVisit: "10:00 AM",
+              orderInRoute: 1
+            },
+            {
+              id: "5",
+              name: "Champs-Élysées",
+              category: "Shopping",
+              rating: 4.4,
+              image: "🛍️",
+              description: "Famous shopping avenue",
+              estimatedTime: "2-3 hours",
+              priority: "medium" as const,
+              lat: 48.8698,
+              lng: 2.3080,
+              aiRecommendedDuration: "2 hours",
+              bestTimeToVisit: "2:00 PM",
+              orderInRoute: 2
+            }
+          ],
+          totalTime: "3.5 hours",
+          walkingTime: "30 minutes",
+          transportTime: "20 minutes",
+          freeTime: "4 hours"
+        }
+      ]
+    },
+    speed: {
+      name: "Speed Route",
+      description: "Maximum places in minimum time",
+      duration: "1.5 days",
+      efficiency: "98%",
+      itinerary: [
+        {
+          day: 1,
+          date: "Dec 15, 2024",
+          places: [
+            {
+              id: "1",
+              name: "Eiffel Tower",
+              category: "Landmark",
+              rating: 4.8,
+              image: "🗼",
+              description: "Quick photo stop at iconic tower",
+              estimatedTime: "1 hour",
+              priority: "high" as const,
+              lat: 48.8584,
+              lng: 2.2945,
+              aiRecommendedDuration: "1 hour",
+              bestTimeToVisit: "8:00 AM",
+              orderInRoute: 1
+            },
+            {
+              id: "2",
+              name: "Louvre Museum",
+              category: "Museum",
+              rating: 4.7,
+              image: "🎨",
+              description: "Express tour - highlights only",
+              estimatedTime: "2 hours",
+              priority: "high" as const,
+              lat: 48.8606,
+              lng: 2.3376,
+              aiRecommendedDuration: "2 hours",
+              bestTimeToVisit: "10:00 AM",
+              orderInRoute: 2
+            },
+            {
+              id: "4",
+              name: "Notre-Dame Cathedral",
+              category: "Landmark",
+              rating: 4.6,
+              image: "⛪",
+              description: "Quick exterior visit",
+              estimatedTime: "30 minutes",
+              priority: "high" as const,
+              lat: 48.8530,
+              lng: 2.3499,
+              aiRecommendedDuration: "30 minutes",
+              bestTimeToVisit: "1:00 PM",
+              orderInRoute: 3
+            },
+            {
+              id: "5",
+              name: "Champs-Élysées",
+              category: "Shopping",
+              rating: 4.4,
+              image: "🛍️",
+              description: "Quick walk down the avenue",
+              estimatedTime: "1 hour",
+              priority: "medium" as const,
+              lat: 48.8698,
+              lng: 2.3080,
+              aiRecommendedDuration: "1 hour",
+              bestTimeToVisit: "3:00 PM",
+              orderInRoute: 4
+            },
+            {
+              id: "6",
+              name: "Arc de Triomphe",
+              category: "Landmark",
+              rating: 4.5,
+              image: "🏛️",
+              description: "Photo opportunity",
+              estimatedTime: "30 minutes",
+              priority: "medium" as const,
+              lat: 48.8738,
+              lng: 2.2950,
+              aiRecommendedDuration: "30 minutes",
+              bestTimeToVisit: "4:00 PM",
+              orderInRoute: 5
+            }
+          ],
+          totalTime: "5 hours",
+          walkingTime: "1 hour",
+          transportTime: "45 minutes",
+          freeTime: "1 hour"
+        }
+      ]
+    },
+    leisure: {
+      name: "Leisure Route",
+      description: "More time at each location",
+      duration: "3 days",
+      efficiency: "78%",
+      itinerary: [
+        {
+          day: 1,
+          date: "Dec 15, 2024",
+          places: [
+            {
+              id: "1",
+              name: "Eiffel Tower",
+              category: "Landmark",
+              rating: 4.8,
+              image: "🗼",
+              description: "Full experience including elevator ride and dining",
+              estimatedTime: "4 hours",
+              priority: "high" as const,
+              lat: 48.8584,
+              lng: 2.2945,
+              aiRecommendedDuration: "4 hours",
+              bestTimeToVisit: "10:00 AM",
+              orderInRoute: 1
+            },
+            {
+              id: "3",
+              name: "Café de Flore",
+              category: "Restaurant",
+              rating: 4.3,
+              image: "☕",
+              description: "Leisurely lunch and people watching",
+              estimatedTime: "2 hours",
+              priority: "medium" as const,
+              lat: 48.8542,
+              lng: 2.3320,
+              aiRecommendedDuration: "2 hours",
+              bestTimeToVisit: "3:00 PM",
+              orderInRoute: 2
+            }
+          ],
+          totalTime: "6 hours",
+          walkingTime: "30 minutes",
+          transportTime: "20 minutes",
+          freeTime: "3 hours"
+        },
+        {
+          day: 2,
+          date: "Dec 16, 2024",
+          places: [
+            {
+              id: "2",
+              name: "Louvre Museum",
+              category: "Museum",
+              rating: 4.7,
+              image: "🎨",
+              description: "Full day exploration with guided tour",
+              estimatedTime: "6 hours",
+              priority: "high" as const,
+              lat: 48.8606,
+              lng: 2.3376,
+              aiRecommendedDuration: "6 hours",
+              bestTimeToVisit: "10:00 AM",
+              orderInRoute: 1
+            }
+          ],
+          totalTime: "6 hours",
+          walkingTime: "20 minutes",
+          transportTime: "15 minutes",
+          freeTime: "4 hours"
+        },
+        {
+          day: 3,
+          date: "Dec 17, 2024",
+          places: [
+            {
+              id: "4",
+              name: "Notre-Dame Cathedral",
+              category: "Landmark",
+              rating: 4.6,
+              image: "⛪",
+              description: "Detailed exploration with audio guide",
+              estimatedTime: "3 hours",
+              priority: "high" as const,
+              lat: 48.8530,
+              lng: 2.3499,
+              aiRecommendedDuration: "3 hours",
+              bestTimeToVisit: "10:00 AM",
+              orderInRoute: 1
+            },
+            {
+              id: "5",
+              name: "Champs-Élysées",
+              category: "Shopping",
+              rating: 4.4,
+              image: "🛍️",
+              description: "Shopping and dining experience",
+              estimatedTime: "3 hours",
+              priority: "medium" as const,
+              lat: 48.8698,
+              lng: 2.3080,
+              aiRecommendedDuration: "3 hours",
+              bestTimeToVisit: "2:00 PM",
+              orderInRoute: 2
+            }
+          ],
+          totalTime: "6 hours",
+          walkingTime: "45 minutes",
+          transportTime: "30 minutes",
+          freeTime: "5 hours"
+        }
+      ]
+    }
+  };
 
   // Mock AI-optimized data based on trip destinations
   const generateAIRoute = async () => {
@@ -83,108 +398,17 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     // Simulate AI processing time
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Mock AI-generated optimized itinerary
-    const mockItinerary: DayItinerary[] = [
-      {
-        day: 1,
-        date: "Dec 15, 2024",
-        places: [
-          {
-            id: "1",
-            name: "Eiffel Tower",
-            category: "Landmark",
-            rating: 4.8,
-            image: "🗼",
-            description: "Iconic iron tower and symbol of Paris",
-            estimatedTime: "2-3 hours",
-            priority: "high",
-            lat: 48.8584,
-            lng: 2.2945,
-            aiRecommendedDuration: "2.5 hours",
-            bestTimeToVisit: "9:00 AM",
-            orderInRoute: 1
-          },
-          {
-            id: "2",
-            name: "Louvre Museum",
-            category: "Museum",
-            rating: 4.7,
-            image: "🎨",
-            description: "World's largest art museum",
-            estimatedTime: "4-6 hours",
-            priority: "high",
-            lat: 48.8606,
-            lng: 2.3376,
-            aiRecommendedDuration: "3 hours",
-            bestTimeToVisit: "2:00 PM",
-            orderInRoute: 2
-          },
-          {
-            id: "3",
-            name: "Café de Flore",
-            category: "Restaurant",
-            rating: 4.3,
-            image: "☕",
-            description: "Historic café in Saint-Germain",
-            estimatedTime: "1-2 hours",
-            priority: "medium",
-            lat: 48.8542,
-            lng: 2.3320,
-            aiRecommendedDuration: "1 hour",
-            bestTimeToVisit: "6:00 PM",
-            orderInRoute: 3
-          }
-        ],
-        totalTime: "6.5 hours",
-        walkingTime: "45 minutes",
-        transportTime: "30 minutes",
-        freeTime: "2 hours"
-      },
-      {
-        day: 2,
-        date: "Dec 16, 2024",
-        places: [
-          {
-            id: "4",
-            name: "Notre-Dame Cathedral",
-            category: "Landmark",
-            rating: 4.6,
-            image: "⛪",
-            description: "Gothic cathedral masterpiece",
-            estimatedTime: "1-2 hours",
-            priority: "high",
-            lat: 48.8530,
-            lng: 2.3499,
-            aiRecommendedDuration: "1.5 hours",
-            bestTimeToVisit: "10:00 AM",
-            orderInRoute: 1
-          },
-          {
-            id: "5",
-            name: "Champs-Élysées",
-            category: "Shopping",
-            rating: 4.4,
-            image: "🛍️",
-            description: "Famous shopping avenue",
-            estimatedTime: "2-3 hours",
-            priority: "medium",
-            lat: 48.8698,
-            lng: 2.3080,
-            aiRecommendedDuration: "2 hours",
-            bestTimeToVisit: "2:00 PM",
-            orderInRoute: 2
-          }
-        ],
-        totalTime: "3.5 hours",
-        walkingTime: "30 minutes",
-        transportTime: "20 minutes",
-        freeTime: "4 hours"
-      }
-    ];
-
-    setOptimizedItinerary(mockItinerary);
+    // Set initial route to current
+    setOptimizedItinerary(routeConfigurations.current.itinerary);
     setRouteGenerated(true);
     setIsGenerating(false);
+  };
+
+  // Handle route type change
+  const handleRouteTypeChange = (routeType: string) => {
+    setSelectedRouteType(routeType);
+    const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
+    setOptimizedItinerary(selectedConfig.itinerary);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -273,10 +497,10 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                 <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
                   <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
                     <Brain className="mr-2" size={18} />
-                    AI-Optimized Itinerary
+                    AI-Optimized Itinerary - {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].name}
                   </h4>
                   <p className="text-purple-600 text-sm">
-                    This route is optimized for minimal travel time, optimal visiting hours, and maximum enjoyment based on crowd patterns and weather data.
+                    {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].description}
                   </p>
                 </div>
 
