@@ -43,6 +43,7 @@ export interface Trip {
   accommodation?: string;
   transportation?: string;
   savedPlaces?: SavedPlace[];
+  savedPlacesByDestination?: { [key: string]: SavedPlace[] };
 }
 
 export interface OptimizedPlace {
