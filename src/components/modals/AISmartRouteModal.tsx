@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Brain, X, Route, Navigation, Star, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -39,6 +38,7 @@ interface Trip {
   budget?: string;
   accommodation?: string;
   transportation?: string;
+  savedPlaces?: SavedPlace[];
 }
 
 interface OptimizedPlace {
@@ -56,6 +56,20 @@ interface OptimizedPlace {
   bestTimeToVisit: string;
   orderInRoute: number;
   destinationName: string;
+}
+
+interface SavedPlace {
+  id: string;
+  name: string;
+  category: string;
+  rating: number;
+  image: string;
+  description: string;
+  estimatedTime: string;
+  priority: "high" | "medium" | "low";
+  destinationName?: string;
+  lat?: number;
+  lng?: number;
 }
 
 interface DayItinerary {
@@ -83,234 +97,22 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [selectedRouteType, setSelectedRouteType] = useState("current");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
 
-  // Real saved places data for each destination (this would come from the trip's saved places)
-  const savedPlacesByDestination = {
-    "Paris": [
-      {
-        id: "1",
-        name: "Eiffel Tower",
-        category: "Landmark",
-        rating: 4.8,
-        image: "🗼",
-        description: "Iconic iron tower and symbol of Paris",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const,
-        lat: 48.8584,
-        lng: 2.2945
-      },
-      {
-        id: "2",
-        name: "Louvre Museum",
-        category: "Museum",
-        rating: 4.7,
-        image: "🎨",
-        description: "World's largest art museum",
-        estimatedTime: "4-6 hours",
-        priority: "high" as const,
-        lat: 48.8606,
-        lng: 2.3376
-      },
-      {
-        id: "3",
-        name: "Café de Flore",
-        category: "Restaurant",
-        rating: 4.3,
-        image: "☕",
-        description: "Historic café in Saint-Germain",
-        estimatedTime: "1-2 hours",
-        priority: "medium" as const,
-        lat: 48.8542,
-        lng: 2.3320
-      },
-      {
-        id: "4",
-        name: "Notre-Dame Cathedral",
-        category: "Landmark",
-        rating: 4.6,
-        image: "⛪",
-        description: "Gothic cathedral masterpiece",
-        estimatedTime: "1-2 hours",
-        priority: "high" as const,
-        lat: 48.8530,
-        lng: 2.3499
-      },
-      {
-        id: "5",
-        name: "Champs-Élysées",
-        category: "Shopping",
-        rating: 4.4,
-        image: "🛍️",
-        description: "Famous shopping avenue",
-        estimatedTime: "2-3 hours",
-        priority: "medium" as const,
-        lat: 48.8698,
-        lng: 2.3080
-      },
-      {
-        id: "6",
-        name: "Arc de Triomphe",
-        category: "Landmark",
-        rating: 4.5,
-        image: "🏛️",
-        description: "Triumphal arch monument",
-        estimatedTime: "1 hour",
-        priority: "medium" as const,
-        lat: 48.8738,
-        lng: 2.2950
+  // Get saved places ONLY from the trip data (from View Details section)
+  const getSavedPlacesByDestination = () => {
+    if (!trip?.savedPlaces) return {};
+    
+    const placesByDestination: { [key: string]: SavedPlace[] } = {};
+    
+    // Group saved places by destination
+    trip.savedPlaces.forEach(place => {
+      const destinationName = place.destinationName || trip.destination;
+      if (!placesByDestination[destinationName]) {
+        placesByDestination[destinationName] = [];
       }
-    ],
-    "Rome": [
-      {
-        id: "7",
-        name: "Colosseum",
-        category: "Landmark",
-        rating: 4.9,
-        image: "🏛️",
-        description: "Ancient Roman amphitheater",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const,
-        lat: 41.8902,
-        lng: 12.4922
-      },
-      {
-        id: "8",
-        name: "Vatican Museums",
-        category: "Museum",
-        rating: 4.8,
-        image: "🎨",
-        description: "Pope's art collection and Sistine Chapel",
-        estimatedTime: "3-4 hours",
-        priority: "high" as const,
-        lat: 41.9039,
-        lng: 12.4544
-      },
-      {
-        id: "9",
-        name: "Trevi Fountain",
-        category: "Landmark",
-        rating: 4.6,
-        image: "⛲",
-        description: "Famous baroque fountain",
-        estimatedTime: "30 minutes",
-        priority: "medium" as const,
-        lat: 41.9009,
-        lng: 12.4833
-      },
-      {
-        id: "10",
-        name: "Pantheon",
-        category: "Landmark",
-        rating: 4.7,
-        image: "🏛️",
-        description: "Ancient Roman temple",
-        estimatedTime: "1 hour",
-        priority: "high" as const,
-        lat: 41.8986,
-        lng: 12.4769
-      },
-      {
-        id: "11",
-        name: "Roman Forum",
-        category: "Historical Site",
-        rating: 4.5,
-        image: "🏛️",
-        description: "Center of ancient Roman life",
-        estimatedTime: "2 hours",
-        priority: "medium" as const,
-        lat: 41.8925,
-        lng: 12.4853
-      }
-    ],
-    "Barcelona": [
-      {
-        id: "12",
-        name: "Sagrada Familia",
-        category: "Landmark",
-        rating: 4.9,
-        image: "⛪",
-        description: "Gaudí's masterpiece basilica",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const,
-        lat: 41.4036,
-        lng: 2.1744
-      },
-      {
-        id: "13",
-        name: "Park Güell",
-        category: "Park",
-        rating: 4.7,
-        image: "🌳",
-        description: "Colorful mosaic park by Gaudí",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const,
-        lat: 41.4145,
-        lng: 2.1527
-      },
-      {
-        id: "14",
-        name: "La Boqueria Market",
-        category: "Market",
-        rating: 4.4,
-        image: "🍅",
-        description: "Famous food market on Las Ramblas",
-        estimatedTime: "1-2 hours",
-        priority: "medium" as const,
-        lat: 41.3818,
-        lng: 2.1721
-      }
-    ],
-    "Tokyo": [
-      {
-        id: "15",
-        name: "Senso-ji Temple",
-        category: "Temple",
-        rating: 4.6,
-        image: "⛩️",
-        description: "Tokyo's oldest Buddhist temple",
-        estimatedTime: "1-2 hours",
-        priority: "high" as const,
-        lat: 35.7148,
-        lng: 139.7967
-      },
-      {
-        id: "16",
-        name: "Shibuya Crossing",
-        category: "Landmark",
-        rating: 4.5,
-        image: "🚦",
-        description: "World's busiest pedestrian crossing",
-        estimatedTime: "30 minutes",
-        priority: "medium" as const,
-        lat: 35.6598,
-        lng: 139.7006
-      }
-    ],
-    "Bali": [
-      {
-        id: "17",
-        name: "Tanah Lot Temple",
-        category: "Temple",
-        rating: 4.5,
-        image: "🏛️",
-        description: "Temple on a rock formation in the sea",
-        estimatedTime: "2 hours",
-        priority: "high" as const,
-        lat: -8.6211,
-        lng: 115.0870
-      },
-      {
-        id: "18",
-        name: "Rice Terraces of Jatiluwih",
-        category: "Nature",
-        rating: 4.7,
-        image: "🌾",
-        description: "UNESCO World Heritage rice terraces",
-        estimatedTime: "3-4 hours",
-        priority: "high" as const,
-        lat: -8.3621,
-        lng: 115.1316
-      }
-    ]
+      placesByDestination[destinationName].push(place);
+    });
+    
+    return placesByDestination;
   };
 
   // Calculate days per destination based on trip duration
@@ -340,12 +142,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
       
       const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       
+      const savedPlacesByDestination = getSavedPlacesByDestination();
+      
       // Distribute days among destinations (give more days to destinations with more saved places)
       const destinationDays = [];
       let remainingDays = totalDays;
       
       trip?.coordinates.forEach((destination, index) => {
-        const savedPlaces = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
+        const savedPlaces = savedPlacesByDestination[destination.name] || [];
         const isLast = index === totalDestinations - 1;
         
         if (isLast) {
@@ -414,20 +218,38 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     }
   };
 
-  // Generate AI optimized routes based on actual saved places data and day allocation
+  // Generate AI optimized routes based ONLY on actual saved places from the trip
   const generateOptimizedRoutes = () => {
     if (!trip) return { current: [], speed: [], leisure: [] };
 
     const routes = { current: [] as DayItinerary[], speed: [] as DayItinerary[], leisure: [] as DayItinerary[] };
     const destinationDays = calculateDestinationDays(trip.dates, trip.coordinates.length);
+    const savedPlacesByDestination = getSavedPlacesByDestination();
 
     trip.coordinates.forEach((destination, destIndex) => {
-      const savedPlaces = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
+      const savedPlaces = savedPlacesByDestination[destination.name] || [];
       const allocatedDays = destinationDays[destIndex];
       
       if (savedPlaces.length === 0) return;
 
       const destinationDate = getDestinationDates(trip.dates, destIndex, trip.coordinates.length, allocatedDays);
+
+      // Convert saved places to optimized places format
+      const convertToOptimizedPlaces = (places: SavedPlace[], routeType: string) => {
+        return places.map((place, index) => ({
+          ...place,
+          lat: place.lat || destination.lat,
+          lng: place.lng || destination.lng,
+          destinationName: destination.name,
+          aiRecommendedDuration: routeType === 'speed' ? "1 hour" : 
+                                 routeType === 'leisure' ? (place.estimatedTime.split('-')[1]?.trim() || place.estimatedTime) :
+                                 place.estimatedTime.split('-')[0].trim(),
+          bestTimeToVisit: routeType === 'speed' ? `${8 + (index % 8)}:00 ${index < 8 ? 'AM' : 'PM'}` :
+                          routeType === 'leisure' ? (index === 0 ? "10:00 AM" : "3:00 PM") :
+                          index === 0 ? "9:00 AM" : index === 1 ? "1:00 PM" : index === 2 ? "4:00 PM" : "6:00 PM",
+          orderInRoute: index + 1
+        }));
+      };
 
       // Current Route: Balanced approach considering allocated days
       const placesPerDay = Math.ceil(savedPlaces.length / allocatedDays);
@@ -436,21 +258,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
           const priorityOrder = { high: 3, medium: 2, low: 1 };
           return priorityOrder[b.priority] - priorityOrder[a.priority];
         })
-        .slice(0, Math.min(placesPerDay * allocatedDays, savedPlaces.length))
-        .map((place, index) => ({
-          ...place,
-          destinationName: destination.name,
-          aiRecommendedDuration: place.estimatedTime.split('-')[0].trim(),
-          bestTimeToVisit: index === 0 ? "9:00 AM" : index === 1 ? "1:00 PM" : index === 2 ? "4:00 PM" : "6:00 PM",
-          orderInRoute: index + 1
-        }));
+        .slice(0, Math.min(placesPerDay * allocatedDays, savedPlaces.length));
 
       if (currentPlaces.length > 0) {
         routes.current.push({
           day: destIndex + 1,
           date: destinationDate,
           destinationName: destination.name,
-          places: currentPlaces,
+          places: convertToOptimizedPlaces(currentPlaces, 'current'),
           totalTime: `${Math.ceil(currentPlaces.length * 2.5)} hours`,
           walkingTime: `${Math.ceil(currentPlaces.length * 0.5)} minutes`,
           transportTime: `${Math.ceil(currentPlaces.length * 0.3)} minutes`,
@@ -466,21 +281,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
           const priorityOrder = { high: 3, medium: 2, low: 1 };
           return priorityOrder[b.priority] - priorityOrder[a.priority];
         })
-        .slice(0, speedPlacesPerDay * allocatedDays)
-        .map((place, index) => ({
-          ...place,
-          destinationName: destination.name,
-          aiRecommendedDuration: "1 hour",
-          bestTimeToVisit: `${8 + (index % 8)}:00 ${index < 8 ? 'AM' : 'PM'}`,
-          orderInRoute: index + 1
-        }));
+        .slice(0, speedPlacesPerDay * allocatedDays);
 
       if (speedPlaces.length > 0) {
         routes.speed.push({
           day: destIndex + 1,
           date: destinationDate,
           destinationName: destination.name,
-          places: speedPlaces,
+          places: convertToOptimizedPlaces(speedPlaces, 'speed'),
           totalTime: `${speedPlaces.length} hours`,
           walkingTime: `${Math.ceil(speedPlaces.length * 0.7)} minutes`,
           transportTime: `${Math.ceil(speedPlaces.length * 0.5)} minutes`,
@@ -496,21 +304,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
           const priorityOrder = { high: 3, medium: 2, low: 1 };
           return priorityOrder[b.priority] - priorityOrder[a.priority];
         })
-        .slice(0, leisurePlacesPerDay * allocatedDays)
-        .map((place, index) => ({
-          ...place,
-          destinationName: destination.name,
-          aiRecommendedDuration: place.estimatedTime.split('-')[1]?.trim() || place.estimatedTime,
-          bestTimeToVisit: index === 0 ? "10:00 AM" : "3:00 PM",
-          orderInRoute: index + 1
-        }));
+        .slice(0, leisurePlacesPerDay * allocatedDays);
 
       if (leisurePlaces.length > 0) {
         routes.leisure.push({
           day: destIndex + 1,
           date: destinationDate,
           destinationName: destination.name,
-          places: leisurePlaces,
+          places: convertToOptimizedPlaces(leisurePlaces, 'leisure'),
           totalTime: `${leisurePlaces.length * 3} hours`,
           walkingTime: "30 minutes",
           transportTime: "20 minutes",
@@ -523,7 +324,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     return routes;
   };
 
-  // Route configurations using actual data with day considerations
+  // Route configurations using actual saved places data only
   const getRouteConfigurations = () => {
     const routes = generateOptimizedRoutes();
     const totalDays = trip ? calculateDestinationDays(trip.dates, trip.coordinates.length).reduce((a, b) => a + b, 0) : 0;
@@ -560,7 +361,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     // Simulate AI processing time
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Set initial route to current using actual data
+    // Set initial route to current using actual saved places data
     const routeConfigurations = getRouteConfigurations();
     setOptimizedItinerary(routeConfigurations.current.itinerary);
     setRouteGenerated(true);
@@ -591,10 +392,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   if (!trip) return null;
 
   const routeConfigurations = getRouteConfigurations();
-  const totalSavedPlaces = trip.coordinates.reduce((total, destination) => {
-    const places = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
-    return total + places.length;
-  }, 0);
+  const savedPlacesByDestination = getSavedPlacesByDestination();
+  const totalSavedPlaces = Object.values(savedPlacesByDestination).reduce((total, places) => total + places.length, 0);
   const destinationDays = calculateDestinationDays(trip.dates, trip.coordinates.length);
   const totalTripDays = destinationDays.reduce((a, b) => a + b, 0);
 
@@ -613,7 +412,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
             <div className="text-center py-12">
               <Brain size={64} className="mx-auto mb-6 text-purple-600" />
               <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                AI Route Optimization with Day Analysis
+                AI Route Optimization with Your Saved Places
               </h3>
               <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
                 Our AI will analyze your {totalSavedPlaces} saved places across {trip.coordinates.length} destinations 
@@ -631,7 +430,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                       <div className="flex items-center space-x-2">
                         <span className="text-blue-600 font-medium">{destinationDays[index]} day{destinationDays[index] > 1 ? 's' : ''}</span>
                         <span className="text-blue-500">
-                          ({savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination]?.length || 0} places)
+                          ({savedPlacesByDestination[destination.name]?.length || 0} saved places)
                         </span>
                       </div>
                     </div>
@@ -652,13 +451,13 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <MapPin className="mx-auto mb-2 text-blue-600" size={24} />
-                      <p className="text-sm font-medium text-blue-800">Day-Based Analysis</p>
-                      <p className="text-xs text-blue-600">{totalTripDays} days analyzed</p>
+                      <p className="text-sm font-medium text-blue-800">Your Saved Places</p>
+                      <p className="text-xs text-blue-600">{totalSavedPlaces} places</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
                       <Clock className="mx-auto mb-2 text-green-600" size={24} />
                       <p className="text-sm font-medium text-green-800">Time Optimization</p>
-                      <p className="text-xs text-green-600">{totalSavedPlaces} places scheduled</p>
+                      <p className="text-xs text-green-600">{totalTripDays} days analyzed</p>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-lg">
                       <Route className="mx-auto mb-2 text-purple-600" size={24} />
@@ -668,7 +467,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     <div className="bg-orange-50 p-4 rounded-lg">
                       <Star className="mx-auto mb-2 text-orange-600" size={24} />
                       <p className="text-sm font-medium text-orange-800">Priority Ranking</p>
-                      <p className="text-xs text-orange-600">Day allocation considered</p>
+                      <p className="text-xs text-orange-600">Your preferences</p>
                     </div>
                   </div>
 
@@ -680,7 +479,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     {isGenerating ? (
                       <>
                         <Brain className="animate-spin mr-2" size={20} />
-                        Analyzing {totalSavedPlaces} Places Over {totalTripDays} Days...
+                        Analyzing Your {totalSavedPlaces} Saved Places...
                       </>
                     ) : (
                       <>
@@ -711,7 +510,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                       {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].description}
                     </p>
                     <p className="text-purple-500 text-xs mt-1">
-                      Based on {totalSavedPlaces} saved places over {totalTripDays} allocated days
+                      Based on your {totalSavedPlaces} saved places over {totalTripDays} allocated days
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -839,9 +638,9 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     <div className="text-center">
                       <MapPin size={48} className="mx-auto text-purple-600 mb-4" />
                       <h3 className="text-xl font-semibold text-gray-700 mb-2">Interactive Route Map</h3>
-                      <p className="text-gray-600">AI-optimized route with day-based scheduling</p>
+                      <p className="text-gray-600">AI-optimized route with your saved places</p>
                       <p className="text-sm text-gray-500 mt-2">
-                        Shows optimized paths across {totalTripDays} days with {totalSavedPlaces} saved places
+                        Shows optimized paths with your {totalSavedPlaces} saved places across {totalTripDays} days
                       </p>
                     </div>
                   </CardContent>
@@ -854,7 +653,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Total Places:</span>
+                        <span className="text-gray-600">Your Saved Places:</span>
                         <span className="font-medium">{totalSavedPlaces}</span>
                       </div>
                       <div className="flex justify-between">
@@ -907,20 +706,20 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     <CardContent className="space-y-4">
                       <div className="space-y-3">
                         <div className="bg-green-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-green-800">Day-Based Planning</h6>
-                          <p className="text-sm text-green-600">Optimized {totalSavedPlaces} places across {totalTripDays} allocated days</p>
+                          <h6 className="font-medium text-green-800">Your Saved Places</h6>
+                          <p className="text-sm text-green-600">Analyzed {totalSavedPlaces} places you've saved across {totalTripDays} allocated days</p>
                         </div>
                         <div className="bg-blue-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-blue-800">Destination Time Allocation</h6>
-                          <p className="text-sm text-blue-600">Smart day distribution based on saved places density</p>
+                          <h6 className="font-medium text-blue-800">Priority-Based Routing</h6>
+                          <p className="text-sm text-blue-600">Routes optimized based on your priority ratings</p>
                         </div>
                         <div className="bg-purple-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-purple-800">Priority & Day Integration</h6>
-                          <p className="text-sm text-purple-600">High priority places scheduled within allocated timeframe</p>
+                          <h6 className="font-medium text-purple-800">Time Allocation</h6>
+                          <p className="text-sm text-purple-600">Smart scheduling within your allocated timeframe</p>
                         </div>
                         <div className="bg-orange-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-orange-800">Realistic Scheduling</h6>
-                          <p className="text-sm text-orange-600">Considers actual day constraints for each destination</p>
+                          <h6 className="font-medium text-orange-800">Personalized Routes</h6>
+                          <p className="text-sm text-orange-600">Based entirely on places you've personally selected</p>
                         </div>
                       </div>
                     </CardContent>
@@ -965,7 +764,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                             : 'bg-blue-50 border-blue-200'
                         }`}>
                           <h6 className="font-medium text-blue-800 mb-2">Speed Route</h6>
-                          <p className="text-sm text-blue-600 mb-2">Maximum places within allocated timeframe</p>
+                          <p className="text-sm text-blue-600 mb-2">Maximum saved places within allocated timeframe</p>
                           <div className="text-xs text-blue-700">
                             <p>Duration: {routeConfigurations.speed.duration}</p>
                             <p>Efficiency: {routeConfigurations.speed.efficiency}</p>
@@ -977,7 +776,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                             : 'bg-purple-50 border-purple-200'
                         }`}>
                           <h6 className="font-medium text-purple-800 mb-2">Leisure Route</h6>
-                          <p className="text-sm text-purple-600 mb-2">Relaxed pace with more time per location</p>
+                          <p className="text-sm text-purple-600 mb-2">Relaxed pace with more time per saved place</p>
                           <div className="text-xs text-purple-700">
                             <p>Duration: {routeConfigurations.leisure.duration}</p>
                             <p>Efficiency: {routeConfigurations.leisure.efficiency}</p>
@@ -990,21 +789,21 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Day-Based Efficiency Metrics</CardTitle>
+                    <CardTitle className="text-lg">Saved Places Analysis</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Day Allocation Efficiency:</span>
+                        <span className="text-gray-600">Places Coverage:</span>
                         <div className="flex items-center space-x-2">
                           <div className="w-20 h-2 bg-gray-200 rounded-full">
-                            <div className="w-18 h-2 bg-green-500 rounded-full"></div>
+                            <div className="w-full h-2 bg-green-500 rounded-full"></div>
                           </div>
-                          <span className="text-sm font-medium">94%</span>
+                          <span className="text-sm font-medium">100%</span>
                         </div>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Time Distribution:</span>
+                        <span className="text-gray-600">Priority Distribution:</span>
                         <div className="flex items-center space-x-2">
                           <div className="w-20 h-2 bg-gray-200 rounded-full">
                             <div className="w-17 h-2 bg-blue-500 rounded-full"></div>
@@ -1013,7 +812,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                         </div>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Priority Coverage:</span>
+                        <span className="text-gray-600">Time Optimization:</span>
                         <div className="flex items-center space-x-2">
                           <div className="w-20 h-2 bg-gray-200 rounded-full">
                             <div className="w-19 h-2 bg-purple-500 rounded-full"></div>
@@ -1024,13 +823,13 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     </div>
                     
                     <div className="bg-gray-50 p-3 rounded-lg mt-4">
-                      <h6 className="font-medium text-gray-800 mb-2">AI Day-Based Recommendations</h6>
+                      <h6 className="font-medium text-gray-800 mb-2">AI Personalized Recommendations</h6>
                       <ul className="text-sm text-gray-600 space-y-1">
-                        <li>• Allocate more days to destinations with higher place density</li>
-                        <li>• Schedule high-priority places early in allocated day range</li>
-                        <li>• Consider travel time between destinations in day planning</li>
-                        <li>• Allow buffer time for spontaneous discoveries</li>
-                        <li>• Balance intensive sightseeing days with leisure periods</li>
+                        <li>• All routes use only your personally saved places</li>
+                        <li>• Priority rankings from your preferences are considered</li>
+                        <li>• Time allocation respects your trip's day distribution</li>
+                        <li>• Routes optimize travel time between your selected places</li>
+                        <li>• Flexible scheduling allows for spontaneous discoveries</li>
                       </ul>
                     </div>
                   </CardContent>
