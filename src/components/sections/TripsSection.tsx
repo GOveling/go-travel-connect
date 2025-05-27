@@ -285,6 +285,20 @@ const TripsSection = () => {
                     </div>
                   </div>
 
+                  {/* AI Smart Route Button for Group Trips */}
+                  {trip.isGroupTrip && (
+                    <div className="mb-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100"
+                      >
+                        <Brain size={16} className="mr-2" />
+                        AI Smart Route
+                      </Button>
+                    </div>
+                  )}
+
                   <div className="flex space-x-2">
                     <Button size="sm" variant="outline" className="flex-1">
                       <Edit size={16} className="mr-1" />
@@ -307,23 +321,6 @@ const TripsSection = () => {
                       View Details
                     </Button>
                   </div>
-
-                  {/* Group Options - AI Smart Route */}
-                  {trip.isGroupTrip && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 font-medium">Group Options:</span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100"
-                        >
-                          <Brain size={16} className="mr-2" />
-                          AI Smart Route
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </CardContent>
