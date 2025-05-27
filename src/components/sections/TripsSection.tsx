@@ -7,6 +7,7 @@ import TripDetailModal from "@/components/modals/TripDetailModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
 import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
+import AISmartRouteModal from "@/components/modals/AISmartRouteModal";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
@@ -15,6 +16,7 @@ const TripsSection = () => {
   const [showNewTripModal, setShowNewTripModal] = useState(false);
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
   const [showGroupOptionsModal, setShowGroupOptionsModal] = useState(false);
+  const [showAISmartRouteModal, setShowAISmartRouteModal] = useState(false);
   
   const [trips, setTrips] = useState([
     {
@@ -125,6 +127,11 @@ const TripsSection = () => {
   const handleGroupOptions = (trip: any) => {
     setSelectedTrip(trip);
     setShowGroupOptionsModal(true);
+  };
+
+  const handleAISmartRoute = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowAISmartRouteModal(true);
   };
 
   if (showMap) {
@@ -290,6 +297,7 @@ const TripsSection = () => {
                     <Button
                       size="sm"
                       variant="outline"
+                      onClick={() => handleAISmartRoute(trip)}
                       className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100"
                     >
                       <Brain size={16} className="mr-2" />
@@ -410,6 +418,16 @@ const TripsSection = () => {
         isOpen={showGroupOptionsModal}
         onClose={() => {
           setShowGroupOptionsModal(false);
+          setSelectedTrip(null);
+        }}
+      />
+
+      {/* AI Smart Route Modal */}
+      <AISmartRouteModal
+        trip={selectedTrip}
+        isOpen={showAISmartRouteModal}
+        onClose={() => {
+          setShowAISmartRouteModal(false);
           setSelectedTrip(null);
         }}
       />
