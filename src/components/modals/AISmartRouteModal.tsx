@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Brain, X, Route, Navigation, Star, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -55,11 +54,13 @@ interface OptimizedPlace {
   aiRecommendedDuration: string;
   bestTimeToVisit: string;
   orderInRoute: number;
+  destinationName: string;
 }
 
 interface DayItinerary {
   day: number;
   date: string;
+  destinationName: string;
   places: OptimizedPlace[];
   totalTime: string;
   walkingTime: string;
@@ -80,317 +81,389 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [selectedRouteType, setSelectedRouteType] = useState("current");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
 
-  // Different route configurations
-  const routeConfigurations = {
-    current: {
-      name: "Current Route",
-      description: "Optimal balance of time and experience",
-      duration: "2 days",
-      efficiency: "92%",
-      itinerary: [
-        {
-          day: 1,
-          date: "Dec 15, 2024",
-          places: [
-            {
-              id: "1",
-              name: "Eiffel Tower",
-              category: "Landmark",
-              rating: 4.8,
-              image: "🗼",
-              description: "Iconic iron tower and symbol of Paris",
-              estimatedTime: "2-3 hours",
-              priority: "high" as const,
-              lat: 48.8584,
-              lng: 2.2945,
-              aiRecommendedDuration: "2.5 hours",
-              bestTimeToVisit: "9:00 AM",
-              orderInRoute: 1
-            },
-            {
-              id: "2",
-              name: "Louvre Museum",
-              category: "Museum",
-              rating: 4.7,
-              image: "🎨",
-              description: "World's largest art museum",
-              estimatedTime: "4-6 hours",
-              priority: "high" as const,
-              lat: 48.8606,
-              lng: 2.3376,
-              aiRecommendedDuration: "3 hours",
-              bestTimeToVisit: "2:00 PM",
-              orderInRoute: 2
-            },
-            {
-              id: "3",
-              name: "Café de Flore",
-              category: "Restaurant",
-              rating: 4.3,
-              image: "☕",
-              description: "Historic café in Saint-Germain",
-              estimatedTime: "1-2 hours",
-              priority: "medium" as const,
-              lat: 48.8542,
-              lng: 2.3320,
-              aiRecommendedDuration: "1 hour",
-              bestTimeToVisit: "6:00 PM",
-              orderInRoute: 3
-            }
-          ],
-          totalTime: "6.5 hours",
+  // Real saved places data for each destination (this would come from the trip's saved places)
+  const savedPlacesByDestination = {
+    "Paris": [
+      {
+        id: "1",
+        name: "Eiffel Tower",
+        category: "Landmark",
+        rating: 4.8,
+        image: "🗼",
+        description: "Iconic iron tower and symbol of Paris",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const,
+        lat: 48.8584,
+        lng: 2.2945
+      },
+      {
+        id: "2",
+        name: "Louvre Museum",
+        category: "Museum",
+        rating: 4.7,
+        image: "🎨",
+        description: "World's largest art museum",
+        estimatedTime: "4-6 hours",
+        priority: "high" as const,
+        lat: 48.8606,
+        lng: 2.3376
+      },
+      {
+        id: "3",
+        name: "Café de Flore",
+        category: "Restaurant",
+        rating: 4.3,
+        image: "☕",
+        description: "Historic café in Saint-Germain",
+        estimatedTime: "1-2 hours",
+        priority: "medium" as const,
+        lat: 48.8542,
+        lng: 2.3320
+      },
+      {
+        id: "4",
+        name: "Notre-Dame Cathedral",
+        category: "Landmark",
+        rating: 4.6,
+        image: "⛪",
+        description: "Gothic cathedral masterpiece",
+        estimatedTime: "1-2 hours",
+        priority: "high" as const,
+        lat: 48.8530,
+        lng: 2.3499
+      },
+      {
+        id: "5",
+        name: "Champs-Élysées",
+        category: "Shopping",
+        rating: 4.4,
+        image: "🛍️",
+        description: "Famous shopping avenue",
+        estimatedTime: "2-3 hours",
+        priority: "medium" as const,
+        lat: 48.8698,
+        lng: 2.3080
+      },
+      {
+        id: "6",
+        name: "Arc de Triomphe",
+        category: "Landmark",
+        rating: 4.5,
+        image: "🏛️",
+        description: "Triumphal arch monument",
+        estimatedTime: "1 hour",
+        priority: "medium" as const,
+        lat: 48.8738,
+        lng: 2.2950
+      }
+    ],
+    "Rome": [
+      {
+        id: "7",
+        name: "Colosseum",
+        category: "Landmark",
+        rating: 4.9,
+        image: "🏛️",
+        description: "Ancient Roman amphitheater",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const,
+        lat: 41.8902,
+        lng: 12.4922
+      },
+      {
+        id: "8",
+        name: "Vatican Museums",
+        category: "Museum",
+        rating: 4.8,
+        image: "🎨",
+        description: "Pope's art collection and Sistine Chapel",
+        estimatedTime: "3-4 hours",
+        priority: "high" as const,
+        lat: 41.9039,
+        lng: 12.4544
+      },
+      {
+        id: "9",
+        name: "Trevi Fountain",
+        category: "Landmark",
+        rating: 4.6,
+        image: "⛲",
+        description: "Famous baroque fountain",
+        estimatedTime: "30 minutes",
+        priority: "medium" as const,
+        lat: 41.9009,
+        lng: 12.4833
+      }
+    ],
+    "Barcelona": [
+      {
+        id: "10",
+        name: "Sagrada Familia",
+        category: "Landmark",
+        rating: 4.9,
+        image: "⛪",
+        description: "Gaudí's masterpiece basilica",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const,
+        lat: 41.4036,
+        lng: 2.1744
+      },
+      {
+        id: "11",
+        name: "Park Güell",
+        category: "Park",
+        rating: 4.7,
+        image: "🌳",
+        description: "Colorful mosaic park by Gaudí",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const,
+        lat: 41.4145,
+        lng: 2.1527
+      },
+      {
+        id: "12",
+        name: "La Boqueria Market",
+        category: "Market",
+        rating: 4.4,
+        image: "🍅",
+        description: "Famous food market on Las Ramblas",
+        estimatedTime: "1-2 hours",
+        priority: "medium" as const,
+        lat: 41.3818,
+        lng: 2.1721
+      }
+    ],
+    "Tokyo": [
+      {
+        id: "13",
+        name: "Senso-ji Temple",
+        category: "Temple",
+        rating: 4.6,
+        image: "⛩️",
+        description: "Tokyo's oldest Buddhist temple",
+        estimatedTime: "1-2 hours",
+        priority: "high" as const,
+        lat: 35.7148,
+        lng: 139.7967
+      },
+      {
+        id: "14",
+        name: "Shibuya Crossing",
+        category: "Landmark",
+        rating: 4.5,
+        image: "🚦",
+        description: "World's busiest pedestrian crossing",
+        estimatedTime: "30 minutes",
+        priority: "medium" as const,
+        lat: 35.6598,
+        lng: 139.7006
+      }
+    ],
+    "Bali": [
+      {
+        id: "15",
+        name: "Tanah Lot Temple",
+        category: "Temple",
+        rating: 4.5,
+        image: "🏛️",
+        description: "Temple on a rock formation in the sea",
+        estimatedTime: "2 hours",
+        priority: "high" as const,
+        lat: -8.6211,
+        lng: 115.0870
+      },
+      {
+        id: "16",
+        name: "Rice Terraces of Jatiluwih",
+        category: "Nature",
+        rating: 4.7,
+        image: "🌾",
+        description: "UNESCO World Heritage rice terraces",
+        estimatedTime: "3-4 hours",
+        priority: "high" as const,
+        lat: -8.3621,
+        lng: 115.1316
+      }
+    ]
+  };
+
+  // Function to parse trip dates and calculate destination dates
+  const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
+    try {
+      const dateRange = tripDates.split(' - ');
+      if (dateRange.length !== 2) return `Day ${destinationIndex + 1}`;
+      
+      const startDateStr = dateRange[0];
+      const endDateStr = dateRange[1];
+      
+      const year = endDateStr.split(', ')[1] || new Date().getFullYear().toString();
+      
+      const startMonth = startDateStr.split(' ')[0];
+      const startDay = parseInt(startDateStr.split(' ')[1]);
+      
+      const endMonth = endDateStr.split(' ')[0];
+      const endDay = parseInt(endDateStr.split(' ')[1].split(',')[0]);
+      
+      const monthMap: { [key: string]: number } = {
+        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+      };
+      
+      const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
+      const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
+      
+      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysPerDestination = Math.ceil(totalDays / totalDestinations);
+      
+      const destStartDate = new Date(startDate);
+      destStartDate.setDate(startDate.getDate() + (destinationIndex * daysPerDestination));
+      
+      const destEndDate = new Date(destStartDate);
+      destEndDate.setDate(destStartDate.getDate() + daysPerDestination - 1);
+      
+      const formatDate = (date: Date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}`;
+      };
+      
+      if (destStartDate.getTime() === destEndDate.getTime()) {
+        return formatDate(destStartDate);
+      } else {
+        return `${formatDate(destStartDate)} - ${formatDate(destEndDate)}`;
+      }
+    } catch (error) {
+      return `Day ${destinationIndex + 1}`;
+    }
+  };
+
+  // Generate AI optimized routes based on actual saved places data
+  const generateOptimizedRoutes = () => {
+    if (!trip) return { current: [], speed: [], leisure: [] };
+
+    const routes = { current: [] as DayItinerary[], speed: [] as DayItinerary[], leisure: [] as DayItinerary[] };
+
+    trip.coordinates.forEach((destination, destIndex) => {
+      const savedPlaces = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
+      
+      if (savedPlaces.length === 0) return;
+
+      const destinationDate = getDestinationDates(trip.dates, destIndex, trip.coordinates.length);
+
+      // Current Route: Balanced approach
+      const currentPlaces = savedPlaces
+        .sort((a, b) => {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        })
+        .slice(0, Math.min(4, savedPlaces.length))
+        .map((place, index) => ({
+          ...place,
+          destinationName: destination.name,
+          aiRecommendedDuration: place.estimatedTime.split('-')[0].trim(),
+          bestTimeToVisit: index === 0 ? "9:00 AM" : index === 1 ? "1:00 PM" : index === 2 ? "4:00 PM" : "6:00 PM",
+          orderInRoute: index + 1
+        }));
+
+      if (currentPlaces.length > 0) {
+        routes.current.push({
+          day: destIndex + 1,
+          date: destinationDate,
+          destinationName: destination.name,
+          places: currentPlaces,
+          totalTime: `${currentPlaces.length * 2} hours`,
           walkingTime: "45 minutes",
           transportTime: "30 minutes",
           freeTime: "2 hours"
-        },
-        {
-          day: 2,
-          date: "Dec 16, 2024",
-          places: [
-            {
-              id: "4",
-              name: "Notre-Dame Cathedral",
-              category: "Landmark",
-              rating: 4.6,
-              image: "⛪",
-              description: "Gothic cathedral masterpiece",
-              estimatedTime: "1-2 hours",
-              priority: "high" as const,
-              lat: 48.8530,
-              lng: 2.3499,
-              aiRecommendedDuration: "1.5 hours",
-              bestTimeToVisit: "10:00 AM",
-              orderInRoute: 1
-            },
-            {
-              id: "5",
-              name: "Champs-Élysées",
-              category: "Shopping",
-              rating: 4.4,
-              image: "🛍️",
-              description: "Famous shopping avenue",
-              estimatedTime: "2-3 hours",
-              priority: "medium" as const,
-              lat: 48.8698,
-              lng: 2.3080,
-              aiRecommendedDuration: "2 hours",
-              bestTimeToVisit: "2:00 PM",
-              orderInRoute: 2
-            }
-          ],
-          totalTime: "3.5 hours",
-          walkingTime: "30 minutes",
-          transportTime: "20 minutes",
-          freeTime: "4 hours"
-        }
-      ]
-    },
-    speed: {
-      name: "Speed Route",
-      description: "Maximum places in minimum time",
-      duration: "1.5 days",
-      efficiency: "98%",
-      itinerary: [
-        {
-          day: 1,
-          date: "Dec 15, 2024",
-          places: [
-            {
-              id: "1",
-              name: "Eiffel Tower",
-              category: "Landmark",
-              rating: 4.8,
-              image: "🗼",
-              description: "Quick photo stop at iconic tower",
-              estimatedTime: "1 hour",
-              priority: "high" as const,
-              lat: 48.8584,
-              lng: 2.2945,
-              aiRecommendedDuration: "1 hour",
-              bestTimeToVisit: "8:00 AM",
-              orderInRoute: 1
-            },
-            {
-              id: "2",
-              name: "Louvre Museum",
-              category: "Museum",
-              rating: 4.7,
-              image: "🎨",
-              description: "Express tour - highlights only",
-              estimatedTime: "2 hours",
-              priority: "high" as const,
-              lat: 48.8606,
-              lng: 2.3376,
-              aiRecommendedDuration: "2 hours",
-              bestTimeToVisit: "10:00 AM",
-              orderInRoute: 2
-            },
-            {
-              id: "4",
-              name: "Notre-Dame Cathedral",
-              category: "Landmark",
-              rating: 4.6,
-              image: "⛪",
-              description: "Quick exterior visit",
-              estimatedTime: "30 minutes",
-              priority: "high" as const,
-              lat: 48.8530,
-              lng: 2.3499,
-              aiRecommendedDuration: "30 minutes",
-              bestTimeToVisit: "1:00 PM",
-              orderInRoute: 3
-            },
-            {
-              id: "5",
-              name: "Champs-Élysées",
-              category: "Shopping",
-              rating: 4.4,
-              image: "🛍️",
-              description: "Quick walk down the avenue",
-              estimatedTime: "1 hour",
-              priority: "medium" as const,
-              lat: 48.8698,
-              lng: 2.3080,
-              aiRecommendedDuration: "1 hour",
-              bestTimeToVisit: "3:00 PM",
-              orderInRoute: 4
-            },
-            {
-              id: "6",
-              name: "Arc de Triomphe",
-              category: "Landmark",
-              rating: 4.5,
-              image: "🏛️",
-              description: "Photo opportunity",
-              estimatedTime: "30 minutes",
-              priority: "medium" as const,
-              lat: 48.8738,
-              lng: 2.2950,
-              aiRecommendedDuration: "30 minutes",
-              bestTimeToVisit: "4:00 PM",
-              orderInRoute: 5
-            }
-          ],
-          totalTime: "5 hours",
+        });
+      }
+
+      // Speed Route: Maximum places, minimum time
+      const speedPlaces = savedPlaces
+        .sort((a, b) => {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        })
+        .slice(0, Math.min(6, savedPlaces.length))
+        .map((place, index) => ({
+          ...place,
+          destinationName: destination.name,
+          aiRecommendedDuration: "1 hour",
+          bestTimeToVisit: `${8 + index}:00 AM`,
+          orderInRoute: index + 1
+        }));
+
+      if (speedPlaces.length > 0) {
+        routes.speed.push({
+          day: destIndex + 1,
+          date: destinationDate,
+          destinationName: destination.name,
+          places: speedPlaces,
+          totalTime: `${speedPlaces.length} hours`,
           walkingTime: "1 hour",
           transportTime: "45 minutes",
-          freeTime: "1 hour"
-        }
-      ]
-    },
-    leisure: {
-      name: "Leisure Route",
-      description: "More time at each location",
-      duration: "3 days",
-      efficiency: "78%",
-      itinerary: [
-        {
-          day: 1,
-          date: "Dec 15, 2024",
-          places: [
-            {
-              id: "1",
-              name: "Eiffel Tower",
-              category: "Landmark",
-              rating: 4.8,
-              image: "🗼",
-              description: "Full experience including elevator ride and dining",
-              estimatedTime: "4 hours",
-              priority: "high" as const,
-              lat: 48.8584,
-              lng: 2.2945,
-              aiRecommendedDuration: "4 hours",
-              bestTimeToVisit: "10:00 AM",
-              orderInRoute: 1
-            },
-            {
-              id: "3",
-              name: "Café de Flore",
-              category: "Restaurant",
-              rating: 4.3,
-              image: "☕",
-              description: "Leisurely lunch and people watching",
-              estimatedTime: "2 hours",
-              priority: "medium" as const,
-              lat: 48.8542,
-              lng: 2.3320,
-              aiRecommendedDuration: "2 hours",
-              bestTimeToVisit: "3:00 PM",
-              orderInRoute: 2
-            }
-          ],
-          totalTime: "6 hours",
+          freeTime: "30 minutes"
+        });
+      }
+
+      // Leisure Route: Fewer places, more time
+      const leisurePlaces = savedPlaces
+        .sort((a, b) => {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        })
+        .slice(0, Math.min(2, savedPlaces.length))
+        .map((place, index) => ({
+          ...place,
+          destinationName: destination.name,
+          aiRecommendedDuration: place.estimatedTime.split('-')[1]?.trim() || place.estimatedTime,
+          bestTimeToVisit: index === 0 ? "10:00 AM" : "3:00 PM",
+          orderInRoute: index + 1
+        }));
+
+      if (leisurePlaces.length > 0) {
+        routes.leisure.push({
+          day: destIndex + 1,
+          date: destinationDate,
+          destinationName: destination.name,
+          places: leisurePlaces,
+          totalTime: `${leisurePlaces.length * 3} hours`,
           walkingTime: "30 minutes",
           transportTime: "20 minutes",
-          freeTime: "3 hours"
-        },
-        {
-          day: 2,
-          date: "Dec 16, 2024",
-          places: [
-            {
-              id: "2",
-              name: "Louvre Museum",
-              category: "Museum",
-              rating: 4.7,
-              image: "🎨",
-              description: "Full day exploration with guided tour",
-              estimatedTime: "6 hours",
-              priority: "high" as const,
-              lat: 48.8606,
-              lng: 2.3376,
-              aiRecommendedDuration: "6 hours",
-              bestTimeToVisit: "10:00 AM",
-              orderInRoute: 1
-            }
-          ],
-          totalTime: "6 hours",
-          walkingTime: "20 minutes",
-          transportTime: "15 minutes",
           freeTime: "4 hours"
-        },
-        {
-          day: 3,
-          date: "Dec 17, 2024",
-          places: [
-            {
-              id: "4",
-              name: "Notre-Dame Cathedral",
-              category: "Landmark",
-              rating: 4.6,
-              image: "⛪",
-              description: "Detailed exploration with audio guide",
-              estimatedTime: "3 hours",
-              priority: "high" as const,
-              lat: 48.8530,
-              lng: 2.3499,
-              aiRecommendedDuration: "3 hours",
-              bestTimeToVisit: "10:00 AM",
-              orderInRoute: 1
-            },
-            {
-              id: "5",
-              name: "Champs-Élysées",
-              category: "Shopping",
-              rating: 4.4,
-              image: "🛍️",
-              description: "Shopping and dining experience",
-              estimatedTime: "3 hours",
-              priority: "medium" as const,
-              lat: 48.8698,
-              lng: 2.3080,
-              aiRecommendedDuration: "3 hours",
-              bestTimeToVisit: "2:00 PM",
-              orderInRoute: 2
-            }
-          ],
-          totalTime: "6 hours",
-          walkingTime: "45 minutes",
-          transportTime: "30 minutes",
-          freeTime: "5 hours"
-        }
-      ]
-    }
+        });
+      }
+    });
+
+    return routes;
+  };
+
+  // Route configurations using actual data
+  const getRouteConfigurations = () => {
+    const routes = generateOptimizedRoutes();
+    
+    return {
+      current: {
+        name: "Current Route",
+        description: "Optimal balance of time and experience",
+        duration: `${routes.current.length} day${routes.current.length > 1 ? 's' : ''}`,
+        efficiency: "92%",
+        itinerary: routes.current
+      },
+      speed: {
+        name: "Speed Route",
+        description: "Maximum places in minimum time",
+        duration: `${routes.speed.length} day${routes.speed.length > 1 ? 's' : ''}`,
+        efficiency: "98%",
+        itinerary: routes.speed
+      },
+      leisure: {
+        name: "Leisure Route",
+        description: "More time at each location",
+        duration: `${routes.leisure.length} day${routes.leisure.length > 1 ? 's' : ''}`,
+        efficiency: "78%",
+        itinerary: routes.leisure
+      }
+    };
   };
 
   // Mock AI-optimized data based on trip destinations
@@ -400,7 +473,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     // Simulate AI processing time
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Set initial route to current
+    // Set initial route to current using actual data
+    const routeConfigurations = getRouteConfigurations();
     setOptimizedItinerary(routeConfigurations.current.itinerary);
     setRouteGenerated(true);
     setIsGenerating(false);
@@ -409,6 +483,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   // Handle route type change
   const handleRouteTypeChange = (routeType: string) => {
     setSelectedRouteType(routeType);
+    const routeConfigurations = getRouteConfigurations();
     const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
     setOptimizedItinerary(selectedConfig.itinerary);
   };
@@ -428,6 +503,12 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
   if (!trip) return null;
 
+  const routeConfigurations = getRouteConfigurations();
+  const totalSavedPlaces = trip.coordinates.reduce((total, destination) => {
+    const places = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
+    return total + places.length;
+  }, 0);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -445,47 +526,63 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
               <h3 className="text-xl font-semibold text-gray-800 mb-4">
                 AI Route Optimization
               </h3>
-              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                Our AI will analyze your saved places, consider opening hours, crowd patterns, 
-                travel distances, and optimal timing to create the perfect itinerary for your trip.
+              <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
+                Our AI will analyze your {totalSavedPlaces} saved places across {trip.coordinates.length} destinations, 
+                considering opening hours, crowd patterns, travel distances, and optimal timing to create the perfect itinerary.
               </p>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <MapPin className="mx-auto mb-2 text-blue-600" size={24} />
-                  <p className="text-sm font-medium text-blue-800">Geolocation Analysis</p>
+              {totalSavedPlaces === 0 ? (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
+                  <MapPin className="mx-auto mb-2 text-orange-600" size={32} />
+                  <h4 className="font-medium text-orange-800 mb-2">No Saved Places Found</h4>
+                  <p className="text-sm text-orange-600">
+                    Please save some places in your trip details first to generate an AI route.
+                  </p>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <Clock className="mx-auto mb-2 text-green-600" size={24} />
-                  <p className="text-sm font-medium text-green-800">Time Optimization</p>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <Route className="mx-auto mb-2 text-purple-600" size={24} />
-                  <p className="text-sm font-medium text-purple-800">Route Planning</p>
-                </div>
-                <div className="bg-orange-50 p-4 rounded-lg">
-                  <Star className="mx-auto mb-2 text-orange-600" size={24} />
-                  <p className="text-sm font-medium text-orange-800">Priority Ranking</p>
-                </div>
-              </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <MapPin className="mx-auto mb-2 text-blue-600" size={24} />
+                      <p className="text-sm font-medium text-blue-800">Geolocation Analysis</p>
+                      <p className="text-xs text-blue-600">{totalSavedPlaces} places analyzed</p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <Clock className="mx-auto mb-2 text-green-600" size={24} />
+                      <p className="text-sm font-medium text-green-800">Time Optimization</p>
+                      <p className="text-xs text-green-600">{trip.coordinates.length} destinations</p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <Route className="mx-auto mb-2 text-purple-600" size={24} />
+                      <p className="text-sm font-medium text-purple-800">Route Planning</p>
+                      <p className="text-xs text-purple-600">3 route options</p>
+                    </div>
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <Star className="mx-auto mb-2 text-orange-600" size={24} />
+                      <p className="text-sm font-medium text-orange-800">Priority Ranking</p>
+                      <p className="text-xs text-orange-600">High priority first</p>
+                    </div>
+                  </div>
 
-              <Button 
-                onClick={generateAIRoute}
-                disabled={isGenerating}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-3"
-              >
-                {isGenerating ? (
-                  <>
-                    <Brain className="animate-spin mr-2" size={20} />
-                    Generating Optimal Route...
-                  </>
-                ) : (
-                  <>
-                    <Brain className="mr-2" size={20} />
-                    Generate AI Smart Route
-                  </>
-                )}
-              </Button>
+                  <Button 
+                    onClick={generateAIRoute}
+                    disabled={isGenerating}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-3"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Brain className="animate-spin mr-2" size={20} />
+                        Analyzing {totalSavedPlaces} Saved Places...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="mr-2" size={20} />
+                        Generate AI Smart Route
+                      </>
+                    )}
+                  </Button>
+                </>
+              )}
             </div>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -504,6 +601,9 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     </h4>
                     <p className="text-purple-600 text-sm">
                       {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].description}
+                    </p>
+                    <p className="text-purple-500 text-xs mt-1">
+                      Based on {totalSavedPlaces} saved places across {trip.coordinates.length} destinations
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -528,6 +628,9 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                         <div className="flex items-center space-x-2">
                           <Calendar className="text-purple-600" size={20} />
                           <span>Day {day.day} - {day.date}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {day.destinationName}
+                          </Badge>
                         </div>
                         <div className="flex space-x-4 text-sm text-gray-600">
                           <span className="flex items-center">
@@ -623,7 +726,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                       <h3 className="text-xl font-semibold text-gray-700 mb-2">Interactive Route Map</h3>
                       <p className="text-gray-600">AI-optimized route with turn-by-turn directions</p>
                       <p className="text-sm text-gray-500 mt-2">
-                        Shows optimized walking paths, transport connections, and estimated travel times
+                        Shows optimized walking paths between {totalSavedPlaces} saved places
                       </p>
                     </div>
                   </CardContent>
@@ -636,20 +739,20 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Total Distance:</span>
-                        <span className="font-medium">12.5 km</span>
+                        <span className="text-gray-600">Total Places:</span>
+                        <span className="font-medium">{totalSavedPlaces}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Walking Distance:</span>
-                        <span className="font-medium">6.2 km</span>
+                        <span className="text-gray-600">Destinations:</span>
+                        <span className="font-medium">{trip.coordinates.length}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Transport Distance:</span>
-                        <span className="font-medium">6.3 km</span>
+                        <span className="text-gray-600">Est. Total Distance:</span>
+                        <span className="font-medium">{Math.round(totalSavedPlaces * 2.5)} km</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Total Travel Time:</span>
-                        <span className="font-medium">1.5 hours</span>
+                        <span className="font-medium">{Math.round(totalSavedPlaces * 0.25)} hours</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -692,20 +795,20 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                     <CardContent className="space-y-4">
                       <div className="space-y-3">
                         <div className="bg-green-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-green-800">Crowd Analysis</h6>
-                          <p className="text-sm text-green-600">Optimized for low-crowd periods</p>
+                          <h6 className="font-medium text-green-800">Saved Places Analysis</h6>
+                          <p className="text-sm text-green-600">Optimized {totalSavedPlaces} places by priority and location</p>
                         </div>
                         <div className="bg-blue-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-blue-800">Weather Consideration</h6>
-                          <p className="text-sm text-blue-600">Indoor activities during rain forecasts</p>
+                          <h6 className="font-medium text-blue-800">Distance Optimization</h6>
+                          <p className="text-sm text-blue-600">Minimized travel time between locations</p>
                         </div>
                         <div className="bg-purple-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-purple-800">Opening Hours</h6>
-                          <p className="text-sm text-purple-600">All venues open during planned visits</p>
+                          <h6 className="font-medium text-purple-800">Priority Ranking</h6>
+                          <p className="text-sm text-purple-600">High priority places scheduled first</p>
                         </div>
                         <div className="bg-orange-50 p-3 rounded-lg">
-                          <h6 className="font-medium text-orange-800">Travel Efficiency</h6>
-                          <p className="text-sm text-orange-600">Minimized backtracking and delays</p>
+                          <h6 className="font-medium text-orange-800">Time Allocation</h6>
+                          <p className="text-sm text-orange-600">Smart duration based on place type</p>
                         </div>
                       </div>
                     </CardContent>
@@ -736,12 +839,12 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Cost Efficiency:</span>
+                          <span className="text-gray-600">Priority Coverage:</span>
                           <div className="flex items-center space-x-2">
                             <div className="w-20 h-2 bg-gray-200 rounded-full">
-                              <div className="w-14 h-2 bg-purple-500 rounded-full"></div>
+                              <div className="w-19 h-2 bg-purple-500 rounded-full"></div>
                             </div>
-                            <span className="text-sm font-medium">85%</span>
+                            <span className="text-sm font-medium">95%</span>
                           </div>
                         </div>
                       </div>
@@ -749,10 +852,10 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                       <div className="bg-gray-50 p-3 rounded-lg mt-4">
                         <h6 className="font-medium text-gray-800 mb-2">AI Recommendations</h6>
                         <ul className="text-sm text-gray-600 space-y-1">
-                          <li>• Visit Eiffel Tower early morning for best photos</li>
-                          <li>• Book Louvre tickets in advance to skip lines</li>
-                          <li>• Use Metro day pass for cost savings</li>
-                          <li>• Keep umbrella handy for afternoon showers</li>
+                          <li>• Visit high-priority places early in the day</li>
+                          <li>• Book tickets in advance for popular attractions</li>
+                          <li>• Consider weather when planning outdoor activities</li>
+                          <li>• Allow buffer time between distant locations</li>
                         </ul>
                       </div>
                     </CardContent>
@@ -788,8 +891,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                         <h6 className="font-medium text-green-800 mb-2">Current Route</h6>
                         <p className="text-sm text-green-600 mb-2">Optimal balance of time and experience</p>
                         <div className="text-xs text-green-700">
-                          <p>Duration: 2 days</p>
-                          <p>Efficiency: 92%</p>
+                          <p>Duration: {routeConfigurations.current.duration}</p>
+                          <p>Efficiency: {routeConfigurations.current.efficiency}</p>
                         </div>
                       </div>
                       <div className={`p-4 rounded-lg border ${
@@ -800,8 +903,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                         <h6 className="font-medium text-blue-800 mb-2">Speed Route</h6>
                         <p className="text-sm text-blue-600 mb-2">Maximum places in minimum time</p>
                         <div className="text-xs text-blue-700">
-                          <p>Duration: 1.5 days</p>
-                          <p>Efficiency: 98%</p>
+                          <p>Duration: {routeConfigurations.speed.duration}</p>
+                          <p>Efficiency: {routeConfigurations.speed.efficiency}</p>
                         </div>
                       </div>
                       <div className={`p-4 rounded-lg border ${
@@ -812,8 +915,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                         <h6 className="font-medium text-purple-800 mb-2">Leisure Route</h6>
                         <p className="text-sm text-purple-600 mb-2">More time at each location</p>
                         <div className="text-xs text-purple-700">
-                          <p>Duration: 3 days</p>
-                          <p>Efficiency: 78%</p>
+                          <p>Duration: {routeConfigurations.leisure.duration}</p>
+                          <p>Efficiency: {routeConfigurations.leisure.efficiency}</p>
                         </div>
                       </div>
                     </div>
