@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Brain, X, Route, Navigation, Star, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -495,14 +496,29 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
               </TabsList>
 
               <TabsContent value="itinerary" className="space-y-6 mt-6">
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
-                  <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
-                    <Brain className="mr-2" size={18} />
-                    AI-Optimized Itinerary - {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].name}
-                  </h4>
-                  <p className="text-purple-600 text-sm">
-                    {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].description}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200 flex-1 mr-4">
+                    <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
+                      <Brain className="mr-2" size={18} />
+                      AI-Optimized Itinerary - {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].name}
+                    </h4>
+                    <p className="text-purple-600 text-sm">
+                      {routeConfigurations[selectedRouteType as keyof typeof routeConfigurations].description}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-600">Route Type:</span>
+                    <Select value={selectedRouteType} onValueChange={handleRouteTypeChange}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="current">Current Route</SelectItem>
+                        <SelectItem value="speed">Speed Route</SelectItem>
+                        <SelectItem value="leisure">Leisure Route</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {optimizedItinerary.map((day) => (
