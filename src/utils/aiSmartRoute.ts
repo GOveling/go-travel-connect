@@ -194,11 +194,24 @@ export const getSavedPlacesByDestination = (trip: Trip | null) => {
   return placesByDestination;
 };
 
-// Extract destination dates from the existing itinerary display logic (from TripDetailModal)
-export const extractDestinationDateFromItinerary = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
+// Enhanced function to extract exact date ranges for each destination from the itinerary display
+export const getDestinationDateRanges = (tripDates: string, totalDestinations: number) => {
+  const destinationRanges: Array<{ startDate: Date; endDate: Date; days: number; dateString: string }> = [];
+  
   try {
     const dateRange = tripDates.split(' - ');
-    if (dateRange.length !== 2) return { startDate: new Date(), endDate: new Date(), days: 1 };
+    if (dateRange.length !== 2) {
+      // Fallback to equal distribution
+      for (let i = 0; i < totalDestinations; i++) {
+        destinationRanges.push({
+          startDate: new Date(),
+          endDate: new Date(),
+          days: 1,
+          dateString: `Day ${i + 1}`
+        });
+      }
+      return destinationRanges;
+    }
     
     const startDateStr = dateRange[0];
     const endDateStr = dateRange[1];
@@ -220,57 +233,54 @@ export const extractDestinationDateFromItinerary = (tripDates: string, destinati
     const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
     
     // Calculate total trip days
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const daysPerDestination = Math.ceil(totalDays / totalDestinations);
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const baseDaysPerDestination = Math.floor(totalDays / totalDestinations);
+    const extraDays = totalDays % totalDestinations;
     
-    // Calculate destination start and end dates
-    const destStartDate = new Date(startDate);
-    destStartDate.setDate(startDate.getDate() + (destinationIndex * daysPerDestination));
+    let currentDate = new Date(startDate);
     
-    const destEndDate = new Date(destStartDate);
-    destEndDate.setDate(destStartDate.getDate() + daysPerDestination - 1);
-    
-    return {
-      startDate: destStartDate,
-      endDate: destEndDate,
-      days: daysPerDestination
-    };
-  } catch (error) {
-    return { startDate: new Date(), endDate: new Date(), days: 1 };
-  }
-};
-
-export const calculateDestinationDays = (tripDates: string, totalDestinations: number, trip: Trip | null) => {
-  const destinationDays = [];
-  
-  for (let i = 0; i < totalDestinations; i++) {
-    const dateInfo = extractDestinationDateFromItinerary(tripDates, i, totalDestinations);
-    destinationDays.push(dateInfo.days);
-  }
-  
-  return destinationDays;
-};
-
-export const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number, allocatedDays: number, trip: Trip | null) => {
-  try {
-    const dateInfo = extractDestinationDateFromItinerary(tripDates, destinationIndex, totalDestinations);
-    
-    const formatDate = (date: Date) => {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[date.getMonth()]} ${date.getDate()}`;
-    };
-    
-    if (dateInfo.days === 1) {
-      return formatDate(dateInfo.startDate);
-    } else {
-      return `${formatDate(dateInfo.startDate)} - ${formatDate(dateInfo.endDate)}`;
+    for (let i = 0; i < totalDestinations; i++) {
+      const daysForThisDestination = baseDaysPerDestination + (i < extraDays ? 1 : 0);
+      const destStartDate = new Date(currentDate);
+      const destEndDate = new Date(currentDate);
+      destEndDate.setDate(destStartDate.getDate() + daysForThisDestination - 1);
+      
+      const formatDate = (date: Date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}`;
+      };
+      
+      const dateString = daysForThisDestination === 1 ? 
+        formatDate(destStartDate) : 
+        `${formatDate(destStartDate)} - ${formatDate(destEndDate)}`;
+      
+      destinationRanges.push({
+        startDate: destStartDate,
+        endDate: destEndDate,
+        days: daysForThisDestination,
+        dateString: dateString
+      });
+      
+      // Move to next destination's start date
+      currentDate.setDate(destEndDate.getDate() + 1);
     }
+    
   } catch (error) {
-    return `Day ${destinationIndex + 1}${allocatedDays > 1 ? `-${destinationIndex + allocatedDays}` : ''}`;
+    // Fallback to equal distribution if parsing fails
+    for (let i = 0; i < totalDestinations; i++) {
+      destinationRanges.push({
+        startDate: new Date(),
+        endDate: new Date(),
+        days: 1,
+        dateString: `Day ${i + 1}`
+      });
+    }
   }
+  
+  return destinationRanges;
 };
 
-export const convertToOptimizedPlaces = (places: SavedPlace[], routeType: string, destination: { lat: number; lng: number; name: string }) => {
+export const convertToOptimizedPlaces = (places: SavedPlace[], routeType: string, destination: { lat: number; lng: number; name: string }, allocatedDays: number) => {
   return places.map((place, index) => ({
     ...place,
     lat: place.lat || destination.lat,
@@ -278,7 +288,7 @@ export const convertToOptimizedPlaces = (places: SavedPlace[], routeType: string
     destinationName: destination.name,
     aiRecommendedDuration: routeType === 'speed' ? "1 hour" : 
                            routeType === 'leisure' ? (place.estimatedTime.split('-')[1]?.trim() || place.estimatedTime) :
-                           place.estimatedTime.split('-')[0].trim(),
+                           place.estimatedTime.split('-')[0]?.trim() || place.estimatedTime,
     bestTimeToVisit: routeType === 'speed' ? `${8 + (index % 8)}:00 ${index < 8 ? 'AM' : 'PM'}` :
                     routeType === 'leisure' ? (index === 0 ? "10:00 AM" : "3:00 PM") :
                     index === 0 ? "9:00 AM" : index === 1 ? "1:00 PM" : index === 2 ? "4:00 PM" : "6:00 PM",
@@ -290,83 +300,81 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
   if (!trip) return { current: [], speed: [], leisure: [] };
 
   const routes = { current: [] as DayItinerary[], speed: [] as DayItinerary[], leisure: [] as DayItinerary[] };
-  const destinationDays = calculateDestinationDays(trip.dates, trip.coordinates.length, trip);
+  const destinationRanges = getDestinationDateRanges(trip.dates, trip.coordinates.length);
   const savedPlacesByDestination = getSavedPlacesByDestination(trip);
 
   trip.coordinates.forEach((destination, destIndex) => {
     const savedPlaces = savedPlacesByDestination[destination.name] || [];
-    const allocatedDays = destinationDays[destIndex];
+    const destinationRange = destinationRanges[destIndex];
     
-    if (savedPlaces.length === 0) return;
+    if (savedPlaces.length === 0 || !destinationRange) return;
 
-    const destinationDate = getDestinationDates(trip.dates, destIndex, trip.coordinates.length, allocatedDays, trip);
-
-    // Current Route: Balanced approach using extracted days from itinerary
-    const placesPerDay = Math.ceil(savedPlaces.length / allocatedDays);
+    // Current Route: Balanced distribution based on actual allocated days
+    const currentPlacesPerDay = Math.max(1, Math.floor(savedPlaces.length / destinationRange.days));
     const currentPlaces = savedPlaces
       .sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
       })
-      .slice(0, Math.min(placesPerDay * allocatedDays, savedPlaces.length));
+      .slice(0, currentPlacesPerDay * destinationRange.days);
 
     if (currentPlaces.length > 0) {
       routes.current.push({
         day: destIndex + 1,
-        date: destinationDate,
+        date: destinationRange.dateString,
         destinationName: destination.name,
-        places: convertToOptimizedPlaces(currentPlaces, 'current', destination),
+        places: convertToOptimizedPlaces(currentPlaces, 'current', destination, destinationRange.days),
         totalTime: `${Math.ceil(currentPlaces.length * 2.5)} hours`,
         walkingTime: `${Math.ceil(currentPlaces.length * 0.5)} minutes`,
         transportTime: `${Math.ceil(currentPlaces.length * 0.3)} minutes`,
-        freeTime: `${Math.max(1, allocatedDays - 1)} hours`,
-        allocatedDays: allocatedDays
+        freeTime: `${Math.max(1, destinationRange.days - 1)} hours`,
+        allocatedDays: destinationRange.days
       });
     }
 
-    // Speed Route: Maximum places per day using extracted days
-    const speedPlacesPerDay = Math.min(6, Math.ceil(savedPlaces.length / allocatedDays));
+    // Speed Route: Maximum places within allocated timeframe
+    const speedPlacesPerDay = Math.min(6, Math.ceil(savedPlaces.length / destinationRange.days));
     const speedPlaces = savedPlaces
       .sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
       })
-      .slice(0, speedPlacesPerDay * allocatedDays);
+      .slice(0, Math.min(speedPlacesPerDay * destinationRange.days, savedPlaces.length));
 
     if (speedPlaces.length > 0) {
       routes.speed.push({
         day: destIndex + 1,
-        date: destinationDate,
+        date: destinationRange.dateString,
         destinationName: destination.name,
-        places: convertToOptimizedPlaces(speedPlaces, 'speed', destination),
-        totalTime: `${speedPlaces.length} hours`,
+        places: convertToOptimizedPlaces(speedPlaces, 'speed', destination, destinationRange.days),
+        totalTime: `${speedPlaces.length * 1.5} hours`,
         walkingTime: `${Math.ceil(speedPlaces.length * 0.7)} minutes`,
         transportTime: `${Math.ceil(speedPlaces.length * 0.5)} minutes`,
         freeTime: "30 minutes",
-        allocatedDays: allocatedDays
+        allocatedDays: destinationRange.days
       });
     }
 
-    // Leisure Route: Fewer places with more time, using extracted days
-    const leisurePlacesPerDay = Math.max(1, Math.floor(savedPlaces.length / (allocatedDays * 2)));
+    // Leisure Route: Fewer places with more time within allocated days
+    const leisurePlacesPerDay = Math.max(1, Math.floor(savedPlaces.length / (destinationRange.days * 1.5)));
     const leisurePlaces = savedPlaces
       .sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 };
         return priorityOrder[b.priority] - priorityOrder[a.priority];
       })
-      .slice(0, leisurePlacesPerDay * allocatedDays);
+      .slice(0, Math.max(1, leisurePlacesPerDay * destinationRange.days));
 
     if (leisurePlaces.length > 0) {
       routes.leisure.push({
         day: destIndex + 1,
-        date: destinationDate,
+        date: destinationRange.dateString,
         destinationName: destination.name,
-        places: convertToOptimizedPlaces(leisurePlaces, 'leisure', destination),
+        places: convertToOptimizedPlaces(leisurePlaces, 'leisure', destination, destinationRange.days),
         totalTime: `${leisurePlaces.length * 3} hours`,
         walkingTime: "30 minutes",
         transportTime: "20 minutes",
-        freeTime: `${allocatedDays * 3} hours`,
-        allocatedDays: allocatedDays
+        freeTime: `${destinationRange.days * 3} hours`,
+        allocatedDays: destinationRange.days
       });
     }
   });
@@ -376,26 +384,27 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
 
 export const getRouteConfigurations = (trip: Trip | null): { [key: string]: RouteConfiguration } => {
   const routes = generateOptimizedRoutes(trip);
-  const totalDays = trip ? calculateDestinationDays(trip.dates, trip.coordinates.length, trip).reduce((a, b) => a + b, 0) : 0;
+  const destinationRanges = trip ? getDestinationDateRanges(trip.dates, trip.coordinates.length) : [];
+  const totalDays = destinationRanges.reduce((total, range) => total + range.days, 0);
   
   return {
     current: {
       name: "Current Route",
-      description: "Optimal balance using dates from View Details itinerary",
+      description: "Balanced itinerary using exact dates from View Details",
       duration: `${totalDays} day${totalDays > 1 ? 's' : ''}`,
       efficiency: "92%",
       itinerary: routes.current
     },
     speed: {
       name: "Speed Route",
-      description: "Maximum places using itinerary timeframe",
+      description: "Maximum places within your allocated timeframe",
       duration: `${totalDays} day${totalDays > 1 ? 's' : ''}`,
       efficiency: "98%",
       itinerary: routes.speed
     },
     leisure: {
       name: "Leisure Route",
-      description: "Relaxed pace based on itinerary dates",
+      description: "Relaxed pace with your exact trip dates",
       duration: `${totalDays} day${totalDays > 1 ? 's' : ''}`,
       efficiency: "78%",
       itinerary: routes.leisure
@@ -414,4 +423,26 @@ export const getPriorityColor = (priority: string) => {
     default:
       return "bg-gray-100 text-gray-800";
   }
+};
+
+// Legacy functions for backward compatibility - kept but now use the new logic
+export const extractDestinationDateFromItinerary = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
+  const ranges = getDestinationDateRanges(tripDates, totalDestinations);
+  const range = ranges[destinationIndex];
+  return range ? {
+    startDate: range.startDate,
+    endDate: range.endDate,
+    days: range.days
+  } : { startDate: new Date(), endDate: new Date(), days: 1 };
+};
+
+export const calculateDestinationDays = (tripDates: string, totalDestinations: number, trip: Trip | null) => {
+  const ranges = getDestinationDateRanges(tripDates, totalDestinations);
+  return ranges.map(range => range.days);
+};
+
+export const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number, allocatedDays: number, trip: Trip | null) => {
+  const ranges = getDestinationDateRanges(tripDates, totalDestinations);
+  const range = ranges[destinationIndex];
+  return range ? range.dateString : `Day ${destinationIndex + 1}`;
 };
