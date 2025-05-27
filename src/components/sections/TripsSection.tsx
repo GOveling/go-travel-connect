@@ -285,19 +285,17 @@ const TripsSection = () => {
                     </div>
                   </div>
 
-                  {/* AI Smart Route Button for Group Trips */}
-                  {trip.isGroupTrip && (
-                    <div className="mb-3">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100"
-                      >
-                        <Brain size={16} className="mr-2" />
-                        AI Smart Route
-                      </Button>
-                    </div>
-                  )}
+                  {/* AI Smart Route Button for All Trips */}
+                  <div className="mb-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100"
+                    >
+                      <Brain size={16} className="mr-2" />
+                      AI Smart Route
+                    </Button>
+                  </div>
 
                   <div className="flex space-x-2">
                     <Button size="sm" variant="outline" className="flex-1">
