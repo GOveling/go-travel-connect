@@ -289,8 +289,8 @@ export const convertToOptimizedPlaces = (places: SavedPlace[], routeType: string
     aiRecommendedDuration: routeType === 'speed' ? "1 hour" : 
                            routeType === 'leisure' ? (place.estimatedTime.split('-')[1]?.trim() || place.estimatedTime) :
                            place.estimatedTime.split('-')[0]?.trim() || place.estimatedTime,
-    bestTimeToVisit: routeType === 'speed' ? `${8 + (index % 8)}:00 ${index < 8 ? 'AM' : 'PM'}` :
-                    routeType === 'leisure' ? (index === 0 ? "10:00 AM" : "3:00 PM") :
+    bestTimeToVisit: routeType === 'speed' ? `${9 + (index * 2)}:00 ${index * 2 < 4 ? 'AM' : 'PM'}` :
+                    routeType === 'leisure' ? (index === 0 ? "10:00 AM" : index === 1 ? "3:00 PM" : "6:00 PM") :
                     index === 0 ? "9:00 AM" : index === 1 ? "1:00 PM" : index === 2 ? "4:00 PM" : "6:00 PM",
     orderInRoute: index + 1
   }));
