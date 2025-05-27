@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Collaborator {
   id: string;
@@ -744,11 +745,30 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Alternative Routes</CardTitle>
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <span>Alternative Routes</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-normal text-gray-600">Select Route:</span>
+                        <Select value={selectedRouteType} onValueChange={handleRouteTypeChange}>
+                          <SelectTrigger className="w-40">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="current">Current Route</SelectItem>
+                            <SelectItem value="speed">Speed Route</SelectItem>
+                            <SelectItem value="leisure">Leisure Route</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                      <div className={`p-4 rounded-lg border ${
+                        selectedRouteType === 'current' 
+                          ? 'bg-green-100 border-green-300 ring-2 ring-green-200' 
+                          : 'bg-green-50 border-green-200'
+                      }`}>
                         <h6 className="font-medium text-green-800 mb-2">Current Route</h6>
                         <p className="text-sm text-green-600 mb-2">Optimal balance of time and experience</p>
                         <div className="text-xs text-green-700">
@@ -756,7 +776,11 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                           <p>Efficiency: 92%</p>
                         </div>
                       </div>
-                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <div className={`p-4 rounded-lg border ${
+                        selectedRouteType === 'speed' 
+                          ? 'bg-blue-100 border-blue-300 ring-2 ring-blue-200' 
+                          : 'bg-blue-50 border-blue-200'
+                      }`}>
                         <h6 className="font-medium text-blue-800 mb-2">Speed Route</h6>
                         <p className="text-sm text-blue-600 mb-2">Maximum places in minimum time</p>
                         <div className="text-xs text-blue-700">
@@ -764,7 +788,11 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                           <p>Efficiency: 98%</p>
                         </div>
                       </div>
-                      <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                      <div className={`p-4 rounded-lg border ${
+                        selectedRouteType === 'leisure' 
+                          ? 'bg-purple-100 border-purple-300 ring-2 ring-purple-200' 
+                          : 'bg-purple-50 border-purple-200'
+                      }`}>
                         <h6 className="font-medium text-purple-800 mb-2">Leisure Route</h6>
                         <p className="text-sm text-purple-600 mb-2">More time at each location</p>
                         <div className="text-xs text-purple-700">
