@@ -59,7 +59,7 @@ const ItineraryTab = ({
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Calendar className="text-purple-600" size={20} />
-                <span>Day {day.day} - {day.date}</span>
+                <span>{day.date}</span>
                 <Badge variant="outline" className="text-xs">
                   {day.destinationName}
                 </Badge>
