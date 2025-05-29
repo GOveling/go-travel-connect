@@ -90,7 +90,15 @@
     @apply border-border;
   }
 
-  body {
+  html {
     @apply bg-background text-foreground;
+  }
+
+  body {
+    @apply bg-background text-foreground min-h-screen;
+  }
+
+  #root {
+    @apply bg-background text-foreground min-h-screen;
   }
 }
