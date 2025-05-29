@@ -41,13 +41,13 @@ function Calendar({
   const handleDateClick = (date: Date | undefined) => {
     setTempSelected(date);
     if (!showSelectButton && onSelect) {
-      onSelect(date);
+      onSelect(date, date, undefined, undefined);
     }
   };
 
   const handleSelectDate = () => {
     if (onSelect) {
-      onSelect(tempSelected);
+      onSelect(tempSelected, tempSelected, undefined, undefined);
     }
     if (onDateSelect) {
       onDateSelect(tempSelected);
