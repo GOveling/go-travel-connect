@@ -240,11 +240,10 @@ const TripsSection = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleGroupOptions(trip)}
-                          className="text-xs px-3 py-2 h-8 border-purple-200 text-purple-600 hover:bg-purple-50"
+                          className="text-xs px-2 sm:px-3 py-2 h-8 border-purple-200 text-purple-600 hover:bg-purple-50 min-w-[90px] sm:min-w-auto"
                         >
                           <Settings size={12} className="mr-1" />
-                          <span className="hidden sm:inline">Group Options</span>
-                          <span className="sm:hidden">Group</span>
+                          <span>Group Options</span>
                         </Button>
                       )}
                     </div>
