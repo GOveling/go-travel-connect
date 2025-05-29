@@ -25,8 +25,8 @@ const ItineraryTab = ({
 }: ItineraryTabProps) => {
   return (
     <div className="space-y-6 mt-6">
-      <div className="flex items-center justify-between">
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200 flex-1 mr-4">
+      <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200 flex-1">
           <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
             <span className="mr-2">🧠</span>
             AI-Optimized Itinerary - {routeConfigurations[selectedRouteType]?.name}
@@ -38,8 +38,8 @@ const ItineraryTab = ({
             Based on your {totalSavedPlaces} saved places over {totalTripDays} allocated days
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-600">Route Type:</span>
+        <div className="flex flex-col">
+          <span className="text-sm font-medium text-gray-600 mb-2">Route Type:</span>
           <Select value={selectedRouteType} onValueChange={onRouteTypeChange}>
             <SelectTrigger className="w-40">
               <SelectValue />
