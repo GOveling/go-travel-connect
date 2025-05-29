@@ -137,7 +137,7 @@ const TravelersSection = () => {
                     size="sm"
                     variant={followingUsers.includes(traveler.id) ? "secondary" : "outline"}
                     className={followingUsers.includes(traveler.id) 
-                      ? "bg-white text-purple-600" 
+                      ? "bg-white text-purple-600 hover:bg-gray-100 hover:text-purple-700" 
                       : "border-white text-white hover:bg-white hover:text-purple-600"
                     }
                     onClick={() => handleFollow(traveler.id)}
@@ -233,11 +233,11 @@ const TravelersSection = () => {
 
                 {/* Actions */}
                 <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900">
                     <MessageSquare size={16} className="mr-1" />
                     Message
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900">
                     View Profile
                   </Button>
                 </div>
@@ -249,7 +249,7 @@ const TravelersSection = () => {
 
       {/* Load More */}
       <div className="text-center">
-        <Button variant="outline" className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50">
+        <Button variant="outline" className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700">
           <Users size={16} className="mr-2" />
           Discover More Travelers
         </Button>
