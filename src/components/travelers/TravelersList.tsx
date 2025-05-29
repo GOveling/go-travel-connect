@@ -1,0 +1,96 @@
+
+import { useState } from "react";
+import TravelerCard from "./TravelerCard";
+
+const TravelersList = () => {
+  const [followingUsers, setFollowingUsers] = useState<string[]>([]);
+
+  const travelers = [
+    {
+      id: "1",
+      name: "Emma Rodriguez",
+      avatar: "ER",
+      location: "Barcelona, Spain",
+      totalTrips: 12,
+      countries: 8,
+      followers: 245,
+      following: 189,
+      bio: "Adventure seeker and culture enthusiast. Love exploring hidden gems!",
+      pastTrips: [
+        { name: "Japan Discovery", destinations: "Tokyo, Kyoto, Osaka", year: "2024", rating: 5 },
+        { name: "European Circuit", destinations: "Paris, Rome, Amsterdam", year: "2023", rating: 4.8 },
+        { name: "Bali Adventure", destinations: "Ubud, Canggu, Nusa Penida", year: "2023", rating: 4.9 }
+      ],
+      recentPhotos: ["🏯", "🗼", "🏝️", "🍜"],
+      reviews: [
+        { place: "Senso-ji Temple", rating: 5, text: "Absolutely magical at sunrise!" },
+        { place: "Eiffel Tower", rating: 4.5, text: "Classic but still breathtaking" }
+      ]
+    },
+    {
+      id: "2", 
+      name: "Alex Chen",
+      avatar: "AC",
+      location: "San Francisco, USA",
+      totalTrips: 18,
+      countries: 15,
+      followers: 432,
+      following: 298,
+      bio: "Digital nomad exploring the world one city at a time 🌍",
+      pastTrips: [
+        { name: "Southeast Asia Tour", destinations: "Thailand, Vietnam, Cambodia", year: "2024", rating: 4.7 },
+        { name: "South America Trek", destinations: "Peru, Bolivia, Chile", year: "2023", rating: 5 },
+        { name: "African Safari", destinations: "Kenya, Tanzania", year: "2022", rating: 4.9 }
+      ],
+      recentPhotos: ["🦁", "🏔️", "🛕", "🌅"],
+      reviews: [
+        { place: "Machu Picchu", rating: 5, text: "Life-changing experience!" },
+        { place: "Angkor Wat", rating: 4.8, text: "Best visited at sunrise" }
+      ]
+    },
+    {
+      id: "3",
+      name: "Sofia Andersson", 
+      avatar: "SA",
+      location: "Stockholm, Sweden",
+      totalTrips: 9,
+      countries: 12,
+      followers: 167,
+      following: 143,
+      bio: "Sustainable travel advocate. Capturing moments, not just photos.",
+      pastTrips: [
+        { name: "Nordic Adventure", destinations: "Iceland, Norway, Finland", year: "2024", rating: 4.6 },
+        { name: "Mediterranean Escape", destinations: "Greece, Croatia, Italy", year: "2023", rating: 4.8 },
+        { name: "Morocco Journey", destinations: "Marrakech, Fez, Casablanca", year: "2023", rating: 4.7 }
+      ],
+      recentPhotos: ["🏔️", "🌊", "🕌", "🐪"],
+      reviews: [
+        { place: "Santorini", rating: 4.9, text: "Perfect sunset views!" },
+        { place: "Marrakech Medina", rating: 4.5, text: "Sensory overload in the best way" }
+      ]
+    }
+  ];
+
+  const handleFollow = (userId: string) => {
+    setFollowingUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      {travelers.map((traveler) => (
+        <TravelerCard
+          key={traveler.id}
+          traveler={traveler}
+          isFollowing={followingUsers.includes(traveler.id)}
+          onFollow={handleFollow}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default TravelersList;
