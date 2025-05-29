@@ -1,13 +1,16 @@
-
 import { useState } from "react";
-import { X, MapPin, Calendar, Users, Plane } from "lucide-react";
+import { X, MapPin, Calendar, Users, Plane, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface NewTripModalProps {
   isOpen: boolean;
@@ -20,8 +23,8 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const [formData, setFormData] = useState({
     name: "",
     destination: "",
-    startDate: "",
-    endDate: "",
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
     travelers: 1,
     budget: "",
     description: "",
@@ -41,10 +44,22 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const handleNotSureYet = () => {
     setFormData(prev => ({
       ...prev,
-      startDate: "",
-      endDate: "",
+      startDate: undefined,
+      endDate: undefined,
       datesNotSet: true
     }));
+  };
+
+  const formatTripDates = () => {
+    if (formData.datesNotSet) {
+      return "Dates TBD";
+    }
+    if (formData.startDate && formData.endDate) {
+      const startFormatted = format(formData.startDate, "MMM d, yyyy");
+      const endFormatted = format(formData.endDate, "MMM d, yyyy");
+      return `${startFormatted} - ${endFormatted}`;
+    }
+    return "Dates TBD";
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,9 +87,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       id: Date.now(),
       name: formData.name,
       destination: formData.destination,
-      dates: formData.datesNotSet 
-        ? "Dates TBD" 
-        : `${new Date(formData.startDate).toLocaleDateString()} - ${new Date(formData.endDate).toLocaleDateString()}`,
+      dates: formatTripDates(),
       status: "planning",
       travelers: formData.travelers,
       image: "🌍",
@@ -103,8 +116,8 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     setFormData({
       name: "",
       destination: "",
-      startDate: "",
-      endDate: "",
+      startDate: undefined,
+      endDate: undefined,
       travelers: 1,
       budget: "",
       description: "",
@@ -187,25 +200,58 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
                       <Label htmlFor="startDate" className="text-sm font-medium">
                         Start Date
                       </Label>
-                      <Input
-                        id="startDate"
-                        type="date"
-                        value={formData.startDate}
-                        onChange={(e) => handleInputChange("startDate", e.target.value)}
-                        className="mt-1"
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal mt-1",
+                              !formData.startDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.startDate ? format(formData.startDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={formData.startDate}
+                            onSelect={(date) => handleInputChange("startDate", date)}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div>
                       <Label htmlFor="endDate" className="text-sm font-medium">
                         End Date
                       </Label>
-                      <Input
-                        id="endDate"
-                        type="date"
-                        value={formData.endDate}
-                        onChange={(e) => handleInputChange("endDate", e.target.value)}
-                        className="mt-1"
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal mt-1",
+                              !formData.endDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.endDate ? format(formData.endDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <CalendarComponent
+                            mode="single"
+                            selected={formData.endDate}
+                            onSelect={(date) => handleInputChange("endDate", date)}
+                            disabled={(date) => formData.startDate ? date < formData.startDate : false}
+                            initialFocus
+                            className="p-3 pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                   <Button

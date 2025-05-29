@@ -1,13 +1,16 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, MapPin, Users, Edit3, Save, Trash2, Plus, X } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar, MapPin, Users, Edit3, Save, Trash2, Plus, X, CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getDestinationDateRanges } from "@/utils/dateUtils";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface EditTripModalProps {
   isOpen: boolean;
@@ -19,7 +22,7 @@ interface EditTripModalProps {
 
 const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: EditTripModalProps) => {
   const [tripName, setTripName] = useState("");
-  const [destinations, setDestinations] = useState<Array<{name: string, startDate: string, endDate: string}>>([]);
+  const [destinations, setDestinations] = useState<Array<{name: string, startDate: Date | undefined, endDate: Date | undefined}>>([]);
   const [travelers, setTravelers] = useState("1");
   const [status, setStatus] = useState("planning");
   const [budget, setBudget] = useState("");
@@ -36,27 +39,27 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
 
       // Initialize destinations from trip coordinates
       if (trip.coordinates && trip.coordinates.length > 0) {
-        if (trip.dates) {
+        if (trip.dates && trip.dates !== "Dates TBD") {
           // Use existing date calculation logic
           const dateRanges = getDestinationDateRanges(trip.dates, trip.coordinates.length);
           const destinationsWithDates = trip.coordinates.map((coord: any, index: number) => ({
             name: coord.name,
-            startDate: dateRanges[index]?.startDate ? formatDate(dateRanges[index].startDate) : "",
-            endDate: dateRanges[index]?.endDate ? formatDate(dateRanges[index].endDate) : ""
+            startDate: dateRanges[index]?.startDate || undefined,
+            endDate: dateRanges[index]?.endDate || undefined
           }));
           setDestinations(destinationsWithDates);
         } else {
           // No dates, initialize with empty dates
           const destinationsWithEmptyDates = trip.coordinates.map((coord: any) => ({
             name: coord.name,
-            startDate: "",
-            endDate: ""
+            startDate: undefined,
+            endDate: undefined
           }));
           setDestinations(destinationsWithEmptyDates);
         }
       } else {
         // No coordinates, initialize with one empty destination
-        setDestinations([{ name: "", startDate: "", endDate: "" }]);
+        setDestinations([{ name: "", startDate: undefined, endDate: undefined }]);
       }
     }
   }, [trip]);
@@ -65,11 +68,6 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
     // Calculate overall trip dates when destinations change
     calculateTripDates();
   }, [destinations]);
-
-  const formatDate = (date: Date) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-  };
 
   const calculateTripDates = () => {
     const validDestinations = destinations.filter(dest => dest.startDate && dest.endDate);
@@ -83,52 +81,23 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
     let latestEnd: Date | null = null;
 
     validDestinations.forEach(dest => {
-      const startDate = parseDate(dest.startDate);
-      const endDate = parseDate(dest.endDate);
-
-      if (startDate && (!earliestStart || startDate < earliestStart)) {
-        earliestStart = startDate;
+      if (dest.startDate && (!earliestStart || dest.startDate < earliestStart)) {
+        earliestStart = dest.startDate;
       }
-      if (endDate && (!latestEnd || endDate > latestEnd)) {
-        latestEnd = endDate;
+      if (dest.endDate && (!latestEnd || dest.endDate > latestEnd)) {
+        latestEnd = dest.endDate;
       }
     });
 
     if (earliestStart && latestEnd) {
-      const startFormatted = formatDateShort(earliestStart);
-      const endFormatted = formatDateShort(latestEnd);
+      const startFormatted = format(earliestStart, "MMM d");
+      const endFormatted = format(latestEnd, "MMM d, yyyy");
       setCalculatedDates(`${startFormatted} - ${endFormatted}`);
     }
   };
 
-  const parseDate = (dateStr: string): Date | null => {
-    try {
-      // Parse format like "Jan 15, 2024"
-      const parts = dateStr.split(' ');
-      if (parts.length !== 3) return null;
-      
-      const monthMap: { [key: string]: number } = {
-        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
-        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
-      };
-      
-      const month = monthMap[parts[0]];
-      const day = parseInt(parts[1].replace(',', ''));
-      const year = parseInt(parts[2]);
-      
-      return new Date(year, month, day);
-    } catch {
-      return null;
-    }
-  };
-
-  const formatDateShort = (date: Date) => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[date.getMonth()]} ${date.getDate()}`;
-  };
-
   const addDestination = () => {
-    setDestinations([...destinations, { name: "", startDate: "", endDate: "" }]);
+    setDestinations([...destinations, { name: "", startDate: undefined, endDate: undefined }]);
   };
 
   const removeDestination = (index: number) => {
@@ -137,7 +106,7 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
     }
   };
 
-  const updateDestination = (index: number, field: string, value: string) => {
+  const updateDestination = (index: number, field: string, value: string | Date | undefined) => {
     const updated = destinations.map((dest, i) => 
       i === index ? { ...dest, [field]: value } : dest
     );
@@ -157,7 +126,7 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
         ...trip,
         name: tripName,
         destination: destinations.map(d => d.name).filter(Boolean).join(' → '),
-        dates: calculatedDates,
+        dates: calculatedDates || "Dates TBD",
         travelers: parseInt(travelers),
         status: status,
         budget: budget,
@@ -247,18 +216,57 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
                           className="text-sm"
                         />
                         <div className="grid grid-cols-2 gap-2">
-                          <Input
-                            placeholder="Start: Jan 15, 2024"
-                            value={destination.startDate}
-                            onChange={(e) => updateDestination(index, 'startDate', e.target.value)}
-                            className="text-xs"
-                          />
-                          <Input
-                            placeholder="End: Jan 20, 2024"
-                            value={destination.endDate}
-                            onChange={(e) => updateDestination(index, 'endDate', e.target.value)}
-                            className="text-xs"
-                          />
+                          <div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal text-xs h-8",
+                                    !destination.startDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-1 h-3 w-3" />
+                                  {destination.startDate ? format(destination.startDate, "MMM d") : <span>Start</span>}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <CalendarComponent
+                                  mode="single"
+                                  selected={destination.startDate}
+                                  onSelect={(date) => updateDestination(index, 'startDate', date)}
+                                  initialFocus
+                                  className="p-3 pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal text-xs h-8",
+                                    !destination.endDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-1 h-3 w-3" />
+                                  {destination.endDate ? format(destination.endDate, "MMM d") : <span>End</span>}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <CalendarComponent
+                                  mode="single"
+                                  selected={destination.endDate}
+                                  onSelect={(date) => updateDestination(index, 'endDate', date)}
+                                  disabled={(date) => destination.startDate ? date < destination.startDate : false}
+                                  initialFocus
+                                  className="p-3 pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
                         </div>
                       </div>
                     </div>
