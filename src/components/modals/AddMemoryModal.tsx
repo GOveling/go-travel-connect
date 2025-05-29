@@ -1,3 +1,4 @@
+
 import { Camera, MapPin, Share, Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublicat
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-sm">Create Publication</p>
-                <p className="text-xs text-gray-500 break-words">Share to your feed profile with location</p>
+                <p className="text-xs text-gray-500 break-words">Share the best part of your travels</p>
               </div>
             </Button>
 
@@ -84,7 +85,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublicat
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-sm">Add Image</p>
-                <p className="text-xs text-gray-500 break-words">Add photo with location to saved places</p>
+                <p className="text-xs text-gray-500 break-words">Add photo in your Places Photobook</p>
               </div>
             </Button>
           </div>
