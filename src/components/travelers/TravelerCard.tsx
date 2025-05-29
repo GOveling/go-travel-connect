@@ -62,8 +62,8 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
               size="sm"
               variant={isFollowing ? "secondary" : "outline"}
               className={isFollowing 
-                ? "bg-white text-purple-600 hover:bg-gray-100 hover:text-purple-700" 
-                : "border-white text-white hover:bg-white hover:text-purple-600"
+                ? "bg-white text-black hover:bg-gray-100 hover:text-black" 
+                : "border-white text-black bg-white hover:bg-gray-100 hover:text-black"
               }
               onClick={() => onFollow(traveler.id)}
             >
