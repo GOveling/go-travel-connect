@@ -18,7 +18,7 @@ const HomeHeader = ({
 }: HomeHeaderProps) => {
   return (
     <div className="pb-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-2">
         {/* Logo on the left */}
         <div className="flex-1 flex justify-start">
           <img 
@@ -71,7 +71,7 @@ const HomeHeader = ({
           </div>
         </div>
       </div>
-      <p className="mt-2 text-center">
+      <p className="mt-1 text-center">
         <span className="text-purple-600 font-semibold">Travel Smart</span>
         <span className="text-gray-600">, </span>
         <span className="text-orange-500 font-semibold">Travel More</span>
