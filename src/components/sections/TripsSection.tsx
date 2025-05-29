@@ -1,5 +1,5 @@
-import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain, Compass, Bookmark, ExternalLink, Link, Smartphone } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Plus, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import TripMap from "@/components/maps/TripMap";
@@ -13,7 +13,11 @@ import MountainTripModal from "@/components/modals/MountainTripModal";
 import CityBreakModal from "@/components/modals/CityBreakModal";
 import BackpackingModal from "@/components/modals/BackpackingModal";
 import EditTripModal from "@/components/modals/EditTripModal";
-import { calculateTripStatus, getStatusDisplayText } from "@/utils/tripStatusUtils";
+import { calculateTripStatus } from "@/utils/tripStatusUtils";
+import TripCard from "@/components/trips/TripCard";
+import QuickStats from "@/components/trips/QuickStats";
+import TripTemplates from "@/components/trips/TripTemplates";
+import ShareSection from "@/components/trips/ShareSection";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
@@ -100,34 +104,6 @@ const TripsSection = () => {
     ...trip,
     status: calculateTripStatus(trip.dates)
   }));
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "upcoming":
-        return "bg-green-100 text-green-800";
-      case "planning":
-        return "bg-blue-100 text-blue-800";
-      case "traveling":
-        return "bg-purple-100 text-purple-800";
-      case "completed":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "owner":
-        return "bg-purple-100 text-purple-800";
-      case "editor":
-        return "bg-blue-100 text-blue-800";
-      case "viewer":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const handleViewDetails = (trip: any) => {
     setSelectedTrip(trip);
@@ -232,243 +208,34 @@ const TripsSection = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <Card className="text-center">
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-xl sm:text-2xl font-bold text-blue-600">{tripsWithAutoStatus.length}</p>
-            <p className="text-xs sm:text-sm text-gray-600">Total Trips</p>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-xl sm:text-2xl font-bold text-green-600">{tripsWithAutoStatus.filter(t => t.status === 'upcoming').length}</p>
-            <p className="text-xs sm:text-sm text-gray-600">Upcoming</p>
-          </CardContent>
-        </Card>
-        <Card className="text-center">
-          <CardContent className="p-3 sm:p-4">
-            <p className="text-xl sm:text-2xl font-bold text-orange-600">{tripsWithAutoStatus.filter(t => t.isGroupTrip).length}</p>
-            <p className="text-xs sm:text-sm text-gray-600">Group Trips</p>
-          </CardContent>
-        </Card>
-      </div>
+      <QuickStats trips={tripsWithAutoStatus} />
 
       {/* Trips List */}
       <div className="space-y-4">
         {tripsWithAutoStatus.map((trip) => (
-          <Card key={trip.id} className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-0">
-              <div className="flex flex-col sm:flex-row">
-                <div className="w-full sm:w-20 h-16 sm:h-auto bg-gradient-to-br from-blue-500 to-orange-500 flex items-center justify-center">
-                  <span className="text-2xl sm:text-3xl">{trip.image}</span>
-                </div>
-                <div className="flex-1 p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 space-y-2 sm:space-y-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-                      <h3 className="font-semibold text-lg">{trip.name}</h3>
-                      {trip.isGroupTrip && (
-                        <div className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full w-fit">
-                          <Users size={12} className="text-blue-600" />
-                          <span className="text-xs text-blue-600 font-medium">Group</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-row sm:flex-col items-start sm:items-end space-x-2 sm:space-x-0 sm:space-y-1">
-                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(trip.status)}`}>
-                        {getStatusDisplayText(trip.status)}
-                      </span>
-                      {trip.isGroupTrip && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleGroupOptions(trip)}
-                          className="text-xs px-2 sm:px-3 py-2 h-8 border-purple-200 text-purple-600 hover:bg-purple-50 hover:text-purple-700 min-w-[90px] sm:min-w-auto"
-                        >
-                          <Settings size={12} className="mr-1" />
-                          <span>Group Options</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Collaborators for group trips */}
-                  {trip.collaborators && trip.collaborators.length > 0 && (
-                    <div className="mb-3">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Users size={14} className="text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">Collaborators:</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {trip.collaborators.slice(0, 2).map((collaborator) => (
-                          <div key={collaborator.id} className="flex items-center space-x-1 bg-white border rounded-lg px-2 py-1">
-                            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                              {collaborator.avatar}
-                            </div>
-                            <span className="text-xs text-gray-700 hidden sm:inline">{collaborator.name}</span>
-                            <span className="text-xs text-gray-700 sm:hidden">{collaborator.name.split(' ')[0]}</span>
-                            <span className={`text-xs px-1 py-0.5 rounded-full ${getRoleColor(collaborator.role)}`}>
-                              {collaborator.role}
-                            </span>
-                          </div>
-                        ))}
-                        {trip.collaborators.length > 2 && (
-                          <div className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 rounded-full">
-                            <span className="text-xs text-gray-600">+{trip.collaborators.length - 2}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2 text-sm text-gray-600 mb-3">
-                    <div className="flex items-center space-x-2">
-                      <MapPin size={16} className="flex-shrink-0" />
-                      <span className="truncate">{trip.destination}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar size={16} className="flex-shrink-0" />
-                      <span className="text-xs sm:text-sm">{trip.dates}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Users size={16} className="flex-shrink-0" />
-                      <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
-
-                  {/* My Saved Places Button */}
-                  <div className="mb-3">
-                    <Button
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-3 text-sm sm:text-base"
-                      onClick={() => handleViewSavedPlaces(trip)}
-                    >
-                      <Bookmark size={20} className="mr-2" />
-                      My saved places
-                    </Button>
-                  </div>
-
-                  {/* AI Smart Route Button for All Trips */}
-                  <div className="mb-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleAISmartRoute(trip)}
-                      className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100 hover:text-purple-800 text-xs sm:text-sm"
-                    >
-                      <Brain size={16} className="mr-2" />
-                      AI Smart Route
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1 text-xs sm:text-sm"
-                      onClick={() => handleEditTrip(trip)}
-                    >
-                      <Edit size={16} className="mr-1" />
-                      Edit
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1 text-xs sm:text-sm"
-                      onClick={() => handleInviteFriends(trip)}
-                    >
-                      <UserPlus size={16} className="mr-1" />
-                      <span className="hidden sm:inline">Invite Friends</span>
-                      <span className="sm:hidden">Invite</span>
-                    </Button>
-                    <Button 
-                      size="lg" 
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500 text-sm sm:text-base px-4 py-3"
-                      onClick={() => handleViewDetails(trip)}
-                    >
-                      <span className="hidden sm:inline">Trip plan details</span>
-                      <span className="sm:hidden">Trip details</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TripCard
+            key={trip.id}
+            trip={trip}
+            onViewDetails={handleViewDetails}
+            onEditTrip={handleEditTrip}
+            onInviteFriends={handleInviteFriends}
+            onGroupOptions={handleGroupOptions}
+            onAISmartRoute={handleAISmartRoute}
+            onViewSavedPlaces={handleViewSavedPlaces}
+          />
         ))}
       </div>
 
       {/* Trip Templates */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base sm:text-lg">Quick Trip Templates</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-2 sm:gap-3">
-          <Button 
-            variant="outline" 
-            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-blue-200 hover:bg-blue-50 hover:text-black"
-            onClick={() => setShowBeachVacationModal(true)}
-          >
-            <span className="text-lg sm:text-xl">🏖️</span>
-            <span className="text-xs sm:text-sm">Beach Vacation</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-green-200 hover:bg-green-50 hover:text-black"
-            onClick={() => setShowMountainTripModal(true)}
-          >
-            <span className="text-lg sm:text-xl">🏔️</span>
-            <span className="text-xs sm:text-sm">Mountain Trip</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-purple-200 hover:bg-purple-50 hover:text-black"
-            onClick={() => setShowCityBreakModal(true)}
-          >
-            <span className="text-lg sm:text-xl">🏛️</span>
-            <span className="text-xs sm:text-sm">City Break</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50 hover:text-black"
-            onClick={() => setShowBackpackingModal(true)}
-          >
-            <span className="text-lg sm:text-xl">🎒</span>
-            <span className="text-xs sm:text-sm">Backpacking</span>
-          </Button>
-        </CardContent>
-      </Card>
+      <TripTemplates
+        onBeachVacation={() => setShowBeachVacationModal(true)}
+        onMountainTrip={() => setShowMountainTripModal(true)}
+        onCityBreak={() => setShowCityBreakModal(true)}
+        onBackpacking={() => setShowBackpackingModal(true)}
+      />
 
       {/* Share App with Travelers Friends */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
-            <Share2 size={20} className="text-blue-600" />
-            <span>Share app with your Travelers Friends</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Invite Friends to Join</h4>
-            <p className="text-xs sm:text-sm text-blue-600">Share the app with fellow travelers and discover amazing destinations together. Build your travel community!</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Button variant="outline" className="justify-start text-xs sm:text-sm">
-              <Link size={16} className="mr-2" />
-              Copy App Link
-            </Button>
-            <Button variant="outline" className="justify-start text-xs sm:text-sm">
-              <Smartphone size={16} className="mr-2" />
-              Share via Mobile
-            </Button>
-            <Button variant="outline" className="justify-start text-xs sm:text-sm">
-              <ExternalLink size={16} className="mr-2" />
-              Social Media Share
-            </Button>
-            <Button variant="outline" className="justify-start text-xs sm:text-sm">
-              <Users size={16} className="mr-2" />
-              Invite via Email
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <ShareSection />
 
       {/* All Modals */}
       <NewTripModal 
