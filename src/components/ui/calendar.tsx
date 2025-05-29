@@ -21,7 +21,6 @@ function Calendar({
   onConfirm,
   showConfirmButton = false,
   onClose,
-  onSelect,
   mode,
   selected,
   defaultMonth,
@@ -49,13 +48,13 @@ function Calendar({
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (!showConfirmButton && onSelect) {
+    if (!showConfirmButton && props.onSelect) {
       // Handle different onSelect types based on mode
       if (mode === 'single' || !mode) {
-        (onSelect as SelectSingleEventHandler)(date, date!, {}, {} as any);
+        (props.onSelect as SelectSingleEventHandler)(date, date!, {}, {} as any);
       } else if (mode === 'range') {
         // For range mode, we need to handle it differently
-        (onSelect as SelectRangeEventHandler)({ from: date, to: date }, date!, {}, {} as any);
+        (props.onSelect as SelectRangeEventHandler)({ from: date, to: date }, date!, {}, {} as any);
       }
       // Auto-close the calendar after selection
       if (onClose && date) {
@@ -68,12 +67,12 @@ function Calendar({
     if (onConfirm) {
       onConfirm(selectedDate);
     }
-    if (onSelect) {
+    if (props.onSelect) {
       // Handle different onSelect types based on mode
       if (mode === 'single' || !mode) {
-        (onSelect as SelectSingleEventHandler)(selectedDate, selectedDate!, {}, {} as any);
+        (props.onSelect as SelectSingleEventHandler)(selectedDate, selectedDate!, {}, {} as any);
       } else if (mode === 'range') {
-        (onSelect as SelectRangeEventHandler)({ from: selectedDate, to: selectedDate }, selectedDate!, {}, {} as any);
+        (props.onSelect as SelectRangeEventHandler)({ from: selectedDate, to: selectedDate }, selectedDate!, {}, {} as any);
       }
     }
     if (onClose) {

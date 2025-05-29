@@ -21,7 +21,19 @@ interface DestinationFormProps {
 
 const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }: DestinationFormProps) => {
   const addDestination = () => {
-    onDestinationsChange([...destinations, { name: "", startDate: undefined, endDate: undefined }]);
+    const newDestination: Destination = { name: "", startDate: undefined, endDate: undefined };
+    
+    // If there are existing destinations, set the start date of the new destination
+    // to one day after the last destination's end date
+    if (destinations.length > 0) {
+      const lastDestination = destinations[destinations.length - 1];
+      if (lastDestination.endDate) {
+        newDestination.startDate = addDays(lastDestination.endDate, 1);
+        newDestination.endDate = addDays(newDestination.startDate, 1);
+      }
+    }
+    
+    onDestinationsChange([...destinations, newDestination]);
   };
 
   const removeDestination = (index: number) => {
@@ -46,6 +58,21 @@ const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }
       }
       return dest;
     });
+
+    // Update subsequent destinations' start dates if this destination's end date changed
+    if (field === 'endDate' && value instanceof Date) {
+      for (let i = index + 1; i < updated.length; i++) {
+        const prevDestination = updated[i - 1];
+        if (prevDestination.endDate) {
+          updated[i].startDate = addDays(prevDestination.endDate, 1);
+          // Also update the end date if it's not set or is before the new start date
+          if (!updated[i].endDate || updated[i].endDate! <= updated[i].startDate!) {
+            updated[i].endDate = addDays(updated[i].startDate!, 1);
+          }
+        }
+      }
+    }
+
     onDestinationsChange(updated);
   };
 
