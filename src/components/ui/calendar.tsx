@@ -2,7 +2,6 @@
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker, SelectSingleEventHandler, SelectRangeEventHandler, DateRange } from "react-day-picker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -35,18 +34,6 @@ function Calendar({
     }
     return selected as Date | undefined;
   });
-
-  const handleMonthChange = (monthIndex: string) => {
-    const newMonth = new Date(month);
-    newMonth.setMonth(parseInt(monthIndex));
-    setMonth(newMonth);
-  };
-
-  const handleYearChange = (year: string) => {
-    const newMonth = new Date(month);
-    newMonth.setFullYear(parseInt(year));
-    setMonth(newMonth);
-  };
 
   const handleDateSelect = React.useCallback((date: Date | DateRange | undefined) => {
     if (mode === 'range') {
@@ -90,14 +77,6 @@ function Calendar({
     }
   };
 
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
-
   return (
     <div className="space-y-3">
       <DayPicker
@@ -107,7 +86,7 @@ function Calendar({
         onMonthChange={setMonth}
         selected={selectedDate}
         onSelect={handleDateSelect}
-        mode={mode}
+        mode={mode || "single"}
         weekStartsOn={1}
         formatters={{
           formatWeekdayName: (date) => {
@@ -119,7 +98,7 @@ function Calendar({
           months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
           month: "space-y-4",
           caption: "flex justify-center pt-1 relative items-center",
-          caption_label: "hidden",
+          caption_label: "text-sm font-medium",
           nav: "space-x-1 flex items-center",
           nav_button: cn(
             buttonVariants({ variant: "outline" }),
@@ -151,34 +130,6 @@ function Calendar({
         components={{
           IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
           IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
-          Caption: ({ displayMonth }) => (
-            <div className="flex justify-center items-center space-x-2 relative w-full">
-              <Select value={displayMonth.getMonth().toString()} onValueChange={handleMonthChange}>
-                <SelectTrigger className="w-[110px] h-8 text-sm bg-white border-gray-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-200 shadow-lg z-50">
-                  {months.map((monthName, index) => (
-                    <SelectItem key={index} value={index.toString()} className="hover:bg-gray-100">
-                      {monthName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={displayMonth.getFullYear().toString()} onValueChange={handleYearChange}>
-                <SelectTrigger className="w-[80px] h-8 text-sm bg-white border-gray-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-gray-200 shadow-lg z-50 max-h-[200px] overflow-y-auto">
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()} className="hover:bg-gray-100">
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ),
         }}
         {...props}
       />
