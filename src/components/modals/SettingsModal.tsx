@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Settings, User, Bell, Shield, Globe, Moon, Sun, Smartphone, HelpCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,38 @@ interface SettingsModalProps {
 }
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check if dark mode is already enabled
+    return document.documentElement.classList.contains('dark');
+  });
   const [pushNotifications, setPushNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [locationSharing, setLocationSharing] = useState(false);
   const [profileVisibility, setProfileVisibility] = useState("public");
+
+  // Handle dark mode toggle
+  const handleDarkModeToggle = (enabled: boolean) => {
+    setDarkMode(enabled);
+    if (enabled) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('darkMode', 'false');
+    }
+  };
+
+  // Load dark mode preference on component mount
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'true') {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else if (savedDarkMode === 'false') {
+      setDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
 
   const settingSections = [
     {
@@ -81,7 +108,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           description: "Use dark theme",
           type: "switch",
           value: darkMode,
-          onChange: setDarkMode
+          onChange: handleDarkModeToggle
         }
       ]
     }
