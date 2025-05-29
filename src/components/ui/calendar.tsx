@@ -71,9 +71,6 @@ function Calendar({
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
 
-  // Create props for DayPicker without our custom props
-  const { onConfirm: _, showConfirmButton: __, ...dayPickerProps } = props;
-
   return (
     <div className="space-y-3">
       <DayPicker
@@ -155,7 +152,7 @@ function Calendar({
             </div>
           ),
         }}
-        {...dayPickerProps}
+        {...props}
       />
       {showConfirmButton && (
         <div className="flex justify-end px-3 pb-3">
