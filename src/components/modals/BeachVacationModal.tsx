@@ -4,8 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Sun, Waves, Umbrella, Camera } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar, MapPin, Users, Sun, Waves, Umbrella, Camera, CalendarIcon } from "lucide-react";
 import { useState } from "react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface BeachVacationModalProps {
   isOpen: boolean;
@@ -16,8 +20,18 @@ interface BeachVacationModalProps {
 const BeachVacationModal = ({ isOpen, onClose, onCreateTrip }: BeachVacationModalProps) => {
   const [tripName, setTripName] = useState("");
   const [destination, setDestination] = useState("");
-  const [dates, setDates] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [travelers, setTravelers] = useState("2");
+
+  const formatTripDates = () => {
+    if (startDate && endDate) {
+      const startFormatted = format(startDate, "MMM d, yyyy");
+      const endFormatted = format(endDate, "MMM d, yyyy");
+      return `${startFormatted} - ${endFormatted}`;
+    }
+    return "Dates TBD";
+  };
 
   const handleSubmit = () => {
     if (onCreateTrip) {
@@ -25,7 +39,7 @@ const BeachVacationModal = ({ isOpen, onClose, onCreateTrip }: BeachVacationModa
         id: Date.now(),
         name: tripName || "Beach Vacation",
         destination: destination || "Tropical Paradise",
-        dates: dates || "Summer 2024",
+        dates: formatTripDates(),
         status: "planning",
         travelers: parseInt(travelers),
         image: "🏖️",
@@ -100,26 +114,70 @@ const BeachVacationModal = ({ isOpen, onClose, onCreateTrip }: BeachVacationModa
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="dates" className="text-sm font-medium">Dates</Label>
-                <Input
-                  id="dates"
-                  placeholder="Jul 15-22, 2024"
-                  value={dates}
-                  onChange={(e) => setDates(e.target.value)}
-                  className="mt-1"
-                />
+                <Label className="text-sm font-medium">Start Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal mt-1",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "MMM d") : <span>Pick date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div>
-                <Label htmlFor="travelers" className="text-sm font-medium">Travelers</Label>
-                <Input
-                  id="travelers"
-                  type="number"
-                  min="1"
-                  value={travelers}
-                  onChange={(e) => setTravelers(e.target.value)}
-                  className="mt-1"
-                />
+                <Label className="text-sm font-medium">End Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal mt-1",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "MMM d") : <span>Pick date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      disabled={(date) => startDate ? date < startDate : false}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="travelers" className="text-sm font-medium">Travelers</Label>
+              <Input
+                id="travelers"
+                type="number"
+                min="1"
+                value={travelers}
+                onChange={(e) => setTravelers(e.target.value)}
+                className="mt-1"
+              />
             </div>
           </div>
 
