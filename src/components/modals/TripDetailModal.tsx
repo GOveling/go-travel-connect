@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SavedPlacesRouteMap from "./SavedPlacesRouteMap";
 import InviteFriendsModal from "./InviteFriendsModal";
 import EditTripModal from "./EditTripModal";
+import PlaceDetailModal from "./PlaceDetailModal";
 
 interface Collaborator {
   id: string;
@@ -67,6 +68,8 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   const [selectedDestinationIndex, setSelectedDestinationIndex] = useState<number>(0);
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
+  const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<SavedPlace | null>(null);
 
   // Listen for the custom event to open saved-places tab
   useEffect(() => {
@@ -96,6 +99,24 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Function to handle opening the edit trip modal
   const handleEditTrip = () => {
     setShowEditTripModal(true);
+  };
+
+  // Function to handle viewing place details
+  const handleViewPlaceDetails = (place: SavedPlace) => {
+    // Convert SavedPlace to the format expected by PlaceDetailModal
+    const placeForModal = {
+      name: place.name,
+      location: "Location details", // You might want to add this to SavedPlace interface
+      rating: place.rating,
+      image: place.image,
+      category: place.category,
+      description: place.description,
+      hours: place.estimatedTime, // Using estimatedTime as hours for now
+      website: undefined,
+      phone: undefined
+    };
+    setSelectedPlace(placeForModal);
+    setShowPlaceDetailModal(true);
   };
 
   // Mock saved places data for each destination
@@ -676,7 +697,12 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                     </p>
 
                                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                      <Button size="sm" variant="outline" className="flex-1 text-xs">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="flex-1 text-xs"
+                                        onClick={() => handleViewPlaceDetails(place)}
+                                      >
                                         View Details
                                       </Button>
                                       <Button size="sm" className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500 text-xs">
@@ -792,6 +818,17 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         onClose={() => setShowEditTripModal(false)}
         onUpdateTrip={onUpdateTrip}
         onDeleteTrip={onDeleteTrip}
+      />
+
+      {/* PlaceDetailModal */}
+      <PlaceDetailModal
+        place={selectedPlace}
+        isOpen={showPlaceDetailModal}
+        onClose={() => {
+          setShowPlaceDetailModal(false);
+          setSelectedPlace(null);
+        }}
+        isFromSavedPlaces={true}
       />
     </>
   );
