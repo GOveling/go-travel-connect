@@ -22,9 +22,12 @@ function Calendar({
   ...props
 }: CalendarProps) {
   const [month, setMonth] = React.useState<Date>(props.defaultMonth || new Date());
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    Array.isArray(props.selected) ? props.selected[0] : props.selected as Date | undefined
-  );
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(() => {
+    if (Array.isArray(props.selected)) {
+      return props.selected[0] as Date | undefined;
+    }
+    return props.selected as Date | undefined;
+  });
 
   const handleMonthChange = (monthIndex: string) => {
     const newMonth = new Date(month);
@@ -40,7 +43,7 @@ function Calendar({
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (!showConfirmButton && props.onSelect) {
+    if (!showConfirmButton && 'onSelect' in props && props.onSelect) {
       // Handle different onSelect types based on mode
       if (props.mode === 'single' || !props.mode) {
         (props.onSelect as (date: Date | undefined) => void)(date);
@@ -52,7 +55,7 @@ function Calendar({
     if (onConfirm) {
       onConfirm(selectedDate);
     }
-    if (props.onSelect) {
+    if ('onSelect' in props && props.onSelect) {
       // Handle different onSelect types based on mode
       if (props.mode === 'single' || !props.mode) {
         (props.onSelect as (date: Date | undefined) => void)(selectedDate);
@@ -67,6 +70,9 @@ function Calendar({
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
+
+  // Create props for DayPicker without our custom props
+  const { onConfirm: _, showConfirmButton: __, ...dayPickerProps } = props;
 
   return (
     <div className="space-y-3">
@@ -149,7 +155,7 @@ function Calendar({
             </div>
           ),
         }}
-        {...props}
+        {...dayPickerProps}
       />
       {showConfirmButton && (
         <div className="flex justify-end px-3 pb-3">
