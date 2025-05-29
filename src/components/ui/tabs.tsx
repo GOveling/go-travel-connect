@@ -13,7 +13,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-12 items-center justify-center rounded-lg bg-[#51288] p-1.5 text-white border border-[#D94300]/20 shadow-sm",
+      "inline-flex h-auto items-center justify-center rounded-lg bg-gray-100 p-1 text-muted-foreground",
       className
     )}
     {...props}
@@ -28,7 +28,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA6123] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#EA6123] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-[#D94300] data-[state=active]:opacity-100 hover:data-[state=inactive]:bg-[#D94300] hover:data-[state=inactive]:text-white bg-[#51288] text-white border border-[#D94300]/30 shadow-sm min-h-[44px] touch-manipulation",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:shadow-sm border-0 min-h-[48px] touch-manipulation flex-1",
       className
     )}
     {...props}
@@ -43,7 +43,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "mt-3 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#EA6123] focus-visible:ring-offset-2 text-black",
+      "mt-3 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       className
     )}
     {...props}
