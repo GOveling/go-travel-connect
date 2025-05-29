@@ -1,4 +1,3 @@
-
 import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,11 +5,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import TravelDocumentsModal from "@/components/modals/TravelDocumentsModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
+import TravelAchievementsModal from "@/components/modals/TravelAchievementsModal";
+import ShareProfileModal from "@/components/modals/ShareProfileModal";
+import SettingsModal from "@/components/modals/SettingsModal";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
 
 const ProfileSection = () => {
   const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+  const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
+  const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Mock trips data to calculate places visited from completed trips
   const userTrips = [
@@ -66,9 +71,27 @@ const ProfileSection = () => {
       color: "text-green-600",
       onClick: () => setIsNotificationsModalOpen(true)
     },
-    { icon: Award, title: "Travel Achievements", subtitle: "Your travel milestones", color: "text-purple-600" },
-    { icon: Share, title: "Share Profile", subtitle: "Connect with travelers", color: "text-orange-600" },
-    { icon: Settings, title: "Settings", subtitle: "App preferences", color: "text-gray-600" },
+    { 
+      icon: Award, 
+      title: "Travel Achievements", 
+      subtitle: "Your travel milestones", 
+      color: "text-purple-600",
+      onClick: () => setIsTravelAchievementsModalOpen(true)
+    },
+    { 
+      icon: Share, 
+      title: "Share Profile", 
+      subtitle: "Connect with travelers", 
+      color: "text-orange-600",
+      onClick: () => setIsShareProfileModalOpen(true)
+    },
+    { 
+      icon: Settings, 
+      title: "Settings", 
+      subtitle: "App preferences", 
+      color: "text-gray-600",
+      onClick: () => setIsSettingsModalOpen(true)
+    },
   ];
 
   const stats = [
@@ -178,6 +201,24 @@ const ProfileSection = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Travel Achievements Modal */}
+      <TravelAchievementsModal
+        isOpen={isTravelAchievementsModalOpen}
+        onClose={() => setIsTravelAchievementsModalOpen(false)}
+      />
+
+      {/* Share Profile Modal */}
+      <ShareProfileModal
+        isOpen={isShareProfileModalOpen}
+        onClose={() => setIsShareProfileModalOpen(false)}
+      />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
 
       {/* Travel Documents Modal */}
       <TravelDocumentsModal
