@@ -38,8 +38,33 @@ const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }
 
   const removeDestination = (index: number) => {
     if (destinations.length > 1) {
-      onDestinationsChange(destinations.filter((_, i) => i !== index));
+      const updatedDestinations = destinations.filter((_, i) => i !== index);
+      // After removing, update subsequent destinations to maintain the cascade
+      updateCascadingDates(updatedDestinations, index - 1);
     }
+  };
+
+  const updateCascadingDates = (destinations: Destination[], startFromIndex: number) => {
+    const updated = [...destinations];
+    
+    // Start cascading from the given index
+    for (let i = Math.max(0, startFromIndex); i < updated.length - 1; i++) {
+      const currentDest = updated[i];
+      const nextDest = updated[i + 1];
+      
+      if (currentDest.endDate) {
+        // Set next destination's start date to one day after current destination's end date
+        nextDest.startDate = addDays(currentDest.endDate, 1);
+        
+        // If the next destination doesn't have an end date or the end date is before the new start date,
+        // set it to one day after the start date
+        if (!nextDest.endDate || nextDest.endDate <= nextDest.startDate) {
+          nextDest.endDate = addDays(nextDest.startDate, 1);
+        }
+      }
+    }
+    
+    onDestinationsChange(updated);
   };
 
   const updateDestination = (index: number, field: string, value: string | Date | undefined) => {
@@ -59,21 +84,12 @@ const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }
       return dest;
     });
 
-    // Update subsequent destinations' start dates if this destination's end date changed
+    // If we're updating an end date, cascade the changes to subsequent destinations
     if (field === 'endDate' && value instanceof Date) {
-      for (let i = index + 1; i < updated.length; i++) {
-        const prevDestination = updated[i - 1];
-        if (prevDestination.endDate) {
-          updated[i].startDate = addDays(prevDestination.endDate, 1);
-          // Also update the end date if it's not set or is before the new start date
-          if (!updated[i].endDate || updated[i].endDate! <= updated[i].startDate!) {
-            updated[i].endDate = addDays(updated[i].startDate!, 1);
-          }
-        }
-      }
+      updateCascadingDates(updated, index);
+    } else {
+      onDestinationsChange(updated);
     }
-
-    onDestinationsChange(updated);
   };
 
   return (
