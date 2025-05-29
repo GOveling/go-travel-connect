@@ -8,6 +8,11 @@ import NewTripModal from "@/components/modals/NewTripModal";
 import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
 import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
 import AISmartRouteModal from "@/components/modals/AISmartRouteModal";
+import BeachVacationModal from "@/components/modals/BeachVacationModal";
+import MountainTripModal from "@/components/modals/MountainTripModal";
+import CityBreakModal from "@/components/modals/CityBreakModal";
+import BackpackingModal from "@/components/modals/BackpackingModal";
+import EditTripModal from "@/components/modals/EditTripModal";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
@@ -17,6 +22,11 @@ const TripsSection = () => {
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
   const [showGroupOptionsModal, setShowGroupOptionsModal] = useState(false);
   const [showAISmartRouteModal, setShowAISmartRouteModal] = useState(false);
+  const [showBeachVacationModal, setShowBeachVacationModal] = useState(false);
+  const [showMountainTripModal, setShowMountainTripModal] = useState(false);
+  const [showCityBreakModal, setShowCityBreakModal] = useState(false);
+  const [showBackpackingModal, setShowBackpackingModal] = useState(false);
+  const [showEditTripModal, setShowEditTripModal] = useState(false);
   
   const [trips, setTrips] = useState([
     {
@@ -117,6 +127,19 @@ const TripsSection = () => {
 
   const handleCreateTrip = (tripData: any) => {
     setTrips(prev => [...prev, tripData]);
+  };
+
+  const handleUpdateTrip = (updatedTrip: any) => {
+    setTrips(prev => prev.map(trip => trip.id === updatedTrip.id ? updatedTrip : trip));
+  };
+
+  const handleDeleteTrip = (tripId: number) => {
+    setTrips(prev => prev.filter(trip => trip.id !== tripId));
+  };
+
+  const handleEditTrip = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowEditTripModal(true);
   };
 
   const handleInviteFriends = (trip: any) => {
@@ -307,7 +330,12 @@ const TripsSection = () => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                    <Button size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1 text-xs sm:text-sm"
+                      onClick={() => handleEditTrip(trip)}
+                    >
                       <Edit size={16} className="mr-1" />
                       Edit
                     </Button>
@@ -343,19 +371,35 @@ const TripsSection = () => {
           <CardTitle className="text-base sm:text-lg">Quick Trip Templates</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2 sm:gap-3">
-          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-blue-200 hover:bg-blue-50 hover:text-black">
+          <Button 
+            variant="outline" 
+            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-blue-200 hover:bg-blue-50 hover:text-black"
+            onClick={() => setShowBeachVacationModal(true)}
+          >
             <span className="text-lg sm:text-xl">🏖️</span>
             <span className="text-xs sm:text-sm">Beach Vacation</span>
           </Button>
-          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-green-200 hover:bg-green-50 hover:text-black">
+          <Button 
+            variant="outline" 
+            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-green-200 hover:bg-green-50 hover:text-black"
+            onClick={() => setShowMountainTripModal(true)}
+          >
             <span className="text-lg sm:text-xl">🏔️</span>
             <span className="text-xs sm:text-sm">Mountain Trip</span>
           </Button>
-          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-purple-200 hover:bg-purple-50 hover:text-black">
+          <Button 
+            variant="outline" 
+            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-purple-200 hover:bg-purple-50 hover:text-black"
+            onClick={() => setShowCityBreakModal(true)}
+          >
             <span className="text-lg sm:text-xl">🏛️</span>
             <span className="text-xs sm:text-sm">City Break</span>
           </Button>
-          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50 hover:text-black">
+          <Button 
+            variant="outline" 
+            className="h-12 sm:h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50 hover:text-black"
+            onClick={() => setShowBackpackingModal(true)}
+          >
             <span className="text-lg sm:text-xl">🎒</span>
             <span className="text-xs sm:text-sm">Backpacking</span>
           </Button>
@@ -388,7 +432,7 @@ const TripsSection = () => {
         </CardContent>
       </Card>
 
-      {/* New Trip Modal */}
+      {/* All Modals */}
       <NewTripModal 
         isOpen={showNewTripModal}
         onClose={() => setShowNewTripModal(false)}
@@ -429,6 +473,41 @@ const TripsSection = () => {
           setShowAISmartRouteModal(false);
           setSelectedTrip(null);
         }}
+      />
+
+      <BeachVacationModal
+        isOpen={showBeachVacationModal}
+        onClose={() => setShowBeachVacationModal(false)}
+        onCreateTrip={handleCreateTrip}
+      />
+
+      <MountainTripModal
+        isOpen={showMountainTripModal}
+        onClose={() => setShowMountainTripModal(false)}
+        onCreateTrip={handleCreateTrip}
+      />
+
+      <CityBreakModal
+        isOpen={showCityBreakModal}
+        onClose={() => setShowCityBreakModal(false)}
+        onCreateTrip={handleCreateTrip}
+      />
+
+      <BackpackingModal
+        isOpen={showBackpackingModal}
+        onClose={() => setShowBackpackingModal(false)}
+        onCreateTrip={handleCreateTrip}
+      />
+
+      <EditTripModal
+        trip={selectedTrip}
+        isOpen={showEditTripModal}
+        onClose={() => {
+          setShowEditTripModal(false);
+          setSelectedTrip(null);
+        }}
+        onUpdateTrip={handleUpdateTrip}
+        onDeleteTrip={handleDeleteTrip}
       />
     </div>
   );
