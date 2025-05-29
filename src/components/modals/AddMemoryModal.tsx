@@ -39,53 +39,53 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-[90vw] max-w-sm mx-auto max-h-[85vh] overflow-y-auto p-4 sm:p-6 m-4">
-          <DialogHeader className="pb-2">
-            <DialogTitle className="text-center text-lg sm:text-xl font-semibold text-gray-800">
+        <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[85vw] max-w-[350px] max-h-[80vh] overflow-y-auto p-4 border rounded-lg bg-white shadow-lg">
+          <DialogHeader className="pb-3">
+            <DialogTitle className="text-center text-base font-semibold text-gray-800">
               Add Memory
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-3 py-2">
+          <div className="space-y-3">
             <Button
               onClick={handleInstanTrip}
               variant="outline"
-              className="w-full h-auto flex items-center justify-start gap-3 text-left border-2 border-purple-200 hover:bg-purple-50 text-purple-700 p-3"
+              className="w-full h-auto flex items-center justify-start gap-3 text-left border-2 border-purple-200 hover:bg-purple-50 text-purple-700 p-3 min-h-[60px]"
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Upload size={16} className="sm:w-5 sm:h-5 text-purple-600" />
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Upload size={16} className="text-purple-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm sm:text-base">Add InstanTrip</p>
-                <p className="text-xs sm:text-sm text-gray-500 break-words">Upload a photo with location for your InstanTrip story</p>
+                <p className="font-medium text-sm">Add InstanTrip</p>
+                <p className="text-xs text-gray-500 break-words">Upload a photo with location for your InstanTrip story</p>
               </div>
             </Button>
 
             <Button
               onClick={handleCreatePublication}
               variant="outline"
-              className="w-full h-auto flex items-center justify-start gap-3 text-left border-2 border-orange-200 hover:bg-orange-50 text-orange-700 p-3"
+              className="w-full h-auto flex items-center justify-start gap-3 text-left border-2 border-orange-200 hover:bg-orange-50 text-orange-700 p-3 min-h-[60px]"
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Share size={16} className="sm:w-5 sm:h-5 text-orange-600" />
+              <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Share size={16} className="text-orange-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm sm:text-base">Create Publication</p>
-                <p className="text-xs sm:text-sm text-gray-500 break-words">Share to your feed profile with location</p>
+                <p className="font-medium text-sm">Create Publication</p>
+                <p className="text-xs text-gray-500 break-words">Share to your feed profile with location</p>
               </div>
             </Button>
 
             <Button
               onClick={handleAddImage}
               variant="outline"
-              className="w-full h-auto flex items-center justify-start gap-3 text-left border-2 border-blue-200 hover:bg-blue-50 text-blue-700 p-3"
+              className="w-full h-auto flex items-center justify-start gap-3 text-left border-2 border-blue-200 hover:bg-blue-50 text-blue-700 p-3 min-h-[60px]"
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Camera size={16} className="sm:w-5 sm:h-5 text-blue-600" />
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Camera size={16} className="text-blue-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm sm:text-base">Add Image</p>
-                <p className="text-xs sm:text-sm text-gray-500 break-words">Add photo with location to saved places</p>
+                <p className="font-medium text-sm">Add Image</p>
+                <p className="text-xs text-gray-500 break-words">Add photo with location to saved places</p>
               </div>
             </Button>
           </div>
