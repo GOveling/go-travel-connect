@@ -1,4 +1,4 @@
-import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain, Compass } from "lucide-react";
+import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain, Compass, Bookmark } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -330,11 +330,11 @@ const TripsSection = () => {
                     <Button
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-3 text-sm sm:text-base"
                       onClick={() => {
-                        const event = new CustomEvent('navigateToExplore');
+                        const event = new CustomEvent('navigateToSavedPlaces');
                         window.dispatchEvent(event);
                       }}
                     >
-                      <Compass size={20} className="mr-2" />
+                      <Bookmark size={20} className="mr-2" />
                       + NEW PLACE
                     </Button>
                   </div>
