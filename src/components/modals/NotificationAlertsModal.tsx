@@ -122,12 +122,12 @@ const NotificationAlertsModal = ({ isOpen, onClose, notificationCount, onMarkAll
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[80vh] p-0">
-        <DialogHeader className="p-6 pb-0">
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] p-0">
+        <DialogHeader className="p-4 sm:p-6 pb-0">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Bell size={24} className="text-blue-600" />
-              <span>Notifications</span>
+              <span className="text-base sm:text-lg">Notifications</span>
               {unreadCount > 0 && (
                 <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center text-xs p-0">
                   {unreadCount}
@@ -139,13 +139,14 @@ const NotificationAlertsModal = ({ isOpen, onClose, notificationCount, onMarkAll
               size="sm" 
               onClick={markAllAsRead}
               disabled={unreadCount === 0}
+              className="text-xs sm:text-sm"
             >
               Mark all read
             </Button>
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6">
+        <ScrollArea className="flex-1 px-4 sm:px-6">
           <div className="space-y-4 pb-6">
             {/* Recent Notifications */}
             {recentNotifications.length > 0 && (
@@ -162,10 +163,10 @@ const NotificationAlertsModal = ({ isOpen, onClose, notificationCount, onMarkAll
                         }`}
                         onClick={() => markAsRead(notification.id)}
                       >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
                           !notification.isRead ? 'bg-blue-100' : 'bg-gray-100'
                         }`}>
-                          <Icon size={16} className={notification.color} />
+                          <Icon size={14} className={notification.color} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
@@ -215,10 +216,10 @@ const NotificationAlertsModal = ({ isOpen, onClose, notificationCount, onMarkAll
                         }`}
                         onClick={() => markAsRead(notification.id)}
                       >
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
                           !notification.isRead ? 'bg-blue-100' : 'bg-gray-100'
                         }`}>
-                          <Icon size={16} className={notification.color} />
+                          <Icon size={14} className={notification.color} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">

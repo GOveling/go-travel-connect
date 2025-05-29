@@ -56,10 +56,10 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-6xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800 flex items-center space-x-3">
-            <Brain className="text-purple-600" size={28} />
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-3">
+            <Brain className="text-purple-600" size={24} />
             <span>AI Smart Route for {trip.name}</span>
           </DialogTitle>
         </DialogHeader>
@@ -74,9 +74,9 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="itinerary">Daily Itinerary</TabsTrigger>
-                <TabsTrigger value="map">Route Map</TabsTrigger>
-                <TabsTrigger value="analytics">AI Analytics</TabsTrigger>
+                <TabsTrigger value="itinerary" className="text-xs sm:text-sm">Daily Itinerary</TabsTrigger>
+                <TabsTrigger value="map" className="text-xs sm:text-sm">Route Map</TabsTrigger>
+                <TabsTrigger value="analytics" className="text-xs sm:text-sm">AI Analytics</TabsTrigger>
               </TabsList>
 
               <TabsContent value="itinerary">
@@ -111,14 +111,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
           )}
 
           {routeGenerated && (
-            <div className="flex space-x-3 pt-4 border-t">
-              <Button className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t">
+              <Button className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-sm">
                 Save to Trip
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1 text-sm">
                 Export Itinerary
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1 text-sm">
                 Share Route
               </Button>
             </div>

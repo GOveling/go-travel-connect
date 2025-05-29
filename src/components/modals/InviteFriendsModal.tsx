@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -88,10 +87,10 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-4xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Users className="text-blue-600" size={24} />
+          <DialogTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+            <Users className="text-blue-600" size={20} />
             <span>Manage Trip Collaboration - {trip.name}</span>
           </DialogTitle>
         </DialogHeader>
@@ -105,7 +104,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "ghost"}
-              className={`flex-1 ${activeTab === tab.id ? "bg-white shadow-sm" : ""}`}
+              className={`flex-1 text-xs sm:text-sm ${activeTab === tab.id ? "bg-white shadow-sm" : ""}`}
               onClick={() => setActiveTab(tab.id)}
             >
               <tab.icon size={16} className="mr-2" />
@@ -116,15 +115,15 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
         {/* Invite Friends Tab */}
         {activeTab === "invite" && (
-          <div className="space-y-6">
+          <div className="space-y-6 px-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Invite by Email</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Invite by Email</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="email">Friend's Email</Label>
-                  <div className="flex space-x-2 mt-1">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-1">
                     <Input
                       id="email"
                       type="email"
@@ -133,7 +132,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                       onChange={(e) => setInviteEmail(e.target.value)}
                       className="flex-1"
                     />
-                    <Button onClick={handleInvite}>
+                    <Button onClick={handleInvite} className="w-full sm:w-auto">
                       <Send size={16} className="mr-2" />
                       Send Invite
                     </Button>
@@ -144,21 +143,21 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Share Trip Link</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Share Trip Link</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <Input
                     value={`https://yourapp.com/trips/${trip.id}/join`}
                     readOnly
-                    className="flex-1 bg-gray-50"
+                    className="flex-1 bg-gray-50 text-xs sm:text-sm"
                   />
-                  <Button onClick={handleCopyLink} variant="outline">
+                  <Button onClick={handleCopyLink} variant="outline" className="w-full sm:w-auto">
                     {linkCopied ? <Check size={16} /> : <Copy size={16} />}
                     {linkCopied ? "Copied!" : "Copy"}
                   </Button>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-xs sm:text-sm text-gray-600 mt-2">
                   Anyone with this link can join your trip as a collaborator.
                 </p>
               </CardContent>
@@ -167,7 +166,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
             {/* Current Collaborators */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Current Collaborators</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Current Collaborators</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -178,8 +177,8 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                           {collaborator.avatar}
                         </div>
                         <div>
-                          <p className="font-medium">{collaborator.name}</p>
-                          <p className="text-sm text-gray-600">{collaborator.email}</p>
+                          <p className="font-medium text-sm">{collaborator.name}</p>
+                          <p className="text-xs text-gray-600">{collaborator.email}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -189,7 +188,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                               value={collaborator.role} 
                               onValueChange={(value) => handleRoleChange(collaborator.id, value)}
                             >
-                              <SelectTrigger className="w-24">
+                              <SelectTrigger className="w-20 sm:w-24">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -202,7 +201,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
                                 >
                                   <X size={16} />
                                 </Button>
@@ -242,13 +241,13 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
         {/* Share Itinerary Tab */}
         {activeTab === "share" && (
-          <div className="space-y-6">
+          <div className="space-y-6 px-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Trip Overview</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Trip Overview</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-2">
                     <Users size={16} className="text-gray-600" />
                     <span className="text-sm">{trip.destination}</span>
@@ -275,26 +274,26 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Share Options</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Share Options</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="message">Custom Message (Optional)</Label>
                   <textarea
                     id="message"
-                    className="w-full mt-1 p-2 border rounded-md"
+                    className="w-full mt-1 p-2 border rounded-md text-xs sm:text-sm"
                     rows={3}
                     placeholder="Add a personal message to share with your itinerary..."
                     value={shareMessage}
                     onChange={(e) => setShareMessage(e.target.value)}
                   />
                 </div>
-                <div className="flex space-x-2">
-                  <Button className="flex-1">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                  <Button className="flex-1 text-xs sm:text-sm">
                     <Share2 size={16} className="mr-2" />
                     Share via Email
                   </Button>
-                  <Button variant="outline" className="flex-1">
+                  <Button variant="outline" className="flex-1 text-xs sm:text-sm">
                     <Copy size={16} className="mr-2" />
                     Copy Itinerary Link
                   </Button>

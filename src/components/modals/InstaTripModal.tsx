@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { X, Camera, MapPin, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -111,7 +110,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
   if (images.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-semibold text-gray-800">
               InstanTrip
@@ -130,14 +129,14 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh]">
+      <DialogContent className="w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold text-gray-800">
             InstanTrip
           </DialogTitle>
         </DialogHeader>
         
-        <div className="relative">
+        <div className="relative px-1">
           <Carousel className="w-full">
             <CarouselContent>
               {images.map((image, index) => (

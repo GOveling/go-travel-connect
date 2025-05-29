@@ -119,15 +119,15 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-gray-800 flex items-center justify-center gap-2">
-            <Plane className="text-blue-600" size={24} />
-            Create New Trip
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-gray-800 flex items-center justify-center gap-2">
+            <Plane className="text-blue-600" size={20} />
+            <span>Create New Trip</span>
           </DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 px-1">
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-700">Basic Information</h3>
@@ -182,7 +182,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="startDate" className="text-sm font-medium">
                         Start Date
@@ -310,7 +310,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               type="button"
               variant="outline"

@@ -67,7 +67,7 @@ const AddToTripModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-center text-gray-800">
             Add to Trip
@@ -80,7 +80,7 @@ const AddToTripModal = ({
           )}
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-4 px-1">
           {/* Create New Trip Option */}
           <Card className="border-2 border-dashed border-blue-300 hover:border-blue-400 cursor-pointer transition-colors">
             <CardContent className="p-4">
@@ -106,7 +106,7 @@ const AddToTripModal = ({
           {existingTrips.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-gray-700">Or add to existing trip:</h3>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+              <div className="space-y-2 max-h-60 overflow-y-auto">
                 {existingTrips.map((trip) => (
                   <Card 
                     key={trip.id} 

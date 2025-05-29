@@ -150,14 +150,14 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold text-gray-800">
             Create InstanTrip Post
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-4 px-1">
           {!selectedImage && !isUsingCamera && (
             <div className="space-y-3">
               <Button
@@ -249,7 +249,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button onClick={handlePost} className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500">
                       <Send size={16} className="mr-2" />
                       Post to InstanTrip
@@ -257,6 +257,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
                     <Button 
                       onClick={() => setSelectedImage("")} 
                       variant="outline"
+                      className="sm:w-auto"
                     >
                       Change Photo
                     </Button>

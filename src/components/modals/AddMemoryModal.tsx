@@ -39,7 +39,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-semibold text-gray-800">
               Add Memory

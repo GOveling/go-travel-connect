@@ -182,31 +182,31 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[80vh] p-0">
-        <DialogHeader className="p-6 pb-0">
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] p-0">
+        <DialogHeader className="p-4 sm:p-6 pb-0">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Bell size={24} className="text-blue-600" />
-              <span>Notification Settings</span>
+              <span className="text-base sm:text-lg">Notification Settings</span>
             </div>
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm" onClick={enableAllNotifications}>
+            <div className="flex space-x-1 sm:space-x-2">
+              <Button variant="ghost" size="sm" onClick={enableAllNotifications} className="text-xs">
                 Enable all
               </Button>
-              <Button variant="ghost" size="sm" onClick={disableAllNotifications}>
+              <Button variant="ghost" size="sm" onClick={disableAllNotifications} className="text-xs">
                 Disable all
               </Button>
             </div>
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-6">
+        <ScrollArea className="flex-1 px-4 sm:px-6">
           <div className="space-y-6 pb-6">
             {/* Social Notifications */}
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Users size={20} className="text-blue-600" />
-                <h3 className="font-semibold text-gray-900">Social Notifications</h3>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Social Notifications</h3>
                 <Badge variant="secondary" className="text-xs">
                   {socialSettings.filter(s => s.enabled).length}/{socialSettings.length}
                 </Badge>
@@ -216,8 +216,8 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
                   const Icon = setting.icon;
                   return (
                     <div key={setting.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
-                      <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mt-1">
-                        <Icon size={16} className="text-blue-600" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 rounded-full flex items-center justify-center mt-1">
+                        <Icon size={14} className="text-blue-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
@@ -247,7 +247,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <MapPin size={20} className="text-green-600" />
-                <h3 className="font-semibold text-gray-900">Travel Notifications</h3>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Travel Notifications</h3>
                 <Badge variant="secondary" className="text-xs">
                   {travelSettings.filter(s => s.enabled).length}/{travelSettings.length}
                 </Badge>
@@ -257,8 +257,8 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
                   const Icon = setting.icon;
                   return (
                     <div key={setting.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
-                      <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center mt-1">
-                        <Icon size={16} className="text-green-600" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-full flex items-center justify-center mt-1">
+                        <Icon size={14} className="text-green-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
@@ -288,7 +288,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Shield size={20} className="text-purple-600" />
-                <h3 className="font-semibold text-gray-900">Privacy Settings</h3>
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Privacy Settings</h3>
                 <Badge variant="secondary" className="text-xs">
                   {privacySettings.filter(s => s.enabled).length}/{privacySettings.length}
                 </Badge>
@@ -298,8 +298,8 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
                   const Icon = setting.icon;
                   return (
                     <div key={setting.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
-                      <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center mt-1">
-                        <Icon size={16} className="text-purple-600" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-50 rounded-full flex items-center justify-center mt-1">
+                        <Icon size={14} className="text-purple-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
