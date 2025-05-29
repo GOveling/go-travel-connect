@@ -60,6 +60,19 @@ interface TripDetailModalProps {
   onDeleteTrip?: (tripId: number) => void;
 }
 
+// Interface for PlaceDetailModal
+interface PlaceForModal {
+  name: string;
+  location: string;
+  rating: number;
+  image: string;
+  category: string;
+  description?: string;
+  hours?: string;
+  website?: string;
+  phone?: string;
+}
+
 const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: TripDetailModalProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showRouteMap, setShowRouteMap] = useState(false);
@@ -69,7 +82,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<SavedPlace | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(null);
 
   // Listen for the custom event to open saved-places tab
   useEffect(() => {
@@ -104,7 +117,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Function to handle viewing place details
   const handleViewPlaceDetails = (place: SavedPlace) => {
     // Convert SavedPlace to the format expected by PlaceDetailModal
-    const placeForModal = {
+    const placeForModal: PlaceForModal = {
       name: place.name,
       location: "Location details", // You might want to add this to SavedPlace interface
       rating: place.rating,
