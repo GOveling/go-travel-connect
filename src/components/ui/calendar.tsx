@@ -22,7 +22,9 @@ function Calendar({
   ...props
 }: CalendarProps) {
   const [month, setMonth] = React.useState<Date>(props.defaultMonth || new Date());
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(props.selected as Date | undefined);
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
+    Array.isArray(props.selected) ? props.selected[0] : props.selected as Date | undefined
+  );
 
   const handleMonthChange = (monthIndex: string) => {
     const newMonth = new Date(month);
@@ -39,7 +41,10 @@ function Calendar({
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
     if (!showConfirmButton && props.onSelect) {
-      props.onSelect(date as any);
+      // Handle different onSelect types based on mode
+      if (props.mode === 'single' || !props.mode) {
+        (props.onSelect as (date: Date | undefined) => void)(date);
+      }
     }
   };
 
@@ -48,7 +53,10 @@ function Calendar({
       onConfirm(selectedDate);
     }
     if (props.onSelect) {
-      props.onSelect(selectedDate as any);
+      // Handle different onSelect types based on mode
+      if (props.mode === 'single' || !props.mode) {
+        (props.onSelect as (date: Date | undefined) => void)(selectedDate);
+      }
     }
   };
 
