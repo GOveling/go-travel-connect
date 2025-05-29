@@ -712,7 +712,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                         onClick={handleInviteFriends}
                       >
                         <UserPlus size={14} className="mr-1" />
-                        Invite
+                        Invite or Edit
                       </Button>
                     )}
                   </div>
