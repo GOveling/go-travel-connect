@@ -446,9 +446,25 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                             </div>
                           </div>
 
-                          {/* Booking Options */}
+                          {/* Booking Options - Reordered */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {/* Airport Transfer */}
+                            {/* Local Transport (for destinations after the first) - MOVED TO FIRST */}
+                            {index > 0 && (
+                              <div className="bg-orange-50 p-3 rounded-lg">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Car className="text-orange-600" size={16} />
+                                  <h6 className="font-medium text-orange-800 text-sm">Transport to {location.name}</h6>
+                                </div>
+                                <p className="text-xs text-orange-600 mb-2">
+                                  From {trip.coordinates[index - 1]?.name}
+                                </p>
+                                <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-xs w-full sm:w-auto">
+                                  Book Transport
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* Airport Transfer (only for first destination) */}
                             {index === 0 && (
                               <div className="bg-blue-50 p-3 rounded-lg">
                                 <div className="flex items-center space-x-2 mb-2">
@@ -464,7 +480,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                               </div>
                             )}
 
-                            {/* Hotel Booking */}
+                            {/* Hotel Booking - MOVED TO SECOND POSITION */}
                             <div className="bg-green-50 p-3 rounded-lg">
                               <div className="flex items-center space-x-2 mb-2">
                                 <Building className="text-green-600" size={16} />
@@ -482,22 +498,6 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                                 </Button>
                               </div>
                             </div>
-
-                            {/* Local Transport (for destinations after the first) */}
-                            {index > 0 && (
-                              <div className="bg-orange-50 p-3 rounded-lg">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Car className="text-orange-600" size={16} />
-                                  <h6 className="font-medium text-orange-800 text-sm">Transport to {location.name}</h6>
-                                </div>
-                                <p className="text-xs text-orange-600 mb-2">
-                                  From {trip.coordinates[index - 1]?.name}
-                                </p>
-                                <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-xs w-full sm:w-auto">
-                                  Book Transport
-                                </Button>
-                              </div>
-                            )}
 
                             {/* Activities */}
                             <div className="bg-purple-50 p-3 rounded-lg">
