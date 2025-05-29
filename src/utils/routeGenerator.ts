@@ -1,7 +1,7 @@
-
 import { Trip, DayItinerary, RouteConfiguration } from "@/types/aiSmartRoute";
 import { getDestinationDateRanges, getIndividualDayDates } from "./dateUtils";
 import { getSavedPlacesByDestination, convertToOptimizedPlaces, distributePlacesAcrossDays } from "./placeUtils";
+import { createSuggestedDayItinerary } from "./placeSuggestions";
 
 export const generateOptimizedRoutes = (trip: Trip | null) => {
   if (!trip) return { current: [], speed: [], leisure: [] };
@@ -16,9 +16,10 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
     const savedPlaces = savedPlacesByDestination[destination.name] || [];
     const destinationRange = destinationRanges[destIndex];
     
-    if (savedPlaces.length === 0 || !destinationRange) return;
+    if (!destinationRange) return;
 
     const individualDates = getIndividualDayDates(destinationRange);
+    const existingPlaceIds = savedPlaces.map(place => place.id);
 
     // Current Route: Balanced distribution across allocated days
     const currentSortedPlaces = savedPlaces
@@ -29,6 +30,7 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
     
     const currentDayGroups = distributePlacesAcrossDays(currentSortedPlaces, destinationRange.days, 'current');
     
+    // Add days with saved places
     currentDayGroups.forEach((dayPlaces, dayIndex) => {
       if (dayPlaces.length > 0) {
         routes.current.push({
@@ -42,14 +44,30 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
           freeTime: `${Math.max(2, 8 - dayPlaces.length * 2)} hours`,
           allocatedDays: destinationRange.days
         });
-        dayCounter++;
       }
+      dayCounter++;
     });
 
-    // Reset day counter for other routes
-    dayCounter -= currentDayGroups.length;
+    // Add suggested days for unused allocated days
+    if (currentDayGroups.length < destinationRange.days) {
+      for (let i = currentDayGroups.length; i < destinationRange.days; i++) {
+        const suggestedDay = createSuggestedDayItinerary(
+          dayCounter,
+          individualDates[i] || `Day ${dayCounter}`,
+          destination.name,
+          destination,
+          existingPlaceIds,
+          'current'
+        );
+        routes.current.push(suggestedDay);
+        dayCounter++;
+      }
+    }
 
-    // Speed Route: More places per day, optimized for efficiency
+    // Reset day counter for other routes
+    dayCounter -= destinationRange.days;
+
+    // Speed Route
     const speedSortedPlaces = savedPlaces
       .sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -72,14 +90,30 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
           freeTime: `${Math.max(1, 6 - dayPlaces.length * 1.5)} hours`,
           allocatedDays: destinationRange.days
         });
-        dayCounter++;
       }
+      dayCounter++;
     });
 
-    // Reset day counter for leisure route
-    dayCounter -= speedDayGroups.length;
+    // Add suggested days for speed route
+    if (speedDayGroups.length < destinationRange.days) {
+      for (let i = speedDayGroups.length; i < destinationRange.days; i++) {
+        const suggestedDay = createSuggestedDayItinerary(
+          dayCounter,
+          individualDates[i] || `Day ${dayCounter}`,
+          destination.name,
+          destination,
+          existingPlaceIds,
+          'speed'
+        );
+        routes.speed.push(suggestedDay);
+        dayCounter++;
+      }
+    }
 
-    // Leisure Route: Fewer places per day, more relaxed pace
+    // Reset day counter for leisure route
+    dayCounter -= destinationRange.days;
+
+    // Leisure Route
     const leisureSortedPlaces = savedPlaces
       .sort((a, b) => {
         const priorityOrder = { high: 3, medium: 2, low: 1 };
@@ -102,12 +136,28 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
           freeTime: `${Math.max(4, 10 - dayPlaces.length * 3)} hours`,
           allocatedDays: destinationRange.days
         });
-        dayCounter++;
       }
+      dayCounter++;
     });
 
+    // Add suggested days for leisure route
+    if (leisureDayGroups.length < destinationRange.days) {
+      for (let i = leisureDayGroups.length; i < destinationRange.days; i++) {
+        const suggestedDay = createSuggestedDayItinerary(
+          dayCounter,
+          individualDates[i] || `Day ${dayCounter}`,
+          destination.name,
+          destination,
+          existingPlaceIds,
+          'leisure'
+        );
+        routes.leisure.push(suggestedDay);
+        dayCounter++;
+      }
+    }
+
     // Reset day counter for next destination
-    dayCounter -= leisureDayGroups.length;
+    dayCounter -= destinationRange.days;
     dayCounter += destinationRange.days;
   });
 

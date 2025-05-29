@@ -20,4 +20,9 @@ export {
   getRouteConfigurations
 } from "./routeGenerator";
 
+export {
+  getSuggestedPlaces,
+  createSuggestedDayItinerary
+} from "./placeSuggestions";
+
 export { savedPlacesByDestination } from "./mockData";

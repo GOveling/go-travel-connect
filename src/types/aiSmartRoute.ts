@@ -1,4 +1,3 @@
-
 export interface Collaborator {
   id: string;
   name: string;
@@ -73,6 +72,7 @@ export interface DayItinerary {
   transportTime: string;
   freeTime: string;
   allocatedDays: number;
+  isSuggested?: boolean;
 }
 
 export interface RouteConfiguration {
