@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DollarSign, Vote, Edit, X, Plus, Calendar, Users } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GroupOptionsModalProps {
   isOpen: boolean;
@@ -48,7 +48,7 @@ interface Collaborator {
 }
 
 const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("expenses");
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
   const [editingDecisionId, setEditingDecisionId] = useState<number | null>(null);
