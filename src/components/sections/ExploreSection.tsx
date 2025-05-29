@@ -1,4 +1,3 @@
-
 import { Search, Star, MapPin, Filter, Bell } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,16 +6,46 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import AddToTripModal from "@/components/modals/AddToTripModal";
 import TravelersSection from "./TravelersSection";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   
   // Notification count state
-  const [notificationCount, setNotificationCount] = useState(5); // Example count for new notifications
+  const [notificationCount, setNotificationCount] = useState(5);
+
+  // Mock existing trips data
+  const existingTrips = [
+    {
+      id: 1,
+      name: "Summer Europe",
+      destination: "Paris, France",
+      dates: "Jul 15-25, 2024",
+      status: "upcoming",
+      image: "🇫🇷"
+    },
+    {
+      id: 2,
+      name: "Japan Adventure",
+      destination: "Tokyo, Japan",
+      dates: "Sep 10-20, 2024",
+      status: "planning",
+      image: "🇯🇵"
+    },
+    {
+      id: 3,
+      name: "Greek Islands",
+      destination: "Santorini, Greece",
+      dates: "Aug 5-15, 2024",
+      status: "upcoming",
+      image: "🇬🇷"
+    }
+  ];
 
   const popularPlaces = [
     {
@@ -75,6 +104,22 @@ const ExploreSection = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedPlace(null);
+  };
+
+  const handleAddToTrip = () => {
+    setIsModalOpen(false);
+    setIsAddToTripModalOpen(true);
+  };
+
+  const handleAddToExistingTrip = (tripId: number) => {
+    const selectedTrip = existingTrips.find(trip => trip.id === tripId);
+    console.log(`Adding ${selectedPlace?.name} to trip:`, selectedTrip?.name);
+    // TODO: Implement actual saving logic to trip's saved places
+  };
+
+  const handleCreateNewTrip = () => {
+    console.log(`Creating new trip with ${selectedPlace?.name}`);
+    // TODO: Implement new trip creation with selected place
   };
 
   const handleNotificationClick = () => {
@@ -232,6 +277,16 @@ const ExploreSection = () => {
         place={selectedPlace}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        onAddToTrip={handleAddToTrip}
+      />
+
+      <AddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => setIsAddToTripModalOpen(false)}
+        existingTrips={existingTrips}
+        onAddToExistingTrip={handleAddToExistingTrip}
+        onCreateNewTrip={handleCreateNewTrip}
+        postLocation={selectedPlace?.name}
       />
 
       <NotificationAlertsModal

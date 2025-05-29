@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -21,9 +20,10 @@ interface PlaceDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   isFromSavedPlaces?: boolean;
+  onAddToTrip?: () => void;
 }
 
-const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false }: PlaceDetailModalProps) => {
+const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, onAddToTrip }: PlaceDetailModalProps) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [userRating, setUserRating] = useState(0);
@@ -31,8 +31,11 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false }:
   if (!place) return null;
 
   const handleAddToTrip = () => {
-    // TODO: Implement add to trip functionality
-    console.log("Adding to trip:", place.name);
+    if (onAddToTrip) {
+      onAddToTrip();
+    } else {
+      console.log("Adding to trip:", place.name);
+    }
   };
 
   const handleSubmitReview = () => {
