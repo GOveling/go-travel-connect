@@ -1,4 +1,4 @@
-import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain, Compass, Bookmark } from "lucide-react";
+import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain, Compass, Bookmark, ExternalLink, Link, Smartphone } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -436,27 +436,35 @@ const TripsSection = () => {
         </CardContent>
       </Card>
 
-      {/* Group Trip Features */}
+      {/* Share App with Travelers Friends */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
-            <Users size={20} className="text-blue-600" />
-            <span>Group Trip Features</span>
+            <Share2 size={20} className="text-blue-600" />
+            <span>Share app with your Travelers Friends</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="bg-blue-50 p-3 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Collaborate with Friends</h4>
-            <p className="text-xs sm:text-sm text-blue-600">Invite friends to plan trips together. Share itineraries, split costs, and make group decisions.</p>
+            <h4 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Invite Friends to Join</h4>
+            <p className="text-xs sm:text-sm text-blue-600">Share the app with fellow travelers and discover amazing destinations together. Build your travel community!</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Button variant="outline" className="justify-start text-xs sm:text-sm">
-              <UserPlus size={16} className="mr-2" />
-              Invite Friends
+              <Link size={16} className="mr-2" />
+              Copy App Link
             </Button>
             <Button variant="outline" className="justify-start text-xs sm:text-sm">
-              <Share2 size={16} className="mr-2" />
-              Share Trip Link
+              <Smartphone size={16} className="mr-2" />
+              Share via Mobile
+            </Button>
+            <Button variant="outline" className="justify-start text-xs sm:text-sm">
+              <ExternalLink size={16} className="mr-2" />
+              Social Media Share
+            </Button>
+            <Button variant="outline" className="justify-start text-xs sm:text-sm">
+              <Users size={16} className="mr-2" />
+              Invite via Email
             </Button>
           </div>
         </CardContent>
