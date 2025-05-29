@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker, SelectSingleEventHandler, SelectRangeEventHandler } from "react-day-picker";
@@ -18,14 +19,18 @@ function Calendar({
   showOutsideDays = true,
   onConfirm,
   showConfirmButton = false,
+  onSelect,
+  mode,
+  selected,
+  defaultMonth,
   ...props
 }: CalendarProps) {
-  const [month, setMonth] = React.useState<Date>(props.defaultMonth || new Date());
+  const [month, setMonth] = React.useState<Date>(defaultMonth || new Date());
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(() => {
-    if (Array.isArray(props.selected)) {
-      return props.selected[0] as Date | undefined;
+    if (Array.isArray(selected)) {
+      return selected[0] as Date | undefined;
     }
-    return props.selected as Date | undefined;
+    return selected as Date | undefined;
   });
 
   const handleMonthChange = (monthIndex: string) => {
@@ -42,10 +47,10 @@ function Calendar({
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (!showConfirmButton && props.onSelect) {
+    if (!showConfirmButton && onSelect) {
       // Handle different onSelect types based on mode
-      if (props.mode === 'single' || !props.mode) {
-        (props.onSelect as SelectSingleEventHandler)(date, date!, {}, {} as any);
+      if (mode === 'single' || !mode) {
+        (onSelect as SelectSingleEventHandler)(date, date!, {}, {} as any);
       }
     }
   };
@@ -54,10 +59,10 @@ function Calendar({
     if (onConfirm) {
       onConfirm(selectedDate);
     }
-    if (props.onSelect) {
+    if (onSelect) {
       // Handle different onSelect types based on mode
-      if (props.mode === 'single' || !props.mode) {
-        (props.onSelect as SelectSingleEventHandler)(selectedDate, selectedDate!, {}, {} as any);
+      if (mode === 'single' || !mode) {
+        (onSelect as SelectSingleEventHandler)(selectedDate, selectedDate!, {}, {} as any);
       }
     }
   };
@@ -79,6 +84,7 @@ function Calendar({
         onMonthChange={setMonth}
         selected={selectedDate}
         onSelect={handleDateSelect}
+        mode={mode}
         weekStartsOn={1}
         formatters={{
           formatWeekdayName: (date) => {
