@@ -1,3 +1,4 @@
+
 import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,10 +6,50 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import TravelDocumentsModal from "@/components/modals/TravelDocumentsModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
+import { calculateTripStatus } from "@/utils/tripStatusUtils";
 
 const ProfileSection = () => {
   const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+
+  // Mock trips data to calculate places visited from completed trips
+  const userTrips = [
+    {
+      id: 1,
+      name: "European Adventure",
+      dates: "Sep 15 - Sep 25, 2024",
+      savedPlaces: [
+        { name: "Eiffel Tower", location: "Paris" },
+        { name: "Louvre Museum", location: "Paris" },
+        { name: "Colosseum", location: "Rome" },
+        { name: "Vatican City", location: "Rome" },
+        { name: "Sagrada Familia", location: "Barcelona" }
+      ]
+    },
+    {
+      id: 2,
+      name: "Bali Retreat",
+      dates: "Nov 20 - Nov 27, 2024",
+      savedPlaces: [
+        { name: "Tanah Lot Temple", location: "Bali" },
+        { name: "Ubud Rice Terraces", location: "Bali" },
+        { name: "Mount Batur", location: "Bali" }
+      ]
+    },
+    {
+      id: 3,
+      name: "Tokyo Discovery",
+      dates: "Jan 8 - Jan 15, 2025",
+      savedPlaces: [
+        { name: "Tokyo Tower", location: "Tokyo" },
+        { name: "Senso-ji Temple", location: "Tokyo" }
+      ]
+    }
+  ];
+
+  // Calculate places visited from completed trips
+  const completedTrips = userTrips.filter(trip => calculateTripStatus(trip.dates) === 'completed');
+  const placesVisited = completedTrips.reduce((total, trip) => total + trip.savedPlaces.length, 0);
 
   const menuItems = [
     { 
@@ -33,6 +74,7 @@ const ProfileSection = () => {
   const stats = [
     { label: "Countries Visited", value: "8" },
     { label: "Cities Explored", value: "24" },
+    { label: "Places Visited", value: placesVisited.toString() },
     { label: "Reviews Written", value: "15" },
   ];
 
@@ -60,7 +102,7 @@ const ProfileSection = () => {
           <CardTitle className="text-lg text-center">Travel Stats</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-2 gap-4 text-center">
             {stats.map((stat, index) => (
               <div key={index}>
                 <p className="text-2xl font-bold text-blue-600">{stat.value}</p>
