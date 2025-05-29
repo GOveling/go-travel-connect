@@ -9,6 +9,7 @@ import InstaTripModal from "@/components/modals/InstaTripModal";
 import ProfilePublicationModal from "@/components/modals/ProfilePublicationModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import AddToTripModal from "@/components/modals/AddToTripModal";
+import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 
 interface InstaTripImage {
   id: string;
@@ -165,8 +166,13 @@ const HomeSection = () => {
 
   return (
     <div className="min-h-screen p-4 space-y-6">
+      {/* Location, Date & Weather Widget */}
+      <div className="pt-4">
+        <LocationWeatherWidget />
+      </div>
+
       {/* Header with Logo on left, InstanTrip button in center, and Notification Bell on right */}
-      <div className="pt-8 pb-4">
+      <div className="pb-4">
         <div className="flex justify-between items-center mb-4">
           {/* Logo on the left */}
           <div className="flex-1 flex justify-start">
