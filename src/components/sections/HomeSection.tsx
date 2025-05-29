@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import AddMemoryModal from "@/components/modals/AddMemoryModal";
@@ -90,6 +89,10 @@ const HomeSection = () => {
   };
 
   const handleProfilePublicationClick = () => {
+    setIsProfilePublicationModalOpen(true);
+  };
+
+  const handleCreatePublicationFromAddMemory = () => {
     setIsProfilePublicationModalOpen(true);
   };
 
@@ -213,6 +216,7 @@ const HomeSection = () => {
         isOpen={isAddMemoryModalOpen}
         onClose={() => setIsAddMemoryModalOpen(false)}
         onAddInstaTripImage={handleAddInstaTripImage}
+        onCreatePublication={handleCreatePublicationFromAddMemory}
       />
 
       <InstaTripModal

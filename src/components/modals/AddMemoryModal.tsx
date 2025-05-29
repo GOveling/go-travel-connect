@@ -9,9 +9,10 @@ interface AddMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: number) => void;
+  onCreatePublication?: () => void;
 }
 
-const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModalProps) => {
+const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublication }: AddMemoryModalProps) => {
   const [isInstaTripUploadOpen, setIsInstaTripUploadOpen] = useState(false);
 
   const handleInstanTrip = () => {
@@ -19,8 +20,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage }: AddMemoryModal
   };
 
   const handleCreatePublication = () => {
-    console.log("Create publication clicked");
-    // TODO: Implement publication creation functionality
+    onCreatePublication?.();
     onClose();
   };
 
