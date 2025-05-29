@@ -1,6 +1,7 @@
 
-import { Brain } from "lucide-react";
+import { TrendingUp, Clock, MapPin, Star, Route } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RouteConfiguration } from "@/types/aiSmartRoute";
 
@@ -19,144 +20,143 @@ const AnalyticsTab = ({
   totalTripDays,
   onRouteTypeChange
 }: AnalyticsTabProps) => {
+  const currentRoute = routeConfigurations[selectedRouteType];
+
   return (
-    <div className="space-y-4 mt-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center">
-              <Brain className="mr-2 text-purple-600" size={20} />
-              AI Optimization Factors
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="bg-green-50 p-3 rounded-lg">
-                <h6 className="font-medium text-green-800">Your Saved Places</h6>
-                <p className="text-sm text-green-600">Analyzed {totalSavedPlaces} places you've saved across {totalTripDays} allocated days</p>
-              </div>
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <h6 className="font-medium text-blue-800">Priority-Based Routing</h6>
-                <p className="text-sm text-blue-600">Routes optimized based on your priority ratings</p>
-              </div>
-              <div className="bg-purple-50 p-3 rounded-lg">
-                <h6 className="font-medium text-purple-800">Time Allocation</h6>
-                <p className="text-sm text-purple-600">Smart scheduling within your allocated timeframe</p>
-              </div>
-              <div className="bg-orange-50 p-3 rounded-lg">
-                <h6 className="font-medium text-orange-800">Personalized Routes</h6>
-                <p className="text-sm text-orange-600">Based entirely on places you've personally selected</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center justify-between">
-              <span>Alternative Routes</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-normal text-gray-600">Select Route:</span>
-                <Select value={selectedRouteType} onValueChange={onRouteTypeChange}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="current">Current Route</SelectItem>
-                    <SelectItem value="speed">Speed Route</SelectItem>
-                    <SelectItem value="leisure">Leisure Route</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4">
-              <div className={`p-4 rounded-lg border ${
-                selectedRouteType === 'current' 
-                  ? 'bg-green-100 border-green-300 ring-2 ring-green-200' 
-                  : 'bg-green-50 border-green-200'
-              }`}>
-                <h6 className="font-medium text-green-800 mb-2">Current Route</h6>
-                <p className="text-sm text-green-600 mb-2">Optimal balance considering allocated days per destination</p>
-                <div className="text-xs text-green-700">
-                  <p>Duration: {routeConfigurations.current?.duration}</p>
-                  <p>Efficiency: {routeConfigurations.current?.efficiency}</p>
-                </div>
-              </div>
-              <div className={`p-4 rounded-lg border ${
-                selectedRouteType === 'speed' 
-                  ? 'bg-blue-100 border-blue-300 ring-2 ring-blue-200' 
-                  : 'bg-blue-50 border-blue-200'
-              }`}>
-                <h6 className="font-medium text-blue-800 mb-2">Speed Route</h6>
-                <p className="text-sm text-blue-600 mb-2">Maximum saved places within allocated timeframe</p>
-                <div className="text-xs text-blue-700">
-                  <p>Duration: {routeConfigurations.speed?.duration}</p>
-                  <p>Efficiency: {routeConfigurations.speed?.efficiency}</p>
-                </div>
-              </div>
-              <div className={`p-4 rounded-lg border ${
-                selectedRouteType === 'leisure' 
-                  ? 'bg-purple-100 border-purple-300 ring-2 ring-purple-200' 
-                  : 'bg-purple-50 border-purple-200'
-              }`}>
-                <h6 className="font-medium text-purple-800 mb-2">Leisure Route</h6>
-                <p className="text-sm text-purple-600 mb-2">Relaxed pace with more time per saved place</p>
-                <div className="text-xs text-purple-700">
-                  <p>Duration: {routeConfigurations.leisure?.duration}</p>
-                  <p>Efficiency: {routeConfigurations.leisure?.efficiency}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
+    <div className="space-y-6 mt-6">
+      {/* Route Performance Metrics */}
+      <Card className="border-l-4 border-l-blue-500">
         <CardHeader>
-          <CardTitle className="text-lg">Saved Places Analysis</CardTitle>
+          <CardTitle className="flex items-center space-x-2">
+            <TrendingUp className="text-blue-600" size={20} />
+            <span>Route Performance Analytics</span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Places Coverage:</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-20 h-2 bg-gray-200 rounded-full">
-                  <div className="w-full h-2 bg-green-500 rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium">100%</span>
-              </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-blue-50 p-3 rounded-lg text-center">
+              <p className="text-2xl font-bold text-blue-600">{currentRoute.efficiency}</p>
+              <p className="text-sm text-blue-800">Route Efficiency</p>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Priority Distribution:</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-20 h-2 bg-gray-200 rounded-full">
-                  <div className="w-17 h-2 bg-blue-500 rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium">90%</span>
-              </div>
+            <div className="bg-green-50 p-3 rounded-lg text-center">
+              <p className="text-2xl font-bold text-green-600">{currentRoute.duration}</p>
+              <p className="text-sm text-green-800">Total Duration</p>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Time Optimization:</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-20 h-2 bg-gray-200 rounded-full">
-                  <div className="w-19 h-2 bg-purple-500 rounded-full"></div>
-                </div>
-                <span className="text-sm font-medium">96%</span>
-              </div>
+            <div className="bg-purple-50 p-3 rounded-lg text-center">
+              <p className="text-2xl font-bold text-purple-600">{totalSavedPlaces}</p>
+              <p className="text-sm text-purple-800">Places Covered</p>
+            </div>
+            <div className="bg-orange-50 p-3 rounded-lg text-center">
+              <p className="text-2xl font-bold text-orange-600">{totalTripDays}</p>
+              <p className="text-sm text-orange-800">Trip Days</p>
             </div>
           </div>
-          
-          <div className="bg-gray-50 p-3 rounded-lg mt-4">
-            <h6 className="font-medium text-gray-800 mb-2">AI Personalized Recommendations</h6>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• All routes use only your personally saved places</li>
-              <li>• Priority rankings from your preferences are considered</li>
-              <li>• Time allocation respects your trip's day distribution</li>
-              <li>• Routes optimize travel time between your selected places</li>
-              <li>• Flexible scheduling allows for spontaneous discoveries</li>
+        </CardContent>
+      </Card>
+
+      {/* Alternative Routes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Route className="text-purple-600" size={20} />
+            <span>Alternative Routes</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col space-y-3">
+            <span className="text-sm font-medium text-gray-600">Select Route:</span>
+            <Select value={selectedRouteType} onValueChange={onRouteTypeChange}>
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="current">Current Route</SelectItem>
+                <SelectItem value="speed">Speed Route</SelectItem>
+                <SelectItem value="leisure">Leisure Route</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-4">
+            {Object.entries(routeConfigurations).map(([key, config]) => (
+              <div 
+                key={key} 
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  selectedRouteType === key 
+                    ? 'border-purple-500 bg-purple-50' 
+                    : 'border-gray-200 hover:border-purple-300'
+                }`}
+                onClick={() => onRouteTypeChange(key)}
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800 mb-1">{config.name}</h4>
+                    <p className="text-sm text-gray-600 mb-2">{config.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        <Clock size={12} className="mr-1" />
+                        {config.duration}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        <TrendingUp size={12} className="mr-1" />
+                        {config.efficiency} efficient
+                      </Badge>
+                    </div>
+                  </div>
+                  {selectedRouteType === key && (
+                    <Badge className="bg-purple-100 text-purple-800 mt-2 sm:mt-0">
+                      Active
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Route Insights */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Star className="text-yellow-600" size={20} />
+            <span>AI Route Insights</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
+            <h4 className="font-semibold text-purple-800 mb-2">🤖 AI Recommendations</h4>
+            <ul className="space-y-2 text-sm text-purple-700">
+              <li>• This route optimizes for {currentRoute.efficiency} efficiency</li>
+              <li>• Expected total travel time: {currentRoute.duration}</li>
+              <li>• {totalSavedPlaces} saved places will be visited over {totalTripDays} days</li>
+              <li>• Route considers traffic patterns and opening hours</li>
             </ul>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h5 className="font-medium text-green-800 mb-2 flex items-center">
+                <MapPin size={16} className="mr-2" />
+                Route Highlights
+              </h5>
+              <ul className="text-sm text-green-700 space-y-1">
+                <li>• Minimized walking distances</li>
+                <li>• Optimized for public transport</li>
+                <li>• Groups nearby attractions</li>
+              </ul>
+            </div>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h5 className="font-medium text-blue-800 mb-2 flex items-center">
+                <Clock size={16} className="mr-2" />
+                Time Optimization
+              </h5>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Avoids peak hours</li>
+                <li>• Considers venue opening times</li>
+                <li>• Includes buffer time</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
