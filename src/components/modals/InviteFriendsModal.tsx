@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -104,7 +105,11 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "ghost"}
-              className={`flex-1 text-xs sm:text-sm ${activeTab === tab.id ? "bg-white shadow-sm" : ""}`}
+              className={`flex-1 text-xs sm:text-sm ${
+                activeTab === tab.id 
+                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm" 
+                  : "text-black hover:text-black"
+              }`}
               onClick={() => setActiveTab(tab.id)}
             >
               <tab.icon size={16} className="mr-2" />
