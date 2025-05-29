@@ -22,7 +22,7 @@ const HomeHeader = ({
         {/* Logo on the left */}
         <div className="flex-1 flex justify-start">
           <img 
-            src="/lovable-uploads/3e9a8a6e-d543-437e-a44d-2f16fac6303f.png" 
+            src="/lovable-uploads/ab817c30-2b47-4b5b-9678-711900c7df72.png" 
             alt="GOveling Logo" 
             className="h-16 w-auto"
           />
