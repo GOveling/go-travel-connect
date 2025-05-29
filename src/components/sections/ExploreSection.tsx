@@ -1,3 +1,4 @@
+
 import { Search, Star, MapPin, Filter, Bell } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -127,8 +128,8 @@ const ExploreSection = () => {
       {/* Tabs for different sections */}
       <Tabs defaultValue="places" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="places">Places</TabsTrigger>
-          <TabsTrigger value="travelers">Travelers</TabsTrigger>
+          <TabsTrigger value="places" className="text-gray-700 data-[state=active]:text-black">Places</TabsTrigger>
+          <TabsTrigger value="travelers" className="text-gray-700 data-[state=active]:text-black">Travelers</TabsTrigger>
         </TabsList>
 
         <TabsContent value="places" className="space-y-6">
