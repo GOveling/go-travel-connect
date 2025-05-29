@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MapPin, Cloud, Sun, CloudRain, Thermometer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -103,9 +102,7 @@ const LocationWeatherWidget = () => {
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   };
@@ -137,11 +134,10 @@ const LocationWeatherWidget = () => {
   if (isLoading) {
     return (
       <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <div className="animate-pulse">
-            <div className="h-4 bg-white bg-opacity-30 rounded mb-2"></div>
-            <div className="h-3 bg-white bg-opacity-20 rounded mb-2"></div>
-            <div className="h-3 bg-white bg-opacity-20 rounded w-3/4"></div>
+            <div className="h-3 bg-white bg-opacity-30 rounded mb-1"></div>
+            <div className="h-2 bg-white bg-opacity-20 rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -150,41 +146,29 @@ const LocationWeatherWidget = () => {
 
   return (
     <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
-      <CardContent className="p-4">
-        {/* Date and Time */}
-        <div className="text-center mb-3">
-          <p className="text-lg font-semibold">{formatDate(currentDate)}</p>
-          <p className="text-sm opacity-90">{formatTime(currentDate)}</p>
-        </div>
-
-        {/* Location */}
-        <div className="flex items-center justify-center mb-3">
-          <MapPin size={16} className="mr-2" />
-          <div className="text-center">
-            <p className="font-medium">{location.city}, {location.country}</p>
-            <p className="text-xs opacity-80">{location.region}</p>
+      <CardContent className="p-2">
+        {/* Compact layout with everything in one row */}
+        <div className="flex items-center justify-between text-xs">
+          {/* Date and Location */}
+          <div className="flex items-center space-x-2">
+            <MapPin size={12} />
+            <span className="font-medium">{location.city}</span>
+            <span className="opacity-80">•</span>
+            <span>{formatDate(currentDate)}</span>
+            <span>{formatTime(currentDate)}</span>
           </div>
-        </div>
 
-        {/* Weather */}
-        {weather && (
-          <div className="flex items-center justify-between bg-white bg-opacity-20 rounded-lg p-3">
-            <div className="flex items-center">
+          {/* Weather */}
+          {weather && (
+            <div className="flex items-center space-x-2">
               {getWeatherIcon(weather.condition)}
-              <div className="ml-3">
-                <p className="font-medium">{weather.condition}</p>
-                <p className="text-xs opacity-80">{weather.humidity}% humidity</p>
-              </div>
-            </div>
-            <div className="text-right">
               <div className="flex items-center">
-                <Thermometer size={16} className="mr-1" />
-                <span className="text-2xl font-bold">{weather.temperature}°C</span>
+                <Thermometer size={12} className="mr-1" />
+                <span className="font-bold">{weather.temperature}°C</span>
               </div>
-              <p className="text-xs opacity-80">{weather.windSpeed} km/h wind</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -10,7 +10,6 @@ import HomeHeader from "@/components/home/HomeHeader";
 import QuickStats from "@/components/home/QuickStats";
 import CurrentTrip from "@/components/home/CurrentTrip";
 import QuickActions from "@/components/home/QuickActions";
-import RecentActivity from "@/components/home/RecentActivity";
 import ProfilePublication from "@/components/home/ProfilePublication";
 
 interface InstaTripImage {
@@ -171,9 +170,9 @@ const HomeSection = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
-      {/* Location, Date & Weather Widget */}
-      <div className="pt-4">
+    <div className="min-h-screen p-4 space-y-4">
+      {/* Minimized Location, Date & Weather Widget */}
+      <div className="pt-2">
         <LocationWeatherWidget />
       </div>
 
@@ -193,9 +192,6 @@ const HomeSection = () => {
 
       {/* Quick Actions */}
       <QuickActions onAddMemoryClick={handleAddMemoryClick} />
-
-      {/* Recent Activity */}
-      <RecentActivity />
 
       {/* Profile Publication */}
       <ProfilePublication
