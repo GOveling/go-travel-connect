@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -424,7 +425,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
               </div>
               <div className="flex items-center space-x-2 text-gray-600 text-sm">
                 <Users size={14} />
-                <span>{totalTravelers} traveler{totalTravelers > 1 ? 's' : ''}</span>
+                <span>{getTotalTravelers()} traveler{getTotalTravelers() > 1 ? 's' : ''}</span>
               </div>
             </div>
 
