@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker, SelectSingleEventHandler, SelectRangeEventHandler, DateRange } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -11,7 +11,6 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   onConfirm?: (date: Date | undefined) => void;
   showConfirmButton?: boolean;
   onClose?: () => void;
-  onSelect?: SelectSingleEventHandler | SelectRangeEventHandler;
 };
 
 function Calendar({
@@ -21,79 +20,14 @@ function Calendar({
   onConfirm,
   showConfirmButton = false,
   onClose,
-  mode,
-  selected,
-  defaultMonth,
-  onSelect,
   ...props
 }: CalendarProps) {
-  const [month, setMonth] = React.useState<Date>(defaultMonth || new Date());
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(() => {
-    if (Array.isArray(selected)) {
-      return selected[0] as Date | undefined;
-    }
-    return selected as Date | undefined;
-  });
-
-  const handleDateSelect = React.useCallback((date: Date | DateRange | undefined) => {
-    if (mode === 'range') {
-      // For range mode, date is DateRange
-      const range = date as DateRange;
-      if (range?.from) {
-        setSelectedDate(range.from);
-      }
-      if (!showConfirmButton && onSelect) {
-        (onSelect as SelectRangeEventHandler)(range, range?.from, {}, {} as any);
-        if (onClose && range?.from) {
-          setTimeout(() => onClose(), 100);
-        }
-      }
-    } else {
-      // For single mode, date is Date | undefined
-      const singleDate = date as Date | undefined;
-      setSelectedDate(singleDate);
-      if (!showConfirmButton && onSelect && singleDate) {
-        (onSelect as SelectSingleEventHandler)(singleDate, singleDate, {}, {} as any);
-        if (onClose) {
-          setTimeout(() => onClose(), 100);
-        }
-      }
-    }
-  }, [mode, showConfirmButton, onSelect, onClose]);
-
-  const handleConfirm = () => {
-    if (onConfirm) {
-      onConfirm(selectedDate);
-    }
-    if (onSelect && selectedDate) {
-      if (mode === 'single' || !mode) {
-        (onSelect as SelectSingleEventHandler)(selectedDate, selectedDate, {}, {} as any);
-      } else if (mode === 'range') {
-        (onSelect as SelectRangeEventHandler)({ from: selectedDate, to: selectedDate }, selectedDate, {}, {} as any);
-      }
-    }
-    if (onClose) {
-      onClose();
-    }
-  };
-
   return (
     <div className="space-y-3">
       <DayPicker
         showOutsideDays={showOutsideDays}
         className={cn("p-3 pointer-events-auto", className)}
-        month={month}
-        onMonthChange={setMonth}
-        selected={selectedDate}
-        onSelect={handleDateSelect}
-        mode={mode || "single"}
         weekStartsOn={1}
-        formatters={{
-          formatWeekdayName: (date) => {
-            const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            return weekdays[date.getDay() === 0 ? 6 : date.getDay() - 1];
-          }
-        }}
         classNames={{
           months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
           month: "space-y-4",
@@ -136,8 +70,7 @@ function Calendar({
       {showConfirmButton && (
         <div className="flex justify-end px-3 pb-3">
           <Button 
-            onClick={handleConfirm}
-            disabled={!selectedDate}
+            onClick={() => onConfirm?.(undefined)}
             size="sm"
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
