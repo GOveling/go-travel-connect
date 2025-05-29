@@ -39,14 +39,14 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublicat
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[85vw] max-w-[350px] max-h-[80vh] overflow-y-auto p-4 border rounded-lg bg-white shadow-lg">
+        <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[85vw] max-w-[350px] max-h-[85vh] overflow-y-auto p-4 border rounded-lg bg-white shadow-lg">
           <DialogHeader className="pb-3">
             <DialogTitle className="text-center text-base font-semibold text-gray-800">
               Add Memory
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-3">
+          <div className="space-y-3 pb-4">
             <Button
               onClick={handleInstanTrip}
               variant="outline"
