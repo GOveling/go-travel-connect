@@ -13,6 +13,7 @@ import MountainTripModal from "@/components/modals/MountainTripModal";
 import CityBreakModal from "@/components/modals/CityBreakModal";
 import BackpackingModal from "@/components/modals/BackpackingModal";
 import EditTripModal from "@/components/modals/EditTripModal";
+import { calculateTripStatus, getStatusDisplayText } from "@/utils/tripStatusUtils";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
@@ -94,12 +95,20 @@ const TripsSection = () => {
     }
   ]);
 
+  // Calculate automatic status for each trip
+  const tripsWithAutoStatus = trips.map(trip => ({
+    ...trip,
+    status: calculateTripStatus(trip.dates)
+  }));
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
         return "bg-green-100 text-green-800";
       case "planning":
         return "bg-blue-100 text-blue-800";
+      case "traveling":
+        return "bg-purple-100 text-purple-800";
       case "completed":
         return "bg-gray-100 text-gray-800";
       default:
@@ -178,7 +187,7 @@ const TripsSection = () => {
         </div>
 
         {/* Map Component */}
-        <TripMap trips={trips} />
+        <TripMap trips={tripsWithAutoStatus} />
       </div>
     );
   }
@@ -216,19 +225,19 @@ const TripsSection = () => {
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card className="text-center">
           <CardContent className="p-3 sm:p-4">
-            <p className="text-xl sm:text-2xl font-bold text-blue-600">{trips.length}</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">{tripsWithAutoStatus.length}</p>
             <p className="text-xs sm:text-sm text-gray-600">Total Trips</p>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="p-3 sm:p-4">
-            <p className="text-xl sm:text-2xl font-bold text-green-600">{trips.filter(t => t.status === 'upcoming').length}</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-600">{tripsWithAutoStatus.filter(t => t.status === 'upcoming').length}</p>
             <p className="text-xs sm:text-sm text-gray-600">Upcoming</p>
           </CardContent>
         </Card>
         <Card className="text-center">
           <CardContent className="p-3 sm:p-4">
-            <p className="text-xl sm:text-2xl font-bold text-orange-600">{trips.filter(t => t.isGroupTrip).length}</p>
+            <p className="text-xl sm:text-2xl font-bold text-orange-600">{tripsWithAutoStatus.filter(t => t.isGroupTrip).length}</p>
             <p className="text-xs sm:text-sm text-gray-600">Group Trips</p>
           </CardContent>
         </Card>
@@ -236,7 +245,7 @@ const TripsSection = () => {
 
       {/* Trips List */}
       <div className="space-y-4">
-        {trips.map((trip) => (
+        {tripsWithAutoStatus.map((trip) => (
           <Card key={trip.id} className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardContent className="p-0">
               <div className="flex flex-col sm:flex-row">
@@ -255,8 +264,8 @@ const TripsSection = () => {
                       )}
                     </div>
                     <div className="flex flex-row sm:flex-col items-start sm:items-end space-x-2 sm:space-x-0 sm:space-y-1">
-                      <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
-                        {trip.status}
+                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(trip.status)}`}>
+                        {getStatusDisplayText(trip.status)}
                       </span>
                       {trip.isGroupTrip && (
                         <Button
