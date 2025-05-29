@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
 import HomeSection from "@/components/sections/HomeSection";
 import ExploreSection from "@/components/sections/ExploreSection";
@@ -10,6 +9,19 @@ import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
+
+  // Listen for navigation events from child components
+  useEffect(() => {
+    const handleNavigateToExplore = () => {
+      setActiveTab("explore");
+    };
+
+    window.addEventListener('navigateToExplore', handleNavigateToExplore);
+    
+    return () => {
+      window.removeEventListener('navigateToExplore', handleNavigateToExplore);
+    };
+  }, []);
 
   const renderActiveSection = () => {
     switch (activeTab) {
