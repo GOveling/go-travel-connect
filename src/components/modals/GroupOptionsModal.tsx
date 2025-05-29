@@ -243,7 +243,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-4 md:mb-6 flex-shrink-0">
           <Button
             variant={activeTab === "expenses" ? "default" : "ghost"}
-            className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${activeTab === "expenses" ? "bg-white shadow-sm" : ""}`}
+            className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${
+              activeTab === "expenses" 
+                ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm" 
+                : "text-black hover:text-black"
+            }`}
             onClick={() => setActiveTab("expenses")}
           >
             <DollarSign size={16} className="mr-1 md:mr-2" />
@@ -252,7 +256,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           </Button>
           <Button
             variant={activeTab === "decisions" ? "default" : "ghost"}
-            className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${activeTab === "decisions" ? "bg-white shadow-sm" : ""}`}
+            className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${
+              activeTab === "decisions" 
+                ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm" 
+                : "text-black hover:text-black"
+            }`}
             onClick={() => setActiveTab("decisions")}
           >
             <Vote size={16} className="mr-1 md:mr-2" />
