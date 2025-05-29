@@ -480,6 +480,22 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                               </div>
                             )}
 
+                            {/* Airport Transfer (for last destination) */}
+                            {index === trip.coordinates.length - 1 && (
+                              <div className="bg-blue-50 p-3 rounded-lg">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Car className="text-blue-600" size={16} />
+                                  <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
+                                </div>
+                                <p className="text-xs text-blue-600 mb-2">
+                                  From accommodation to airport
+                                </p>
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
+                                  Book Transfer
+                                </Button>
+                              </div>
+                            )}
+
                             {/* Hotel Booking - MOVED TO SECOND POSITION */}
                             <div className="bg-green-50 p-3 rounded-lg">
                               <div className="flex items-center space-x-2 mb-2">
