@@ -9,7 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar, MapPin, Users, Edit3, Save, Trash2, Plus, X, CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getDestinationDateRanges } from "@/utils/dateUtils";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface EditTripModalProps {
@@ -107,9 +107,21 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
   };
 
   const updateDestination = (index: number, field: string, value: string | Date | undefined) => {
-    const updated = destinations.map((dest, i) => 
-      i === index ? { ...dest, [field]: value } : dest
-    );
+    const updated = destinations.map((dest, i) => {
+      if (i === index) {
+        const updatedDest = { ...dest, [field]: value };
+        
+        // If updating start date, automatically set end date to next day if end date is not set or is before start date
+        if (field === 'startDate' && value instanceof Date) {
+          if (!updatedDest.endDate || updatedDest.endDate <= value) {
+            updatedDest.endDate = addDays(value, 1);
+          }
+        }
+        
+        return updatedDest;
+      }
+      return dest;
+    });
     setDestinations(updated);
   };
 
@@ -260,7 +272,7 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
                                   mode="single"
                                   selected={destination.endDate}
                                   onSelect={(date) => updateDestination(index, 'endDate', date)}
-                                  disabled={(date) => destination.startDate ? date < destination.startDate : false}
+                                  disabled={(date) => destination.startDate ? date <= destination.startDate : false}
                                   initialFocus
                                   className="p-3 pointer-events-auto"
                                 />
