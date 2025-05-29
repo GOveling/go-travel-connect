@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SavedPlacesRouteMap from "./SavedPlacesRouteMap";
 import InviteFriendsModal from "./InviteFriendsModal";
+import EditTripModal from "./EditTripModal";
 
 interface Collaborator {
   id: string;
@@ -54,15 +55,18 @@ interface TripDetailModalProps {
   trip: Trip | null;
   isOpen: boolean;
   onClose: () => void;
+  onUpdateTrip?: (tripData: any) => void;
+  onDeleteTrip?: (tripId: number) => void;
 }
 
-const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
+const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: TripDetailModalProps) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showRouteMap, setShowRouteMap] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>("");
   const [selectedPlaces, setSelectedPlaces] = useState<SavedPlace[]>([]);
   const [selectedDestinationIndex, setSelectedDestinationIndex] = useState<number>(0);
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
+  const [showEditTripModal, setShowEditTripModal] = useState(false);
 
   // Listen for the custom event to open saved-places tab
   useEffect(() => {
@@ -87,6 +91,11 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
   // Function to handle opening the invite friends modal
   const handleInviteFriends = () => {
     setShowInviteFriendsModal(true);
+  };
+
+  // Function to handle opening the edit trip modal
+  const handleEditTrip = () => {
+    setShowEditTripModal(true);
   };
 
   // Mock saved places data for each destination
@@ -753,7 +762,10 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t flex-shrink-0">
-              <Button className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600">
+              <Button 
+                className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                onClick={handleEditTrip}
+              >
                 <Edit3 size={16} className="mr-2" />
                 Edit Trip
               </Button>
@@ -771,6 +783,15 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
         trip={trip}
         isOpen={showInviteFriendsModal}
         onClose={() => setShowInviteFriendsModal(false)}
+      />
+
+      {/* EditTripModal */}
+      <EditTripModal
+        trip={trip}
+        isOpen={showEditTripModal}
+        onClose={() => setShowEditTripModal(false)}
+        onUpdateTrip={onUpdateTrip}
+        onDeleteTrip={onDeleteTrip}
       />
     </>
   );
