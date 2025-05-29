@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -337,12 +338,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Description</TableHead>
-                          <TableHead>Amount</TableHead>
-                          <TableHead>Paid By</TableHead>
-                          <TableHead>Split Between</TableHead>
-                          <TableHead>Date</TableHead>
-                          <TableHead>Actions</TableHead>
+                          <TableHead className="text-gray-900 font-semibold">Description</TableHead>
+                          <TableHead className="text-gray-900 font-semibold">Amount</TableHead>
+                          <TableHead className="text-gray-900 font-semibold">Paid By</TableHead>
+                          <TableHead className="text-gray-900 font-semibold">Split Between</TableHead>
+                          <TableHead className="text-gray-900 font-semibold">Date</TableHead>
+                          <TableHead className="text-gray-900 font-semibold">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
