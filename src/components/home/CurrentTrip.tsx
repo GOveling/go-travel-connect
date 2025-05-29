@@ -2,7 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-const CurrentTrip = () => {
+interface CurrentTripProps {
+  onViewDetail?: () => void;
+}
+
+const CurrentTrip = ({ onViewDetail }: CurrentTripProps) => {
   return (
     <Card className="overflow-hidden border-0 shadow-lg">
       <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4 text-white">
@@ -18,8 +22,11 @@ const CurrentTrip = () => {
           <div className="bg-gradient-to-r from-purple-600 to-orange-500 h-2 rounded-full w-2/7"></div>
         </div>
         <p className="text-sm text-gray-700 mb-3">Next: Visit Louvre Museum</p>
-        <Button className="w-full bg-gradient-to-r from-purple-600 to-orange-500 border-0 hover:from-purple-700 hover:to-orange-600">
-          View Itinerary
+        <Button 
+          className="w-full bg-gradient-to-r from-purple-600 to-orange-500 border-0 hover:from-purple-700 hover:to-orange-600"
+          onClick={onViewDetail}
+        >
+          View Detail
         </Button>
       </CardContent>
     </Card>

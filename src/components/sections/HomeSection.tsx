@@ -5,6 +5,7 @@ import InstaTripModal from "@/components/modals/InstaTripModal";
 import ProfilePublicationModal from "@/components/modals/ProfilePublicationModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import AddToTripModal from "@/components/modals/AddToTripModal";
+import TripDetailModal from "@/components/modals/TripDetailModal";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import HomeHeader from "@/components/home/HomeHeader";
 import QuickStats from "@/components/home/QuickStats";
@@ -37,6 +38,7 @@ const HomeSection = () => {
   const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
   const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [isTripDetailModalOpen, setIsTripDetailModalOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(5);
   const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
   const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
@@ -73,6 +75,27 @@ const HomeSection = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Current trip data (mock data for the active trip)
+  const currentTrip = {
+    id: 1,
+    name: "European Adventure",
+    destination: "Paris → Rome → Barcelona",
+    dates: "Dec 15 - Dec 25, 2024",
+    status: "upcoming",
+    travelers: 2,
+    image: "🇪🇺",
+    isGroupTrip: false,
+    coordinates: [
+      { name: "Paris", lat: 48.8566, lng: 2.3522 },
+      { name: "Rome", lat: 41.9028, lng: 12.4964 },
+      { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
+    ],
+    description: "An amazing journey through three beautiful European cities with rich history, art, and culture.",
+    budget: "$2,500 per person",
+    accommodation: "Mix of boutique hotels and Airbnb",
+    transportation: "Flights and high-speed trains"
+  };
 
   const handleNotificationClick = () => {
     setIsNotificationModalOpen(true);
@@ -169,6 +192,10 @@ const HomeSection = () => {
     }
   };
 
+  const handleViewCurrentTripDetail = () => {
+    setIsTripDetailModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen p-4 space-y-4">
       {/* Minimized Location, Date & Weather Widget */}
@@ -188,7 +215,7 @@ const HomeSection = () => {
       <QuickStats />
 
       {/* Current Trip */}
-      <CurrentTrip />
+      <CurrentTrip onViewDetail={handleViewCurrentTripDetail} />
 
       {/* Quick Actions */}
       <QuickActions onAddMemoryClick={handleAddMemoryClick} />
@@ -244,6 +271,13 @@ const HomeSection = () => {
         onAddToExistingTrip={handleAddToExistingTrip}
         onCreateNewTrip={handleCreateNewTripFromPost}
         postLocation={selectedPostForTrip?.location}
+      />
+
+      {/* Trip Detail Modal */}
+      <TripDetailModal
+        isOpen={isTripDetailModalOpen}
+        onClose={() => setIsTripDetailModalOpen(false)}
+        trip={currentTrip}
       />
     </div>
   );
