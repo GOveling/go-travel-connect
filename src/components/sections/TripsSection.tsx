@@ -166,6 +166,16 @@ const TripsSection = () => {
     setShowAISmartRouteModal(true);
   };
 
+  const handleViewSavedPlaces = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowTripDetail(true);
+    // We'll use a custom event to tell the TripDetailModal to show the saved-places tab
+    setTimeout(() => {
+      const event = new CustomEvent('openSavedPlacesTab');
+      window.dispatchEvent(event);
+    }, 100);
+  };
+
   if (showMap) {
     return (
       <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
@@ -325,14 +335,11 @@ const TripsSection = () => {
                     </div>
                   </div>
 
-                  {/* NEW PLACE Button */}
+                  {/* My Saved Places Button */}
                   <div className="mb-3">
                     <Button
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-3 text-sm sm:text-base"
-                      onClick={() => {
-                        const event = new CustomEvent('navigateToSavedPlaces');
-                        window.dispatchEvent(event);
-                      }}
+                      onClick={() => handleViewSavedPlaces(trip)}
                     >
                       <Bookmark size={20} className="mr-2" />
                       My saved places
