@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,26 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
   const [selectedDestination, setSelectedDestination] = useState<string>("");
   const [selectedPlaces, setSelectedPlaces] = useState<SavedPlace[]>([]);
   const [selectedDestinationIndex, setSelectedDestinationIndex] = useState<number>(0);
+
+  // Listen for the custom event to open saved-places tab
+  useEffect(() => {
+    const handleOpenSavedPlacesTab = () => {
+      setActiveTab("saved-places");
+    };
+
+    window.addEventListener('openSavedPlacesTab', handleOpenSavedPlacesTab);
+    
+    return () => {
+      window.removeEventListener('openSavedPlacesTab', handleOpenSavedPlacesTab);
+    };
+  }, []);
+
+  // Function to navigate to explore section
+  const handleNavigateToExplore = () => {
+    onClose(); // Close the modal first
+    const event = new CustomEvent('navigateToExplore');
+    window.dispatchEvent(event);
+  };
 
   // Mock saved places data for each destination
   const savedPlacesByDestination = {
@@ -580,7 +600,12 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                     <Heart size={18} className="text-red-500" />
                     <span>Saved Places</span>
                   </h4>
-                  <Button size="sm" variant="outline" className="text-xs">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs"
+                    onClick={handleNavigateToExplore}
+                  >
                     <MapPin size={14} className="mr-1" />
                     Add Place
                   </Button>
@@ -652,7 +677,12 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                             <MapPin size={32} className="mx-auto mb-2 text-gray-300" />
                             <p className="text-gray-500 text-sm">No places saved for {destination.name}</p>
                             <p className="text-gray-400 text-xs">Explore and save places you want to visit</p>
-                            <Button size="sm" variant="outline" className="mt-3">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="mt-3"
+                              onClick={handleNavigateToExplore}
+                            >
                               Browse Places
                             </Button>
                           </CardContent>
