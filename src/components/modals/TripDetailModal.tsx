@@ -342,6 +342,18 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     }
   };
 
+  // Function to calculate total travelers for group trips
+  const getTotalTravelers = () => {
+    if (!trip) return 0;
+    
+    if (trip.isGroupTrip && trip.collaborators) {
+      // For group trips, count collaborators + 1 (the user)
+      return trip.collaborators.length + 1;
+    }
+    // For solo trips, use the original travelers count
+    return trip.travelers;
+  };
+
   if (!trip) return null;
 
   const getStatusColor = (status: string) => {
@@ -412,7 +424,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
               </div>
               <div className="flex items-center space-x-2 text-gray-600 text-sm">
                 <Users size={14} />
-                <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
+                <span>{totalTravelers} traveler{totalTravelers > 1 ? 's' : ''}</span>
               </div>
             </div>
 
