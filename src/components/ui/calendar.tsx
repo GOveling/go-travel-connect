@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker, SelectSingleEventHandler, SelectRangeEventHandler } from "react-day-picker";
+import { DayPicker, SelectSingleEventHandler, SelectRangeEventHandler, DateRange } from "react-day-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { cn } from "@/lib/utils";
@@ -48,29 +48,37 @@ function Calendar({
     setMonth(newMonth);
   };
 
-  const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date);
-    if (!showConfirmButton && onSelect && date) {
-      // Handle different onSelect types based on mode
-      if (mode === 'single' || !mode) {
-        (onSelect as SelectSingleEventHandler)(date, date, {}, {} as any);
-      } else if (mode === 'range') {
-        // For range mode, create a proper range object
-        (onSelect as SelectRangeEventHandler)({ from: date, to: date }, date, {}, {} as any);
+  const handleDateSelect = React.useCallback((date: Date | DateRange | undefined) => {
+    if (mode === 'range') {
+      // For range mode, date is DateRange
+      const range = date as DateRange;
+      if (range?.from) {
+        setSelectedDate(range.from);
       }
-      // Auto-close the calendar after selection
-      if (onClose) {
-        setTimeout(() => onClose(), 100);
+      if (!showConfirmButton && onSelect) {
+        (onSelect as SelectRangeEventHandler)(range, range?.from, {}, {} as any);
+        if (onClose && range?.from) {
+          setTimeout(() => onClose(), 100);
+        }
+      }
+    } else {
+      // For single mode, date is Date | undefined
+      const singleDate = date as Date | undefined;
+      setSelectedDate(singleDate);
+      if (!showConfirmButton && onSelect && singleDate) {
+        (onSelect as SelectSingleEventHandler)(singleDate, singleDate, {}, {} as any);
+        if (onClose) {
+          setTimeout(() => onClose(), 100);
+        }
       }
     }
-  };
+  }, [mode, showConfirmButton, onSelect, onClose]);
 
   const handleConfirm = () => {
     if (onConfirm) {
       onConfirm(selectedDate);
     }
     if (onSelect && selectedDate) {
-      // Handle different onSelect types based on mode
       if (mode === 'single' || !mode) {
         (onSelect as SelectSingleEventHandler)(selectedDate, selectedDate, {}, {} as any);
       } else if (mode === 'range') {
