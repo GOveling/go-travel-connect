@@ -24,7 +24,7 @@ const HomeHeader = ({
           <img 
             src="/lovable-uploads/ab817c30-2b47-4b5b-9678-711900c7df72.png" 
             alt="GOveling Logo" 
-            className="h-16 w-auto"
+            className="h-32 w-auto"
           />
         </div>
         
