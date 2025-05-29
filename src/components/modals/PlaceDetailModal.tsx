@@ -20,9 +20,10 @@ interface PlaceDetailModalProps {
   } | null;
   isOpen: boolean;
   onClose: () => void;
+  isFromSavedPlaces?: boolean;
 }
 
-const PlaceDetailModal = ({ place, isOpen, onClose }: PlaceDetailModalProps) => {
+const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false }: PlaceDetailModalProps) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [userRating, setUserRating] = useState(0);
@@ -114,17 +115,19 @@ const PlaceDetailModal = ({ place, isOpen, onClose }: PlaceDetailModalProps) => 
 
           {/* Action Buttons */}
           <div className="flex space-x-3 pt-2">
-            <Button 
-              onClick={handleAddToTrip}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-            >
-              <Plus size={16} className="mr-2" />
-              Add to Trip
-            </Button>
+            {!isFromSavedPlaces && (
+              <Button 
+                onClick={handleAddToTrip}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+              >
+                <Plus size={16} className="mr-2" />
+                Add to Trip
+              </Button>
+            )}
             <Button 
               variant="outline"
               onClick={() => setShowReviewForm(!showReviewForm)}
-              className="flex-1 border-purple-200 text-purple-700 hover:bg-purple-50"
+              className={`${isFromSavedPlaces ? 'w-full' : 'flex-1'} border-purple-200 text-purple-700 hover:bg-purple-50`}
             >
               <Edit3 size={16} className="mr-2" />
               Write Review
