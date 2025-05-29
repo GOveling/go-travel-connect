@@ -1,4 +1,3 @@
-
 import { Camera, MapPin, Share, Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -57,7 +56,7 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublicat
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-sm">Add InstanTrip</p>
-                <p className="text-xs text-gray-500 break-words">Upload a photo with location for your InstanTrip story</p>
+                <p className="text-xs text-gray-500 break-words">Show your Trip in real time</p>
               </div>
             </Button>
 
