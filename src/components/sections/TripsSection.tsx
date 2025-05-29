@@ -240,7 +240,7 @@ const TripsSection = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleGroupOptions(trip)}
-                          className="text-xs px-2 sm:px-3 py-2 h-8 border-purple-200 text-purple-600 hover:bg-purple-50 min-w-[90px] sm:min-w-auto"
+                          className="text-xs px-2 sm:px-3 py-2 h-8 border-purple-200 text-purple-600 hover:bg-purple-50 hover:text-purple-700 min-w-[90px] sm:min-w-auto"
                         >
                           <Settings size={12} className="mr-1" />
                           <span>Group Options</span>
@@ -299,7 +299,7 @@ const TripsSection = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => handleAISmartRoute(trip)}
-                      className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100 text-xs sm:text-sm"
+                      className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100 hover:text-purple-800 text-xs sm:text-sm"
                     >
                       <Brain size={16} className="mr-2" />
                       AI Smart Route
