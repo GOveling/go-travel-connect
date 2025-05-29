@@ -1,3 +1,4 @@
+
 import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -136,18 +137,18 @@ const TripsSection = () => {
 
   if (showMap) {
     return (
-      <div className="min-h-screen p-4 space-y-6">
+      <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="pt-8 pb-4">
-          <div className="flex justify-between items-center">
+        <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Trip Map</h2>
-              <p className="text-gray-600">View all your trip destinations</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Trip Map</h2>
+              <p className="text-gray-600 text-sm sm:text-base">View all your trip destinations</p>
             </div>
             <Button 
               variant="outline"
               onClick={() => setShowMap(false)}
-              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
             >
               Back to List
             </Button>
@@ -161,25 +162,25 @@ const TripsSection = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
+    <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="pt-8 pb-4">
-        <div className="flex justify-between items-center">
+      <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">My Trips</h2>
-            <p className="text-gray-600">Plan and manage your adventures</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">My Trips</h2>
+            <p className="text-gray-600 text-sm sm:text-base">Plan and manage your adventures</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             <Button 
               variant="outline"
               onClick={() => setShowMap(true)}
-              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
+              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
             >
               <Map size={20} className="mr-2" />
               Map View
             </Button>
             <Button 
-              className="bg-gradient-to-r from-blue-500 to-orange-500 border-0"
+              className="bg-gradient-to-r from-blue-500 to-orange-500 border-0 w-full sm:w-auto"
               onClick={() => setShowNewTripModal(true)}
             >
               <Plus size={20} className="mr-2" />
@@ -190,23 +191,23 @@ const TripsSection = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card className="text-center">
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-blue-600">{trips.length}</p>
-            <p className="text-sm text-gray-600">Total Trips</p>
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-xl sm:text-2xl font-bold text-blue-600">{trips.length}</p>
+            <p className="text-xs sm:text-sm text-gray-600">Total Trips</p>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-green-600">{trips.filter(t => t.status === 'upcoming').length}</p>
-            <p className="text-sm text-gray-600">Upcoming</p>
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-xl sm:text-2xl font-bold text-green-600">{trips.filter(t => t.status === 'upcoming').length}</p>
+            <p className="text-xs sm:text-sm text-gray-600">Upcoming</p>
           </CardContent>
         </Card>
         <Card className="text-center">
-          <CardContent className="p-4">
-            <p className="text-2xl font-bold text-orange-600">{trips.filter(t => t.isGroupTrip).length}</p>
-            <p className="text-sm text-gray-600">Group Trips</p>
+          <CardContent className="p-3 sm:p-4">
+            <p className="text-xl sm:text-2xl font-bold text-orange-600">{trips.filter(t => t.isGroupTrip).length}</p>
+            <p className="text-xs sm:text-sm text-gray-600">Group Trips</p>
           </CardContent>
         </Card>
       </div>
@@ -216,22 +217,22 @@ const TripsSection = () => {
         {trips.map((trip) => (
           <Card key={trip.id} className="overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardContent className="p-0">
-              <div className="flex">
-                <div className="w-20 bg-gradient-to-br from-blue-500 to-orange-500 flex items-center justify-center">
-                  <span className="text-3xl">{trip.image}</span>
+              <div className="flex flex-col sm:flex-row">
+                <div className="w-full sm:w-20 h-16 sm:h-auto bg-gradient-to-br from-blue-500 to-orange-500 flex items-center justify-center">
+                  <span className="text-2xl sm:text-3xl">{trip.image}</span>
                 </div>
-                <div className="flex-1 p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center space-x-2">
+                <div className="flex-1 p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 space-y-2 sm:space-y-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
                       <h3 className="font-semibold text-lg">{trip.name}</h3>
                       {trip.isGroupTrip && (
-                        <div className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full">
+                        <div className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full w-fit">
                           <Users size={12} className="text-blue-600" />
                           <span className="text-xs text-blue-600 font-medium">Group</span>
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-col items-end space-y-1">
+                    <div className="flex flex-row sm:flex-col items-start sm:items-end space-x-2 sm:space-x-0 sm:space-y-1">
                       <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
                         {trip.status}
                       </span>
@@ -243,7 +244,8 @@ const TripsSection = () => {
                           className="text-xs px-2 py-1 h-6 border-purple-200 text-purple-600 hover:bg-purple-50"
                         >
                           <Settings size={12} className="mr-1" />
-                          Group Options
+                          <span className="hidden sm:inline">Group Options</span>
+                          <span className="sm:hidden">Options</span>
                         </Button>
                       )}
                     </div>
@@ -257,20 +259,21 @@ const TripsSection = () => {
                         <span className="text-sm font-medium text-gray-700">Collaborators:</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {trip.collaborators.slice(0, 3).map((collaborator) => (
+                        {trip.collaborators.slice(0, 2).map((collaborator) => (
                           <div key={collaborator.id} className="flex items-center space-x-1 bg-white border rounded-lg px-2 py-1">
-                            <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
                               {collaborator.avatar}
                             </div>
-                            <span className="text-xs text-gray-700">{collaborator.name}</span>
+                            <span className="text-xs text-gray-700 hidden sm:inline">{collaborator.name}</span>
+                            <span className="text-xs text-gray-700 sm:hidden">{collaborator.name.split(' ')[0]}</span>
                             <span className={`text-xs px-1 py-0.5 rounded-full ${getRoleColor(collaborator.role)}`}>
                               {collaborator.role}
                             </span>
                           </div>
                         ))}
-                        {trip.collaborators.length > 3 && (
-                          <div className="flex items-center justify-center w-5 h-5 bg-gray-200 rounded-full">
-                            <span className="text-xs text-gray-600">+{trip.collaborators.length - 3}</span>
+                        {trip.collaborators.length > 2 && (
+                          <div className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 rounded-full">
+                            <span className="text-xs text-gray-600">+{trip.collaborators.length - 2}</span>
                           </div>
                         )}
                       </div>
@@ -279,15 +282,15 @@ const TripsSection = () => {
 
                   <div className="space-y-2 text-sm text-gray-600 mb-3">
                     <div className="flex items-center space-x-2">
-                      <MapPin size={16} />
-                      <span>{trip.destination}</span>
+                      <MapPin size={16} className="flex-shrink-0" />
+                      <span className="truncate">{trip.destination}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Calendar size={16} />
-                      <span>{trip.dates}</span>
+                      <Calendar size={16} className="flex-shrink-0" />
+                      <span className="text-xs sm:text-sm">{trip.dates}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Users size={16} />
+                      <Users size={16} className="flex-shrink-0" />
                       <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
                     </div>
                   </div>
@@ -298,33 +301,35 @@ const TripsSection = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => handleAISmartRoute(trip)}
-                      className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100"
+                      className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 text-purple-700 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100 text-xs sm:text-sm"
                     >
                       <Brain size={16} className="mr-2" />
                       AI Smart Route
                     </Button>
                   </div>
 
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    <Button size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
                       <Edit size={16} className="mr-1" />
                       Edit
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="flex-1"
+                      className="flex-1 text-xs sm:text-sm"
                       onClick={() => handleInviteFriends(trip)}
                     >
                       <UserPlus size={16} className="mr-1" />
-                      Invite Friends
+                      <span className="hidden sm:inline">Invite Friends</span>
+                      <span className="sm:hidden">Invite</span>
                     </Button>
                     <Button 
                       size="sm" 
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500 text-xs sm:text-sm"
                       onClick={() => handleViewDetails(trip)}
                     >
-                      View Details
+                      <span className="hidden sm:inline">View Details</span>
+                      <span className="sm:hidden">Details</span>
                     </Button>
                   </div>
                 </div>
@@ -337,24 +342,24 @@ const TripsSection = () => {
       {/* Trip Templates */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Quick Trip Templates</CardTitle>
+          <CardTitle className="text-base sm:text-lg">Quick Trip Templates</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3">
-          <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-blue-200 hover:bg-blue-50">
-            <span className="text-xl">🏖️</span>
-            <span className="text-sm">Beach Vacation</span>
+        <CardContent className="grid grid-cols-2 gap-2 sm:gap-3">
+          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-blue-200 hover:bg-blue-50">
+            <span className="text-lg sm:text-xl">🏖️</span>
+            <span className="text-xs sm:text-sm">Beach Vacation</span>
           </Button>
-          <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-green-200 hover:bg-green-50">
-            <span className="text-xl">🏔️</span>
-            <span className="text-sm">Mountain Trip</span>
+          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-green-200 hover:bg-green-50">
+            <span className="text-lg sm:text-xl">🏔️</span>
+            <span className="text-xs sm:text-sm">Mountain Trip</span>
           </Button>
-          <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-purple-200 hover:bg-purple-50">
-            <span className="text-xl">🏛️</span>
-            <span className="text-sm">City Break</span>
+          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-purple-200 hover:bg-purple-50">
+            <span className="text-lg sm:text-xl">🏛️</span>
+            <span className="text-xs sm:text-sm">City Break</span>
           </Button>
-          <Button variant="outline" className="h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50">
-            <span className="text-xl">🎒</span>
-            <span className="text-sm">Backpacking</span>
+          <Button variant="outline" className="h-12 sm:h-16 flex-col space-y-1 border-2 border-orange-200 hover:bg-orange-50">
+            <span className="text-lg sm:text-xl">🎒</span>
+            <span className="text-xs sm:text-sm">Backpacking</span>
           </Button>
         </CardContent>
       </Card>
@@ -362,22 +367,22 @@ const TripsSection = () => {
       {/* Group Trip Features */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center space-x-2">
+          <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
             <Users size={20} className="text-blue-600" />
             <span>Group Trip Features</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="bg-blue-50 p-3 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-1">Collaborate with Friends</h4>
-            <p className="text-sm text-blue-600">Invite friends to plan trips together. Share itineraries, split costs, and make group decisions.</p>
+            <h4 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Collaborate with Friends</h4>
+            <p className="text-xs sm:text-sm text-blue-600">Invite friends to plan trips together. Share itineraries, split costs, and make group decisions.</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="justify-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Button variant="outline" className="justify-start text-xs sm:text-sm">
               <UserPlus size={16} className="mr-2" />
               Invite Friends
             </Button>
-            <Button variant="outline" className="justify-start">
+            <Button variant="outline" className="justify-start text-xs sm:text-sm">
               <Share2 size={16} className="mr-2" />
               Share Trip Link
             </Button>
@@ -392,7 +397,6 @@ const TripsSection = () => {
         onCreateTrip={handleCreateTrip}
       />
 
-      {/* Trip Detail Modal */}
       <TripDetailModal 
         trip={selectedTrip}
         isOpen={showTripDetail}
@@ -402,7 +406,6 @@ const TripsSection = () => {
         }}
       />
 
-      {/* Invite Friends Modal */}
       <InviteFriendsModal
         trip={selectedTrip}
         isOpen={showInviteFriendsModal}
@@ -412,7 +415,6 @@ const TripsSection = () => {
         }}
       />
 
-      {/* Group Options Modal */}
       <GroupOptionsModal
         trip={selectedTrip}
         isOpen={showGroupOptionsModal}
@@ -422,7 +424,6 @@ const TripsSection = () => {
         }}
       />
 
-      {/* AI Smart Route Modal */}
       <AISmartRouteModal
         trip={selectedTrip}
         isOpen={showAISmartRouteModal}
