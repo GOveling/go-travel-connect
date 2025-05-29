@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -448,7 +447,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
 
                           {/* Booking Options - Reordered */}
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {/* Local Transport (for destinations after the first) - MOVED TO FIRST */}
+                            {/* Local Transport (for destinations after the first) - FIRST POSITION */}
                             {index > 0 && (
                               <div className="bg-orange-50 p-3 rounded-lg">
                                 <div className="flex items-center space-x-2 mb-2">
@@ -464,39 +463,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                               </div>
                             )}
 
-                            {/* Airport Transfer (only for first destination) */}
-                            {index === 0 && (
-                              <div className="bg-blue-50 p-3 rounded-lg">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Car className="text-blue-600" size={16} />
-                                  <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
-                                </div>
-                                <p className="text-xs text-blue-600 mb-2">
-                                  From airport to accommodation
-                                </p>
-                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
-                                  Book Transfer
-                                </Button>
-                              </div>
-                            )}
-
-                            {/* Airport Transfer (for last destination) */}
-                            {index === trip.coordinates.length - 1 && (
-                              <div className="bg-blue-50 p-3 rounded-lg">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Car className="text-blue-600" size={16} />
-                                  <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
-                                </div>
-                                <p className="text-xs text-blue-600 mb-2">
-                                  From accommodation to airport
-                                </p>
-                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
-                                  Book Transfer
-                                </Button>
-                              </div>
-                            )}
-
-                            {/* Hotel Booking - MOVED TO SECOND POSITION */}
+                            {/* Hotel Booking - SECOND POSITION */}
                             <div className="bg-green-50 p-3 rounded-lg">
                               <div className="flex items-center space-x-2 mb-2">
                                 <Building className="text-green-600" size={16} />
@@ -515,7 +482,7 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                               </div>
                             </div>
 
-                            {/* Activities */}
+                            {/* Activities - THIRD POSITION */}
                             <div className="bg-purple-50 p-3 rounded-lg">
                               <div className="flex items-center space-x-2 mb-2">
                                 <MapPin className="text-purple-600" size={16} />
@@ -528,6 +495,38 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
                                 Find Tours
                               </Button>
                             </div>
+
+                            {/* Airport Transfer (only for first destination) - FOURTH POSITION */}
+                            {index === 0 && (
+                              <div className="bg-blue-50 p-3 rounded-lg">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Car className="text-blue-600" size={16} />
+                                  <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
+                                </div>
+                                <p className="text-xs text-blue-600 mb-2">
+                                  From airport to accommodation
+                                </p>
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
+                                  Book Transfer
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* Airport Transfer (for last destination) - FOURTH POSITION */}
+                            {index === trip.coordinates.length - 1 && (
+                              <div className="bg-blue-50 p-3 rounded-lg">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Car className="text-blue-600" size={16} />
+                                  <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
+                                </div>
+                                <p className="text-xs text-blue-600 mb-2">
+                                  From accommodation to airport
+                                </p>
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
+                                  Book Transfer
+                                </Button>
+                              </div>
+                            )}
                           </div>
 
                           {/* Quick Info */}
