@@ -335,7 +335,7 @@ const TripsSection = () => {
                       }}
                     >
                       <Bookmark size={20} className="mr-2" />
-                      + NEW PLACE
+                      My saved places
                     </Button>
                   </div>
 
