@@ -243,32 +243,6 @@ const TripsSection = () => {
         </Card>
       </div>
 
-      {/* Big New Place Button */}
-      <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300 hover:shadow-lg">
-        <CardContent className="p-6">
-          <div className="text-center">
-            <div className="mb-4">
-              <Compass size={48} className="mx-auto text-emerald-600" />
-            </div>
-            <h3 className="text-xl font-bold text-emerald-800 mb-2">Discover New Places</h3>
-            <p className="text-emerald-600 mb-4 text-sm sm:text-base">
-              Explore amazing destinations and add them to your trip plans
-            </p>
-            <Button 
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold px-8 py-3 text-lg w-full sm:w-auto"
-              onClick={() => {
-                // Get the parent component's setActiveTab function
-                const event = new CustomEvent('navigateToExplore');
-                window.dispatchEvent(event);
-              }}
-            >
-              <Plus size={24} className="mr-2" />
-              NEW PLACE
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Trips List */}
       <div className="space-y-4">
         {tripsWithAutoStatus.map((trip) => (
@@ -349,6 +323,20 @@ const TripsSection = () => {
                       <Users size={16} className="flex-shrink-0" />
                       <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
                     </div>
+                  </div>
+
+                  {/* NEW PLACE Button */}
+                  <div className="mb-3">
+                    <Button
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-3 text-sm sm:text-base"
+                      onClick={() => {
+                        const event = new CustomEvent('navigateToExplore');
+                        window.dispatchEvent(event);
+                      }}
+                    >
+                      <Compass size={20} className="mr-2" />
+                      + NEW PLACE
+                    </Button>
                   </div>
 
                   {/* AI Smart Route Button for All Trips */}
