@@ -1,4 +1,3 @@
-
 import { Plus, Calendar, MapPin, Users, Edit, Map, UserPlus, Share2, Settings, Brain } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -324,12 +323,12 @@ const TripsSection = () => {
                       <span className="sm:hidden">Invite</span>
                     </Button>
                     <Button 
-                      size="sm" 
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500 text-xs sm:text-sm"
+                      size="lg" 
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500 text-sm sm:text-base px-4 py-3"
                       onClick={() => handleViewDetails(trip)}
                     >
-                      <span className="hidden sm:inline">View Details</span>
-                      <span className="sm:hidden">Details</span>
+                      <span className="hidden sm:inline">Trip plan details</span>
+                      <span className="sm:hidden">Trip details</span>
                     </Button>
                   </div>
                 </div>
