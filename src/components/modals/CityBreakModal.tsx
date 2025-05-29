@@ -23,6 +23,8 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [travelers, setTravelers] = useState("2");
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
 
   const formatTripDates = () => {
     if (startDate && endDate) {
@@ -31,6 +33,20 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
       return `${startFormatted} - ${endFormatted}`;
     }
     return "Dates TBD";
+  };
+
+  const handleStartDateSelect = (date: Date | undefined) => {
+    setStartDate(date);
+    if (date) {
+      setStartDateOpen(false);
+    }
+  };
+
+  const handleEndDateSelect = (date: Date | undefined) => {
+    setEndDate(date);
+    if (date) {
+      setEndDateOpen(false);
+    }
   };
 
   const handleSubmit = () => {
@@ -115,7 +131,7 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-sm font-medium">Start Date</Label>
-                <Popover>
+                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -132,16 +148,17 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
                     <CalendarComponent
                       mode="single"
                       selected={startDate}
-                      onSelect={setStartDate}
+                      onSelect={handleStartDateSelect}
                       initialFocus
                       className="p-3 pointer-events-auto"
+                      onClose={() => setStartDateOpen(false)}
                     />
                   </PopoverContent>
                 </Popover>
               </div>
               <div>
                 <Label className="text-sm font-medium">End Date</Label>
-                <Popover>
+                <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -158,10 +175,11 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
                     <CalendarComponent
                       mode="single"
                       selected={endDate}
-                      onSelect={setEndDate}
+                      onSelect={handleEndDateSelect}
                       disabled={(date) => startDate ? date < startDate : false}
                       initialFocus
                       className="p-3 pointer-events-auto"
+                      onClose={() => setEndDateOpen(false)}
                     />
                   </PopoverContent>
                 </Popover>

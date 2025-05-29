@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   onConfirm?: (date: Date | undefined) => void;
   showConfirmButton?: boolean;
+  onClose?: () => void;
 };
 
 function Calendar({
@@ -19,6 +20,7 @@ function Calendar({
   showOutsideDays = true,
   onConfirm,
   showConfirmButton = false,
+  onClose,
   onSelect,
   mode,
   selected,
@@ -51,6 +53,13 @@ function Calendar({
       // Handle different onSelect types based on mode
       if (mode === 'single' || !mode) {
         (onSelect as SelectSingleEventHandler)(date, date!, {}, {} as any);
+      } else if (mode === 'range') {
+        // For range mode, we need to handle it differently
+        (onSelect as SelectRangeEventHandler)({ from: date, to: date }, date!, {}, {} as any);
+      }
+      // Auto-close the calendar after selection
+      if (onClose && date) {
+        setTimeout(() => onClose(), 100);
       }
     }
   };
@@ -63,7 +72,12 @@ function Calendar({
       // Handle different onSelect types based on mode
       if (mode === 'single' || !mode) {
         (onSelect as SelectSingleEventHandler)(selectedDate, selectedDate!, {}, {} as any);
+      } else if (mode === 'range') {
+        (onSelect as SelectRangeEventHandler)({ from: selectedDate, to: selectedDate }, selectedDate!, {}, {} as any);
       }
+    }
+    if (onClose) {
+      onClose();
     }
   };
 
