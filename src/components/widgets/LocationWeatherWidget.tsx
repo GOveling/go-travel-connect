@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { MapPin, Cloud, Sun, CloudRain, Snow, Thermometer } from "lucide-react";
+import { MapPin, Cloud, Sun, CloudRain, Thermometer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface WeatherData {
@@ -129,9 +129,6 @@ const LocationWeatherWidget = () => {
       case 'rainy':
       case 'rain':
         return <CloudRain size={20} className="text-blue-500" />;
-      case 'snowy':
-      case 'snow':
-        return <Snow size={20} className="text-blue-200" />;
       default:
         return <Cloud size={20} className="text-gray-500" />;
     }
