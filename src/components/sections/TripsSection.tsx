@@ -36,7 +36,7 @@ const TripsSection = () => {
       destination: "Paris → Rome → Barcelona",
       dates: "Dec 15 - Dec 25, 2024",
       status: "upcoming",
-      travelers: 2,
+      travelers: 3,
       image: "🇪🇺",
       isGroupTrip: true,
       collaborators: [
