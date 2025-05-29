@@ -37,8 +37,8 @@ export const getDestinationDateRanges = (tripDates: string, totalDestinations: n
     const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
     const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
     
-    // Calculate total trip days
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    // Fix: Calculate total days correctly (inclusive of both start and end dates)
+    const totalDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     const baseDaysPerDestination = Math.floor(totalDays / totalDestinations);
     const extraDays = totalDays % totalDestinations;
     
@@ -66,7 +66,7 @@ export const getDestinationDateRanges = (tripDates: string, totalDestinations: n
         dateString: dateString
       });
       
-      // Move to next destination's start date
+      // Move to next destination's start date (day after current destination ends)
       currentDate.setDate(destEndDate.getDate() + 1);
     }
     

@@ -236,16 +236,24 @@ const TripDetailModal = ({ trip, isOpen, onClose }: TripDetailModalProps) => {
       const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
       const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
       
-      // Calculate days per destination
-      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      const daysPerDestination = Math.ceil(totalDays / totalDestinations);
+      // Fix: Calculate days correctly (inclusive of both start and end dates)
+      const totalDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      const baseDaysPerDestination = Math.floor(totalDays / totalDestinations);
+      const extraDays = totalDays % totalDestinations;
       
       // Calculate destination start and end dates
+      const daysForThisDestination = baseDaysPerDestination + (destinationIndex < extraDays ? 1 : 0);
       const destStartDate = new Date(startDate);
-      destStartDate.setDate(startDate.getDate() + (destinationIndex * daysPerDestination));
+      
+      // Add days for previous destinations
+      let dayOffset = 0;
+      for (let i = 0; i < destinationIndex; i++) {
+        dayOffset += baseDaysPerDestination + (i < extraDays ? 1 : 0);
+      }
+      destStartDate.setDate(startDate.getDate() + dayOffset);
       
       const destEndDate = new Date(destStartDate);
-      destEndDate.setDate(destStartDate.getDate() + daysPerDestination - 1);
+      destEndDate.setDate(destStartDate.getDate() + daysForThisDestination - 1);
       
       // Format dates
       const formatDate = (date: Date) => {
