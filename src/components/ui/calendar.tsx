@@ -1,7 +1,6 @@
-
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, SelectSingleEventHandler, SelectRangeEventHandler } from "react-day-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { cn } from "@/lib/utils";
@@ -43,10 +42,10 @@ function Calendar({
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    if (!showConfirmButton && 'onSelect' in props && props.onSelect) {
+    if (!showConfirmButton && props.onSelect) {
       // Handle different onSelect types based on mode
       if (props.mode === 'single' || !props.mode) {
-        (props.onSelect as (date: Date | undefined) => void)(date);
+        (props.onSelect as SelectSingleEventHandler)(date, date!, {}, {} as any);
       }
     }
   };
@@ -55,10 +54,10 @@ function Calendar({
     if (onConfirm) {
       onConfirm(selectedDate);
     }
-    if ('onSelect' in props && props.onSelect) {
+    if (props.onSelect) {
       // Handle different onSelect types based on mode
       if (props.mode === 'single' || !props.mode) {
-        (props.onSelect as (date: Date | undefined) => void)(selectedDate);
+        (props.onSelect as SelectSingleEventHandler)(selectedDate, selectedDate!, {}, {} as any);
       }
     }
   };
