@@ -227,7 +227,7 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
                                   )}
                                 >
                                   <CalendarIcon className="mr-1 h-3 w-3" />
-                                  {destination.startDate ? format(destination.startDate, "MMM d") : <span>Start</span>}
+                                  {destination.startDate ? format(destination.startDate, "dd/MM/yyyy") : <span>Start</span>}
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto p-0" align="start">
@@ -252,7 +252,7 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
                                   )}
                                 >
                                   <CalendarIcon className="mr-1 h-3 w-3" />
-                                  {destination.endDate ? format(destination.endDate, "MMM d") : <span>End</span>}
+                                  {destination.endDate ? format(destination.endDate, "dd/MM/yyyy") : <span>End</span>}
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto p-0" align="start">
