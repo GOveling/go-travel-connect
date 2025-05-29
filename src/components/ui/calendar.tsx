@@ -43,6 +43,13 @@ function Calendar({
       className={cn("p-3 pointer-events-auto", className)}
       month={month}
       onMonthChange={setMonth}
+      weekStartsOn={1}
+      formatters={{
+        formatWeekdayName: (date) => {
+          const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          return weekdays[date.getDay() === 0 ? 6 : date.getDay() - 1];
+        }
+      }}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
