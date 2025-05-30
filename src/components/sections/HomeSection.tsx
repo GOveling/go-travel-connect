@@ -6,6 +6,7 @@ import QuickStats from "@/components/home/QuickStats";
 import CurrentTrip from "@/components/home/CurrentTrip";
 import QuickActions from "@/components/home/QuickActions";
 import ProfilePublication from "@/components/home/ProfilePublication";
+import FollowedFriendsPublications from "@/components/home/FollowedFriendsPublications";
 import HomeModals from "@/components/home/HomeModals";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
@@ -56,6 +57,15 @@ const HomeSection = () => {
 
       {/* Quick Actions */}
       <QuickActions onAddMemoryClick={handlers.handleAddMemoryClick} />
+
+      {/* Followed Friends Publications */}
+      <FollowedFriendsPublications
+        publications={homeState.friendPublications}
+        onLike={handlers.handleLikePublication}
+        onComment={handlers.handleCommentPublication}
+        onShare={handlers.handleSharePublication}
+        formatTimeAgo={handlers.formatTimeAgo}
+      />
 
       {/* Profile Publication */}
       <ProfilePublication

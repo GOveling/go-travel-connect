@@ -1,23 +1,7 @@
+
 import { useHomeState } from "./useHomeState";
 import { Trip } from "@/types/aiSmartRoute";
-
-interface InstaTripImage {
-  id: string;
-  src: string;
-  addedAt: number;
-  text?: string;
-  location?: string;
-  tripId?: number;
-}
-
-interface ProfilePost {
-  id: string;
-  images: string[];
-  text: string;
-  createdAt: number;
-  location?: string;
-  tripId?: number;
-}
+import { FriendPublication, InstaTripImage, ProfilePost } from "./types/homeStateTypes";
 
 export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
   const {
@@ -34,7 +18,8 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     setInstaTripImages,
     setProfilePosts,
     setTrips,
-    setSelectedPostForTrip
+    setSelectedPostForTrip,
+    setFriendPublications
   } = homeState;
 
   const handleNotificationClick = () => {
@@ -123,6 +108,30 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     setIsPhotobookModalOpen(true);
   };
 
+  const handleLikePublication = (publicationId: string) => {
+    setFriendPublications(prev => prev.map(pub => {
+      if (pub.id === publicationId) {
+        const newLikeCount = pub.liked ? pub.likes - 1 : pub.likes + 1;
+        return {
+          ...pub,
+          liked: !pub.liked,
+          likes: newLikeCount
+        };
+      }
+      return pub;
+    }));
+  };
+
+  const handleCommentPublication = (publicationId: string) => {
+    console.log("Comment on publication:", publicationId);
+    // Open comment modal or implement comment functionality
+  };
+
+  const handleSharePublication = (publicationId: string) => {
+    console.log("Share publication:", publicationId);
+    // Open share options or implement share functionality
+  };
+
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
     const diff = now - timestamp;
@@ -166,6 +175,9 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     handleAddToExistingTrip,
     handleCreateNewTripFromPost,
     handleOpenTripPhotobook,
+    handleLikePublication,
+    handleCommentPublication,
+    handleSharePublication,
     formatTimeAgo,
     handleViewCurrentTripDetail,
     handlePlanNewTrip,
