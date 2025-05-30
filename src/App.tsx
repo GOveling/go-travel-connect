@@ -18,6 +18,10 @@ const App = () => {
     setIsAuthenticated(true);
   };
 
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+  };
+
   if (!isAuthenticated) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -37,7 +41,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Index onSignOut={handleSignOut} />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

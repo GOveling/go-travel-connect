@@ -10,7 +10,11 @@ import ShareProfileModal from "@/components/modals/ShareProfileModal";
 import SettingsModal from "@/components/modals/SettingsModal";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
 
-const ProfileSection = () => {
+interface ProfileSectionProps {
+  onSignOut?: () => void;
+}
+
+const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
   const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
   const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
@@ -100,6 +104,12 @@ const ProfileSection = () => {
     { label: "Places Visited", value: placesVisited.toString() },
     { label: "Reviews Written", value: "15" },
   ];
+
+  const handleSignOut = () => {
+    if (onSignOut) {
+      onSignOut();
+    }
+  };
 
   return (
     <div className="min-h-screen p-4 space-y-6">
@@ -195,7 +205,11 @@ const ProfileSection = () => {
       {/* Sign Out */}
       <Card className="border-red-200">
         <CardContent className="p-4">
-          <Button variant="ghost" className="w-full text-red-600 hover:bg-red-50">
+          <Button 
+            variant="ghost" 
+            className="w-full text-red-600 hover:bg-red-50"
+            onClick={handleSignOut}
+          >
             <LogOut size={20} className="mr-2" />
             Sign Out
           </Button>

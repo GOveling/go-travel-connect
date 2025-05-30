@@ -1,59 +1,67 @@
 
-import { useState, useEffect } from "react";
-import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
-import HomeSection from "@/components/sections/HomeSection";
-import ExploreSection from "@/components/sections/ExploreSection";
-import TripsSection from "@/components/sections/TripsSection";
-import BookingSection from "@/components/sections/BookingSection";
-import ProfileSection from "@/components/sections/ProfileSection";
+import { useState } from "react";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+import HomeSection from "@/components/sections/HomeSection";
+import TripsSection from "@/components/sections/TripsSection";
+import ExploreSection from "@/components/sections/ExploreSection";
+import BookingSection from "@/components/sections/BookingSection";
+import TravelersSection from "@/components/sections/TravelersSection";
+import ProfileSection from "@/components/sections/ProfileSection";
 
-const Index = () => {
-  const [activeTab, setActiveTab] = useState("home");
+const queryClient = new QueryClient();
 
-  // Listen for navigation events from child components
-  useEffect(() => {
-    const handleNavigateToExplore = () => {
-      setActiveTab("explore");
-    };
+interface IndexProps {
+  onSignOut?: () => void;
+}
 
-    const handleNavigateToTrips = () => {
-      setActiveTab("trips");
-    };
+const Index = ({ onSignOut }: IndexProps) => {
+  const [activeSection, setActiveSection] = useState('home');
 
-    window.addEventListener('navigateToExplore', handleNavigateToExplore);
-    window.addEventListener('navigateToTrips', handleNavigateToTrips);
-    
-    return () => {
-      window.removeEventListener('navigateToExplore', handleNavigateToExplore);
-      window.removeEventListener('navigateToTrips', handleNavigateToTrips);
-    };
-  }, []);
+  // Listen for navigation events
+  const handleNavigateToTrips = () => {
+    setActiveSection('trips');
+  };
 
-  const renderActiveSection = () => {
-    switch (activeTab) {
-      case "home":
+  // Add event listener for navigation
+  window.addEventListener('navigateToTrips', handleNavigateToTrips);
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'home':
         return <HomeSection />;
-      case "explore":
-        return <ExploreSection />;
-      case "trips":
+      case 'trips':
         return <TripsSection />;
-      case "booking":
+      case 'explore':
+        return <ExploreSection />;
+      case 'booking':
         return <BookingSection />;
-      case "profile":
-        return <ProfileSection />;
+      case 'travelers':
+        return <TravelersSection />;
+      case 'profile':
+        return <ProfileSection onSignOut={onSignOut} />;
       default:
         return <HomeSection />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
-      <div className="pb-20">
-        {renderActiveSection()}
-      </div>
-      <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <div className="min-h-screen bg-gray-50 pb-20">
+          {renderContent()}
+          <BottomNavigation 
+            activeSection={activeSection} 
+            setActiveSection={setActiveSection}
+          />
+        </div>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 
