@@ -18,8 +18,8 @@ const HomeHeader = ({
 }: HomeHeaderProps) => {
   return (
     <div className="flex items-center justify-between p-1">
-      {/* Logo */}
-      <div className="flex-1 flex justify-center">
+      {/* Logo on the left */}
+      <div className="flex items-center">
         <img 
           src="/lovable-uploads/2e7d8d8c-8611-4e84-84a8-467fc6bcbdc7.png" 
           alt="GoVeling Logo" 
