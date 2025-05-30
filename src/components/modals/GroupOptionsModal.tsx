@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -406,6 +407,14 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     setEditingDecisionId(null);
   };
 
+  const handleCloseCreateDecisionModal = () => {
+    setShowCreateDecisionModal(false);
+    // Don't reset form immediately, let the modal close animation complete
+    setTimeout(() => {
+      resetCreateDecisionForm();
+    }, 150);
+  };
+
   if (!trip) return null;
 
   const ModalWrapper = isMobile ? Drawer : Dialog;
@@ -414,10 +423,16 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const ModalTitle = isMobile ? DrawerTitle : DialogTitle;
 
   const CreateDecisionModal = () => (
-    <Dialog open={showCreateDecisionModal} onOpenChange={(open) => {
-      setShowCreateDecisionModal(open);
-      if (!open) resetCreateDecisionForm();
-    }}>
+    <Dialog 
+      open={showCreateDecisionModal} 
+      onOpenChange={(open) => {
+        if (!open) {
+          handleCloseCreateDecisionModal();
+        } else {
+          setShowCreateDecisionModal(true);
+        }
+      }}
+    >
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
@@ -434,7 +449,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 id="decisionTitle"
                 placeholder="What should we decide on?"
                 value={newDecision.title}
-                onChange={(e) => setNewDecision({...newDecision, title: e.target.value})}
+                onChange={(e) => setNewDecision(prev => ({...prev, title: e.target.value}))}
                 className="mt-1"
               />
             </div>
@@ -445,7 +460,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 id="decisionDescription"
                 placeholder="Add more details about this decision..."
                 value={newDecision.description}
-                onChange={(e) => setNewDecision({...newDecision, description: e.target.value})}
+                onChange={(e) => setNewDecision(prev => ({...prev, description: e.target.value}))}
                 className="mt-1"
               />
             </div>
@@ -456,7 +471,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 id="endDate"
                 type="date"
                 value={newDecision.endDate}
-                onChange={(e) => setNewDecision({...newDecision, endDate: e.target.value})}
+                onChange={(e) => setNewDecision(prev => ({...prev, endDate: e.target.value}))}
                 className="mt-1"
                 min={new Date().toISOString().split('T')[0]}
               />
@@ -477,7 +492,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                     onChange={(e) => {
                       const newOptions = [...newDecision.options];
                       newOptions[index] = e.target.value;
-                      setNewDecision({...newDecision, options: newOptions});
+                      setNewDecision(prev => ({...prev, options: newOptions}));
                     }}
                     className="flex-1"
                   />
@@ -487,7 +502,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                       size="sm"
                       onClick={() => {
                         const newOptions = newDecision.options.filter((_, i) => i !== index);
-                        setNewDecision({...newDecision, options: newOptions});
+                        setNewDecision(prev => ({...prev, options: newOptions}));
                       }}
                       className="px-3"
                     >
@@ -501,7 +516,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               variant="outline"
               size="sm"
               className="mt-3"
-              onClick={() => setNewDecision({...newDecision, options: [...newDecision.options, ""]})}
+              onClick={() => setNewDecision(prev => ({...prev, options: [...prev.options, ""]}))}
             >
               <Plus size={16} className="mr-2" />
               Add Option
@@ -534,10 +549,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t">
             <Button
               variant="outline"
-              onClick={() => {
-                setShowCreateDecisionModal(false);
-                resetCreateDecisionForm();
-              }}
+              onClick={handleCloseCreateDecisionModal}
               className="flex-1"
             >
               Cancel
