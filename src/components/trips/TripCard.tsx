@@ -138,14 +138,6 @@ const TripCard = ({
                       <Edit3 size={14} className="mr-2" />
                       Edit Trip
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onViewSavedPlaces(trip)}>
-                      <Heart size={14} className="mr-2" />
-                      Saved Places
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onAISmartRoute(trip)}>
-                      <Route size={14} className="mr-2" />
-                      AI Smart Route
-                    </DropdownMenuItem>
                     {trip.isGroupTrip ? (
                       <>
                         <DropdownMenuItem onClick={() => onGroupOptions(trip)}>
@@ -194,14 +186,32 @@ const TripCard = ({
                 </div>
               )}
 
-              {/* Primary Action Button */}
-              <div className="pt-2">
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                  onClick={() => onViewDetails(trip)}
-                >
-                  View Trip Details
-                </Button>
+              {/* Action Buttons - Updated to show three buttons in a row */}
+              <div className="pt-2 space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-sm"
+                    onClick={() => onViewDetails(trip)}
+                  >
+                    View Details
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="border-red-300 text-red-600 hover:bg-red-50 text-sm"
+                    onClick={() => onViewSavedPlaces(trip)}
+                  >
+                    <Heart size={14} className="mr-1" />
+                    Saved Places
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="border-blue-300 text-blue-600 hover:bg-blue-50 text-sm"
+                    onClick={() => onAISmartRoute(trip)}
+                  >
+                    <Route size={14} className="mr-1" />
+                    AI Smart Route
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
