@@ -75,7 +75,7 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-6 text-white text-center">
           <div className="flex justify-center mb-1">
             <img 
-              src="/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png" 
+              src="/lovable-uploads/2e7d8d8c-8611-4e84-84a8-467fc6bcbdc7.png" 
               alt="GoVeling Logo" 
               className="h-80 w-auto"
             />
