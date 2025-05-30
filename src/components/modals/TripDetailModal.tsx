@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -346,12 +345,6 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Function to calculate total travelers for group trips
   const getTotalTravelers = () => {
     if (!trip) return 0;
-    
-    if (trip.isGroupTrip && trip.collaborators) {
-      // For group trips, count collaborators + 1 (the user)
-      return trip.collaborators.length + 1;
-    }
-    // For solo trips, use the original travelers count
     return trip.travelers;
   };
 
