@@ -1,4 +1,3 @@
-
 import { MapPin, Heart, MessageCircle, Share2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +43,7 @@ const FollowedFriendsPublications = ({
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedFriendName, setSelectedFriendName] = useState("");
+  const [selectedPublication, setSelectedPublication] = useState<FriendPublication | null>(null);
   const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
@@ -53,15 +53,18 @@ const FollowedFriendsPublications = ({
     return name.charAt(0).toUpperCase();
   };
 
-  const handleImageClick = (images: string[], imageIndex: number, friendName: string) => {
+  const handleImageClick = (images: string[], imageIndex: number, friendName: string, publication: FriendPublication) => {
     setSelectedImages(images);
     setSelectedImageIndex(imageIndex);
     setSelectedFriendName(friendName);
+    setSelectedPublication(publication);
     setIsPhotosModalOpen(true);
   };
 
-  const handleAddToTripClick = (publication: FriendPublication, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleAddToTripClick = (publication: FriendPublication, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (publication.location) {
       const place = {
         name: publication.location,
@@ -75,6 +78,7 @@ const FollowedFriendsPublications = ({
       };
       setSelectedPlace(place);
       setIsAddToTripModalOpen(true);
+      setIsPhotosModalOpen(false);
     }
   };
   
@@ -117,7 +121,7 @@ const FollowedFriendsPublications = ({
                   {publication.images.slice(0, 2).map((image, index) => (
                     <div key={index} className="relative group">
                       <button
-                        onClick={() => handleImageClick(publication.images, index, publication.friendName)}
+                        onClick={() => handleImageClick(publication.images, index, publication.friendName, publication)}
                         className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
                       >
                         <img
@@ -141,7 +145,7 @@ const FollowedFriendsPublications = ({
                   {publication.images.length > 2 && (
                     <div className="relative col-span-2 group">
                       <button
-                        onClick={() => handleImageClick(publication.images, 2, publication.friendName)}
+                        onClick={() => handleImageClick(publication.images, 2, publication.friendName, publication)}
                         className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
                       >
                         <img
@@ -219,6 +223,8 @@ const FollowedFriendsPublications = ({
         images={selectedImages}
         initialIndex={selectedImageIndex}
         friendName={selectedFriendName}
+        publication={selectedPublication}
+        onAddToTrip={handleAddToTripClick}
       />
 
       <ExploreAddToTripModal

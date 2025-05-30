@@ -1,9 +1,8 @@
 
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 interface PublicationPhotosModalProps {
   isOpen: boolean;
@@ -11,6 +10,13 @@ interface PublicationPhotosModalProps {
   images: string[];
   initialIndex?: number;
   friendName?: string;
+  publication?: {
+    id: string;
+    location?: string;
+    text: string;
+    friendName: string;
+  };
+  onAddToTrip?: (publication: any) => void;
 }
 
 const PublicationPhotosModal = ({
@@ -18,7 +24,9 @@ const PublicationPhotosModal = ({
   onClose,
   images,
   initialIndex = 0,
-  friendName
+  friendName,
+  publication,
+  onAddToTrip
 }: PublicationPhotosModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -32,6 +40,12 @@ const PublicationPhotosModal = ({
 
   const goToImage = (index: number) => {
     setCurrentIndex(index);
+  };
+
+  const handleAddToTrip = () => {
+    if (publication && onAddToTrip) {
+      onAddToTrip(publication);
+    }
   };
 
   return (
@@ -48,14 +62,26 @@ const PublicationPhotosModal = ({
                 {currentIndex + 1} of {images.length}
               </p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <X size={24} />
-            </Button>
+            <div className="flex items-center gap-2">
+              {publication?.location && onAddToTrip && (
+                <Button
+                  onClick={handleAddToTrip}
+                  className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm"
+                  size="sm"
+                >
+                  <Plus size={16} className="mr-1" />
+                  Add to Trip
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="text-white hover:bg-white/20"
+              >
+                <X size={24} />
+              </Button>
+            </div>
           </div>
         </div>
 
