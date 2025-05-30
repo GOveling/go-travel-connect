@@ -99,10 +99,14 @@ const TripCard = ({
                       {trip.status}
                     </Badge>
                     {trip.isGroupTrip && (
-                      <div className="flex items-center space-x-1 bg-purple-100 px-2 py-1 rounded-full">
+                      <Button
+                        onClick={() => onGroupOptions(trip)}
+                        className="flex items-center space-x-1 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-full h-auto"
+                        variant="ghost"
+                      >
                         <Users size={12} className="text-purple-600" />
                         <span className="text-xs text-purple-600 font-medium">Group</span>
-                      </div>
+                      </Button>
                     )}
                   </div>
                   
