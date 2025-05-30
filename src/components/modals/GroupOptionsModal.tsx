@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -433,7 +432,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         }
       }}
     >
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] mx-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Vote size={20} />
@@ -441,51 +440,51 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <Label htmlFor="decisionTitle">Decision Title *</Label>
+        <div className="space-y-4 md:space-y-6 py-4">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="decisionTitle" className="text-sm font-medium">Decision Title *</Label>
               <Input
                 id="decisionTitle"
                 placeholder="What should we decide on?"
                 value={newDecision.title}
                 onChange={(e) => setNewDecision(prev => ({...prev, title: e.target.value}))}
-                className="mt-1"
+                className="mt-1 h-12 text-base"
               />
             </div>
             
-            <div className="md:col-span-2">
-              <Label htmlFor="decisionDescription">Description (Optional)</Label>
+            <div>
+              <Label htmlFor="decisionDescription" className="text-sm font-medium">Description (Optional)</Label>
               <Input
                 id="decisionDescription"
                 placeholder="Add more details about this decision..."
                 value={newDecision.description}
                 onChange={(e) => setNewDecision(prev => ({...prev, description: e.target.value}))}
-                className="mt-1"
+                className="mt-1 h-12 text-base"
               />
             </div>
             
             <div>
-              <Label htmlFor="endDate">End Date</Label>
+              <Label htmlFor="endDate" className="text-sm font-medium">End Date</Label>
               <Input
                 id="endDate"
                 type="date"
                 value={newDecision.endDate}
                 onChange={(e) => setNewDecision(prev => ({...prev, endDate: e.target.value}))}
-                className="mt-1"
+                className="mt-1 h-12 text-base"
                 min={new Date().toISOString().split('T')[0]}
               />
             </div>
           </div>
           
           <div>
-            <Label className="flex items-center space-x-2 mb-3">
+            <Label className="flex items-center space-x-2 mb-3 text-sm font-medium">
               <span>Options *</span>
               <span className="text-xs text-gray-500">(Minimum 2 required)</span>
             </Label>
             <div className="space-y-3">
               {newDecision.options.map((option, index) => (
-                <div key={index} className="flex space-x-2">
+                <div key={index} className="flex flex-col sm:flex-row gap-2">
                   <Input
                     placeholder={`Option ${index + 1}`}
                     value={option}
@@ -494,7 +493,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                       newOptions[index] = e.target.value;
                       setNewDecision(prev => ({...prev, options: newOptions}));
                     }}
-                    className="flex-1"
+                    className="flex-1 h-12 text-base"
                   />
                   {newDecision.options.length > 2 && (
                     <Button
@@ -504,9 +503,10 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                         const newOptions = newDecision.options.filter((_, i) => i !== index);
                         setNewDecision(prev => ({...prev, options: newOptions}));
                       }}
-                      className="px-3"
+                      className="h-12 w-full sm:w-12 shrink-0"
                     >
                       <X size={16} />
+                      <span className="sm:hidden ml-2">Remove Option</span>
                     </Button>
                   )}
                 </div>
@@ -515,7 +515,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             <Button
               variant="outline"
               size="sm"
-              className="mt-3"
+              className="mt-3 h-10 w-full sm:w-auto"
               onClick={() => setNewDecision(prev => ({...prev, options: [...prev.options, ""]}))}
             >
               <Plus size={16} className="mr-2" />
@@ -524,14 +524,14 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           </div>
           
           <div>
-            <Label className="flex items-center space-x-2 mb-3">
+            <Label className="flex items-center space-x-2 mb-3 text-sm font-medium">
               <Users size={16} />
               <span>Trip Collaborators</span>
             </Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               {allParticipants.map((participant) => (
-                <div key={participant.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-sm text-white font-medium">
+                <div key={participant.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg min-h-[60px]">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-sm text-white font-medium shrink-0">
                     {participant.avatar}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -546,20 +546,20 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             </p>
           </div>
           
-          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t">
-            <Button
-              variant="outline"
-              onClick={handleCloseCreateDecisionModal}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
+          <div className="flex flex-col gap-3 pt-4 border-t">
             <Button
               onClick={editingDecisionId ? handleUpdateDecision : handleCreateDecision}
               disabled={!newDecision.title || newDecision.options.filter(opt => opt.trim()).length < 2}
-              className="flex-1"
+              className="w-full h-12 text-base"
             >
               {editingDecisionId ? "Update Decision" : "Create Decision"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleCloseCreateDecisionModal}
+              className="w-full h-12 text-base"
+            >
+              Cancel
             </Button>
           </div>
         </div>
