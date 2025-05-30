@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -51,58 +50,116 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const [editingDecisionId, setEditingDecisionId] = useState<number | null>(null);
   const [showCreateDecisionModal, setShowCreateDecisionModal] = useState(false);
   
-  // Mock data for demonstration
-  const [expenses, setExpenses] = useState<Expense[]>([
-    {
-      id: 1,
-      description: "Hotel Booking",
-      amount: 450,
-      paidBy: "Alice Johnson",
-      splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
-      date: "2024-12-10"
-    },
-    {
-      id: 2,
-      description: "Flight Tickets",
-      amount: 850,
-      paidBy: "You",
-      splitBetween: ["Alice Johnson", "Bob Smith", "You"],
-      date: "2024-12-08"
+  // Get trip-specific mock data based on trip ID
+  const getTripSpecificExpenses = () => {
+    if (!trip) return [];
+    
+    switch (trip.id) {
+      case 1: // European Adventure
+        return [
+          {
+            id: 1,
+            description: "Hotel Booking Paris",
+            amount: 450,
+            paidBy: "Alice Johnson",
+            splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
+            date: "2024-12-10"
+          },
+          {
+            id: 2,
+            description: "Flight Tickets",
+            amount: 850,
+            paidBy: "You",
+            splitBetween: ["Alice Johnson", "Bob Smith", "You"],
+            date: "2024-12-08"
+          }
+        ];
+      case 3: // Bali Retreat
+        return [
+          {
+            id: 1,
+            description: "Beach Resort Booking",
+            amount: 320,
+            paidBy: "Emma Wilson",
+            splitBetween: ["Emma Wilson", "David Brown", "You"],
+            date: "2024-11-15"
+          },
+          {
+            id: 2,
+            description: "Yoga Classes",
+            amount: 180,
+            paidBy: "You",
+            splitBetween: ["Emma Wilson", "David Brown", "You"],
+            date: "2024-11-18"
+          }
+        ];
+      default:
+        return [];
     }
-  ]);
+  };
 
-  const [decisions, setDecisions] = useState<Decision[]>([
-    {
-      id: 1,
-      title: "Restaurant Choice for Day 1",
-      description: "Where should we have dinner on our first day?",
-      options: ["Le Bernardin", "Eleven Madison Park", "Per Se"],
-      votes: { "Le Bernardin": 2, "Eleven Madison Park": 1, "Per Se": 0 },
-      votersPerOption: { 
-        "Le Bernardin": ["Alice Johnson", "Bob Smith"], 
-        "Eleven Madison Park": ["Carol Davis"], 
-        "Per Se": [] 
-      },
-      status: "active",
-      endDate: "2024-12-20",
-      createdBy: "Alice Johnson"
-    },
-    {
-      id: 2,
-      title: "Activities for Day 2",
-      description: "What activities should we do on day 2?",
-      options: ["Central Park Walk", "Museum Visit", "Shopping"],
-      votes: { "Central Park Walk": 1, "Museum Visit": 2, "Shopping": 0 },
-      votersPerOption: { 
-        "Central Park Walk": ["Bob Smith"], 
-        "Museum Visit": ["Alice Johnson", "Carol Davis"], 
-        "Shopping": [] 
-      },
-      status: "active",
-      endDate: "2024-12-21",
-      createdBy: "Bob Smith"
+  const getTripSpecificDecisions = () => {
+    if (!trip) return [];
+    
+    switch (trip.id) {
+      case 1: // European Adventure
+        return [
+          {
+            id: 1,
+            title: "Restaurant Choice for Day 1 in Paris",
+            description: "Where should we have dinner on our first day in Paris?",
+            options: ["Le Bernardin", "Eleven Madison Park", "Per Se"],
+            votes: { "Le Bernardin": 2, "Eleven Madison Park": 1, "Per Se": 0 },
+            votersPerOption: { 
+              "Le Bernardin": ["Alice Johnson", "Bob Smith"], 
+              "Eleven Madison Park": ["Carol Davis"], 
+              "Per Se": [] 
+            },
+            status: "active",
+            endDate: "2024-12-20",
+            createdBy: "Alice Johnson"
+          },
+          {
+            id: 2,
+            title: "Transportation in Rome",
+            description: "How should we get around Rome?",
+            options: ["Metro Pass", "Taxi Services", "Walking Tours"],
+            votes: { "Metro Pass": 2, "Taxi Services": 0, "Walking Tours": 1 },
+            votersPerOption: { 
+              "Metro Pass": ["Alice Johnson", "You"], 
+              "Taxi Services": [], 
+              "Walking Tours": ["Bob Smith"] 
+            },
+            status: "active",
+            endDate: "2024-12-21",
+            createdBy: "Bob Smith"
+          }
+        ];
+      case 3: // Bali Retreat
+        return [
+          {
+            id: 1,
+            title: "Morning Activity Choice",
+            description: "What should we do for our morning activities?",
+            options: ["Beach Yoga", "Temple Visit", "Cooking Class"],
+            votes: { "Beach Yoga": 2, "Temple Visit": 1, "Cooking Class": 0 },
+            votersPerOption: { 
+              "Beach Yoga": ["Emma Wilson", "You"], 
+              "Temple Visit": ["David Brown"], 
+              "Cooking Class": [] 
+            },
+            status: "active",
+            endDate: "2024-11-25",
+            createdBy: "Emma Wilson"
+          }
+        ];
+      default:
+        return [];
     }
-  ]);
+  };
+
+  const [expenses, setExpenses] = useState<Expense[]>(getTripSpecificExpenses());
+  const [decisions, setDecisions] = useState<Decision[]>(getTripSpecificDecisions());
 
   const [newExpense, setNewExpense] = useState({
     description: "",
