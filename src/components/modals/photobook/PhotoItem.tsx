@@ -26,6 +26,44 @@ interface PhotoItemProps {
 }
 
 const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
+  const handleDownload = async () => {
+    try {
+      // Fetch the image as blob to handle cross-origin issues
+      const response = await fetch(photo.url, { mode: 'cors' });
+      const blob = await response.blob();
+      
+      // Create object URL from blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create temporary anchor element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `trip-photo-${photo.id}.jpg`;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up object URL
+      window.URL.revokeObjectURL(url);
+      
+      // Call the parent callback
+      onDownload(photo.url, photo.id);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback to original method
+      const link = document.createElement('a');
+      link.href = photo.url;
+      link.download = `trip-photo-${photo.id}.jpg`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      onDownload(photo.url, photo.id);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Photo */}
@@ -41,7 +79,7 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
           <Button
             size="sm"
             variant="secondary"
-            onClick={() => onDownload(photo.url, photo.id)}
+            onClick={handleDownload}
             className="bg-white/90 hover:bg-white text-gray-700"
           >
             <Download size={16} />
