@@ -114,7 +114,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     title: "",
     description: "",
     options: ["", ""],
-    endDate: ""
+    endDate: "",
+    selectedParticipants: [] as string[]
   });
 
   // Initialize collaborators with mock data if trip doesn't have collaborators
@@ -202,7 +203,9 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   };
 
   const handleCreateDecision = () => {
-    if (newDecision.title && newDecision.options.filter(opt => opt.trim()).length >= 2) {
+    if (newDecision.title && 
+        newDecision.options.filter(opt => opt.trim()).length >= 2 &&
+        newDecision.selectedParticipants.length > 0) {
       const validOptions = newDecision.options.filter(opt => opt.trim());
       const initialVotes: Record<string, number> = {};
       const initialVotersPerOption: Record<string, string[]> = {};
@@ -223,7 +226,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         createdBy: "You"
       };
       setDecisions([...decisions, decision]);
-      setNewDecision({ title: "", description: "", options: ["", ""], endDate: "" });
+      setNewDecision({ title: "", description: "", options: ["", ""], endDate: "", selectedParticipants: [] });
       setShowCreateDecisionModal(false);
     }
   };
@@ -233,14 +236,18 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       title: decision.title,
       description: decision.description || "",
       options: decision.options,
-      endDate: decision.endDate
+      endDate: decision.endDate,
+      selectedParticipants: allParticipants.map(p => p.name) // Default to all participants for existing decisions
     });
     setEditingDecisionId(decision.id);
     setShowCreateDecisionModal(true);
   };
 
   const handleUpdateDecision = () => {
-    if (editingDecisionId && newDecision.title && newDecision.options.filter(opt => opt.trim()).length >= 2) {
+    if (editingDecisionId && 
+        newDecision.title && 
+        newDecision.options.filter(opt => opt.trim()).length >= 2 &&
+        newDecision.selectedParticipants.length > 0) {
       const validOptions = newDecision.options.filter(opt => opt.trim());
       
       setDecisions(decisions.map(decision => 
@@ -254,7 +261,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             }
           : decision
       ));
-      setNewDecision({ title: "", description: "", options: ["", ""], endDate: "" });
+      setNewDecision({ title: "", description: "", options: ["", ""], endDate: "", selectedParticipants: [] });
       setEditingDecisionId(null);
       setShowCreateDecisionModal(false);
     }
@@ -298,7 +305,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   };
 
   const resetCreateDecisionForm = () => {
-    setNewDecision({ title: "", description: "", options: ["", ""], endDate: "" });
+    setNewDecision({ title: "", description: "", options: ["", ""], endDate: "", selectedParticipants: [] });
     setEditingDecisionId(null);
   };
 

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Vote, X, Plus, Users } from "lucide-react";
 
 interface Collaborator {
@@ -22,6 +23,7 @@ interface CreateDecisionModalProps {
     description: string;
     options: string[];
     endDate: string;
+    selectedParticipants: string[];
   };
   setNewDecision: (decision: any) => void;
   allParticipants: Collaborator[];
@@ -39,6 +41,35 @@ const CreateDecisionModal = ({
   onCreateDecision,
   onUpdateDecision
 }: CreateDecisionModalProps) => {
+  const handleParticipantChange = (participantName: string, checked: boolean) => {
+    if (checked) {
+      setNewDecision(prev => ({
+        ...prev,
+        selectedParticipants: [...prev.selectedParticipants, participantName]
+      }));
+    } else {
+      setNewDecision(prev => ({
+        ...prev,
+        selectedParticipants: prev.selectedParticipants.filter(name => name !== participantName)
+      }));
+    }
+  };
+
+  const handleSelectAll = () => {
+    const allNames = allParticipants.map(p => p.name);
+    setNewDecision(prev => ({
+      ...prev,
+      selectedParticipants: allNames
+    }));
+  };
+
+  const handleDeselectAll = () => {
+    setNewDecision(prev => ({
+      ...prev,
+      selectedParticipants: []
+    }));
+  };
+
   return (
     <Dialog 
       open={isOpen} 
@@ -178,24 +209,66 @@ const CreateDecisionModal = ({
           <div>
             <Label className="flex items-center space-x-2 mb-3 text-sm font-medium">
               <Users size={16} />
-              <span>Trip Collaborators</span>
+              <span>Select Voting Participants *</span>
             </Label>
-            <div className="grid grid-cols-1 gap-3">
-              {allParticipants.map((participant) => (
-                <div key={participant.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg min-h-[60px]">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-sm text-white font-medium shrink-0">
-                    {participant.avatar}
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSelectAll}
+                  className="text-xs"
+                >
+                  Select All
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDeselectAll}
+                  className="text-xs"
+                >
+                  Deselect All
+                </Button>
+              </div>
+              <div className="border rounded-md p-3 space-y-3 max-h-48 overflow-y-auto">
+                {allParticipants.map((participant) => (
+                  <div key={participant.id} className="flex items-center space-x-3">
+                    <Checkbox
+                      id={`participant-${participant.id}`}
+                      checked={newDecision.selectedParticipants.includes(participant.name)}
+                      onCheckedChange={(checked) => 
+                        handleParticipantChange(participant.name, checked as boolean)
+                      }
+                      className="h-5 w-5"
+                    />
+                    <label 
+                      htmlFor={`participant-${participant.id}`} 
+                      className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-sm text-white font-medium shrink-0">
+                        {participant.avatar}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{participant.name}</p>
+                        <p className="text-xs text-gray-500 capitalize">{participant.role}</p>
+                      </div>
+                    </label>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{participant.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{participant.role}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {newDecision.selectedParticipants.length > 0 && (
+                <p className="text-xs text-gray-600">
+                  Selected participants: {newDecision.selectedParticipants.join(", ")}
+                </p>
+              )}
+              {newDecision.selectedParticipants.length === 0 && (
+                <p className="text-xs text-red-500">
+                  Please select at least one participant to vote on this decision.
+                </p>
+              )}
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              All trip collaborators will be able to vote on this decision.
-            </p>
           </div>
           
           <div className="flex flex-col gap-3 pt-4 border-t">
@@ -204,7 +277,9 @@ const CreateDecisionModal = ({
                 e.stopPropagation();
                 editingDecisionId ? onUpdateDecision() : onCreateDecision();
               }}
-              disabled={!newDecision.title || newDecision.options.filter(opt => opt.trim()).length < 2}
+              disabled={!newDecision.title || 
+                       newDecision.options.filter(opt => opt.trim()).length < 2 ||
+                       newDecision.selectedParticipants.length === 0}
               className="w-full h-12 text-base"
             >
               {editingDecisionId ? "Update Decision" : "Create Decision"}
