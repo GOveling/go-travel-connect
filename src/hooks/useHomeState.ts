@@ -1,5 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
+import { Trip } from "@/types/aiSmartRoute";
 
 interface InstaTripImage {
   id: string;
@@ -17,22 +19,6 @@ interface ProfilePost {
   createdAt: number;
   location?: string;
   tripId?: number;
-}
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-  collaborators?: Array<{
-    id: string;
-    name: string;
-    email: string;
-    avatar: string;
-    role: "owner" | "editor" | "viewer";
-  }>;
 }
 
 export const useHomeState = () => {
@@ -55,7 +41,14 @@ export const useHomeState = () => {
       destination: "Paris → Rome → Barcelona",
       dates: "Dec 15 - Dec 25, 2024",
       status: "upcoming",
-      image: "🇪🇺"
+      travelers: 2,
+      image: "🇪🇺",
+      isGroupTrip: false,
+      coordinates: [
+        { name: "Paris", lat: 48.8566, lng: 2.3522 },
+        { name: "Rome", lat: 41.9028, lng: 12.4964 },
+        { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
+      ]
     },
     {
       id: 2,
@@ -63,7 +56,12 @@ export const useHomeState = () => {
       destination: "Tokyo, Japan",
       dates: "Jan 8 - Jan 15, 2025",
       status: "planning",
-      image: "🇯🇵"
+      travelers: 1,
+      image: "🇯🇵",
+      isGroupTrip: false,
+      coordinates: [
+        { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
+      ]
     }
   ]);
   const [selectedPostForTrip, setSelectedPostForTrip] = useState<ProfilePost | null>(null);
@@ -137,8 +135,8 @@ export const useHomeState = () => {
     }
   });
 
-  // Current trip data based on status priority
-  const currentTrip = travelingTrip || nearestUpcomingTrip || {
+  // Current trip data based on status priority - with complete Trip interface
+  const currentTrip: Trip = travelingTrip || nearestUpcomingTrip || {
     id: 1,
     name: "European Adventure",
     destination: "Paris → Rome → Barcelona",

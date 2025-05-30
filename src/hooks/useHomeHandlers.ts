@@ -1,4 +1,5 @@
 import { useHomeState } from "./useHomeState";
+import { Trip } from "@/types/aiSmartRoute";
 
 interface InstaTripImage {
   id: string;
@@ -16,22 +17,6 @@ interface ProfilePost {
   createdAt: number;
   location?: string;
   tripId?: number;
-}
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-  collaborators?: Array<{
-    id: string;
-    name: string;
-    email: string;
-    avatar: string;
-    role: "owner" | "editor" | "viewer";
-  }>;
 }
 
 export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
