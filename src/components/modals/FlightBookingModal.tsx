@@ -98,7 +98,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           {
             from: lastDestination,
             to: currentLocation,
-            departDate: extractEndDate(trip.dates),
+            departDate: extractEndDate(trip.dates), // Use the end date of the trip
             passengers: 1,
             class: 'economy'
           }
