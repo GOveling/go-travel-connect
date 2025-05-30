@@ -54,8 +54,8 @@ const Index = ({ onSignOut }: IndexProps) => {
         <div className="min-h-screen bg-gray-50 pb-20">
           {renderContent()}
           <BottomNavigation 
-            activeSection={activeSection} 
-            setActiveSection={setActiveSection}
+            activeTab={activeSection} 
+            setActiveTab={setActiveSection}
           />
         </div>
         <Toaster />
