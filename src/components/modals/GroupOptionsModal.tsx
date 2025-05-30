@@ -68,8 +68,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       id: 2,
       description: "Flight Tickets",
       amount: 850,
-      paidBy: "Bob Smith",
-      splitBetween: ["Alice Johnson", "Bob Smith"],
+      paidBy: "You",
+      splitBetween: ["Alice Johnson", "Bob Smith", "You"],
       date: "2024-12-08"
     }
   ]);
@@ -147,6 +147,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       }
     ]
   );
+
+  // Add current user to the list of all participants for expenses
+  const allParticipants = [
+    { id: 0, name: "You", email: "you@example.com", avatar: "Y", role: "owner" },
+    ...collaborators
+  ];
 
   const handleAddExpense = () => {
     if (newExpense.description && newExpense.amount && newExpense.paidBy) {
@@ -312,16 +318,16 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     return expenses.reduce((total, expense) => total + expense.amount, 0);
   };
 
-  const handleSplitBetweenChange = (collaboratorName: string, checked: boolean) => {
+  const handleSplitBetweenChange = (participantName: string, checked: boolean) => {
     if (checked) {
       setNewExpense({
         ...newExpense,
-        splitBetween: [...newExpense.splitBetween, collaboratorName]
+        splitBetween: [...newExpense.splitBetween, participantName]
       });
     } else {
       setNewExpense({
         ...newExpense,
-        splitBetween: newExpense.splitBetween.filter(name => name !== collaboratorName)
+        splitBetween: newExpense.splitBetween.filter(name => name !== participantName)
       });
     }
   };
@@ -439,14 +445,14 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               <span>Trip Collaborators</span>
             </Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {collaborators.map((collaborator) => (
-                <div key={collaborator.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              {allParticipants.map((participant) => (
+                <div key={participant.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-sm text-white font-medium">
-                    {collaborator.avatar}
+                    {participant.avatar}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{collaborator.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{collaborator.role}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{participant.name}</p>
+                    <p className="text-xs text-gray-500 capitalize">{participant.role}</p>
                   </div>
                 </div>
               ))}
@@ -697,16 +703,16 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                           onValueChange={(value) => setNewExpense({...newExpense, paidBy: value})}
                         >
                           <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Select collaborator" />
+                            <SelectValue placeholder="Select who paid" />
                           </SelectTrigger>
                           <SelectContent>
-                            {collaborators.map((collaborator) => (
-                              <SelectItem key={collaborator.id} value={collaborator.name}>
+                            {allParticipants.map((participant) => (
+                              <SelectItem key={participant.id} value={participant.name}>
                                 <div className="flex items-center space-x-2">
                                   <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                                    {collaborator.avatar}
+                                    {participant.avatar}
                                   </div>
-                                  <span>{collaborator.name}</span>
+                                  <span>{participant.name}</span>
                                 </div>
                               </SelectItem>
                             ))}
@@ -716,24 +722,24 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                       <div>
                         <Label className="text-sm">Split Between</Label>
                         <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
-                          {collaborators.map((collaborator) => (
-                            <div key={collaborator.id} className="flex items-center space-x-3">
+                          {allParticipants.map((participant) => (
+                            <div key={participant.id} className="flex items-center space-x-3">
                               <Checkbox
-                                id={`split-${collaborator.id}`}
-                                checked={newExpense.splitBetween.includes(collaborator.name)}
+                                id={`split-${participant.id}`}
+                                checked={newExpense.splitBetween.includes(participant.name)}
                                 onCheckedChange={(checked) => 
-                                  handleSplitBetweenChange(collaborator.name, checked as boolean)
+                                  handleSplitBetweenChange(participant.name, checked as boolean)
                                 }
                                 className="h-5 w-5"
                               />
                               <label 
-                                htmlFor={`split-${collaborator.id}`} 
+                                htmlFor={`split-${participant.id}`} 
                                 className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                               >
                                 <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                                  {collaborator.avatar}
+                                  {participant.avatar}
                                 </div>
-                                <span className="text-sm">{collaborator.name}</span>
+                                <span className="text-sm">{participant.name}</span>
                               </label>
                             </div>
                           ))}
@@ -764,11 +770,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {collaborators.map((collaborator) => {
-                        const balance = calculatePersonBalance(collaborator.name);
+                      {allParticipants.map((participant) => {
+                        const balance = calculatePersonBalance(participant.name);
                         return (
-                          <div key={collaborator.id} className="flex justify-between items-center p-3 bg-gray-50 rounded min-h-[52px]">
-                            <span className="text-sm md:text-base">{collaborator.name}</span>
+                          <div key={participant.id} className="flex justify-between items-center p-3 bg-gray-50 rounded min-h-[52px]">
+                            <span className="text-sm md:text-base">{participant.name}</span>
                             <span className={`font-medium text-sm md:text-base ${balance > 0 ? 'text-green-600' : balance < 0 ? 'text-red-600' : 'text-gray-600'}`}>
                               {balance > 0 ? '+' : ''}${balance.toFixed(2)}
                             </span>
