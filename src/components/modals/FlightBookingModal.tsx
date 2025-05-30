@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plane, Calendar, CreditCard, X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -9,6 +8,8 @@ import FlightBookingSteps from "./flight-booking/FlightBookingSteps";
 import TripSelectionStep from "./flight-booking/TripSelectionStep";
 import FlightDetailsStep from "./flight-booking/FlightDetailsStep";
 import ConfirmationStep from "./flight-booking/ConfirmationStep";
+import FlightOptionsView from "./flight-booking/FlightOptionsView";
+import MyFlightsView from "./flight-booking/MyFlightsView";
 import { extractStartDate, extractEndDate } from "./flight-booking/flightBookingUtils";
 
 interface FlightBookingModalProps {
@@ -17,6 +18,7 @@ interface FlightBookingModalProps {
 }
 
 const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
+  const [currentView, setCurrentView] = useState<'options' | 'my-flights' | 'booking'>('options');
   const [activeStep, setActiveStep] = useState(1);
   const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city'>('round-trip');
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
@@ -55,6 +57,14 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   const activeTrips = trips.filter(trip => 
     trip.status === 'upcoming' || trip.status === 'planning'
   );
+
+  // Reset to options view when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentView('options');
+      setActiveStep(1);
+    }
+  }, [isOpen]);
 
   // Get user's current location (simulated)
   useEffect(() => {
@@ -154,6 +164,12 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
     { number: 3, title: "Confirmation", icon: CreditCard }
   ];
 
+  const getModalTitle = () => {
+    if (currentView === 'my-flights') return 'My Flights';
+    if (currentView === 'booking') return 'Book Flight';
+    return 'Flight Services';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto p-0">
@@ -170,57 +186,79 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           <div className="flex items-center space-x-3 pt-2">
             <Plane size={24} />
             <div>
-              <h2 className="text-xl font-bold">Book Flight</h2>
+              <h2 className="text-xl font-bold">{getModalTitle()}</h2>
               <p className="text-sm opacity-90">AI-powered trip planning</p>
             </div>
           </div>
         </div>
 
-        {/* Progress Steps */}
-        <FlightBookingSteps steps={steps} activeStep={activeStep} />
+        {/* Progress Steps - only show for booking flow */}
+        {currentView === 'booking' && (
+          <FlightBookingSteps steps={steps} activeStep={activeStep} />
+        )}
 
         <div className="p-4 space-y-4">
-          {/* Step 1: Trip Selection */}
-          {activeStep === 1 && (
-            <TripSelectionStep
-              tripType={tripType}
-              setTripType={setTripType}
-              selectedTrip={selectedTrip}
-              currentLocation={currentLocation}
-              activeTrips={activeTrips}
-              formData={formData}
-              setFormData={setFormData}
-              multiCityFlights={multiCityFlights}
-              setMultiCityFlights={setMultiCityFlights}
-              onTripSelect={handleTripSelect}
-              onContinue={() => setActiveStep(2)}
+          {/* Options View */}
+          {currentView === 'options' && (
+            <FlightOptionsView
+              onSelectMyFlights={() => setCurrentView('my-flights')}
+              onSelectBookFlight={() => setCurrentView('booking')}
             />
           )}
 
-          {/* Step 2: Flight Details */}
-          {activeStep === 2 && (
-            <FlightDetailsStep
-              tripType={tripType}
-              formData={formData}
-              setFormData={setFormData}
-              multiCityFlights={multiCityFlights}
-              setMultiCityFlights={setMultiCityFlights}
-              onBack={() => setActiveStep(1)}
-              onContinue={() => setActiveStep(3)}
+          {/* My Flights View */}
+          {currentView === 'my-flights' && (
+            <MyFlightsView
+              onBackToOptions={() => setCurrentView('options')}
             />
           )}
 
-          {/* Step 3: Confirmation */}
-          {activeStep === 3 && (
-            <ConfirmationStep
-              tripType={tripType}
-              formData={formData}
-              multiCityFlights={multiCityFlights}
-              selectedTrip={selectedTrip}
-              trips={trips}
-              onBack={() => setActiveStep(2)}
-              onBook={handleBooking}
-            />
+          {/* Booking Flow */}
+          {currentView === 'booking' && (
+            <>
+              {/* Step 1: Trip Selection */}
+              {activeStep === 1 && (
+                <TripSelectionStep
+                  tripType={tripType}
+                  setTripType={setTripType}
+                  selectedTrip={selectedTrip}
+                  currentLocation={currentLocation}
+                  activeTrips={activeTrips}
+                  formData={formData}
+                  setFormData={setFormData}
+                  multiCityFlights={multiCityFlights}
+                  setMultiCityFlights={setMultiCityFlights}
+                  onTripSelect={handleTripSelect}
+                  onContinue={() => setActiveStep(2)}
+                />
+              )}
+
+              {/* Step 2: Flight Details */}
+              {activeStep === 2 && (
+                <FlightDetailsStep
+                  tripType={tripType}
+                  formData={formData}
+                  setFormData={setFormData}
+                  multiCityFlights={multiCityFlights}
+                  setMultiCityFlights={setMultiCityFlights}
+                  onBack={() => setActiveStep(1)}
+                  onContinue={() => setActiveStep(3)}
+                />
+              )}
+
+              {/* Step 3: Confirmation */}
+              {activeStep === 3 && (
+                <ConfirmationStep
+                  tripType={tripType}
+                  formData={formData}
+                  multiCityFlights={multiCityFlights}
+                  selectedTrip={selectedTrip}
+                  trips={trips}
+                  onBack={() => setActiveStep(2)}
+                  onBook={handleBooking}
+                />
+              )}
+            </>
           )}
         </div>
       </DialogContent>
