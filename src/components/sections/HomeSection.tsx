@@ -8,8 +8,6 @@ import QuickActions from "@/components/home/QuickActions";
 import ProfilePublication from "@/components/home/ProfilePublication";
 import FollowedFriendsPublications from "@/components/home/FollowedFriendsPublications";
 import HomeModals from "@/components/home/HomeModals";
-import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 
@@ -34,17 +32,6 @@ const HomeSection = () => {
       {/* Minimized Location, Date & Weather Widget */}
       <div className="pt-2">
         <LocationWeatherWidget />
-      </div>
-
-      {/* Demo Login Button */}
-      <div className="flex justify-end">
-        <Button
-          onClick={() => homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(true)}
-          className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white"
-        >
-          <LogIn size={16} className="mr-2" />
-          Login
-        </Button>
       </div>
 
       {/* Header with Logo, InstanTrip button, and Notification Bell */}
