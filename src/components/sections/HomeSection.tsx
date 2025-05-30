@@ -6,6 +6,7 @@ import ProfilePublicationModal from "@/components/modals/ProfilePublicationModal
 import NewTripModal from "@/components/modals/NewTripModal";
 import AddToTripModal from "@/components/modals/AddToTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
+import PhotobookModal from "@/components/modals/PhotobookModal";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import HomeHeader from "@/components/home/HomeHeader";
 import QuickStats from "@/components/home/QuickStats";
@@ -31,6 +32,22 @@ interface ProfilePost {
   tripId?: number;
 }
 
+interface Trip {
+  id: number;
+  name: string;
+  destination: string;
+  dates: string;
+  status: string;
+  image: string;
+  collaborators?: Array<{
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    role: "owner" | "editor" | "viewer";
+  }>;
+}
+
 const HomeSection = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
@@ -39,10 +56,12 @@ const HomeSection = () => {
   const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [isTripDetailModalOpen, setIsTripDetailModalOpen] = useState(false);
+  const [isPhotobookModalOpen, setIsPhotobookModalOpen] = useState(false);
+  const [selectedTripForPhotobook, setSelectedTripForPhotobook] = useState<Trip | null>(null);
   const [notificationCount, setNotificationCount] = useState(5);
   const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
   const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
-  const [trips, setTrips] = useState<any[]>([
+  const [trips, setTrips] = useState<Trip[]>([
     {
       id: 1,
       name: "European Adventure",
@@ -177,6 +196,11 @@ const HomeSection = () => {
     setIsNewTripModalOpen(true);
   };
 
+  const handleOpenTripPhotobook = (trip: Trip) => {
+    setSelectedTripForPhotobook(trip);
+    setIsPhotobookModalOpen(true);
+  };
+
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
     const diff = now - timestamp;
@@ -240,6 +264,8 @@ const HomeSection = () => {
         onClose={() => setIsAddMemoryModalOpen(false)}
         onAddInstaTripImage={handleAddInstaTripImage}
         onCreatePublication={handleCreatePublicationFromAddMemory}
+        onOpenTripPhotobook={handleOpenTripPhotobook}
+        trips={trips}
       />
 
       <InstaTripModal
@@ -278,6 +304,16 @@ const HomeSection = () => {
         isOpen={isTripDetailModalOpen}
         onClose={() => setIsTripDetailModalOpen(false)}
         trip={currentTrip}
+      />
+
+      {/* Photobook Modal */}
+      <PhotobookModal
+        trip={selectedTripForPhotobook}
+        isOpen={isPhotobookModalOpen}
+        onClose={() => {
+          setIsPhotobookModalOpen(false);
+          setSelectedTripForPhotobook(null);
+        }}
       />
     </div>
   );

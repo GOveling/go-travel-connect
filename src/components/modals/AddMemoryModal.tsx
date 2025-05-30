@@ -4,16 +4,36 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import InstaTripUploadModal from "./InstaTripUploadModal";
+import TripPhotobookSelectorModal from "./TripPhotobookSelectorModal";
+
+interface Trip {
+  id: number;
+  name: string;
+  destination: string;
+  dates: string;
+  status: string;
+  image: string;
+}
 
 interface AddMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: number) => void;
   onCreatePublication?: () => void;
+  onOpenTripPhotobook?: (trip: Trip) => void;
+  trips?: Trip[];
 }
 
-const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublication }: AddMemoryModalProps) => {
+const AddMemoryModal = ({ 
+  isOpen, 
+  onClose, 
+  onAddInstaTripImage, 
+  onCreatePublication,
+  onOpenTripPhotobook,
+  trips = []
+}: AddMemoryModalProps) => {
   const [isInstaTripUploadOpen, setIsInstaTripUploadOpen] = useState(false);
+  const [isTripPhotobookSelectorOpen, setIsTripPhotobookSelectorOpen] = useState(false);
 
   const handleInstanTrip = () => {
     setIsInstaTripUploadOpen(true);
@@ -25,8 +45,11 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublicat
   };
 
   const handleAddImage = () => {
-    console.log("Add image to saved places clicked");
-    // TODO: Implement add image functionality
+    setIsTripPhotobookSelectorOpen(true);
+  };
+
+  const handleTripSelect = (trip: Trip) => {
+    onOpenTripPhotobook?.(trip);
     onClose();
   };
 
@@ -96,6 +119,13 @@ const AddMemoryModal = ({ isOpen, onClose, onAddInstaTripImage, onCreatePublicat
         isOpen={isInstaTripUploadOpen}
         onClose={() => setIsInstaTripUploadOpen(false)}
         onAddInstaTripImage={handleInstaTripUpload}
+      />
+
+      <TripPhotobookSelectorModal
+        isOpen={isTripPhotobookSelectorOpen}
+        onClose={() => setIsTripPhotobookSelectorOpen(false)}
+        trips={trips}
+        onSelectTrip={handleTripSelect}
       />
     </>
   );
