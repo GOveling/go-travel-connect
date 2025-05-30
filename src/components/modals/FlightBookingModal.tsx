@@ -85,20 +85,22 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
         // Multi-destination trip - book two separate one-way flights
         const firstDestination = destinations[0].name;
         const lastDestination = destinations[destinations.length - 1].name;
+        const startDate = extractStartDate(trip.dates);
+        const endDate = extractEndDate(trip.dates);
         
         setTripType('multi-city');
         setMultiCityFlights([
           {
             from: currentLocation,
             to: firstDestination,
-            departDate: extractStartDate(trip.dates),
+            departDate: startDate,
             passengers: 1,
             class: 'economy'
           },
           {
             from: lastDestination,
             to: currentLocation,
-            departDate: extractEndDate(trip.dates), // Use the end date of the trip
+            departDate: endDate, // Use the end date of the trip for the return flight
             passengers: 1,
             class: 'economy'
           }
