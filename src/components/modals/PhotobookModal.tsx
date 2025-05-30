@@ -1,16 +1,11 @@
+
 import { useState } from "react";
-import { Camera, Upload, Image, X, Plus, Heart, Download, Trash2 } from "lucide-react";
+import { Image } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import ImageUploadModal from "./ImageUploadModal";
+import PhotoUploadSection from "./photobook/PhotoUploadSection";
+import PhotoCarousel from "./photobook/PhotoCarousel";
 
 interface Trip {
   id: number;
@@ -111,107 +106,14 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
 
           <div className="flex-1 overflow-hidden flex flex-col space-y-4 p-1">
             {/* Upload Section */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-                  <div className="text-center sm:text-left">
-                    <h3 className="font-semibold text-gray-800 mb-1">Add Your Memories</h3>
-                    <p className="text-sm text-gray-600">Upload photos to create beautiful memories</p>
-                  </div>
-
-                  <Button 
-                    onClick={() => setIsImageUploadModalOpen(true)}
-                    className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                  >
-                    <Plus size={16} className="mr-2" />
-                    Add Image
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <PhotoUploadSection onAddImageClick={() => setIsImageUploadModalOpen(true)} />
 
             {/* Photo Carousel */}
-            <div className="flex-1 overflow-hidden">
-              <Card className="h-full">
-                <CardContent className="p-6 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-800">Trip Album</h3>
-                    <span className="text-sm text-gray-600">{photos.length} photos</span>
-                  </div>
-
-                  {photos.length > 0 ? (
-                    <div className="flex-1 flex items-center justify-center">
-                      <Carousel className="w-full max-w-4xl">
-                        <CarouselContent>
-                          {photos.map((photo) => (
-                            <CarouselItem key={photo.id}>
-                              <div className="space-y-4">
-                                {/* Photo */}
-                                <div className="relative w-full h-[500px] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center group">
-                                  <img
-                                    src={photo.url}
-                                    alt="Trip memory"
-                                    className="max-w-full max-h-full object-contain"
-                                  />
-                                  
-                                  {/* Photo Action Buttons */}
-                                  <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 sm:opacity-100">
-                                    <Button
-                                      size="sm"
-                                      variant="secondary"
-                                      onClick={() => handleDownloadPhoto(photo.url, photo.id)}
-                                      className="bg-white/90 hover:bg-white text-gray-700"
-                                    >
-                                      <Download size={16} />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      onClick={() => handleDeletePhoto(photo.id)}
-                                      className="bg-red-500/90 hover:bg-red-600 text-white"
-                                    >
-                                      <Trash2 size={16} />
-                                    </Button>
-                                  </div>
-                                  
-                                  {/* Photo overlay info */}
-                                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                                    <div className="flex items-center justify-between text-white">
-                                      <div>
-                                        <p className="font-medium">{photo.uploadedBy}</p>
-                                        <p className="text-xs opacity-80">{photo.uploadedAt}</p>
-                                      </div>
-                                      <div className="flex items-center space-x-1">
-                                        <Heart size={14} className="text-red-400" />
-                                        <span className="text-sm">{photo.likes}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </Carousel>
-                    </div>
-                  ) : (
-                    <div className="flex-1 flex items-center justify-center">
-                      <div className="text-center space-y-4">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-                          <Camera className="text-gray-400" size={24} />
-                        </div>
-                        <div>
-                          <p className="text-gray-600 mb-2">No photos yet</p>
-                          <p className="text-sm text-gray-500">Start building your trip memories by adding the first photo!</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <PhotoCarousel
+              photos={photos}
+              onDeletePhoto={handleDeletePhoto}
+              onDownloadPhoto={handleDownloadPhoto}
+            />
           </div>
 
           {/* Close Button */}
