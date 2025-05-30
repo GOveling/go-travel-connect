@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
@@ -426,13 +427,33 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           handleCloseCreateDecisionModal();
         }
       }}
+      modal={true}
     >
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] mx-auto">
+      <DialogContent 
+        className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] mx-auto"
+        onPointerDownOutside={(e) => {
+          // Prevent closing when clicking on input fields or other interactive elements
+          const target = e.target as Element;
+          if (target.closest('input, textarea, select, button')) {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          // Prevent closing when interacting with form elements
+          const target = e.target as Element;
+          if (target.closest('input, textarea, select, button')) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Vote size={20} />
             <span>{editingDecisionId ? "Edit Decision" : "Create New Decision"}</span>
           </DialogTitle>
+          <DialogDescription>
+            {editingDecisionId ? "Update the decision details below." : "Create a new decision for your group to vote on."}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 md:space-y-6 py-4">
@@ -443,7 +464,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 id="decisionTitle"
                 placeholder="What should we decide on?"
                 value={newDecision.title}
-                onChange={(e) => setNewDecision(prev => ({...prev, title: e.target.value}))}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  setNewDecision(prev => ({...prev, title: e.target.value}));
+                }}
+                onFocus={(e) => e.stopPropagation()}
                 className="mt-1 h-12 text-base"
               />
             </div>
@@ -454,7 +479,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 id="decisionDescription"
                 placeholder="Add more details about this decision..."
                 value={newDecision.description}
-                onChange={(e) => setNewDecision(prev => ({...prev, description: e.target.value}))}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  setNewDecision(prev => ({...prev, description: e.target.value}));
+                }}
+                onFocus={(e) => e.stopPropagation()}
                 className="mt-1 h-12 text-base"
               />
             </div>
@@ -465,7 +494,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 id="endDate"
                 type="date"
                 value={newDecision.endDate}
-                onChange={(e) => setNewDecision(prev => ({...prev, endDate: e.target.value}))}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  setNewDecision(prev => ({...prev, endDate: e.target.value}));
+                }}
+                onFocus={(e) => e.stopPropagation()}
                 className="mt-1 h-12 text-base"
                 min={new Date().toISOString().split('T')[0]}
               />
@@ -484,17 +517,20 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                     placeholder={`Option ${index + 1}`}
                     value={option}
                     onChange={(e) => {
+                      e.stopPropagation();
                       const newOptions = [...newDecision.options];
                       newOptions[index] = e.target.value;
                       setNewDecision(prev => ({...prev, options: newOptions}));
                     }}
+                    onFocus={(e) => e.stopPropagation()}
                     className="flex-1 h-12 text-base"
                   />
                   {newDecision.options.length > 2 && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         const newOptions = newDecision.options.filter((_, i) => i !== index);
                         setNewDecision(prev => ({...prev, options: newOptions}));
                       }}
@@ -511,7 +547,10 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               variant="outline"
               size="sm"
               className="mt-3 h-10 w-full sm:w-auto"
-              onClick={() => setNewDecision(prev => ({...prev, options: [...prev.options, ""]}))}
+              onClick={(e) => {
+                e.stopPropagation();
+                setNewDecision(prev => ({...prev, options: [...prev.options, ""]}));
+              }}
             >
               <Plus size={16} className="mr-2" />
               Add Option
@@ -543,7 +582,10 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           
           <div className="flex flex-col gap-3 pt-4 border-t">
             <Button
-              onClick={editingDecisionId ? handleUpdateDecision : handleCreateDecision}
+              onClick={(e) => {
+                e.stopPropagation();
+                editingDecisionId ? handleUpdateDecision() : handleCreateDecision();
+              }}
               disabled={!newDecision.title || newDecision.options.filter(opt => opt.trim()).length < 2}
               className="w-full h-12 text-base"
             >
@@ -551,7 +593,10 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             </Button>
             <Button
               variant="outline"
-              onClick={handleCloseCreateDecisionModal}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseCreateDecisionModal();
+              }}
               className="w-full h-12 text-base"
             >
               Cancel
