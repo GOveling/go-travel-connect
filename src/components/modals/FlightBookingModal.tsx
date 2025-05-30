@@ -18,7 +18,7 @@ interface FlightBookingModalProps {
 
 const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   const [activeStep, setActiveStep] = useState(1);
-  const [tripType, setTripType] = useState<'round-trip' | 'one-way'>('round-trip');
+  const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city'>('round-trip');
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
   const [currentLocation, setCurrentLocation] = useState("New York, NY");
   const [formData, setFormData] = useState({
@@ -29,6 +29,24 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
     passengers: 1,
     class: 'economy'
   });
+
+  // New state for multi-city flights
+  const [multiCityFlights, setMultiCityFlights] = useState([
+    {
+      from: '',
+      to: '',
+      departDate: '',
+      passengers: 1,
+      class: 'economy'
+    },
+    {
+      from: '',
+      to: '',
+      departDate: '',
+      passengers: 1,
+      class: 'economy'
+    }
+  ]);
 
   const { trips } = useHomeState();
   const { toast } = useToast();
@@ -63,47 +81,68 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
       // Extract destinations from trip coordinates
       const destinations = trip.coordinates || [];
       
-      if (destinations.length > 0) {
+      if (destinations.length > 1) {
+        // Multi-destination trip - book two separate one-way flights
         const firstDestination = destinations[0].name;
         const lastDestination = destinations[destinations.length - 1].name;
         
-        // Auto-fill form based on trip type
-        if (destinations.length === 1) {
-          // Single destination trip
-          setFormData(prev => ({
-            ...prev,
+        setTripType('multi-city');
+        setMultiCityFlights([
+          {
             from: currentLocation,
             to: firstDestination,
             departDate: extractStartDate(trip.dates),
-            returnDate: extractEndDate(trip.dates)
-          }));
-          setTripType('round-trip');
-        } else {
-          // Multi-destination trip
-          setFormData(prev => ({
-            ...prev,
-            from: currentLocation,
-            to: firstDestination,
-            departDate: extractStartDate(trip.dates),
-            returnDate: extractEndDate(trip.dates)
-          }));
-          setTripType('round-trip');
-        }
+            passengers: 1,
+            class: 'economy'
+          },
+          {
+            from: lastDestination,
+            to: currentLocation,
+            departDate: extractEndDate(trip.dates),
+            passengers: 1,
+            class: 'economy'
+          }
+        ]);
+
+        // Show AI automation toast for multi-city
+        toast({
+          title: "🤖 AI Auto-filled Multi-City",
+          description: `Two one-way flights: ${currentLocation} → ${firstDestination} and ${lastDestination} → ${currentLocation}`,
+        });
+      } else if (destinations.length === 1) {
+        // Single destination trip - round trip
+        const firstDestination = destinations[0].name;
+        
+        setFormData(prev => ({
+          ...prev,
+          from: currentLocation,
+          to: firstDestination,
+          departDate: extractStartDate(trip.dates),
+          returnDate: extractEndDate(trip.dates)
+        }));
+        setTripType('round-trip');
 
         // Show AI automation toast
         toast({
           title: "🤖 AI Auto-filled",
-          description: `Flight details populated from "${trip.name}" itinerary`,
+          description: `Round-trip flight details populated from "${trip.name}" itinerary`,
         });
       }
     }
   };
 
   const handleBooking = () => {
-    toast({
-      title: "Flight booking initiated!",
-      description: "Redirecting to booking partner...",
-    });
+    if (tripType === 'multi-city') {
+      toast({
+        title: "Multi-city flights booking initiated!",
+        description: "Redirecting to booking partner for two one-way flights...",
+      });
+    } else {
+      toast({
+        title: "Flight booking initiated!",
+        description: "Redirecting to booking partner...",
+      });
+    }
     onClose();
   };
 
@@ -149,6 +188,8 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
               activeTrips={activeTrips}
               formData={formData}
               setFormData={setFormData}
+              multiCityFlights={multiCityFlights}
+              setMultiCityFlights={setMultiCityFlights}
               onTripSelect={handleTripSelect}
               onContinue={() => setActiveStep(2)}
             />
@@ -160,6 +201,8 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
               tripType={tripType}
               formData={formData}
               setFormData={setFormData}
+              multiCityFlights={multiCityFlights}
+              setMultiCityFlights={setMultiCityFlights}
               onBack={() => setActiveStep(1)}
               onContinue={() => setActiveStep(3)}
             />
@@ -170,6 +213,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             <ConfirmationStep
               tripType={tripType}
               formData={formData}
+              multiCityFlights={multiCityFlights}
               selectedTrip={selectedTrip}
               trips={trips}
               onBack={() => setActiveStep(2)}

@@ -24,14 +24,24 @@ interface FormData {
   class: string;
 }
 
+interface MultiCityFlight {
+  from: string;
+  to: string;
+  departDate: string;
+  passengers: number;
+  class: string;
+}
+
 interface TripSelectionStepProps {
-  tripType: 'round-trip' | 'one-way';
-  setTripType: (type: 'round-trip' | 'one-way') => void;
+  tripType: 'round-trip' | 'one-way' | 'multi-city';
+  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city') => void;
   selectedTrip: number | null;
   currentLocation: string;
   activeTrips: Trip[];
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
+  multiCityFlights: MultiCityFlight[];
+  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
   onTripSelect: (tripId: number) => void;
   onContinue: () => void;
 }
@@ -44,9 +54,18 @@ const TripSelectionStep = ({
   activeTrips,
   formData,
   setFormData,
+  multiCityFlights,
+  setMultiCityFlights,
   onTripSelect,
   onContinue
 }: TripSelectionStepProps) => {
+  const canContinue = () => {
+    if (tripType === 'multi-city') {
+      return multiCityFlights.every(flight => flight.from && flight.to);
+    }
+    return formData.from && formData.to;
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -84,8 +103,8 @@ const TripSelectionStep = ({
                         <p className="text-xs text-gray-500">{trip.dates}</p>
                         {trip.coordinates && trip.coordinates.length > 0 && (
                           <p className="text-xs text-blue-600">
-                            🤖 Route: {currentLocation} → {trip.coordinates[0].name}
-                            {trip.coordinates.length > 1 && ` → ${trip.coordinates[trip.coordinates.length - 1].name}`}
+                            🤖 {trip.coordinates.length > 1 ? 'Multi-city:' : 'Route:'} {currentLocation} → {trip.coordinates[0].name}
+                            {trip.coordinates.length > 1 && ` → ${trip.coordinates[trip.coordinates.length - 1].name} → ${currentLocation}`}
                           </p>
                         )}
                       </div>
@@ -123,49 +142,118 @@ const TripSelectionStep = ({
             </Button>
           </div>
 
-          {/* From/To Inputs */}
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="from" className="text-sm">From</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
-                <Input
-                  id="from"
-                  placeholder="Departure city"
-                  value={formData.from}
-                  onChange={(e) => setFormData(prev => ({ ...prev, from: e.target.value }))}
-                  className="pl-10 h-12"
-                />
+          {/* Flight Details based on trip type */}
+          {tripType === 'multi-city' ? (
+            <div className="space-y-4">
+              <Label className="text-sm text-blue-600 font-medium">Multi-City Flights (Auto-filled)</Label>
+              
+              {/* Flight 1: Current → First Destination */}
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
+                <Label className="text-sm font-medium text-blue-800">Flight 1: Outbound</Label>
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-xs">From</Label>
+                    <Input
+                      value={multiCityFlights[0]?.from || ''}
+                      onChange={(e) => setMultiCityFlights(prev => [
+                        { ...prev[0], from: e.target.value },
+                        prev[1]
+                      ])}
+                      className="h-10 text-sm"
+                      placeholder="Departure city"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">To</Label>
+                    <Input
+                      value={multiCityFlights[0]?.to || ''}
+                      onChange={(e) => setMultiCityFlights(prev => [
+                        { ...prev[0], to: e.target.value },
+                        prev[1]
+                      ])}
+                      className="h-10 text-sm"
+                      placeholder="Destination city"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Flight 2: Last Destination → Current */}
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg space-y-3">
+                <Label className="text-sm font-medium text-green-800">Flight 2: Return</Label>
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-xs">From</Label>
+                    <Input
+                      value={multiCityFlights[1]?.from || ''}
+                      onChange={(e) => setMultiCityFlights(prev => [
+                        prev[0],
+                        { ...prev[1], from: e.target.value }
+                      ])}
+                      className="h-10 text-sm"
+                      placeholder="Departure city"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">To</Label>
+                    <Input
+                      value={multiCityFlights[1]?.to || ''}
+                      onChange={(e) => setMultiCityFlights(prev => [
+                        prev[0],
+                        { ...prev[1], to: e.target.value }
+                      ])}
+                      className="h-10 text-sm"
+                      placeholder="Destination city"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
+          ) : (
+            /* Regular From/To Inputs for round-trip and one-way */
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="from" className="text-sm">From</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
+                  <Input
+                    id="from"
+                    placeholder="Departure city"
+                    value={formData.from}
+                    onChange={(e) => setFormData(prev => ({ ...prev, from: e.target.value }))}
+                    className="pl-10 h-12"
+                  />
+                </div>
+              </div>
 
-            <div className="flex justify-center">
-              <Button variant="ghost" size="sm" className="p-2 rounded-full bg-gray-100">
-                <ArrowUpDown size={16} />
-              </Button>
-            </div>
+              <div className="flex justify-center">
+                <Button variant="ghost" size="sm" className="p-2 rounded-full bg-gray-100">
+                  <ArrowUpDown size={16} />
+                </Button>
+              </div>
 
-            <div>
-              <Label htmlFor="to" className="text-sm">To</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
-                <Input
-                  id="to"
-                  placeholder="Destination city"
-                  value={formData.to}
-                  onChange={(e) => setFormData(prev => ({ ...prev, to: e.target.value }))}
-                  className="pl-10 h-12"
-                />
+              <div>
+                <Label htmlFor="to" className="text-sm">To</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
+                  <Input
+                    id="to"
+                    placeholder="Destination city"
+                    value={formData.to}
+                    onChange={(e) => setFormData(prev => ({ ...prev, to: e.target.value }))}
+                    className="pl-10 h-12"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       <Button 
         onClick={onContinue}
         className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600"
-        disabled={!formData.from || !formData.to}
+        disabled={!canContinue()}
       >
         Continue
       </Button>
