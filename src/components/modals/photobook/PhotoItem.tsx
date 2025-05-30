@@ -1,6 +1,17 @@
 
 import { Heart, Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PhotoItemProps {
   photo: {
@@ -35,14 +46,32 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
           >
             <Download size={16} />
           </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => onDelete(photo.id)}
-            className="bg-red-500/90 hover:bg-red-600 text-white"
-          >
-            <Trash2 size={16} />
-          </Button>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="bg-red-500/90 hover:bg-red-600 text-white"
+              >
+                <Trash2 size={16} />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Photo</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this photo? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDelete(photo.id)}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
         
         {/* Photo overlay info */}
