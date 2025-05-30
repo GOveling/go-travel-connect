@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plane, Calendar, CreditCard, X } from "lucide-react";
+import { Plane, Calendar, CreditCard, X, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useHomeState } from "@/hooks/useHomeState";
@@ -10,6 +10,7 @@ import FlightDetailsStep from "./flight-booking/FlightDetailsStep";
 import ConfirmationStep from "./flight-booking/ConfirmationStep";
 import FlightOptionsView from "./flight-booking/FlightOptionsView";
 import MyFlightsView from "./flight-booking/MyFlightsView";
+import AddFlightView from "./flight-booking/AddFlightView";
 import { extractStartDate, extractEndDate } from "./flight-booking/flightBookingUtils";
 
 interface FlightBookingModalProps {
@@ -18,7 +19,7 @@ interface FlightBookingModalProps {
 }
 
 const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
-  const [currentView, setCurrentView] = useState<'options' | 'my-flights' | 'booking'>('options');
+  const [currentView, setCurrentView] = useState<'options' | 'my-flights' | 'add-flight' | 'booking'>('options');
   const [activeStep, setActiveStep] = useState(1);
   const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city'>('round-trip');
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
@@ -166,8 +167,13 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
 
   const getModalTitle = () => {
     if (currentView === 'my-flights') return 'My Flights';
+    if (currentView === 'add-flight') return 'Add Flight';
     if (currentView === 'booking') return 'Book Flight';
     return 'Flight Services';
+  };
+
+  const showBackButton = () => {
+    return currentView === 'booking' && activeStep === 1;
   };
 
   return (
@@ -183,6 +189,16 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           >
             <X size={16} />
           </Button>
+          {showBackButton() && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentView('options')}
+              className="absolute left-2 top-2 text-white hover:bg-white/20 p-1 h-8 w-8"
+            >
+              <ArrowLeft size={16} />
+            </Button>
+          )}
           <div className="flex items-center space-x-3 pt-2">
             <Plane size={24} />
             <div>
@@ -210,6 +226,14 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           {currentView === 'my-flights' && (
             <MyFlightsView
               onBackToOptions={() => setCurrentView('options')}
+              onAddFlight={() => setCurrentView('add-flight')}
+            />
+          )}
+
+          {/* Add Flight View */}
+          {currentView === 'add-flight' && (
+            <AddFlightView
+              onBackToMyFlights={() => setCurrentView('my-flights')}
             />
           )}
 

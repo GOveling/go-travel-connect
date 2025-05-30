@@ -1,14 +1,14 @@
-
-import { Plane, Calendar, Users, MapPin, Clock, ArrowRight } from "lucide-react";
+import { Plane, Calendar, Users, MapPin, Clock, ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface MyFlightsViewProps {
   onBackToOptions: () => void;
+  onAddFlight: () => void;
 }
 
-const MyFlightsView = ({ onBackToOptions }: MyFlightsViewProps) => {
+const MyFlightsView = ({ onBackToOptions, onAddFlight }: MyFlightsViewProps) => {
   // Mock flight data - in a real app, this would come from an API
   const myFlights = [
     {
@@ -62,13 +62,23 @@ const MyFlightsView = ({ onBackToOptions }: MyFlightsViewProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">My Flights</h3>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onBackToOptions}
-        >
-          Back
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onAddFlight}
+          >
+            <Plus size={16} className="mr-1" />
+            Add Flight
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onBackToOptions}
+          >
+            Back
+          </Button>
+        </div>
       </div>
 
       {myFlights.length === 0 ? (
