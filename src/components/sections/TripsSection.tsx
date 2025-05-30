@@ -12,6 +12,7 @@ import MountainTripModal from "@/components/modals/MountainTripModal";
 import CityBreakModal from "@/components/modals/CityBreakModal";
 import BackpackingModal from "@/components/modals/BackpackingModal";
 import EditTripModal from "@/components/modals/EditTripModal";
+import PhotobookModal from "@/components/modals/PhotobookModal";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
 import TripCard from "@/components/trips/TripCard";
 import QuickStats from "@/components/trips/QuickStats";
@@ -31,6 +32,7 @@ const TripsSection = () => {
   const [showCityBreakModal, setShowCityBreakModal] = useState(false);
   const [showBackpackingModal, setShowBackpackingModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
+  const [showPhotobookModal, setShowPhotobookModal] = useState(false);
   
   const [trips, setTrips] = useState([
     {
@@ -150,6 +152,11 @@ const TripsSection = () => {
     }, 100);
   };
 
+  const handleCreatePhotobook = (trip: any) => {
+    setSelectedTrip(trip);
+    setShowPhotobookModal(true);
+  };
+
   if (showMap) {
     return (
       <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
@@ -220,6 +227,7 @@ const TripsSection = () => {
             onGroupOptions={handleGroupOptions}
             onAISmartRoute={handleAISmartRoute}
             onViewSavedPlaces={handleViewSavedPlaces}
+            onCreatePhotobook={handleCreatePhotobook}
           />
         ))}
       </div>
@@ -311,6 +319,15 @@ const TripsSection = () => {
         }}
         onUpdateTrip={handleUpdateTrip}
         onDeleteTrip={handleDeleteTrip}
+      />
+
+      <PhotobookModal
+        trip={selectedTrip}
+        isOpen={showPhotobookModal}
+        onClose={() => {
+          setShowPhotobookModal(false);
+          setSelectedTrip(null);
+        }}
       />
     </div>
   );

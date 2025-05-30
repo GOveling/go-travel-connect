@@ -1,5 +1,5 @@
 
-import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal } from "lucide-react";
+import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal, Camera } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,7 @@ interface TripCardProps {
   onGroupOptions: (trip: Trip) => void;
   onAISmartRoute: (trip: Trip) => void;
   onViewSavedPlaces: (trip: Trip) => void;
+  onCreatePhotobook: (trip: Trip) => void;
 }
 
 const TripCard = ({
@@ -49,7 +50,8 @@ const TripCard = ({
   onInviteFriends,
   onGroupOptions,
   onAISmartRoute,
-  onViewSavedPlaces
+  onViewSavedPlaces,
+  onCreatePhotobook
 }: TripCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -163,6 +165,10 @@ const TripCard = ({
                       <Share2 size={14} className="mr-2" />
                       Share Trip
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onCreatePhotobook(trip)}>
+                      <Camera size={14} className="mr-2" />
+                      Create Photobook
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -190,9 +196,9 @@ const TripCard = ({
                 </div>
               )}
 
-              {/* Action Buttons - Updated to show three buttons in a row */}
+              {/* Action Buttons - Updated to show four buttons in a row */}
               <div className="pt-2 space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <Button 
                     className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-sm"
                     onClick={() => onViewDetails(trip)}
@@ -214,6 +220,14 @@ const TripCard = ({
                   >
                     <Route size={14} className="mr-1" />
                     AI Smart Route
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="border-green-300 text-green-600 hover:bg-green-50 text-sm"
+                    onClick={() => onCreatePhotobook(trip)}
+                  >
+                    <Camera size={14} className="mr-1" />
+                    Photobook
                   </Button>
                 </div>
               </div>
