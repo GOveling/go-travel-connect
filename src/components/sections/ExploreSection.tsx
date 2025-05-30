@@ -1,4 +1,3 @@
-
 import { Search, Star, MapPin, Filter, Bell } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -240,10 +239,170 @@ const ExploreSection = () => {
       phone: "+47 22 00 25 00",
       lat: 62.4722,
       lng: 7.1475
+    },
+    // Restaurants
+    {
+      name: "Le Bernardin",
+      location: "New York, USA",
+      rating: 4.9,
+      image: "🍽️",
+      category: "Restaurants",
+      description: "Three Michelin-starred French seafood restaurant.",
+      hours: "5:30 PM - 10:00 PM",
+      website: "www.le-bernardin.com",
+      phone: "+1 212-554-1515",
+      lat: 40.7614,
+      lng: -73.9776
+    },
+    {
+      name: "Osteria Francescana",
+      location: "Modena, Italy",
+      rating: 4.8,
+      image: "🍝",
+      category: "Restaurants",
+      description: "Three Michelin-starred restaurant serving innovative Italian cuisine.",
+      hours: "12:30 PM - 2:00 PM, 7:30 PM - 10:00 PM",
+      website: "www.osteriafrancescana.it",
+      phone: "+39 059 223912",
+      lat: 44.6471,
+      lng: 10.9252
+    },
+    {
+      name: "Sukiyabashi Jiro",
+      location: "Tokyo, Japan",
+      rating: 4.7,
+      image: "🍣",
+      category: "Restaurants",
+      description: "World-famous sushi restaurant with three Michelin stars.",
+      hours: "11:30 AM - 2:00 PM, 5:00 PM - 8:00 PM",
+      website: "www.sushi-jiro.jp",
+      phone: "+81 3-3535-3600",
+      lat: 35.6762,
+      lng: 139.7633
+    },
+    // Next Concerts
+    {
+      name: "Madison Square Garden",
+      location: "New York, USA",
+      rating: 4.6,
+      image: "🎤",
+      category: "Next Concerts",
+      description: "Iconic venue hosting major concerts and events.",
+      hours: "Event dependent",
+      website: "www.msg.com",
+      phone: "+1 212-465-6741",
+      lat: 40.7505,
+      lng: -73.9934
+    },
+    {
+      name: "Royal Albert Hall",
+      location: "London, UK",
+      rating: 4.7,
+      image: "🎼",
+      category: "Next Concerts",
+      description: "Historic concert hall hosting classical and contemporary performances.",
+      hours: "Box office: 9:00 AM - 9:00 PM",
+      website: "www.royalalberthall.com",
+      phone: "+44 20 7589 8212",
+      lat: 51.5009,
+      lng: -0.1773
+    },
+    {
+      name: "Sydney Opera House",
+      location: "Sydney, Australia",
+      rating: 4.8,
+      image: "🎭",
+      category: "Next Concerts",
+      description: "World-renowned performing arts venue with distinctive architecture.",
+      hours: "Tours: 9:00 AM - 5:00 PM",
+      website: "www.sydneyoperahouse.com",
+      phone: "+61 2 9250 7111",
+      lat: -33.8568,
+      lng: 151.2153
+    },
+    // Night Life
+    {
+      name: "Berghain",
+      location: "Berlin, Germany",
+      rating: 4.5,
+      image: "🌃",
+      category: "Night Life",
+      description: "World-famous techno club in a former power plant.",
+      hours: "Friday midnight - Monday morning",
+      website: "www.berghain.de",
+      phone: "+49 30 29004879",
+      lat: 52.5107,
+      lng: 13.4426
+    },
+    {
+      name: "Rooftop Bar at Marina Bay",
+      location: "Singapore",
+      rating: 4.6,
+      image: "🍸",
+      category: "Night Life",
+      description: "Stunning rooftop bar with panoramic city views.",
+      hours: "6:00 PM - 2:00 AM",
+      website: "www.marinabaysands.com",
+      phone: "+65 6688 8888",
+      lat: 1.2834,
+      lng: 103.8607
+    },
+    {
+      name: "Pacha Ibiza",
+      location: "Ibiza, Spain",
+      rating: 4.4,
+      image: "🕺",
+      category: "Night Life",
+      description: "Legendary nightclub on the party island of Ibiza.",
+      hours: "11:00 PM - 6:00 AM",
+      website: "www.pacha.com",
+      phone: "+34 971 313 612",
+      lat: 38.9067,
+      lng: 1.4237
+    },
+    // Fun for Kids
+    {
+      name: "Disneyland Paris",
+      location: "Paris, France",
+      rating: 4.7,
+      image: "🎠",
+      category: "Fun for Kids",
+      description: "Magical theme park with Disney characters and attractions.",
+      hours: "10:00 AM - 10:00 PM",
+      website: "www.disneylandparis.com",
+      phone: "+33 825 30 05 00",
+      lat: 48.8674,
+      lng: 2.7834
+    },
+    {
+      name: "Universal Studios",
+      location: "Orlando, USA",
+      rating: 4.6,
+      image: "🎢",
+      category: "Fun for Kids",
+      description: "Thrilling theme park with movie-themed rides and shows.",
+      hours: "9:00 AM - 10:00 PM",
+      website: "www.universalorlando.com",
+      phone: "+1 407-363-8000",
+      lat: 28.4743,
+      lng: -81.4677
+    },
+    {
+      name: "LEGOLAND",
+      location: "Billund, Denmark",
+      rating: 4.5,
+      image: "🧱",
+      category: "Fun for Kids",
+      description: "Theme park built from LEGO bricks with family-friendly rides.",
+      hours: "10:00 AM - 6:00 PM",
+      website: "www.legoland.dk",
+      phone: "+45 75 33 13 33",
+      lat: 55.7364,
+      lng: 9.1262
     }
   ];
 
-  const categories = ["All", "Landmarks", "Museums", "Beaches", "Historical", "Nature"];
+  const categories = ["All", "Landmarks", "Museums", "Beaches", "Historical", "Nature", "Restaurants", "Next Concerts", "Night Life", "Fun for Kids"];
 
   // Filter places based on selected category
   const filteredPlaces = selectedCategory === "All" 
