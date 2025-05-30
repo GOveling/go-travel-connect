@@ -27,9 +27,8 @@ const HomeHeader = ({
         />
       </div>
 
-      {/* Right side buttons */}
-      <div className="flex items-center space-x-2">
-        {/* InstanTrip Button */}
+      {/* InstanTrip Button in the center */}
+      <div className="flex-1 flex justify-center">
         <Button
           onClick={onInstaTripClick}
           variant="outline"
@@ -43,8 +42,10 @@ const HomeHeader = ({
             </span>
           )}
         </Button>
+      </div>
 
-        {/* Notification Bell */}
+      {/* Notification Bell on the right */}
+      <div className="flex items-center">
         <Button
           onClick={onNotificationClick}
           variant="outline"
