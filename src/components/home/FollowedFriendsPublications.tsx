@@ -1,10 +1,8 @@
 
-import { MapPin, Heart, MessageCircle, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Heart, MessageCircle, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
-import { useState } from "react";
 
 interface FriendPublication {
   id: string;
@@ -37,40 +35,6 @@ const FollowedFriendsPublications = ({
   // Extract the first and most visible initial from name
   const getInitials = (name: string): string => {
     return name.charAt(0).toUpperCase();
-  };
-
-  const ImageCarousel = ({ images }: { images: string[] }) => {
-    if (images.length === 1) {
-      return (
-        <img
-          src={images[0]}
-          alt="Publication image"
-          className="w-full h-48 object-cover rounded"
-        />
-      );
-    }
-
-    return (
-      <Carousel className="w-full">
-        <CarouselContent>
-          {images.map((image, index) => (
-            <CarouselItem key={index}>
-              <img
-                src={image}
-                alt={`Publication image ${index + 1}`}
-                className="w-full h-48 object-cover rounded"
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        {images.length > 1 && (
-          <>
-            <CarouselPrevious className="left-2" />
-            <CarouselNext className="right-2" />
-          </>
-        )}
-      </Carousel>
-    );
   };
   
   return (
@@ -106,8 +70,33 @@ const FollowedFriendsPublications = ({
               {/* Publication content */}
               <p className="text-sm text-gray-700">{publication.text}</p>
               
-              {/* Images Carousel */}
-              <ImageCarousel images={publication.images} />
+              {/* Images */}
+              <div className="grid grid-cols-2 gap-2">
+                {publication.images.slice(0, 2).map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Publication image ${index + 1}`}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                ))}
+                {publication.images.length > 2 && (
+                  <div className="relative col-span-2">
+                    <img
+                      src={publication.images[2]}
+                      alt="More images"
+                      className="w-full h-32 object-cover rounded"
+                    />
+                    {publication.images.length > 3 && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">
+                          +{publication.images.length - 3} more
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               
               {/* Location */}
               {publication.location && (

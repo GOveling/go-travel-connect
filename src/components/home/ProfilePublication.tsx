@@ -2,7 +2,6 @@
 import { MapPin, Plus, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 interface ProfilePost {
   id: string;
@@ -26,40 +25,6 @@ const ProfilePublication = ({
   onAddToTrip, 
   formatTimeAgo 
 }: ProfilePublicationProps) => {
-  const ImageCarousel = ({ images }: { images: string[] }) => {
-    if (images.length === 1) {
-      return (
-        <img
-          src={images[0]}
-          alt="Post image"
-          className="w-full h-32 object-cover rounded"
-        />
-      );
-    }
-
-    return (
-      <Carousel className="w-full">
-        <CarouselContent>
-          {images.map((image, index) => (
-            <CarouselItem key={index}>
-              <img
-                src={image}
-                alt={`Post image ${index + 1}`}
-                className="w-full h-32 object-cover rounded"
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        {images.length > 1 && (
-          <>
-            <CarouselPrevious className="left-2" />
-            <CarouselNext className="right-2" />
-          </>
-        )}
-      </Carousel>
-    );
-  };
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -83,9 +48,30 @@ const ProfilePublication = ({
         ) : (
           posts.slice(0, 3).map((post) => (
             <div key={post.id} className="border rounded-lg p-3 space-y-3">
-              {/* Images Carousel */}
-              <ImageCarousel images={post.images} />
-              
+              <div className="grid grid-cols-3 gap-2">
+                {post.images.slice(0, 3).map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full h-20 object-cover rounded"
+                  />
+                ))}
+                {post.images.length > 3 && (
+                  <div className="relative">
+                    <img
+                      src={post.images[3]}
+                      alt="More images"
+                      className="w-full h-20 object-cover rounded"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        +{post.images.length - 3}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
               <p className="text-sm text-gray-700">{post.text}</p>
               {post.location && (
                 <div className="space-y-2">
