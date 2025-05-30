@@ -1,4 +1,3 @@
-
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import AddMemoryModal from "@/components/modals/AddMemoryModal";
 import InstaTripModal from "@/components/modals/InstaTripModal";
@@ -7,6 +6,7 @@ import NewTripModal from "@/components/modals/NewTripModal";
 import AddToTripModal from "@/components/modals/AddToTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import PhotobookModal from "@/components/modals/PhotobookModal";
+import LoginModal from "@/components/modals/LoginModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 
@@ -77,6 +77,20 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
         onClose={() => {
           homeState.setIsPhotobookModalOpen(false);
           homeState.setSelectedTripForPhotobook(null);
+        }}
+      />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={homeState.isLoginModalOpen || false}
+        onClose={() => homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false)}
+        onLogin={(email, password) => {
+          console.log("Email login:", email);
+          // Handle email/password login here
+        }}
+        onGoogleLogin={() => {
+          console.log("Google login");
+          // Handle Google login here
         }}
       />
     </>
