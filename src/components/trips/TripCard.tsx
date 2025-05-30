@@ -1,3 +1,4 @@
+
 import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,8 +64,13 @@ const TripCard = ({
     }
   };
 
-  // Calculate total travelers - for group trips, use the travelers field directly since it represents the actual total
+  // Calculate total travelers for group trips
   const getTotalTravelers = () => {
+    if (trip.isGroupTrip && trip.collaborators) {
+      // For group trips, count collaborators + 1 (the user)
+      return trip.collaborators.length + 1;
+    }
+    // For solo trips, use the original travelers count
     return trip.travelers;
   };
 

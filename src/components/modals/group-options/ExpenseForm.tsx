@@ -1,15 +1,37 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Collaborator, NewExpense } from "@/types/groupOptions";
+
+interface Expense {
+  id: number;
+  description: string;
+  amount: number;
+  paidBy: string;
+  splitBetween: string[];
+  date: string;
+}
+
+interface Collaborator {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string;
+  role: string;
+}
 
 interface ExpenseFormProps {
   editingExpenseId: number | null;
-  newExpense: NewExpense;
+  newExpense: {
+    description: string;
+    amount: string;
+    paidBy: string;
+    splitBetween: string[];
+  };
   setNewExpense: (expense: any) => void;
   allParticipants: Collaborator[];
   onAddExpense: () => void;

@@ -1,3 +1,4 @@
+
 import { Plus, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -39,7 +40,7 @@ const TripsSection = () => {
       destination: "Paris → Rome → Barcelona",
       dates: "Dec 15 - Dec 25, 2024",
       status: "upcoming",
-      travelers: 4,
+      travelers: 3,
       image: "🇪🇺",
       isGroupTrip: true,
       collaborators: [
@@ -84,6 +85,7 @@ const TripsSection = () => {
       image: "🇮🇩",
       isGroupTrip: true,
       collaborators: [
+        { id: "1", name: "You", email: "you@example.com", avatar: "YO", role: "owner" as const },
         { id: "4", name: "Emma Wilson", email: "emma@example.com", avatar: "EW", role: "editor" as const },
         { id: "5", name: "David Brown", email: "david@example.com", avatar: "DB", role: "editor" as const }
       ],
