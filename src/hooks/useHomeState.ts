@@ -42,13 +42,43 @@ export const useHomeState = () => {
       status: "upcoming",
       travelers: 2,
       image: "🇪🇺",
-      isGroupTrip: false,
+      isGroupTrip: true,
       coordinates: [
         { name: "Paris", lat: 48.8566, lng: 2.3522 },
         { name: "Rome", lat: 41.9028, lng: 12.4964 },
         { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
       ],
-      savedPlaces: []
+      savedPlaces: [],
+      collaborators: [
+        {
+          id: "1",
+          name: "Sarah Johnson",
+          email: "sarah.johnson@example.com",
+          avatar: "S",
+          role: "owner"
+        },
+        {
+          id: "2", 
+          name: "Mike Chen",
+          email: "mike.chen@example.com",
+          avatar: "M",
+          role: "editor"
+        },
+        {
+          id: "3",
+          name: "Emma Rodriguez",
+          email: "emma.rodriguez@example.com", 
+          avatar: "E",
+          role: "viewer"
+        },
+        {
+          id: "4",
+          name: "David Kim",
+          email: "david.kim@example.com",
+          avatar: "D", 
+          role: "editor"
+        }
+      ]
     },
     {
       id: 2,
