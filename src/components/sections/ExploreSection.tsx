@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
-import AddToTripModal from "@/components/modals/AddToTripModal";
+import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import TravelersSection from "./TravelersSection";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import { useHomeState } from "@/hooks/useHomeState";
@@ -22,7 +22,7 @@ const ExploreSection = () => {
   const [notificationCount, setNotificationCount] = useState(5);
 
   // Get actual trips from shared state
-  const { trips, addPlaceToTrip } = useHomeState();
+  const { trips, addPlaceToTrip, setTrips } = useHomeState();
   const { toast } = useToast();
 
   const popularPlaces = [
@@ -35,7 +35,9 @@ const ExploreSection = () => {
       description: "An iconic iron lattice tower on the Champ de Mars in Paris, France. Built in 1889, it's one of the most recognizable structures in the world.",
       hours: "9:30 AM - 11:45 PM",
       website: "www.toureiffel.paris",
-      phone: "+33 8 92 70 12 39"
+      phone: "+33 8 92 70 12 39",
+      lat: 48.8566,
+      lng: 2.3522
     },
     {
       name: "Colosseum",
@@ -46,7 +48,9 @@ const ExploreSection = () => {
       description: "An ancient amphitheatre in the centre of Rome, Italy. Built of travertine limestone, tuff, and brick-faced concrete.",
       hours: "8:30 AM - 7:00 PM",
       website: "www.colosseum.com",
-      phone: "+39 06 3996 7700"
+      phone: "+39 06 3996 7700",
+      lat: 41.9028,
+      lng: 12.4964
     },
     {
       name: "Santorini",
@@ -57,7 +61,9 @@ const ExploreSection = () => {
       description: "A Greek island in the southern Aegean Sea, known for its dramatic views, stunning sunsets, and distinctive white buildings.",
       hours: "24/7 (Island)",
       website: "www.santorini.com",
-      phone: "+30 22860 22000"
+      phone: "+30 22860 22000",
+      lat: 39.3999,
+      lng: 25.4615
     },
     {
       name: "Tokyo Tower",
@@ -68,7 +74,9 @@ const ExploreSection = () => {
       description: "A communications and observation tower in Tokyo, Japan. Inspired by the Eiffel Tower, it offers panoramic views of the city.",
       hours: "9:00 AM - 11:00 PM",
       website: "www.tokyotower.co.jp",
-      phone: "+81 3-3433-5111"
+      phone: "+81 3-3433-5111",
+      lat: 35.6586,
+      lng: 139.7454
     }
   ];
 
@@ -89,25 +97,23 @@ const ExploreSection = () => {
     setIsAddToTripModalOpen(true);
   };
 
-  const handleAddToExistingTrip = (tripId: number) => {
-    if (selectedPlace) {
-      addPlaceToTrip(tripId, selectedPlace);
-      const selectedTrip = trips.find(trip => trip.id === tripId);
-      console.log(`Adding ${selectedPlace?.name} to trip:`, selectedTrip?.name);
-      
-      toast({
-        title: "Place added to trip!",
-        description: `${selectedPlace.name} has been saved to ${selectedTrip?.name}`,
-      });
-      
-      setIsAddToTripModalOpen(false);
-      setSelectedPlace(null);
-    }
+  const handleAddToExistingTrip = (tripId: number, place: any) => {
+    addPlaceToTrip(tripId, place);
+    const selectedTrip = trips.find(trip => trip.id === tripId);
+    
+    toast({
+      title: "Place added to trip!",
+      description: `${place.name} has been saved to ${selectedTrip?.name}`,
+    });
+    
+    setIsAddToTripModalOpen(false);
+    setSelectedPlace(null);
   };
 
-  const handleCreateNewTrip = () => {
-    console.log(`Creating new trip with ${selectedPlace?.name}`);
-    // TODO: Implement new trip creation with selected place
+  const handleCreateNewTrip = (tripData: any) => {
+    setTrips(prev => [...prev, tripData]);
+    setIsAddToTripModalOpen(false);
+    setSelectedPlace(null);
   };
 
   const handleNotificationClick = () => {
@@ -195,7 +201,9 @@ const ExploreSection = () => {
                   description: "A tropical paradise consisting of 1,192 coral islands grouped in 26 atolls. Known for crystal clear waters, pristine beaches, and luxury overwater bungalows.",
                   hours: "24/7 (Island Nation)",
                   website: "www.visitmaldives.com",
-                  phone: "+960 330-3224"
+                  phone: "+960 330-3224",
+                  lat: 3.2028,
+                  lng: 73.2207
                 })}>
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white">
               <div className="flex items-center space-x-2 mb-2">
@@ -268,13 +276,13 @@ const ExploreSection = () => {
         onAddToTrip={handleAddToTrip}
       />
 
-      <AddToTripModal
+      <ExploreAddToTripModal
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
+        selectedPlace={selectedPlace}
         existingTrips={trips.filter(trip => trip.status !== 'completed')}
         onAddToExistingTrip={handleAddToExistingTrip}
         onCreateNewTrip={handleCreateNewTrip}
-        postLocation={selectedPlace?.name}
       />
 
       <NotificationAlertsModal
