@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Plane, Calendar, CreditCard, X, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -115,7 +116,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           {
             from: lastDestination,
             to: currentLocation,
-            departDate: endDate, // Use the end date of the trip for the return flight
+            departDate: endDate,
             passengers: 1,
             class: 'economy'
           }
