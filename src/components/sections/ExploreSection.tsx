@@ -9,6 +9,7 @@ import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import AddToTripModal from "@/components/modals/AddToTripModal";
 import TravelersSection from "./TravelersSection";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
+import { useHomeState } from "@/hooks/useHomeState";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
@@ -19,33 +20,8 @@ const ExploreSection = () => {
   // Notification count state
   const [notificationCount, setNotificationCount] = useState(5);
 
-  // Mock existing trips data
-  const existingTrips = [
-    {
-      id: 1,
-      name: "Summer Europe",
-      destination: "Paris, France",
-      dates: "Jul 15-25, 2024",
-      status: "upcoming",
-      image: "🇫🇷"
-    },
-    {
-      id: 2,
-      name: "Japan Adventure",
-      destination: "Tokyo, Japan",
-      dates: "Sep 10-20, 2024",
-      status: "planning",
-      image: "🇯🇵"
-    },
-    {
-      id: 3,
-      name: "Greek Islands",
-      destination: "Santorini, Greece",
-      dates: "Aug 5-15, 2024",
-      status: "upcoming",
-      image: "🇬🇷"
-    }
-  ];
+  // Get actual trips from shared state
+  const { trips } = useHomeState();
 
   const popularPlaces = [
     {
@@ -112,7 +88,7 @@ const ExploreSection = () => {
   };
 
   const handleAddToExistingTrip = (tripId: number) => {
-    const selectedTrip = existingTrips.find(trip => trip.id === tripId);
+    const selectedTrip = trips.find(trip => trip.id === tripId);
     console.log(`Adding ${selectedPlace?.name} to trip:`, selectedTrip?.name);
     // TODO: Implement actual saving logic to trip's saved places
   };
@@ -283,7 +259,7 @@ const ExploreSection = () => {
       <AddToTripModal
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
-        existingTrips={existingTrips}
+        existingTrips={trips.filter(trip => trip.status !== 'completed')}
         onAddToExistingTrip={handleAddToExistingTrip}
         onCreateNewTrip={handleCreateNewTrip}
         postLocation={selectedPlace?.name}
