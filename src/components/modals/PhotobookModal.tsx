@@ -106,17 +106,9 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-xl font-bold text-gray-800 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Image className="text-purple-600" size={24} />
-              <span>{trip.name} - Digital Photobook</span>
-            </div>
-            {trip.collaborators && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Users size={16} />
-                <span>{trip.collaborators.length + 1} contributors</span>
-              </div>
-            )}
+          <DialogTitle className="text-xl font-bold text-gray-800 flex items-center space-x-2">
+            <Image className="text-purple-600" size={24} />
+            <span>{trip.name} - Digital Photobook</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -168,17 +160,17 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
 
                 {photos.length > 0 ? (
                   <div className="flex-1 flex items-center justify-center">
-                    <Carousel className="w-full max-w-3xl">
+                    <Carousel className="w-full max-w-4xl">
                       <CarouselContent>
                         {photos.map((photo) => (
                           <CarouselItem key={photo.id}>
                             <div className="space-y-4">
                               {/* Photo */}
-                              <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                              <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                                 <img
                                   src={photo.url}
                                   alt="Trip memory"
-                                  className={`w-full h-full object-cover transition-all duration-300 ${getFilterClass(photo.filter)}`}
+                                  className={`max-w-full max-h-full object-contain transition-all duration-300 ${getFilterClass(photo.filter)}`}
                                 />
                                 
                                 {/* Photo overlay info */}
@@ -229,36 +221,6 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
               </CardContent>
             </Card>
           </div>
-
-          {/* Collaborators can view info */}
-          {trip.collaborators && trip.collaborators.length > 0 && (
-            <Card>
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-600">Shared with:</span>
-                    <div className="flex -space-x-1">
-                      {trip.collaborators.slice(0, 4).map((collaborator) => (
-                        <div
-                          key={collaborator.id}
-                          className="w-6 h-6 bg-gradient-to-br from-purple-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white font-medium border-2 border-white"
-                          title={collaborator.name}
-                        >
-                          {collaborator.avatar}
-                        </div>
-                      ))}
-                      {trip.collaborators.length > 4 && (
-                        <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600 border-2 border-white">
-                          +{trip.collaborators.length - 4}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-500">Everyone can view and add photos</span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Close Button */}
