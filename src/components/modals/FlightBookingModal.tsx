@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Plane, Calendar, CreditCard, X, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -173,7 +174,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   };
 
   const showBackButton = () => {
-    return currentView === 'booking' && activeStep === 1;
+    return currentView === 'booking';
   };
 
   return (
@@ -194,9 +195,10 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
               variant="ghost"
               size="sm"
               onClick={() => setCurrentView('options')}
-              className="absolute left-2 top-2 text-white hover:bg-white/20 p-1 h-8 w-8"
+              className="absolute left-2 top-2 text-white hover:bg-white/20 bg-white/10 border border-white/30 px-3 h-8"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="mr-1" />
+              <span className="text-sm font-medium">Back</span>
             </Button>
           )}
           <div className="flex items-center space-x-3 pt-2">
