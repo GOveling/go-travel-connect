@@ -3,9 +3,17 @@ import { Plane, Building, Car, Utensils, Smartphone, MapPin } from "lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import FlightBookingModal from "@/components/modals/FlightBookingModal";
+import HotelBookingModal from "@/components/modals/HotelBookingModal";
+import CarRentalModal from "@/components/modals/CarRentalModal";
+import ToursModal from "@/components/modals/ToursModal";
+import RestaurantModal from "@/components/modals/RestaurantModal";
 
 const BookingSection = () => {
   const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
+  const [isHotelModalOpen, setIsHotelModalOpen] = useState(false);
+  const [isCarRentalModalOpen, setIsCarRentalModalOpen] = useState(false);
+  const [isToursModalOpen, setIsToursModalOpen] = useState(false);
+  const [isRestaurantModalOpen, setIsRestaurantModalOpen] = useState(false);
 
   const bookingCategories = [
     {
@@ -13,42 +21,48 @@ const BookingSection = () => {
       title: "Flights",
       subtitle: "Find the best deals",
       color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50"
+      bgColor: "bg-blue-50",
+      action: () => setIsFlightModalOpen(true)
     },
     {
       icon: Building,
       title: "Hotels",
       subtitle: "Comfortable stays",
       color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-50",
+      action: () => setIsHotelModalOpen(true)
     },
     {
       icon: Car,
       title: "Car Rental",
       subtitle: "Explore at your pace",
       color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
+      action: () => setIsCarRentalModalOpen(true)
     },
     {
       icon: MapPin,
       title: "Tours",
       subtitle: "Guided experiences",
       color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50"
+      bgColor: "bg-orange-50",
+      action: () => setIsToursModalOpen(true)
     },
     {
       icon: Smartphone,
       title: "eSIMs",
       subtitle: "Stay connected",
       color: "from-pink-500 to-pink-600",
-      bgColor: "bg-pink-50"
+      bgColor: "bg-pink-50",
+      action: () => {} // No modal for eSIMs yet
     },
     {
       icon: Utensils,
       title: "Restaurants",
       subtitle: "Reserve tables",
       color: "from-red-500 to-red-600",
-      bgColor: "bg-red-50"
+      bgColor: "bg-red-50",
+      action: () => setIsRestaurantModalOpen(true)
     }
   ];
 
@@ -68,13 +82,6 @@ const BookingSection = () => {
       amount: "$890"
     }
   ];
-
-  const handleCategoryClick = (categoryTitle: string) => {
-    if (categoryTitle === "Flights") {
-      setIsFlightModalOpen(true);
-    }
-    // Future: Add handlers for other categories
-  };
 
   return (
     <div className="min-h-screen p-4 space-y-6">
@@ -105,7 +112,7 @@ const BookingSection = () => {
             <Card 
               key={index} 
               className={`overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${category.bgColor} cursor-pointer`}
-              onClick={() => handleCategoryClick(category.title)}
+              onClick={category.action}
             >
               <CardContent className="p-4 text-center">
                 <div className={`w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center`}>
@@ -135,7 +142,11 @@ const BookingSection = () => {
               <p className="text-xs opacity-90">From $299</p>
             </div>
           </Button>
-          <Button variant="outline" className="w-full h-14 text-left justify-start border-2">
+          <Button 
+            variant="outline" 
+            className="w-full h-14 text-left justify-start border-2"
+            onClick={() => setIsHotelModalOpen(true)}
+          >
             <Building className="mr-3" size={20} />
             <div>
               <p className="font-medium">Hotel + Flight Package</p>
@@ -176,9 +187,30 @@ const BookingSection = () => {
         </CardContent>
       </Card>
 
+      {/* All Modals */}
       <FlightBookingModal
         isOpen={isFlightModalOpen}
         onClose={() => setIsFlightModalOpen(false)}
+      />
+      
+      <HotelBookingModal
+        isOpen={isHotelModalOpen}
+        onClose={() => setIsHotelModalOpen(false)}
+      />
+      
+      <CarRentalModal
+        isOpen={isCarRentalModalOpen}
+        onClose={() => setIsCarRentalModalOpen(false)}
+      />
+      
+      <ToursModal
+        isOpen={isToursModalOpen}
+        onClose={() => setIsToursModalOpen(false)}
+      />
+      
+      <RestaurantModal
+        isOpen={isRestaurantModalOpen}
+        onClose={() => setIsRestaurantModalOpen(false)}
       />
     </div>
   );
