@@ -1,18 +1,9 @@
 
-import { useState } from "react";
 import { Plane, Building, Car, Utensils, Smartphone, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import BookingModal from "@/components/modals/BookingModal";
-import { useHomeState } from "@/hooks/useHomeState";
 
 const BookingSection = () => {
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [selectedBookingType, setSelectedBookingType] = useState("");
-  
-  // Get trips from shared state
-  const { trips } = useHomeState();
-
   const bookingCategories = [
     {
       icon: Plane,
@@ -75,16 +66,6 @@ const BookingSection = () => {
     }
   ];
 
-  const handleBookingClick = (categoryTitle: string) => {
-    setSelectedBookingType(categoryTitle);
-    setIsBookingModalOpen(true);
-  };
-
-  const handleQuickBookClick = (bookingType: string) => {
-    setSelectedBookingType(bookingType);
-    setIsBookingModalOpen(true);
-  };
-
   return (
     <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
@@ -100,11 +81,7 @@ const BookingSection = () => {
           <p className="text-sm opacity-90 mb-3">
             Get 20% off on your first hotel booking with code WELCOME20
           </p>
-          <Button 
-            variant="secondary" 
-            size="sm"
-            onClick={() => handleBookingClick("Hotels")}
-          >
+          <Button variant="secondary" size="sm">
             Claim Offer
           </Button>
         </div>
@@ -115,11 +92,7 @@ const BookingSection = () => {
         {bookingCategories.map((category, index) => {
           const Icon = category.icon;
           return (
-            <Card 
-              key={index} 
-              className={`overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer ${category.bgColor}`}
-              onClick={() => handleBookingClick(category.title)}
-            >
+            <Card key={index} className={`overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${category.bgColor}`}>
               <CardContent className="p-4 text-center">
                 <div className={`w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center`}>
                   <Icon size={24} className="text-white" />
@@ -138,21 +111,14 @@ const BookingSection = () => {
           <CardTitle className="text-lg">Quick Book</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button 
-            className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-left justify-start"
-            onClick={() => handleQuickBookClick("Flights")}
-          >
+          <Button className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-left justify-start">
             <Plane className="mr-3" size={20} />
             <div>
               <p className="font-medium">Round-trip Flight</p>
               <p className="text-xs opacity-90">From $299</p>
             </div>
           </Button>
-          <Button 
-            variant="outline" 
-            className="w-full h-14 text-left justify-start border-2"
-            onClick={() => handleQuickBookClick("Package Deal")}
-          >
+          <Button variant="outline" className="w-full h-14 text-left justify-start border-2">
             <Building className="mr-3" size={20} />
             <div>
               <p className="font-medium">Hotel + Flight Package</p>
@@ -192,13 +158,6 @@ const BookingSection = () => {
           ))}
         </CardContent>
       </Card>
-
-      <BookingModal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        bookingType={selectedBookingType}
-        trips={trips}
-      />
     </div>
   );
 };
