@@ -1,3 +1,4 @@
+
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import AddMemoryModal from "@/components/modals/AddMemoryModal";
 import InstaTripModal from "@/components/modals/InstaTripModal";
@@ -7,6 +8,7 @@ import AddToTripModal from "@/components/modals/AddToTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import PhotobookModal from "@/components/modals/PhotobookModal";
 import LoginModal from "@/components/modals/LoginModal";
+import SignUpModal from "@/components/modals/SignUpModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 
@@ -16,6 +18,16 @@ interface HomeModalsProps {
 }
 
 const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
+  const handleSwitchToSignUp = () => {
+    homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
+    homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
+    homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(true);
+  };
+
   return (
     <>
       <NotificationAlertsModal
@@ -92,6 +104,22 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
           console.log("Google login");
           // Handle Google login here
         }}
+        onSwitchToSignUp={handleSwitchToSignUp}
+      />
+
+      {/* Sign Up Modal */}
+      <SignUpModal
+        isOpen={homeState.isSignUpModalOpen || false}
+        onClose={() => homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false)}
+        onSignUp={(name, email, password) => {
+          console.log("Email sign up:", name, email);
+          // Handle email/password sign up here
+        }}
+        onGoogleSignUp={() => {
+          console.log("Google sign up");
+          // Handle Google sign up here
+        }}
+        onSwitchToLogin={handleSwitchToLogin}
       />
     </>
   );

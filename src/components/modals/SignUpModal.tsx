@@ -4,50 +4,59 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { X, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-interface LoginModalProps {
+interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin?: (email: string, password: string) => void;
-  onGoogleLogin?: () => void;
-  onSwitchToSignUp?: () => void;
+  onSignUp?: (name: string, email: string, password: string) => void;
+  onGoogleSignUp?: () => void;
+  onSwitchToLogin?: () => void;
 }
 
-const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp }: LoginModalProps) => {
+const SignUpModal = ({ isOpen, onClose, onSignUp, onGoogleSignUp, onSwitchToLogin }: SignUpModalProps) => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const isMobile = useIsMobile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password && onLogin) {
+    if (name && email && password && confirmPassword && onSignUp) {
+      if (password !== confirmPassword) {
+        console.error("Passwords don't match");
+        return;
+      }
       setIsLoading(true);
       try {
-        await onLogin(email, password);
-        // Reset form on successful login
+        await onSignUp(name, email, password);
+        // Reset form on successful signup
+        setName("");
         setEmail("");
         setPassword("");
+        setConfirmPassword("");
         onClose();
       } catch (error) {
-        console.error("Login error:", error);
+        console.error("Sign up error:", error);
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  const handleGoogleLogin = async () => {
-    if (onGoogleLogin) {
+  const handleGoogleSignUp = async () => {
+    if (onGoogleSignUp) {
       setIsLoading(true);
       try {
-        await onGoogleLogin();
+        await onGoogleSignUp();
         onClose();
       } catch (error) {
-        console.error("Google login error:", error);
+        console.error("Google sign up error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -68,16 +77,16 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
             <X size={20} />
           </Button>
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">Welcome Back</h2>
-            <p className="text-white/90 text-sm">Sign in to continue your journey</p>
+            <h2 className="text-2xl font-bold mb-2">Join the Journey</h2>
+            <p className="text-white/90 text-sm">Create your account to start exploring</p>
           </div>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Google Login Button */}
+          {/* Google Sign Up Button */}
           <Button
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleSignUp}
             disabled={isLoading}
             className="w-full bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 h-12 text-base font-medium"
             variant="outline"
@@ -97,21 +106,40 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or sign in with email</span>
+              <span className="px-2 bg-white text-gray-500">Or sign up with email</span>
             </div>
           </div>
 
-          {/* Email/Password Form */}
+          {/* Sign Up Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name Field */}
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                Full Name
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  className="pl-10 h-12 text-base border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+            </div>
+
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="signup-email" className="text-sm font-medium text-gray-700">
                 Email Address
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <Input
-                  id="email"
+                  id="signup-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -124,17 +152,17 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
                 Password
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                 <Input
-                  id="password"
+                  id="signup-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Create a password"
                   className="pl-10 pr-10 h-12 text-base border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                   required
                 />
@@ -150,36 +178,53 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
               </div>
             </div>
 
-            {/* Forgot Password Link */}
-            <div className="text-right">
-              <Button
-                type="button"
-                variant="link"
-                className="text-sm text-purple-600 hover:text-purple-700 p-0 h-auto"
-              >
-                Forgot password?
-              </Button>
+            {/* Confirm Password Field */}
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700">
+                Confirm Password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                  className="pl-10 pr-10 h-12 text-base border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-10 w-10 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </Button>
+              </div>
             </div>
 
-            {/* Sign In Button */}
+            {/* Sign Up Button */}
             <Button
               type="submit"
-              disabled={isLoading || !email || !password}
+              disabled={isLoading || !name || !email || !password || !confirmPassword || password !== confirmPassword}
               className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white h-12 text-base font-medium rounded-lg"
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
-          {/* Sign Up Link */}
+          {/* Sign In Link */}
           <div className="text-center text-sm text-gray-600">
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Button
               variant="link"
-              onClick={onSwitchToSignUp}
+              onClick={onSwitchToLogin}
               className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
             >
-              Sign up
+              Sign in
             </Button>
           </div>
         </div>
@@ -188,4 +233,4 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
   );
 };
 
-export default LoginModal;
+export default SignUpModal;
