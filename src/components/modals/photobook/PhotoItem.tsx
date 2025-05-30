@@ -26,7 +26,11 @@ interface PhotoItemProps {
 }
 
 const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
-  const handleDownload = async () => {
+  const handleDownload = async (e: React.MouseEvent) => {
+    // Prevent any default behavior that might affect the UI
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       // Fetch the image as blob to handle cross-origin issues
       const response = await fetch(photo.url, { mode: 'cors' });
@@ -39,6 +43,7 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
       const link = document.createElement('a');
       link.href = url;
       link.download = `trip-photo-${photo.id}.jpg`;
+      link.style.display = 'none'; // Ensure it's hidden
       
       // Append to body, click, and remove
       document.body.appendChild(link);
@@ -57,6 +62,7 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
       link.href = photo.url;
       link.download = `trip-photo-${photo.id}.jpg`;
       link.target = '_blank';
+      link.style.display = 'none'; // Ensure it's hidden
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -71,7 +77,13 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
         <img
           src={photo.url}
           alt="Trip memory"
-          className="max-w-full max-h-full object-contain"
+          className="max-w-full max-h-full object-contain pointer-events-none"
+          style={{ 
+            width: 'auto', 
+            height: 'auto',
+            maxWidth: '100%',
+            maxHeight: '100%'
+          }}
         />
         
         {/* Photo Action Buttons */}
