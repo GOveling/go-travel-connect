@@ -56,16 +56,16 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       id: 1,
       description: "Hotel Booking",
       amount: 450,
-      paidBy: "Alice Johnson",
-      splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
+      paidBy: "You",
+      splitBetween: ["You", "Emma Wilson", "David Brown"],
       date: "2024-12-10"
     },
     {
       id: 2,
       description: "Flight Tickets",
       amount: 850,
-      paidBy: "You",
-      splitBetween: ["Alice Johnson", "Bob Smith", "You"],
+      paidBy: "Emma Wilson",
+      splitBetween: ["You", "Emma Wilson", "David Brown"],
       date: "2024-12-08"
     }
   ]);
@@ -75,31 +75,31 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       id: 1,
       title: "Restaurant Choice for Day 1",
       description: "Where should we have dinner on our first day?",
-      options: ["Le Bernardin", "Eleven Madison Park", "Per Se"],
-      votes: { "Le Bernardin": 2, "Eleven Madison Park": 1, "Per Se": 0 },
+      options: ["Local Warung", "Beachside Restaurant", "Hotel Restaurant"],
+      votes: { "Local Warung": 2, "Beachside Restaurant": 1, "Hotel Restaurant": 0 },
       votersPerOption: { 
-        "Le Bernardin": ["Alice Johnson", "Bob Smith"], 
-        "Eleven Madison Park": ["Carol Davis"], 
-        "Per Se": [] 
+        "Local Warung": ["You", "Emma Wilson"], 
+        "Beachside Restaurant": ["David Brown"], 
+        "Hotel Restaurant": [] 
       },
       status: "active",
       endDate: "2024-12-20",
-      createdBy: "Alice Johnson"
+      createdBy: "You"
     },
     {
       id: 2,
       title: "Activities for Day 2",
       description: "What activities should we do on day 2?",
-      options: ["Central Park Walk", "Museum Visit", "Shopping"],
-      votes: { "Central Park Walk": 1, "Museum Visit": 2, "Shopping": 0 },
+      options: ["Temple Visit", "Beach Day", "Yoga Session"],
+      votes: { "Temple Visit": 1, "Beach Day": 2, "Yoga Session": 0 },
       votersPerOption: { 
-        "Central Park Walk": ["Bob Smith"], 
-        "Museum Visit": ["Alice Johnson", "Carol Davis"], 
-        "Shopping": [] 
+        "Temple Visit": ["Emma Wilson"], 
+        "Beach Day": ["You", "David Brown"], 
+        "Yoga Session": [] 
       },
       status: "active",
       endDate: "2024-12-21",
-      createdBy: "Bob Smith"
+      createdBy: "Emma Wilson"
     }
   ]);
 
@@ -118,31 +118,15 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     selectedParticipants: [] as string[]
   });
 
-  // Initialize collaborators with mock data if trip doesn't have collaborators
+  // Use actual trip collaborators and convert them to the expected format
   const [collaborators] = useState<Collaborator[]>(
-    trip?.collaborators || [
-      {
-        id: 1,
-        name: "Alice Johnson",
-        email: "alice@example.com",
-        avatar: "A",
-        role: "owner"
-      },
-      {
-        id: 2,
-        name: "Bob Smith",
-        email: "bob@example.com",
-        avatar: "B",
-        role: "editor"
-      },
-      {
-        id: 3,
-        name: "Carol Davis",
-        email: "carol@example.com",
-        avatar: "C",
-        role: "viewer"
-      }
-    ]
+    trip?.collaborators?.map((collab: any, index: number) => ({
+      id: index + 1,
+      name: collab.name,
+      email: collab.email,
+      avatar: collab.avatar,
+      role: collab.role
+    })) || []
   );
 
   // Add current user to the list of all participants for expenses
