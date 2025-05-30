@@ -1,10 +1,11 @@
 
-import { MapPin, Heart, MessageCircle, Share2 } from "lucide-react";
+import { MapPin, Heart, MessageCircle, Share2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import PublicationPhotosModal from "@/components/modals/PublicationPhotosModal";
+import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 
 interface FriendPublication {
   id: string;
@@ -25,6 +26,9 @@ interface FollowedFriendsPublicationsProps {
   onComment: (id: string) => void;
   onShare: (id: string) => void;
   formatTimeAgo: (timestamp: number) => string;
+  trips?: any[];
+  onAddToExistingTrip?: (tripId: number, place: any) => void;
+  onCreateNewTrip?: (tripData: any) => void;
 }
 
 const FollowedFriendsPublications = ({
@@ -32,12 +36,17 @@ const FollowedFriendsPublications = ({
   onLike,
   onComment,
   onShare,
-  formatTimeAgo
+  formatTimeAgo,
+  trips = [],
+  onAddToExistingTrip = () => {},
+  onCreateNewTrip = () => {}
 }: FollowedFriendsPublicationsProps) => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedFriendName, setSelectedFriendName] = useState("");
   const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
 
   // Extract the first and most visible initial from name
   const getInitials = (name: string): string => {
@@ -49,6 +58,24 @@ const FollowedFriendsPublications = ({
     setSelectedImageIndex(imageIndex);
     setSelectedFriendName(friendName);
     setIsPhotosModalOpen(true);
+  };
+
+  const handleAddToTripClick = (publication: FriendPublication, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (publication.location) {
+      const place = {
+        name: publication.location,
+        location: publication.location,
+        rating: 4.5,
+        image: publication.images[0] || "📍",
+        category: "recommended",
+        description: `Recommended by ${publication.friendName}: ${publication.text}`,
+        lat: 0,
+        lng: 0
+      };
+      setSelectedPlace(place);
+      setIsAddToTripModalOpen(true);
+    }
   };
   
   return (
@@ -88,20 +115,31 @@ const FollowedFriendsPublications = ({
                 {/* Images */}
                 <div className="grid grid-cols-2 gap-2">
                   {publication.images.slice(0, 2).map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleImageClick(publication.images, index, publication.friendName)}
-                      className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
-                    >
-                      <img
-                        src={image}
-                        alt={`Publication image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
+                    <div key={index} className="relative group">
+                      <button
+                        onClick={() => handleImageClick(publication.images, index, publication.friendName)}
+                        className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
+                      >
+                        <img
+                          src={image}
+                          alt={`Publication image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                      {publication.location && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => handleAddToTripClick(publication, e)}
+                          className="absolute top-2 right-2 h-7 w-7 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md"
+                          variant="ghost"
+                        >
+                          <Plus size={14} />
+                        </Button>
+                      )}
+                    </div>
                   ))}
                   {publication.images.length > 2 && (
-                    <div className="relative col-span-2">
+                    <div className="relative col-span-2 group">
                       <button
                         onClick={() => handleImageClick(publication.images, 2, publication.friendName)}
                         className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
@@ -119,6 +157,16 @@ const FollowedFriendsPublications = ({
                           </div>
                         )}
                       </button>
+                      {publication.location && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => handleAddToTripClick(publication, e)}
+                          className="absolute top-2 right-2 h-7 w-7 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md"
+                          variant="ghost"
+                        >
+                          <Plus size={14} />
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -171,6 +219,15 @@ const FollowedFriendsPublications = ({
         images={selectedImages}
         initialIndex={selectedImageIndex}
         friendName={selectedFriendName}
+      />
+
+      <ExploreAddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => setIsAddToTripModalOpen(false)}
+        selectedPlace={selectedPlace}
+        existingTrips={trips}
+        onAddToExistingTrip={onAddToExistingTrip}
+        onCreateNewTrip={onCreateNewTrip}
       />
     </>
   );

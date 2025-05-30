@@ -65,6 +65,9 @@ const HomeSection = () => {
         onComment={handlers.handleCommentPublication}
         onShare={handlers.handleSharePublication}
         formatTimeAgo={handlers.formatTimeAgo}
+        trips={homeState.trips}
+        onAddToExistingTrip={homeState.addPlaceToTrip}
+        onCreateNewTrip={handlers.handleCreateTrip}
       />
 
       {/* Profile Publication */}
