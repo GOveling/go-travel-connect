@@ -1,14 +1,15 @@
+
 import { useState } from "react";
-import { Building, Calendar, Users, MapPin, X, Star, Route } from "lucide-react";
+import { Building, X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
 import { getDestinationDateRanges } from "@/utils/dateUtils";
+import TripSelector from "./hotel-booking/TripSelector";
+import MultiDestinationBooking from "./hotel-booking/MultiDestinationBooking";
+import SingleDestinationForm from "./hotel-booking/SingleDestinationForm";
+import SpecialOfferCard from "./hotel-booking/SpecialOfferCard";
 
 interface HotelBookingModalProps {
   isOpen: boolean;
@@ -182,181 +183,29 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
         </div>
 
         <div className="p-4 space-y-4">
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <Star size={16} className="text-green-600" />
-                <span className="text-sm font-medium text-green-800">Special Offer</span>
-              </div>
-              <p className="text-xs text-green-700">
-                Book now and get 15% off your first hotel booking!
-              </p>
-            </CardContent>
-          </Card>
+          <SpecialOfferCard />
 
           <div className="space-y-4">
-            {/* Trip Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="tripSelection">Select from My Trips (Optional)</Label>
-              <div className="relative">
-                <Route size={16} className="absolute left-3 top-3 text-gray-400" />
-                <Select value={selectedTripId} onValueChange={handleTripSelection}>
-                  <SelectTrigger className="pl-10">
-                    <SelectValue placeholder="Choose a trip to auto-fill details" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="manual">Manual entry</SelectItem>
-                    {trips.map((trip) => (
-                      <SelectItem key={trip.id} value={trip.id.toString()}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{trip.name}</span>
-                          <span className="text-xs text-gray-500">
-                            {trip.destination} • {trip.dates}
-                            {trip.coordinates && trip.coordinates.length > 1 && 
-                              <span className="ml-1 text-green-600">({trip.coordinates.length} destinations)</span>
-                            }
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            <TripSelector 
+              selectedTripId={selectedTripId}
+              trips={trips}
+              onTripSelection={handleTripSelection}
+            />
 
             {/* Multi-destination bookings */}
             {isMultiDestination && multiDestinationBookings.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Building size={16} className="text-green-600" />
-                  <span className="font-medium text-green-800">Hotels for Each Destination</span>
-                </div>
-                
-                {multiDestinationBookings.map((booking, index) => (
-                  <Card key={index} className="border-green-200">
-                    <CardContent className="p-4 space-y-3">
-                      <h4 className="font-medium text-gray-900">
-                        {booking.destination} - Hotel {index + 1}
-                      </h4>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Check-in</Label>
-                          <Input
-                            type="date"
-                            value={booking.checkIn}
-                            onChange={(e) => updateMultiDestinationBooking(index, 'checkIn', e.target.value)}
-                            className="text-sm"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Check-out</Label>
-                          <Input
-                            type="date"
-                            value={booking.checkOut}
-                            onChange={(e) => updateMultiDestinationBooking(index, 'checkOut', e.target.value)}
-                            className="text-sm"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Guests</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="10"
-                            value={booking.guests}
-                            onChange={(e) => updateMultiDestinationBooking(index, 'guests', parseInt(e.target.value))}
-                            className="text-sm"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Rooms</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="5"
-                            value={booking.rooms}
-                            onChange={(e) => updateMultiDestinationBooking(index, 'rooms', parseInt(e.target.value))}
-                            className="text-sm"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <MultiDestinationBooking 
+                bookings={multiDestinationBookings}
+                onUpdateBooking={updateMultiDestinationBooking}
+              />
             )}
 
             {/* Single destination form (only show when not multi-destination) */}
             {!isMultiDestination && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="destination">Destination</Label>
-                  <div className="relative">
-                    <MapPin size={16} className="absolute left-3 top-3 text-gray-400" />
-                    <Input
-                      id="destination"
-                      placeholder="Where are you going?"
-                      value={formData.destination}
-                      onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="checkIn">Check-in</Label>
-                    <Input
-                      id="checkIn"
-                      type="date"
-                      value={formData.checkIn}
-                      onChange={(e) => setFormData(prev => ({ ...prev, checkIn: e.target.value }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="checkOut">Check-out</Label>
-                    <Input
-                      id="checkOut"
-                      type="date"
-                      value={formData.checkOut}
-                      onChange={(e) => setFormData(prev => ({ ...prev, checkOut: e.target.value }))}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="guests">Guests</Label>
-                    <div className="relative">
-                      <Users size={16} className="absolute left-3 top-3 text-gray-400" />
-                      <Input
-                        id="guests"
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={formData.guests}
-                        onChange={(e) => setFormData(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="rooms">Rooms</Label>
-                    <Input
-                      id="rooms"
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={formData.rooms}
-                      onChange={(e) => setFormData(prev => ({ ...prev, rooms: parseInt(e.target.value) }))}
-                    />
-                  </div>
-                </div>
-              </>
+              <SingleDestinationForm 
+                formData={formData}
+                onFormDataChange={setFormData}
+              />
             )}
 
             <Button 
