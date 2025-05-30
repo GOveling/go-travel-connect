@@ -132,11 +132,11 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
                             <CarouselItem key={photo.id}>
                               <div className="space-y-4">
                                 {/* Photo */}
-                                <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                                <div className="relative w-full h-[500px] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                                   <img
                                     src={photo.url}
                                     alt="Trip memory"
-                                    className="w-full h-full object-cover"
+                                    className="max-w-full max-h-full object-contain"
                                   />
                                   
                                   {/* Photo overlay info */}
