@@ -1,150 +1,23 @@
-import { useState, useEffect } from "react";
-import { calculateTripStatus } from "@/utils/tripStatusUtils";
-import { Trip, SavedPlace } from "@/types/aiSmartRoute";
 
-interface InstaTripImage {
-  id: string;
-  src: string;
-  addedAt: number;
-  text?: string;
-  location?: string;
-  tripId?: number;
-}
-
-interface ProfilePost {
-  id: string;
-  images: string[];
-  text: string;
-  createdAt: number;
-  location?: string;
-  tripId?: number;
-}
+import { useModalState } from "./state/useModalState";
+import { useDataState } from "./state/useDataState";
+import { addPlaceToTripUtil, calculateTripsWithDynamicStatus, findCurrentTrip } from "./utils/tripUtils";
 
 export const useHomeState = () => {
-  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
-  const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
-  const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
-  const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
-  const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
-  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
-  const [isTripDetailModalOpen, setIsTripDetailModalOpen] = useState(false);
-  const [isPhotobookModalOpen, setIsPhotobookModalOpen] = useState(false);
-  const [selectedTripForPhotobook, setSelectedTripForPhotobook] = useState<Trip | null>(null);
-  const [notificationCount, setNotificationCount] = useState(5);
-  const [instaTripImages, setInstaTripImages] = useState<InstaTripImage[]>([]);
-  const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
-  const [trips, setTrips] = useState<Trip[]>([
-    {
-      id: 1,
-      name: "European Adventure",
-      destination: "Paris → Rome → Barcelona",
-      dates: "Dec 15 - Dec 25, 2024",
-      status: "upcoming",
-      travelers: 2,
-      image: "🇪🇺",
-      isGroupTrip: true,
-      coordinates: [
-        { name: "Paris", lat: 48.8566, lng: 2.3522 },
-        { name: "Rome", lat: 41.9028, lng: 12.4964 },
-        { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
-      ],
-      savedPlaces: [],
-      collaborators: [
-        {
-          id: "1",
-          name: "Sarah Johnson",
-          email: "sarah.johnson@example.com",
-          avatar: "S",
-          role: "owner"
-        },
-        {
-          id: "2", 
-          name: "Mike Chen",
-          email: "mike.chen@example.com",
-          avatar: "M",
-          role: "editor"
-        },
-        {
-          id: "3",
-          name: "Emma Rodriguez",
-          email: "emma.rodriguez@example.com", 
-          avatar: "E",
-          role: "viewer"
-        },
-        {
-          id: "4",
-          name: "David Kim",
-          email: "david.kim@example.com",
-          avatar: "D", 
-          role: "editor"
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "Tokyo Discovery",
-      destination: "Tokyo, Japan",
-      dates: "Jan 8 - Jan 15, 2025",
-      status: "planning",
-      travelers: 1,
-      image: "🇯🇵",
-      isGroupTrip: false,
-      coordinates: [
-        { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
-      ],
-      savedPlaces: []
-    }
-  ]);
-  const [selectedPostForTrip, setSelectedPostForTrip] = useState<ProfilePost | null>(null);
-
-  // Clean up expired images periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const twelveHoursAgo = now - (12 * 60 * 60 * 1000);
-      
-      setInstaTripImages(prev => 
-        prev.filter(image => image.addedAt >= twelveHoursAgo)
-      );
-    }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, []);
+  const modalState = useModalState();
+  const dataState = useDataState();
 
   // Function to add a place to a trip
   const addPlaceToTrip = (tripId: number, place: any) => {
-    const savedPlace: SavedPlace = {
-      id: Date.now().toString(),
-      name: place.name,
-      category: place.category,
-      rating: place.rating || 4.5,
-      image: place.image || "📍",
-      description: place.description || "",
-      estimatedTime: "2-3 hours",
-      priority: "medium" as const,
-      destinationName: place.location,
-      lat: place.lat,
-      lng: place.lng
-    };
-
-    setTrips(prev => prev.map(trip => 
-      trip.id === tripId 
-        ? { ...trip, savedPlaces: [...(trip.savedPlaces || []), savedPlace] }
-        : trip
-    ));
+    dataState.setTrips(prev => addPlaceToTripUtil(prev, tripId, place));
   };
 
   // Calculate dynamic trip statuses and find current/upcoming trip
-  const tripsWithDynamicStatus = trips.map(trip => ({
-    ...trip,
-    status: calculateTripStatus(trip.dates)
-  }));
-
+  const tripsWithDynamicStatus = calculateTripsWithDynamicStatus(dataState.trips);
   const travelingTrip = tripsWithDynamicStatus.find(trip => trip.status === 'traveling');
   const upcomingTrips = tripsWithDynamicStatus
     .filter(trip => trip.status === 'upcoming')
     .sort((a, b) => {
-      // Sort by start date (earliest first)
       const getStartDate = (dates: string) => {
         try {
           const startDateStr = dates.split(' - ')[0];
@@ -166,7 +39,6 @@ export const useHomeState = () => {
       return getStartDate(a.dates).getTime() - getStartDate(b.dates).getTime();
     });
 
-  // Find the nearest upcoming trip within 40 days
   const nearestUpcomingTrip = upcomingTrips.find(trip => {
     try {
       const startDateStr = trip.dates.split(' - ')[0];
@@ -189,60 +61,16 @@ export const useHomeState = () => {
     }
   });
 
-  // Current trip data based on status priority - with complete Trip interface
-  const currentTrip: Trip = travelingTrip || nearestUpcomingTrip || {
-    id: 1,
-    name: "European Adventure",
-    destination: "Paris → Rome → Barcelona",
-    dates: "Dec 15 - Dec 25, 2024",
-    status: "upcoming",
-    travelers: 2,
-    image: "🇪🇺",
-    isGroupTrip: false,
-    coordinates: [
-      { name: "Paris", lat: 48.8566, lng: 2.3522 },
-      { name: "Rome", lat: 41.9028, lng: 12.4964 },
-      { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
-    ],
-    description: "An amazing journey through three beautiful European cities with rich history, art, and culture.",
-    budget: "$2,500 per person",
-    accommodation: "Mix of boutique hotels and Airbnb",
-    transportation: "Flights and high-speed trains",
-    savedPlaces: []
-  };
+  const currentTrip = findCurrentTrip(tripsWithDynamicStatus);
 
   return {
     // Modal states
-    isNotificationModalOpen,
-    setIsNotificationModalOpen,
-    isAddMemoryModalOpen,
-    setIsAddMemoryModalOpen,
-    isInstaTripModalOpen,
-    setIsInstaTripModalOpen,
-    isProfilePublicationModalOpen,
-    setIsProfilePublicationModalOpen,
-    isNewTripModalOpen,
-    setIsNewTripModalOpen,
-    isAddToTripModalOpen,
-    setIsAddToTripModalOpen,
-    isTripDetailModalOpen,
-    setIsTripDetailModalOpen,
-    isPhotobookModalOpen,
-    setIsPhotobookModalOpen,
+    ...modalState,
     
     // Data states
-    selectedTripForPhotobook,
-    setSelectedTripForPhotobook,
-    notificationCount,
-    setNotificationCount,
-    instaTripImages,
-    setInstaTripImages,
-    profilePosts,
-    setProfilePosts,
-    trips,
-    setTrips,
-    selectedPostForTrip,
-    setSelectedPostForTrip,
+    ...dataState,
+    
+    // Computed values
     currentTrip,
     travelingTrip,
     nearestUpcomingTrip,
