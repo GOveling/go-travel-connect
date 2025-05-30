@@ -73,9 +73,15 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
       <div className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'} bg-white rounded-2xl shadow-2xl overflow-hidden`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-6 text-white text-center">
-          <h1 className="text-3xl font-bold mb-2">TravelApp</h1>
-          <p className="text-white/90 text-sm">
-            {isSignUp ? "Create your account to start exploring" : "Welcome back! Sign in to continue your journey"}
+          <div className="flex justify-center mb-3">
+            <img 
+              src="/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png" 
+              alt="GoVeling Logo" 
+              className="h-16 w-auto"
+            />
+          </div>
+          <p className="text-white/90 text-sm font-medium">
+            Travel Smart. Travel more
           </p>
         </div>
 
