@@ -5,33 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, Plus } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
 import BalanceSummary from "./BalanceSummary";
-
-interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  paidBy: string;
-  splitBetween: string[];
-  date: string;
-}
-
-interface Collaborator {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  role: string;
-}
+import { Expense, Collaborator, NewExpense } from "@/types/groupOptions";
 
 interface ExpensesTabProps {
   expenses: Expense[];
   editingExpenseId: number | null;
-  newExpense: {
-    description: string;
-    amount: string;
-    paidBy: string;
-    splitBetween: string[];
-  };
+  newExpense: NewExpense;
   setNewExpense: (expense: any) => void;
   allParticipants: Collaborator[];
   onAddExpense: () => void;

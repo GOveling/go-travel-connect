@@ -3,23 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ArrowRight } from "lucide-react";
-
-interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  paidBy: string;
-  splitBetween: string[];
-  date: string;
-}
-
-interface Collaborator {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  role: string;
-}
+import { Expense, Collaborator } from "@/types/groupOptions";
 
 interface Settlement {
   from: string;

@@ -5,26 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Vote, X, Plus, Users } from "lucide-react";
-
-interface Collaborator {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  role: string;
-}
+import { Collaborator, NewDecision } from "@/types/groupOptions";
 
 interface CreateDecisionModalProps {
   isOpen: boolean;
   onClose: () => void;
   editingDecisionId: number | null;
-  newDecision: {
-    title: string;
-    description: string;
-    options: string[];
-    endDate: string;
-    selectedParticipants: string[];
-  };
+  newDecision: NewDecision;
   setNewDecision: (decision: any) => void;
   allParticipants: Collaborator[];
   onCreateDecision: () => void;

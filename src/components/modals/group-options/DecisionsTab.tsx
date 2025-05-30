@@ -3,18 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Vote, Plus } from "lucide-react";
 import DecisionCard from "./DecisionCard";
-
-interface Decision {
-  id: number;
-  title: string;
-  description?: string;
-  options: string[];
-  votes: Record<string, number>;
-  votersPerOption: Record<string, string[]>;
-  status: string;
-  endDate: string;
-  createdBy: string;
-}
+import { Decision } from "@/types/groupOptions";
 
 interface DecisionsTabProps {
   decisions: Decision[];
