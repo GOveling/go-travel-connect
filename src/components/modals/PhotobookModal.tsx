@@ -1,12 +1,16 @@
 
 import { useState } from "react";
-import { Camera, Upload, Image, Download, Book, X, Plus } from "lucide-react";
+import { Camera, Upload, Image, X, Plus, Filter, Heart, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 interface Trip {
   id: number;
@@ -14,6 +18,13 @@ interface Trip {
   destination: string;
   dates: string;
   image: string;
+  collaborators?: Array<{
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    role: "owner" | "editor" | "viewer";
+  }>;
 }
 
 interface PhotobookModalProps {
@@ -22,166 +33,238 @@ interface PhotobookModalProps {
   onClose: () => void;
 }
 
-const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
-  const [photobookTitle, setPhotobookTitle] = useState("");
-  const [photobookDescription, setPhotobookDescription] = useState("");
-  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+interface PhotoItem {
+  id: string;
+  url: string;
+  filter: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  likes: number;
+}
 
-  // Mock photos for the trip
-  const mockPhotos = [
-    "📸", "🌅", "🏛️", "🍕", "🚆", "🎨", "🌃", "🥘", 
-    "⛪", "🌊", "🗼", "🍷", "🌺", "🏖️", "🌴", "🦋"
+const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
+  const [photos, setPhotos] = useState<PhotoItem[]>([
+    {
+      id: "1",
+      url: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80",
+      filter: "none",
+      uploadedBy: "You",
+      uploadedAt: "2 hours ago",
+      likes: 3
+    },
+    {
+      id: "2", 
+      url: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&w=800&q=80",
+      filter: "sepia",
+      uploadedBy: "Emma Wilson",
+      uploadedAt: "5 hours ago", 
+      likes: 7
+    },
+    {
+      id: "3",
+      url: "https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&w=800&q=80",
+      filter: "grayscale",
+      uploadedBy: "David Brown",
+      uploadedAt: "1 day ago",
+      likes: 5
+    }
+  ]);
+
+  const [selectedFilter, setSelectedFilter] = useState("none");
+
+  const filters = [
+    { name: "none", label: "Original", class: "" },
+    { name: "sepia", label: "Sepia", class: "sepia" },
+    { name: "grayscale", label: "B&W", class: "grayscale" },
+    { name: "brightness", label: "Bright", class: "brightness-125" },
+    { name: "contrast", label: "Contrast", class: "contrast-125" },
+    { name: "saturate", label: "Vibrant", class: "saturate-150" }
   ];
 
-  const handlePhotoSelect = (photo: string) => {
-    setSelectedPhotos(prev => 
-      prev.includes(photo) 
-        ? prev.filter(p => p !== photo)
-        : [...prev, photo]
-    );
+  const handleImageUpload = () => {
+    // Simulate image upload
+    const newPhoto: PhotoItem = {
+      id: Date.now().toString(),
+      url: "https://images.unsplash.com/photo-1582562124811-c09040d0a901?auto=format&fit=crop&w=800&q=80",
+      filter: selectedFilter,
+      uploadedBy: "You",
+      uploadedAt: "Just now",
+      likes: 0
+    };
+    setPhotos(prev => [newPhoto, ...prev]);
+    console.log("New photo uploaded with filter:", selectedFilter);
   };
 
-  const handleCreatePhotobook = () => {
-    // Here you would implement the actual photobook creation logic
-    console.log("Creating photobook:", {
-      trip: trip?.name,
-      title: photobookTitle,
-      description: photobookDescription,
-      photos: selectedPhotos
-    });
-    onClose();
+  const getFilterClass = (filterName: string) => {
+    const filter = filters.find(f => f.name === filterName);
+    return filter ? filter.class : "";
   };
 
   if (!trip) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="text-xl font-bold text-gray-800 flex items-center space-x-2">
-            <Book className="text-green-600" size={24} />
-            <span>Create Photobook for {trip.name}</span>
+          <DialogTitle className="text-xl font-bold text-gray-800 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Image className="text-purple-600" size={24} />
+              <span>{trip.name} - Digital Photobook</span>
+            </div>
+            {trip.collaborators && (
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Users size={16} />
+                <span>{trip.collaborators.length + 1} contributors</span>
+              </div>
+            )}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-6 p-1">
-          {/* Photobook Details */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-semibold text-gray-800 mb-3">Photobook Details</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  placeholder={`${trip.name} Memories`}
-                  value={photobookTitle}
-                  onChange={(e) => setPhotobookTitle(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Tell the story of your amazing journey..."
-                  value={photobookDescription}
-                  onChange={(e) => setPhotobookDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Photo Upload */}
+        <div className="flex-1 overflow-hidden flex flex-col space-y-4 p-1">
+          {/* Upload Section */}
           <Card>
             <CardContent className="p-4">
-              <h3 className="font-semibold text-gray-800 mb-3">Add Photos</h3>
-              
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-                <p className="text-gray-600 mb-2">Drag & drop photos here or click to browse</p>
-                <Button variant="outline" className="mb-2">
-                  <Camera size={16} className="mr-2" />
-                  Upload Photos
-                </Button>
-                <p className="text-xs text-gray-500">Support for JPG, PNG, HEIC files</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Photo Gallery */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-800">Select Photos</h3>
-                <span className="text-sm text-gray-600">
-                  {selectedPhotos.length} selected
-                </span>
-              </div>
-
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
-                {mockPhotos.map((photo, index) => (
-                  <div
-                    key={index}
-                    className={`aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-2xl cursor-pointer transition-all ${
-                      selectedPhotos.includes(photo)
-                        ? 'ring-2 ring-green-500 bg-green-50'
-                        : 'hover:bg-gray-100'
-                    }`}
-                    onClick={() => handlePhotoSelect(photo)}
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="text-center sm:text-left">
+                  <h3 className="font-semibold text-gray-800 mb-1">Add Your Memories</h3>
+                  <p className="text-sm text-gray-600">Upload photos and apply filters to create beautiful memories</p>
+                </div>
+                
+                {/* Filter Selection */}
+                <div className="flex items-center space-x-2">
+                  <Filter size={16} className="text-gray-500" />
+                  <select 
+                    value={selectedFilter}
+                    onChange={(e) => setSelectedFilter(e.target.value)}
+                    className="px-3 py-1 border rounded-lg text-sm"
                   >
-                    {photo}
-                    {selectedPhotos.includes(photo) && (
-                      <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                        ✓
-                      </div>
-                    )}
-                  </div>
-                ))}
+                    {filters.map(filter => (
+                      <option key={filter.name} value={filter.name}>
+                        {filter.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <Button 
+                  onClick={handleImageUpload}
+                  className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                >
+                  <Plus size={16} className="mr-2" />
+                  Add Image
+                </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Photobook Options */}
-          <Card>
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-gray-800 mb-3">Photobook Options</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-3 border rounded-lg text-center">
-                  <div className="text-lg font-medium text-gray-800">Standard</div>
-                  <div className="text-sm text-gray-600">8x10 inches</div>
-                  <div className="text-lg font-bold text-green-600 mt-2">$24.99</div>
+          {/* Photo Carousel */}
+          <div className="flex-1 overflow-hidden">
+            <Card className="h-full">
+              <CardContent className="p-6 h-full flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-800">Trip Album</h3>
+                  <span className="text-sm text-gray-600">{photos.length} photos</span>
                 </div>
-                <div className="p-3 border-2 border-green-500 rounded-lg text-center bg-green-50">
-                  <div className="text-lg font-medium text-gray-800">Premium</div>
-                  <div className="text-sm text-gray-600">10x12 inches</div>
-                  <div className="text-lg font-bold text-green-600 mt-2">$39.99</div>
-                  <div className="text-xs text-green-600 font-medium">Most Popular</div>
+
+                {photos.length > 0 ? (
+                  <div className="flex-1 flex items-center justify-center">
+                    <Carousel className="w-full max-w-3xl">
+                      <CarouselContent>
+                        {photos.map((photo) => (
+                          <CarouselItem key={photo.id}>
+                            <div className="space-y-4">
+                              {/* Photo */}
+                              <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                                <img
+                                  src={photo.url}
+                                  alt="Trip memory"
+                                  className={`w-full h-full object-cover transition-all duration-300 ${getFilterClass(photo.filter)}`}
+                                />
+                                
+                                {/* Photo overlay info */}
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                                  <div className="flex items-center justify-between text-white">
+                                    <div>
+                                      <p className="font-medium">{photo.uploadedBy}</p>
+                                      <p className="text-xs opacity-80">{photo.uploadedAt}</p>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                      <Heart size={14} className="text-red-400" />
+                                      <span className="text-sm">{photo.likes}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Photo metadata */}
+                              <div className="text-center space-y-2">
+                                {photo.filter !== "none" && (
+                                  <div className="inline-flex items-center space-x-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                                    <Filter size={12} />
+                                    <span>{filters.find(f => f.name === photo.filter)?.label}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious />
+                      <CarouselNext />
+                    </Carousel>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center space-y-4">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                        <Camera className="text-gray-400" size={24} />
+                      </div>
+                      <div>
+                        <p className="text-gray-600 mb-2">No photos yet</p>
+                        <p className="text-sm text-gray-500">Start building your trip memories by adding the first photo!</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Collaborators can view info */}
+          {trip.collaborators && trip.collaborators.length > 0 && (
+            <Card>
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">Shared with:</span>
+                    <div className="flex -space-x-1">
+                      {trip.collaborators.slice(0, 4).map((collaborator) => (
+                        <div
+                          key={collaborator.id}
+                          className="w-6 h-6 bg-gradient-to-br from-purple-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white font-medium border-2 border-white"
+                          title={collaborator.name}
+                        >
+                          {collaborator.avatar}
+                        </div>
+                      ))}
+                      {trip.collaborators.length > 4 && (
+                        <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600 border-2 border-white">
+                          +{trip.collaborators.length - 4}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-500">Everyone can view and add photos</span>
                 </div>
-                <div className="p-3 border rounded-lg text-center">
-                  <div className="text-lg font-medium text-gray-800">Deluxe</div>
-                  <div className="text-sm text-gray-600">12x14 inches</div>
-                  <div className="text-lg font-bold text-green-600 mt-2">$54.99</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex-shrink-0 flex space-x-3 pt-4 border-t">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Cancel
-          </Button>
-          <Button 
-            className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
-            onClick={handleCreatePhotobook}
-            disabled={selectedPhotos.length === 0}
-          >
-            <Book size={16} className="mr-2" />
-            Create Photobook
+        {/* Close Button */}
+        <div className="flex-shrink-0 pt-4 border-t">
+          <Button variant="outline" onClick={onClose} className="w-full">
+            Close Photobook
           </Button>
         </div>
       </DialogContent>
