@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
-import { Trip } from "@/types/aiSmartRoute";
+import { Trip, SavedPlace } from "@/types/aiSmartRoute";
 
 interface InstaTripImage {
   id: string;
@@ -19,16 +18,6 @@ interface ProfilePost {
   createdAt: number;
   location?: string;
   tripId?: number;
-}
-
-interface SavedPlace {
-  id: string;
-  name: string;
-  location: string;
-  category: string;
-  rating?: number;
-  description?: string;
-  addedAt: number;
 }
 
 export const useHomeState = () => {
@@ -97,11 +86,15 @@ export const useHomeState = () => {
     const savedPlace: SavedPlace = {
       id: Date.now().toString(),
       name: place.name,
-      location: place.location,
       category: place.category,
-      rating: place.rating,
-      description: place.description,
-      addedAt: Date.now()
+      rating: place.rating || 4.5,
+      image: place.image || "📍",
+      description: place.description || "",
+      estimatedTime: "2-3 hours",
+      priority: "medium" as const,
+      destinationName: place.location,
+      lat: place.lat,
+      lng: place.lng
     };
 
     setTrips(prev => prev.map(trip => 
