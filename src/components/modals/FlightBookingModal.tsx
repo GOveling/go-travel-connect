@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Plane, Calendar, MapPin, Users, ArrowUpDown, Clock, CreditCard, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plane, Calendar, MapPin, Users, ArrowUpDown, Clock, CreditCard, X, MapPinIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   const [activeStep, setActiveStep] = useState(1);
   const [tripType, setTripType] = useState<'round-trip' | 'one-way'>('round-trip');
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
+  const [currentLocation, setCurrentLocation] = useState("New York, NY");
   const [formData, setFormData] = useState({
     from: '',
     to: '',
@@ -36,14 +37,111 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
     trip.status === 'upcoming' || trip.status === 'planning'
   );
 
+  // Get user's current location (simulated)
+  useEffect(() => {
+    // Simulate getting current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // In a real app, you'd reverse geocode these coordinates
+          setCurrentLocation("New York, NY");
+        },
+        () => {
+          setCurrentLocation("New York, NY");
+        }
+      );
+    }
+  }, []);
+
+  // Auto-fill flight details when trip is selected
   const handleTripSelect = (tripId: number) => {
     const trip = trips.find(t => t.id === tripId);
     if (trip) {
       setSelectedTrip(tripId);
-      setFormData(prev => ({
-        ...prev,
-        to: trip.destination
-      }));
+      
+      // Extract destinations from trip coordinates
+      const destinations = trip.coordinates || [];
+      
+      if (destinations.length > 0) {
+        const firstDestination = destinations[0].name;
+        const lastDestination = destinations[destinations.length - 1].name;
+        
+        // Auto-fill form based on trip type
+        if (destinations.length === 1) {
+          // Single destination trip
+          setFormData(prev => ({
+            ...prev,
+            from: currentLocation,
+            to: firstDestination,
+            departDate: extractStartDate(trip.dates),
+            returnDate: extractEndDate(trip.dates)
+          }));
+          setTripType('round-trip');
+        } else {
+          // Multi-destination trip
+          setFormData(prev => ({
+            ...prev,
+            from: currentLocation,
+            to: firstDestination,
+            departDate: extractStartDate(trip.dates),
+            returnDate: extractEndDate(trip.dates)
+          }));
+          setTripType('round-trip');
+        }
+
+        // Show AI automation toast
+        toast({
+          title: "🤖 AI Auto-filled",
+          description: `Flight details populated from "${trip.name}" itinerary`,
+        });
+      }
+    }
+  };
+
+  // Extract start date from trip dates string
+  const extractStartDate = (dateString: string): string => {
+    try {
+      const startDateStr = dateString.split(' - ')[0];
+      const year = dateString.split(', ')[1] || new Date().getFullYear().toString();
+      const month = startDateStr.split(' ')[0];
+      const day = startDateStr.split(' ')[1];
+      
+      const monthMap: { [key: string]: string } = {
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+      };
+      
+      const monthNum = monthMap[month] || '01';
+      const dayNum = day?.padStart(2, '0') || '01';
+      
+      return `${year}-${monthNum}-${dayNum}`;
+    } catch {
+      return '';
+    }
+  };
+
+  // Extract end date from trip dates string
+  const extractEndDate = (dateString: string): string => {
+    try {
+      const parts = dateString.split(' - ');
+      if (parts.length < 2) return extractStartDate(dateString);
+      
+      const endDateStr = parts[1];
+      const year = dateString.split(', ')[1] || new Date().getFullYear().toString();
+      const month = endDateStr.split(' ')[0];
+      const day = endDateStr.split(' ')[1];
+      
+      const monthMap: { [key: string]: string } = {
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+      };
+      
+      const monthNum = monthMap[month] || '01';
+      const dayNum = day?.padStart(2, '0') || '01';
+      
+      return `${year}-${monthNum}-${dayNum}`;
+    } catch {
+      return '';
     }
   };
 
@@ -85,7 +183,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             <Plane size={24} />
             <div>
               <h2 className="text-xl font-bold">Book Flight</h2>
-              <p className="text-sm opacity-90">Find the best deals</p>
+              <p className="text-sm opacity-90">AI-powered trip planning</p>
             </div>
           </div>
         </div>
@@ -115,11 +213,20 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           {activeStep === 1 && (
             <div className="space-y-4">
               <div>
+                {/* Current Location Display */}
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-blue-800">
+                    <MapPinIcon size={16} />
+                    <span className="text-sm font-medium">Current Location</span>
+                  </div>
+                  <p className="text-sm text-blue-700 mt-1">{currentLocation}</p>
+                </div>
+
                 <h3 className="font-semibold mb-3">Select Trip or Create New</h3>
                 
                 {activeTrips.length > 0 && (
                   <div className="space-y-2 mb-4">
-                    <Label className="text-sm text-gray-600">Your Active Trips</Label>
+                    <Label className="text-sm text-gray-600">Your Active Trips (AI Auto-fill)</Label>
                     {activeTrips.map((trip) => (
                       <Card 
                         key={trip.id}
@@ -138,10 +245,16 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
                                 <p className="font-medium text-sm">{trip.name}</p>
                                 <p className="text-xs text-gray-600">{trip.destination}</p>
                                 <p className="text-xs text-gray-500">{trip.dates}</p>
+                                {trip.coordinates && trip.coordinates.length > 0 && (
+                                  <p className="text-xs text-blue-600">
+                                    🤖 Route: {currentLocation} → {trip.coordinates[0].name}
+                                    {trip.coordinates.length > 1 && ` → ${trip.coordinates[trip.coordinates.length - 1].name}`}
+                                  </p>
+                                )}
                               </div>
                             </div>
                             <Badge variant={selectedTrip === trip.id ? "default" : "outline"}>
-                              {selectedTrip === trip.id ? 'Selected' : 'Select'}
+                              {selectedTrip === trip.id ? 'Selected' : 'Auto-fill'}
                             </Badge>
                           </div>
                         </CardContent>
@@ -361,7 +474,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
                   {selectedTrip && (
                     <div className="pt-2 border-t border-blue-200">
                       <p className="text-xs text-blue-700">
-                        ✓ Will be added to: {trips.find(t => t.id === selectedTrip)?.name}
+                        🤖 Auto-filled from: {trips.find(t => t.id === selectedTrip)?.name}
                       </p>
                     </div>
                   )}
