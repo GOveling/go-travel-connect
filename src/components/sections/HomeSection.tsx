@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import HomeHeader from "@/components/home/HomeHeader";
 import QuickStats from "@/components/home/QuickStats";
@@ -12,6 +13,18 @@ import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 const HomeSection = () => {
   const homeState = useHomeState();
   const handlers = useHomeHandlers(homeState);
+
+  // Listen for navigation to trips section
+  useEffect(() => {
+    const handleNavigateToTrips = () => {
+      window.dispatchEvent(new CustomEvent('navigateToTrips'));
+    };
+
+    // Override the handleNavigateToTrips to trigger the global navigation
+    handlers.handleNavigateToTrips = () => {
+      window.dispatchEvent(new CustomEvent('navigateToTrips'));
+    };
+  }, []);
 
   return (
     <div className="min-h-screen p-4 space-y-4">
@@ -32,7 +45,14 @@ const HomeSection = () => {
       <QuickStats />
 
       {/* Current Trip */}
-      <CurrentTrip onViewDetail={handlers.handleViewCurrentTripDetail} />
+      <CurrentTrip 
+        currentTrip={homeState.currentTrip}
+        travelingTrip={homeState.travelingTrip}
+        nearestUpcomingTrip={homeState.nearestUpcomingTrip}
+        onViewDetail={handlers.handleViewCurrentTripDetail}
+        onPlanNewTrip={handlers.handlePlanNewTrip}
+        onNavigateToTrips={handlers.handleNavigateToTrips}
+      />
 
       {/* Quick Actions */}
       <QuickActions onAddMemoryClick={handlers.handleAddMemoryClick} />

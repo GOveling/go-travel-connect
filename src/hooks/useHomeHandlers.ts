@@ -1,4 +1,3 @@
-
 import { useHomeState } from "./useHomeState";
 
 interface InstaTripImage {
@@ -158,6 +157,15 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     setIsTripDetailModalOpen(true);
   };
 
+  const handlePlanNewTrip = () => {
+    setIsNewTripModalOpen(true);
+  };
+
+  const handleNavigateToTrips = () => {
+    // Dispatch custom event to navigate to trips section
+    window.dispatchEvent(new CustomEvent('navigateToTrips'));
+  };
+
   return {
     handleNotificationClick,
     handleAddMemoryClick,
@@ -174,6 +182,8 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     handleCreateNewTripFromPost,
     handleOpenTripPhotobook,
     formatTimeAgo,
-    handleViewCurrentTripDetail
+    handleViewCurrentTripDetail,
+    handlePlanNewTrip,
+    handleNavigateToTrips
   };
 };

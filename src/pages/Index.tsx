@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
 import HomeSection from "@/components/sections/HomeSection";
@@ -16,10 +17,16 @@ const Index = () => {
       setActiveTab("explore");
     };
 
+    const handleNavigateToTrips = () => {
+      setActiveTab("trips");
+    };
+
     window.addEventListener('navigateToExplore', handleNavigateToExplore);
+    window.addEventListener('navigateToTrips', handleNavigateToTrips);
     
     return () => {
       window.removeEventListener('navigateToExplore', handleNavigateToExplore);
+      window.removeEventListener('navigateToTrips', handleNavigateToTrips);
     };
   }, []);
 
