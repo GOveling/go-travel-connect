@@ -19,6 +19,7 @@ import TripCard from "@/components/trips/TripCard";
 import QuickStats from "@/components/trips/QuickStats";
 import TripTemplates from "@/components/trips/TripTemplates";
 import ShareSection from "@/components/trips/ShareSection";
+import { useHomeState } from "@/hooks/useHomeState";
 
 const TripsSection = () => {
   const [showMap, setShowMap] = useState(false);
@@ -35,73 +36,8 @@ const TripsSection = () => {
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showPhotobookModal, setShowPhotobookModal] = useState(false);
   
-  const [trips, setTrips] = useState([
-    {
-      id: 1,
-      name: "European Adventure",
-      destination: "Paris → Rome → Barcelona",
-      dates: "Dec 15 - Dec 25, 2024",
-      status: "upcoming",
-      travelers: 3,
-      image: "🇪🇺",
-      isGroupTrip: true,
-      collaborators: [
-        { id: "1", name: "Alice Johnson", email: "alice@example.com", avatar: "AJ", role: "owner" as const },
-        { id: "2", name: "Bob Smith", email: "bob@example.com", avatar: "BS", role: "editor" as const },
-        { id: "3", name: "Carol Davis", email: "carol@example.com", avatar: "CD", role: "viewer" as const }
-      ],
-      coordinates: [
-        { name: "Paris", lat: 48.8566, lng: 2.3522 },
-        { name: "Rome", lat: 41.9028, lng: 12.4964 },
-        { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
-      ],
-      description: "A wonderful journey through Europe's most iconic cities, exploring rich history, amazing cuisine, and beautiful architecture.",
-      budget: "$3,500 per person",
-      accommodation: "Mix of boutique hotels and Airbnb",
-      transportation: "Flights and high-speed trains",
-      savedPlaces: []
-    },
-    {
-      id: 2,
-      name: "Tokyo Discovery",
-      destination: "Tokyo, Japan",
-      dates: "Jan 8 - Jan 15, 2025",
-      status: "planning",
-      travelers: 1,
-      image: "🇯🇵",
-      isGroupTrip: false,
-      coordinates: [
-        { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
-      ],
-      description: "Immerse yourself in Japanese culture, from traditional temples to modern technology and incredible food experiences.",
-      budget: "$2,800 per person",
-      accommodation: "Traditional ryokan and modern hotels",
-      transportation: "JR Pass and local trains",
-      savedPlaces: []
-    },
-    {
-      id: 3,
-      name: "Bali Retreat",
-      destination: "Bali, Indonesia",
-      dates: "Nov 20 - Nov 27, 2024",
-      status: "completed",
-      travelers: 3,
-      image: "🇮🇩",
-      isGroupTrip: true,
-      collaborators: [
-        { id: "4", name: "Emma Wilson", email: "emma@example.com", avatar: "EW", role: "editor" as const },
-        { id: "5", name: "David Brown", email: "david@example.com", avatar: "DB", role: "editor" as const }
-      ],
-      coordinates: [
-        { name: "Bali", lat: -8.3405, lng: 115.0920 }
-      ],
-      description: "A relaxing retreat in paradise with yoga sessions, beautiful beaches, and spiritual experiences in temples.",
-      budget: "$1,800 per person",
-      accommodation: "Beach resort and villas",
-      transportation: "Private transfers and scooters",
-      savedPlaces: []
-    }
-  ]);
+  // Use shared state instead of local state
+  const { trips, setTrips } = useHomeState();
 
   // Calculate automatic status for each trip
   const tripsWithAutoStatus = trips.map(trip => ({
@@ -338,4 +274,3 @@ const TripsSection = () => {
 };
 
 export default TripsSection;
-</lov-code>
