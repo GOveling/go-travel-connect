@@ -1,4 +1,3 @@
-
 import { Calendar, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,6 +93,11 @@ const FlightDetailsStep = ({
                     className="pl-10 h-12"
                   />
                 </div>
+                {multiCityFlights[0]?.departDate && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    🤖 Auto-filled with trip start date
+                  </p>
+                )}
               </div>
               
               <div>

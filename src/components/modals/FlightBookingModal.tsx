@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Plane, Calendar, CreditCard, X, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -99,6 +98,10 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
         const lastDestination = destinations[destinations.length - 1].name;
         const startDate = extractStartDate(trip.dates);
         const endDate = extractEndDate(trip.dates);
+        
+        console.log('Trip dates:', trip.dates);
+        console.log('Extracted start date:', startDate);
+        console.log('Extracted end date:', endDate);
         
         setTripType('multi-city');
         setMultiCityFlights([
