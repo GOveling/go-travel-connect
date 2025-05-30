@@ -77,7 +77,7 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
             <img 
               src="/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png" 
               alt="GoVeling Logo" 
-              className="h-16 w-auto"
+              className="h-80 w-auto"
             />
           </div>
           <p className="text-white/90 text-sm font-medium">
