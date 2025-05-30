@@ -73,7 +73,7 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
       <div className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'} bg-white rounded-2xl shadow-2xl overflow-hidden`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-6 text-white text-center">
-          <div className="flex justify-center mb-3">
+          <div className="flex justify-center mb-1">
             <img 
               src="/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png" 
               alt="GoVeling Logo" 
