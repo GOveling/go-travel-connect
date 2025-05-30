@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Building, Calendar, Users, MapPin, X, Star, Route } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -23,15 +22,15 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
     guests: 2,
     rooms: 1
   });
-  const [selectedTripId, setSelectedTripId] = useState<string>('');
+  const [selectedTripId, setSelectedTripId] = useState<string>('manual');
   const { toast } = useToast();
   const { trips } = useHomeState();
 
   const handleTripSelection = (tripId: string) => {
     setSelectedTripId(tripId);
     
-    if (tripId === '') {
-      // Reset form when no trip is selected
+    if (tripId === 'manual') {
+      // Reset form when manual entry is selected
       setFormData({
         destination: '',
         checkIn: '',
@@ -140,7 +139,7 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
                     <SelectValue placeholder="Choose a trip to auto-fill details" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Manual entry</SelectItem>
+                    <SelectItem value="manual">Manual entry</SelectItem>
                     {trips.map((trip) => (
                       <SelectItem key={trip.id} value={trip.id.toString()}>
                         <div className="flex flex-col">
