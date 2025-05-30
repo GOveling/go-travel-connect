@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plane, Building, Car, Utensils, Smartphone, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import HotelBookingModal from "@/components/modals/HotelBookingModal";
 import CarRentalModal from "@/components/modals/CarRentalModal";
 import ToursModal from "@/components/modals/ToursModal";
 import RestaurantModal from "@/components/modals/RestaurantModal";
+import ESIMModal from "@/components/modals/ESIMModal";
 
 const BookingSection = () => {
   const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
@@ -14,6 +16,7 @@ const BookingSection = () => {
   const [isCarRentalModalOpen, setIsCarRentalModalOpen] = useState(false);
   const [isToursModalOpen, setIsToursModalOpen] = useState(false);
   const [isRestaurantModalOpen, setIsRestaurantModalOpen] = useState(false);
+  const [isESIMModalOpen, setIsESIMModalOpen] = useState(false);
 
   const bookingCategories = [
     {
@@ -54,7 +57,7 @@ const BookingSection = () => {
       subtitle: "Stay connected",
       color: "from-pink-500 to-pink-600",
       bgColor: "bg-pink-50",
-      action: () => {} // No modal for eSIMs yet
+      action: () => setIsESIMModalOpen(true)
     },
     {
       icon: Utensils,
@@ -211,6 +214,11 @@ const BookingSection = () => {
       <RestaurantModal
         isOpen={isRestaurantModalOpen}
         onClose={() => setIsRestaurantModalOpen(false)}
+      />
+
+      <ESIMModal
+        isOpen={isESIMModalOpen}
+        onClose={() => setIsESIMModalOpen(false)}
       />
     </div>
   );
