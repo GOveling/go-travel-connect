@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Camera, Upload, Image, X, Plus, Heart } from "lucide-react";
+import { Camera, Upload, Image, X, Plus, Heart, Download, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,6 +80,22 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
     console.log("New photo uploaded");
   };
 
+  const handleDeletePhoto = (photoId: string) => {
+    setPhotos(prev => prev.filter(photo => photo.id !== photoId));
+    console.log("Photo deleted:", photoId);
+  };
+
+  const handleDownloadPhoto = (photoUrl: string, photoId: string) => {
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = photoUrl;
+    link.download = `trip-photo-${photoId}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    console.log("Photo downloaded:", photoId);
+  };
+
   if (!trip) return null;
 
   return (
@@ -132,12 +147,32 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
                             <CarouselItem key={photo.id}>
                               <div className="space-y-4">
                                 {/* Photo */}
-                                <div className="relative w-full h-[500px] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                                <div className="relative w-full h-[500px] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center group">
                                   <img
                                     src={photo.url}
                                     alt="Trip memory"
                                     className="max-w-full max-h-full object-contain"
                                   />
+                                  
+                                  {/* Photo Action Buttons */}
+                                  <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 sm:opacity-100">
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() => handleDownloadPhoto(photo.url, photo.id)}
+                                      className="bg-white/90 hover:bg-white text-gray-700"
+                                    >
+                                      <Download size={16} />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handleDeletePhoto(photo.id)}
+                                      className="bg-red-500/90 hover:bg-red-600 text-white"
+                                    >
+                                      <Trash2 size={16} />
+                                    </Button>
+                                  </div>
                                   
                                   {/* Photo overlay info */}
                                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
