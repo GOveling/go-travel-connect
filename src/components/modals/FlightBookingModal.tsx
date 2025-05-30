@@ -103,9 +103,10 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
         console.log('Trip dates:', trip.dates);
         console.log('Extracted start date:', startDate);
         console.log('Extracted end date:', endDate);
+        console.log('First destination:', firstDestination);
+        console.log('Last destination:', lastDestination);
         
-        setTripType('multi-city');
-        setMultiCityFlights([
+        const newMultiCityFlights = [
           {
             from: currentLocation,
             to: firstDestination,
@@ -120,7 +121,12 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             passengers: 1,
             class: 'economy'
           }
-        ]);
+        ];
+        
+        console.log('Setting multi-city flights:', newMultiCityFlights);
+        
+        setTripType('multi-city');
+        setMultiCityFlights(newMultiCityFlights);
 
         // Show AI automation toast for multi-city
         toast({

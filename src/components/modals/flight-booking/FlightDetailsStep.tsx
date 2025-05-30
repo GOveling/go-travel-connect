@@ -47,6 +47,10 @@ const FlightDetailsStep = ({
   onBack,
   onContinue
 }: FlightDetailsStepProps) => {
+  // Debug log to see the current state
+  console.log('FlightDetailsStep - multiCityFlights:', multiCityFlights);
+  console.log('FlightDetailsStep - tripType:', tripType);
+
   const canContinue = () => {
     if (tripType === 'multi-city') {
       return multiCityFlights.length >= 2 && 
@@ -60,6 +64,8 @@ const FlightDetailsStep = ({
     setMultiCityFlights(prev => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
+      console.log(`Updated flight ${index + 1} ${field}:`, value);
+      console.log('Updated multiCityFlights:', updated);
       return updated;
     });
   };
@@ -95,7 +101,7 @@ const FlightDetailsStep = ({
                 </div>
                 {multiCityFlights[0]?.departDate && (
                   <p className="text-xs text-blue-600 mt-1">
-                    🤖 Auto-filled with trip start date
+                    🤖 Auto-filled with trip start date ({multiCityFlights[0]?.departDate})
                   </p>
                 )}
               </div>
@@ -166,7 +172,7 @@ const FlightDetailsStep = ({
                 </div>
                 {multiCityFlights[1]?.departDate && (
                   <p className="text-xs text-green-600 mt-1">
-                    🤖 Auto-filled with trip end date
+                    🤖 Auto-filled with trip end date ({multiCityFlights[1]?.departDate})
                   </p>
                 )}
               </div>
