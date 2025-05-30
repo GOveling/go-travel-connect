@@ -1,3 +1,4 @@
+
 import { Plus, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -57,7 +58,8 @@ const TripsSection = () => {
       description: "A wonderful journey through Europe's most iconic cities, exploring rich history, amazing cuisine, and beautiful architecture.",
       budget: "$3,500 per person",
       accommodation: "Mix of boutique hotels and Airbnb",
-      transportation: "Flights and high-speed trains"
+      transportation: "Flights and high-speed trains",
+      savedPlaces: []
     },
     {
       id: 2,
@@ -74,7 +76,8 @@ const TripsSection = () => {
       description: "Immerse yourself in Japanese culture, from traditional temples to modern technology and incredible food experiences.",
       budget: "$2,800 per person",
       accommodation: "Traditional ryokan and modern hotels",
-      transportation: "JR Pass and local trains"
+      transportation: "JR Pass and local trains",
+      savedPlaces: []
     },
     {
       id: 3,
@@ -95,7 +98,8 @@ const TripsSection = () => {
       description: "A relaxing retreat in paradise with yoga sessions, beautiful beaches, and spiritual experiences in temples.",
       budget: "$1,800 per person",
       accommodation: "Beach resort and villas",
-      transportation: "Private transfers and scooters"
+      transportation: "Private transfers and scooters",
+      savedPlaces: []
     }
   ]);
 
@@ -334,3 +338,4 @@ const TripsSection = () => {
 };
 
 export default TripsSection;
+</lov-code>

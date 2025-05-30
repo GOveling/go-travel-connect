@@ -10,6 +10,7 @@ import AddToTripModal from "@/components/modals/AddToTripModal";
 import TravelersSection from "./TravelersSection";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import { useHomeState } from "@/hooks/useHomeState";
+import { useToast } from "@/hooks/use-toast";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
@@ -21,7 +22,8 @@ const ExploreSection = () => {
   const [notificationCount, setNotificationCount] = useState(5);
 
   // Get actual trips from shared state
-  const { trips } = useHomeState();
+  const { trips, addPlaceToTrip } = useHomeState();
+  const { toast } = useToast();
 
   const popularPlaces = [
     {
@@ -88,9 +90,19 @@ const ExploreSection = () => {
   };
 
   const handleAddToExistingTrip = (tripId: number) => {
-    const selectedTrip = trips.find(trip => trip.id === tripId);
-    console.log(`Adding ${selectedPlace?.name} to trip:`, selectedTrip?.name);
-    // TODO: Implement actual saving logic to trip's saved places
+    if (selectedPlace) {
+      addPlaceToTrip(tripId, selectedPlace);
+      const selectedTrip = trips.find(trip => trip.id === tripId);
+      console.log(`Adding ${selectedPlace?.name} to trip:`, selectedTrip?.name);
+      
+      toast({
+        title: "Place added to trip!",
+        description: `${selectedPlace.name} has been saved to ${selectedTrip?.name}`,
+      });
+      
+      setIsAddToTripModalOpen(false);
+      setSelectedPlace(null);
+    }
   };
 
   const handleCreateNewTrip = () => {

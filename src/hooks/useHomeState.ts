@@ -21,6 +21,16 @@ interface ProfilePost {
   tripId?: number;
 }
 
+interface SavedPlace {
+  id: string;
+  name: string;
+  location: string;
+  category: string;
+  rating?: number;
+  description?: string;
+  addedAt: number;
+}
+
 export const useHomeState = () => {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
@@ -48,7 +58,8 @@ export const useHomeState = () => {
         { name: "Paris", lat: 48.8566, lng: 2.3522 },
         { name: "Rome", lat: 41.9028, lng: 12.4964 },
         { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
-      ]
+      ],
+      savedPlaces: []
     },
     {
       id: 2,
@@ -61,7 +72,8 @@ export const useHomeState = () => {
       isGroupTrip: false,
       coordinates: [
         { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
-      ]
+      ],
+      savedPlaces: []
     }
   ]);
   const [selectedPostForTrip, setSelectedPostForTrip] = useState<ProfilePost | null>(null);
@@ -79,6 +91,25 @@ export const useHomeState = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Function to add a place to a trip
+  const addPlaceToTrip = (tripId: number, place: any) => {
+    const savedPlace: SavedPlace = {
+      id: Date.now().toString(),
+      name: place.name,
+      location: place.location,
+      category: place.category,
+      rating: place.rating,
+      description: place.description,
+      addedAt: Date.now()
+    };
+
+    setTrips(prev => prev.map(trip => 
+      trip.id === tripId 
+        ? { ...trip, savedPlaces: [...(trip.savedPlaces || []), savedPlace] }
+        : trip
+    ));
+  };
 
   // Calculate dynamic trip statuses and find current/upcoming trip
   const tripsWithDynamicStatus = trips.map(trip => ({
@@ -153,7 +184,8 @@ export const useHomeState = () => {
     description: "An amazing journey through three beautiful European cities with rich history, art, and culture.",
     budget: "$2,500 per person",
     accommodation: "Mix of boutique hotels and Airbnb",
-    transportation: "Flights and high-speed trains"
+    transportation: "Flights and high-speed trains",
+    savedPlaces: []
   };
 
   return {
@@ -191,6 +223,7 @@ export const useHomeState = () => {
     currentTrip,
     travelingTrip,
     nearestUpcomingTrip,
-    tripsWithDynamicStatus
+    tripsWithDynamicStatus,
+    addPlaceToTrip
   };
 };
