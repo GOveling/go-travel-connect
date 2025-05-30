@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -118,38 +119,41 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     selectedParticipants: [] as string[]
   });
 
-  // Initialize collaborators with mock data if trip doesn't have collaborators
-  const [collaborators] = useState<Collaborator[]>(
-    trip?.collaborators || [
-      {
-        id: 1,
-        name: "Alice Johnson",
-        email: "alice@example.com",
-        avatar: "A",
-        role: "owner"
-      },
-      {
-        id: 2,
-        name: "Bob Smith",
-        email: "bob@example.com",
-        avatar: "B",
-        role: "editor"
-      },
-      {
-        id: 3,
-        name: "Carol Davis",
-        email: "carol@example.com",
-        avatar: "C",
-        role: "viewer"
-      }
-    ]
-  );
-
+  // Use actual trip collaborators and add current user
+  const collaborators: Collaborator[] = trip?.collaborators || [];
+  
   // Add current user to the list of all participants for expenses
   const allParticipants = [
     { id: 0, name: "You", email: "you@example.com", avatar: "Y", role: "owner" },
-    ...collaborators
+    ...collaborators.map((collaborator: any) => ({
+      id: collaborator.id,
+      name: collaborator.name,
+      email: collaborator.email,
+      avatar: collaborator.avatar,
+      role: collaborator.role
+    }))
   ];
+
+  // Show message if no collaborators are available
+  if (!trip?.isGroupTrip || allParticipants.length <= 1) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Group Options</DialogTitle>
+          </DialogHeader>
+          <div className="text-center py-8">
+            <p className="text-gray-600 mb-4">
+              This trip doesn't have any collaborators yet. Add collaborators to your trip to use group features like expense splitting and group decisions.
+            </p>
+            <Button onClick={onClose} variant="outline">
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const handleAddExpense = () => {
     if (newExpense.description && newExpense.amount && newExpense.paidBy) {
