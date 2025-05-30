@@ -1,12 +1,14 @@
 
 import { useState } from "react";
-import { Building, Calendar, Users, MapPin, X, Star } from "lucide-react";
+import { Building, Calendar, Users, MapPin, X, Star, Route } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useHomeState } from "@/hooks/useHomeState";
 
 interface HotelBookingModalProps {
   isOpen: boolean;
@@ -21,7 +23,68 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
     guests: 2,
     rooms: 1
   });
+  const [selectedTripId, setSelectedTripId] = useState<string>('');
   const { toast } = useToast();
+  const { trips } = useHomeState();
+
+  const handleTripSelection = (tripId: string) => {
+    setSelectedTripId(tripId);
+    
+    if (tripId === '') {
+      // Reset form when no trip is selected
+      setFormData({
+        destination: '',
+        checkIn: '',
+        checkOut: '',
+        guests: 2,
+        rooms: 1
+      });
+      return;
+    }
+
+    const selectedTrip = trips.find(trip => trip.id.toString() === tripId);
+    if (selectedTrip) {
+      // Parse the dates from the trip
+      const parseTripDates = (dateStr: string) => {
+        try {
+          // Handle format like "Dec 15 - Dec 22, 2024"
+          const [dateRange, year] = dateStr.split(', ');
+          const [startDate, endDate] = dateRange.split(' - ');
+          const currentYear = year || new Date().getFullYear().toString();
+          
+          const parseDate = (dateStr: string) => {
+            const [month, day] = dateStr.trim().split(' ');
+            const monthMap: { [key: string]: string } = {
+              'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+              'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+              'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+            };
+            const monthNum = monthMap[month] || '01';
+            const dayNum = day.padStart(2, '0');
+            return `${currentYear}-${monthNum}-${dayNum}`;
+          };
+
+          return {
+            checkIn: parseDate(startDate),
+            checkOut: parseDate(endDate)
+          };
+        } catch (error) {
+          console.log('Error parsing dates:', error);
+          return { checkIn: '', checkOut: '' };
+        }
+      };
+
+      const { checkIn, checkOut } = parseTripDates(selectedTrip.dates);
+      
+      setFormData(prev => ({
+        ...prev,
+        destination: selectedTrip.destination,
+        checkIn,
+        checkOut,
+        guests: selectedTrip.travelers || 2
+      }));
+    }
+  };
 
   const handleSearch = () => {
     toast({
@@ -67,6 +130,30 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
           </Card>
 
           <div className="space-y-4">
+            {/* Trip Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="tripSelection">Select from My Trips (Optional)</Label>
+              <div className="relative">
+                <Route size={16} className="absolute left-3 top-3 text-gray-400" />
+                <Select value={selectedTripId} onValueChange={handleTripSelection}>
+                  <SelectTrigger className="pl-10">
+                    <SelectValue placeholder="Choose a trip to auto-fill details" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Manual entry</SelectItem>
+                    {trips.map((trip) => (
+                      <SelectItem key={trip.id} value={trip.id.toString()}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{trip.name}</span>
+                          <span className="text-xs text-gray-500">{trip.destination} • {trip.dates}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="destination">Destination</Label>
               <div className="relative">
