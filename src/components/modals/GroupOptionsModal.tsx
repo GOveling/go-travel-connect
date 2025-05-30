@@ -75,6 +75,29 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const ModalHeader = isMobile ? DrawerHeader : DialogHeader;
   const ModalTitle = isMobile ? DrawerTitle : DialogTitle;
 
+  // Show message if no collaborators
+  if (allParticipants.length <= 1) {
+    return (
+      <ModalWrapper open={isOpen} onOpenChange={onClose}>
+        <ModalContent className={isMobile ? "max-h-[95vh]" : "max-w-2xl max-h-[95vh] w-[95vw] mx-auto"}>
+          <ModalHeader className="pb-4">
+            <ModalTitle className="text-lg md:text-xl">
+              Group Options - {trip.name}
+            </ModalTitle>
+          </ModalHeader>
+          <div className="flex-1 p-6 text-center">
+            <p className="text-gray-600 mb-4">
+              Group options are only available when you have collaborators on your trip.
+            </p>
+            <p className="text-sm text-gray-500">
+              Invite friends to your trip to start splitting expenses and making group decisions together!
+            </p>
+          </div>
+        </ModalContent>
+      </ModalWrapper>
+    );
+  }
+
   return (
     <>
       <ModalWrapper open={isOpen} onOpenChange={onClose}>
