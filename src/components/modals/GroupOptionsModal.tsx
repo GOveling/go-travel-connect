@@ -408,10 +408,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const handleCloseCreateDecisionModal = () => {
     setShowCreateDecisionModal(false);
-    // Don't reset form immediately, let the modal close animation complete
-    setTimeout(() => {
-      resetCreateDecisionForm();
-    }, 150);
+    resetCreateDecisionForm();
   };
 
   if (!trip) return null;
@@ -427,8 +424,6 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       onOpenChange={(open) => {
         if (!open) {
           handleCloseCreateDecisionModal();
-        } else {
-          setShowCreateDecisionModal(true);
         }
       }}
     >
