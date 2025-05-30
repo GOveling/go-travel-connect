@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Building, Calendar, Users, MapPin, X, Star, Route } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -57,8 +56,8 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
 
     const selectedTrip = trips.find(trip => trip.id.toString() === tripId);
     if (selectedTrip) {
-      // Check if trip has multiple destinations
-      const destinations = selectedTrip.itinerary?.destinations || [];
+      // Check if trip has multiple destinations using coordinates
+      const destinations = selectedTrip.coordinates || [];
       const isMultiDest = destinations.length > 1;
       
       setIsMultiDestination(isMultiDest);
@@ -74,7 +73,7 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
           };
 
           return {
-            destination: dest.city,
+            destination: dest.name,
             checkIn: formatDateForInput(range.startDate),
             checkOut: formatDateForInput(range.endDate),
             guests: selectedTrip.travelers || 2,
@@ -126,7 +125,7 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
         
         setFormData(prev => ({
           ...prev,
-          destination: destinations[0]?.city || selectedTrip.destination,
+          destination: destinations[0]?.name || selectedTrip.destination,
           checkIn,
           checkOut,
           guests: selectedTrip.travelers || 2
@@ -213,8 +212,8 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
                           <span className="font-medium">{trip.name}</span>
                           <span className="text-xs text-gray-500">
                             {trip.destination} • {trip.dates}
-                            {trip.itinerary?.destinations && trip.itinerary.destinations.length > 1 && 
-                              <span className="ml-1 text-green-600">({trip.itinerary.destinations.length} destinations)</span>
+                            {trip.coordinates && trip.coordinates.length > 1 && 
+                              <span className="ml-1 text-green-600">({trip.coordinates.length} destinations)</span>
                             }
                           </span>
                         </div>
