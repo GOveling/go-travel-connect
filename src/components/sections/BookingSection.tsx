@@ -1,9 +1,12 @@
-
+import { useState } from "react";
 import { Plane, Building, Car, Utensils, Smartphone, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import FlightBookingModal from "@/components/modals/FlightBookingModal";
 
 const BookingSection = () => {
+  const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
+
   const bookingCategories = [
     {
       icon: Plane,
@@ -66,6 +69,13 @@ const BookingSection = () => {
     }
   ];
 
+  const handleCategoryClick = (categoryTitle: string) => {
+    if (categoryTitle === "Flights") {
+      setIsFlightModalOpen(true);
+    }
+    // Future: Add handlers for other categories
+  };
+
   return (
     <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
@@ -92,7 +102,11 @@ const BookingSection = () => {
         {bookingCategories.map((category, index) => {
           const Icon = category.icon;
           return (
-            <Card key={index} className={`overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${category.bgColor}`}>
+            <Card 
+              key={index} 
+              className={`overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${category.bgColor} cursor-pointer`}
+              onClick={() => handleCategoryClick(category.title)}
+            >
               <CardContent className="p-4 text-center">
                 <div className={`w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center`}>
                   <Icon size={24} className="text-white" />
@@ -111,7 +125,10 @@ const BookingSection = () => {
           <CardTitle className="text-lg">Quick Book</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-left justify-start">
+          <Button 
+            className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-left justify-start"
+            onClick={() => setIsFlightModalOpen(true)}
+          >
             <Plane className="mr-3" size={20} />
             <div>
               <p className="font-medium">Round-trip Flight</p>
@@ -158,6 +175,11 @@ const BookingSection = () => {
           ))}
         </CardContent>
       </Card>
+
+      <FlightBookingModal
+        isOpen={isFlightModalOpen}
+        onClose={() => setIsFlightModalOpen(false)}
+      />
     </div>
   );
 };
