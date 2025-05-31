@@ -67,7 +67,7 @@ const SignUpModal = ({ isOpen, onClose, onSignUp, onGoogleSignUp, onSwitchToLogi
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-purple-600 to-orange-500 p-2 text-white">
+        <div className="relative bg-gradient-to-r from-purple-600 to-orange-500 px-2 py-4 text-white">
           <Button
             variant="ghost"
             size="icon"
@@ -77,18 +77,24 @@ const SignUpModal = ({ isOpen, onClose, onSignUp, onGoogleSignUp, onSwitchToLogi
             <X size={20} />
           </Button>
           <div className="text-center">
-            <div className="flex justify-center mb-2">
+            <div className="flex justify-center mb-3">
               <img 
                 src="/lovable-uploads/852981bf-8475-4d98-8dc3-951465681587.png" 
                 alt="GoVeling Logo" 
-                className={`${isMobile ? 'h-24' : 'h-32'} w-auto`}
+                className="object-contain"
+                style={{ 
+                  maxWidth: isMobile ? '200px' : '250px',
+                  height: 'auto',
+                  transform: 'scale(2)',
+                  transformOrigin: 'center'
+                }}
               />
             </div>
-            <div className="relative overflow-hidden">
-              <p className="text-white/90 text-sm font-medium animate-fade-in">
-                <span className="inline-block animate-pulse text-purple-100 font-bold">Travel Smart</span>
-                <span className="text-white/80 mx-1">•</span>
-                <span className="inline-block animate-pulse text-orange-200 font-bold">Travel More</span>
+            <div className="relative overflow-hidden mt-4">
+              <p className="text-white/90 text-base font-medium animate-fade-in">
+                <span className="inline-block animate-pulse text-purple-100 font-bold text-lg">Travel Smart</span>
+                <span className="text-white/80 mx-2 text-lg">•</span>
+                <span className="inline-block animate-pulse text-orange-200 font-bold text-lg">Travel More</span>
               </p>
             </div>
           </div>
