@@ -67,18 +67,30 @@ const SignUpModal = ({ isOpen, onClose, onSignUp, onGoogleSignUp, onSwitchToLogi
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-purple-600 to-orange-500 p-6 text-white">
+        <div className="relative bg-gradient-to-r from-purple-600 to-orange-500 p-2 text-white">
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="absolute right-2 top-2 text-white hover:bg-white/20 h-8 w-8"
+            className="absolute right-2 top-2 text-white hover:bg-white/20 h-8 w-8 z-10"
           >
             <X size={20} />
           </Button>
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-2">Join the Journey</h2>
-            <p className="text-white/90 text-sm">Create your account to start exploring</p>
+            <div className="flex justify-center mb-2">
+              <img 
+                src="/lovable-uploads/852981bf-8475-4d98-8dc3-951465681587.png" 
+                alt="GoVeling Logo" 
+                className={`${isMobile ? 'h-24' : 'h-32'} w-auto`}
+              />
+            </div>
+            <div className="relative overflow-hidden">
+              <p className="text-white/90 text-sm font-medium animate-fade-in">
+                <span className="inline-block animate-pulse text-purple-100 font-bold">Travel Smart</span>
+                <span className="text-white/80 mx-1">•</span>
+                <span className="inline-block animate-pulse text-orange-200 font-bold">Travel More</span>
+              </p>
+            </div>
           </div>
         </div>
 
