@@ -30,47 +30,28 @@ const Index = ({ onSignOut }: IndexProps) => {
   window.addEventListener('navigateToTrips', handleNavigateToTrips);
 
   const renderContent = () => {
-    const sectionClass = "animate-fade-in";
-    
     switch (activeSection) {
       case 'home':
-        return <div className={sectionClass}><HomeSection /></div>;
+        return <HomeSection />;
       case 'trips':
-        return <div className={sectionClass}><TripsSection /></div>;
+        return <TripsSection />;
       case 'explore':
-        return <div className={sectionClass}><ExploreSection /></div>;
+        return <ExploreSection />;
       case 'booking':
-        return <div className={sectionClass}><BookingSection /></div>;
+        return <BookingSection />;
       case 'travelers':
-        return <div className={sectionClass}><TravelersSection /></div>;
+        return <TravelersSection />;
       case 'profile':
-        return <div className={sectionClass}><ProfileSection onSignOut={onSignOut} /></div>;
+        return <ProfileSection onSignOut={onSignOut} />;
       default:
-        return <div className={sectionClass}><HomeSection /></div>;
+        return <HomeSection />;
     }
   };
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 pb-20 relative overflow-hidden">
-          {/* Background decoration */}
-          <div className="fixed inset-0 pointer-events-none opacity-5">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <defs>
-                <pattern id="dots" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-                  <circle cx="5" cy="5" r="1" fill="#8B5CF6" />
-                </pattern>
-              </defs>
-              <rect width="100" height="100" fill="url(#dots)" />
-            </svg>
-          </div>
-          
-          {/* Floating gradient orbs */}
-          <div className="fixed top-10 left-10 w-32 h-32 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-3xl opacity-20 animate-float"></div>
-          <div className="fixed bottom-20 right-10 w-40 h-40 bg-gradient-to-r from-orange-400 to-red-400 rounded-full blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-r from-blue-400 to-teal-400 rounded-full blur-3xl opacity-15 animate-float" style={{ animationDelay: '4s' }}></div>
-          
+        <div className="min-h-screen bg-gray-50 pb-20">
           {renderContent()}
           <BottomNavigation 
             activeTab={activeSection} 
