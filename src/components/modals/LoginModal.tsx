@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ModalHeader from "./login/ModalHeader";
 import GoogleLoginButton from "./login/GoogleLoginButton";
 import LoginForm from "./login/LoginForm";
+import FormDivider from "./shared/FormDivider";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -56,15 +57,7 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
         <div className="p-6 space-y-6">
           <GoogleLoginButton onClick={handleGoogleLogin} isLoading={isLoading} />
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or sign in with email</span>
-            </div>
-          </div>
+          <FormDivider text="Or sign in with email" />
 
           <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
 
