@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -28,10 +27,8 @@ const ModalHeader = ({ onClose }: ModalHeaderProps) => {
             alt="GoVeling Logo" 
             className="object-contain"
             style={{ 
-              maxWidth: isMobile ? '300px' : '400px',
-              height: 'auto',
-              transform: 'scale(2)',
-              transformOrigin: 'center'
+              width: isMobile ? '300px' : '400px',
+              height: 'auto'
             }}
           />
         </div>
