@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -11,6 +10,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import {
   MapPin,
   Camera,
@@ -22,6 +29,10 @@ import {
   Heart,
   Share2,
   X,
+  Plus,
+  Award,
+  Trophy,
+  Target,
 } from "lucide-react";
 
 interface Trip {
@@ -37,6 +48,25 @@ interface Review {
   text: string;
 }
 
+interface Publication {
+  id: string;
+  images: string[];
+  text: string;
+  location?: string;
+  createdAt: string;
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  earned: boolean;
+  progress: number;
+  total: number;
+  points: number;
+  earnedDate?: string;
+}
+
 interface Traveler {
   id: string;
   name: string;
@@ -50,6 +80,14 @@ interface Traveler {
   pastTrips: Trip[];
   recentPhotos: string[];
   reviews: Review[];
+  publications: Publication[];
+  achievements: Achievement[];
+  travelLevel: {
+    level: number;
+    title: string;
+    currentXP: number;
+    nextLevelXP: number;
+  };
 }
 
 interface ViewProfileModalProps {
@@ -58,6 +96,7 @@ interface ViewProfileModalProps {
   traveler: Traveler | null;
   isFollowing: boolean;
   onFollow: (userId: string) => void;
+  onAddToTrip?: (publication: Publication) => void;
 }
 
 const ViewProfileModal = ({
@@ -66,8 +105,11 @@ const ViewProfileModal = ({
   traveler,
   isFollowing,
   onFollow,
+  onAddToTrip,
 }: ViewProfileModalProps) => {
   if (!traveler) return null;
+
+  const progressPercentage = (traveler.travelLevel.currentXP / traveler.travelLevel.nextLevelXP) * 100;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -168,6 +210,23 @@ const ViewProfileModal = ({
             </div>
           </div>
 
+          {/* Travel Level Section */}
+          <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-orange-50 border-b">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <Trophy className="text-yellow-500" size={20} />
+                <span className="font-semibold text-gray-800">Level {traveler.travelLevel.level}</span>
+                <Badge variant="secondary" className="bg-gradient-to-r from-purple-100 to-orange-100">
+                  {traveler.travelLevel.title}
+                </Badge>
+              </div>
+              <span className="text-sm text-gray-600">
+                {traveler.travelLevel.currentXP} / {traveler.travelLevel.nextLevelXP} XP
+              </span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+          </div>
+
           {/* Content */}
           <div className="flex-1 overflow-auto">
             <div className="p-6">
@@ -178,10 +237,12 @@ const ViewProfileModal = ({
 
               {/* Tabs */}
               <Tabs defaultValue="trips" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="trips">Adventures</TabsTrigger>
                   <TabsTrigger value="photos">Photos</TabsTrigger>
                   <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                  <TabsTrigger value="publications">Posts</TabsTrigger>
+                  <TabsTrigger value="achievements">Awards</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="trips" className="space-y-4">
@@ -250,6 +311,123 @@ const ViewProfileModal = ({
                         </CardContent>
                       </Card>
                     ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="publications" className="space-y-4">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Share2 size={20} className="text-gray-600" />
+                      <span className="font-medium text-gray-700">Travel Publications</span>
+                    </div>
+                    {traveler.publications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Share2 size={32} className="mx-auto text-gray-400 mb-2" />
+                        <p className="text-gray-500">No publications yet</p>
+                      </div>
+                    ) : (
+                      <Carousel className="w-full">
+                        <CarouselContent className="-ml-4">
+                          {traveler.publications.map((publication) => (
+                            <CarouselItem key={publication.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                              <Card className="overflow-hidden">
+                                <CardContent className="p-0">
+                                  <div className="relative">
+                                    <img
+                                      src={publication.images[0]}
+                                      alt="Publication"
+                                      className="w-full h-48 object-cover"
+                                    />
+                                    {publication.location && (
+                                      <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs flex items-center space-x-1">
+                                        <MapPin size={12} />
+                                        <span>{publication.location}</span>
+                                      </div>
+                                    )}
+                                    {publication.location && onAddToTrip && (
+                                      <Button
+                                        size="sm"
+                                        onClick={() => onAddToTrip(publication)}
+                                        className="absolute top-2 right-2 bg-white/90 text-black hover:bg-white"
+                                      >
+                                        <Plus size={14} className="mr-1" />
+                                        Add to Trip
+                                      </Button>
+                                    )}
+                                  </div>
+                                  <div className="p-3">
+                                    <p className="text-sm text-gray-700 mb-2">{publication.text}</p>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-500">{publication.createdAt}</span>
+                                      {publication.images.length > 1 && (
+                                        <Badge variant="outline" className="text-xs">
+                                          +{publication.images.length - 1} photos
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </CarouselItem>
+                          ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="achievements" className="space-y-4">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Award size={20} className="text-gray-600" />
+                      <span className="font-medium text-gray-700">Travel Achievements</span>
+                    </div>
+                    <div className="grid gap-3">
+                      {traveler.achievements.map((achievement) => (
+                        <Card key={achievement.id} className={`${achievement.earned ? 'border-green-200 bg-green-50' : 'border-gray-200'}`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start space-x-3">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                achievement.earned ? 'bg-green-100' : 'bg-gray-100'
+                              }`}>
+                                <Trophy size={20} className={achievement.earned ? 'text-green-600' : 'text-gray-500'} />
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className="font-medium text-gray-800 truncate">{achievement.title}</h4>
+                                  {achievement.earned && (
+                                    <Badge variant="secondary" className="bg-green-100 text-green-800 shrink-0">
+                                      <Trophy size={12} className="mr-1" />
+                                      {achievement.points}
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                <p className="text-sm text-gray-600 mb-2">{achievement.description}</p>
+                                
+                                {achievement.earned ? (
+                                  <div className="flex items-center space-x-2 text-sm text-green-600">
+                                    <Calendar size={14} />
+                                    <span>Earned {achievement.earnedDate}</span>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-1">
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-600">Progress</span>
+                                      <span className="font-medium">{achievement.progress}/{achievement.total}</span>
+                                    </div>
+                                    <Progress value={(achievement.progress / achievement.total) * 100} className="h-2" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>

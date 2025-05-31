@@ -1,3 +1,4 @@
+
 import { MapPin, Camera, MessageSquare, UserPlus, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,25 @@ interface Review {
   text: string;
 }
 
+interface Publication {
+  id: string;
+  images: string[];
+  text: string;
+  location?: string;
+  createdAt: string;
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  earned: boolean;
+  progress: number;
+  total: number;
+  points: number;
+  earnedDate?: string;
+}
+
 interface Traveler {
   id: string;
   name: string;
@@ -31,6 +51,14 @@ interface Traveler {
   pastTrips: Trip[];
   recentPhotos: string[];
   reviews: Review[];
+  publications: Publication[];
+  achievements: Achievement[];
+  travelLevel: {
+    level: number;
+    title: string;
+    currentXP: number;
+    nextLevelXP: number;
+  };
 }
 
 interface TravelerCardProps {
@@ -41,6 +69,69 @@ interface TravelerCardProps {
 
 const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) => {
   const [isViewProfileModalOpen, setIsViewProfileModalOpen] = useState(false);
+
+  // Enhanced traveler data with new features
+  const enhancedTraveler = {
+    ...traveler,
+    publications: traveler.publications || [
+      {
+        id: "1",
+        images: ["/lovable-uploads/2e7d8d8c-8611-4e84-84a8-467fc6bcbdc7.png"],
+        text: "Amazing sunset at the beach! Perfect end to a wonderful day exploring the coast.",
+        location: "Santorini, Greece",
+        createdAt: "2 days ago"
+      },
+      {
+        id: "2",
+        images: ["/lovable-uploads/3e9a8a6e-d543-437e-a44d-2f16fac6303f.png"],
+        text: "Street food tour in Bangkok was incredible! So many flavors to discover.",
+        location: "Bangkok, Thailand",
+        createdAt: "1 week ago"
+      }
+    ],
+    achievements: traveler.achievements || [
+      {
+        id: "1",
+        title: "City Explorer",
+        description: "Visit 5 different cities",
+        earned: true,
+        progress: 5,
+        total: 5,
+        points: 100,
+        earnedDate: "Dec 15, 2024"
+      },
+      {
+        id: "2",
+        title: "Culture Enthusiast",
+        description: "Visit 10 museums or cultural sites",
+        earned: true,
+        progress: 12,
+        total: 10,
+        points: 150,
+        earnedDate: "Nov 20, 2024"
+      },
+      {
+        id: "3",
+        title: "World Traveler",
+        description: "Visit 10 different countries",
+        earned: false,
+        progress: 8,
+        total: 10,
+        points: 500
+      }
+    ],
+    travelLevel: traveler.travelLevel || {
+      level: 5,
+      title: "Explorer",
+      currentXP: 1250,
+      nextLevelXP: 2000
+    }
+  };
+
+  const handleAddToTrip = (publication: Publication) => {
+    console.log("Adding publication to trip:", publication);
+    // Handle add to trip functionality
+  };
 
   return (
     <>
@@ -182,9 +273,10 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
       <ViewProfileModal
         isOpen={isViewProfileModalOpen}
         onClose={() => setIsViewProfileModalOpen(false)}
-        traveler={traveler}
+        traveler={enhancedTraveler}
         isFollowing={isFollowing}
         onFollow={onFollow}
+        onAddToTrip={handleAddToTrip}
       />
     </>
   );
