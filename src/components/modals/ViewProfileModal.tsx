@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Dialog,
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Carousel,
   CarouselContent,
@@ -114,9 +116,13 @@ const ViewProfileModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{traveler.name} Profile</DialogTitle>
+        </DialogHeader>
+        
         <div className="flex flex-col h-full">
           {/* Header with Cover & Profile */}
-          <div className="relative">
+          <div className="relative shrink-0">
             {/* Cover Photo */}
             <div className="h-32 md:h-48 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 relative">
               <div className="absolute inset-0 bg-black/20"></div>
@@ -189,7 +195,7 @@ const ViewProfileModal = ({
           </div>
 
           {/* Stats Bar */}
-          <div className="mt-20 px-6 py-4 bg-gray-50 border-b">
+          <div className="mt-20 px-6 py-4 bg-gray-50 border-b shrink-0">
             <div className="grid grid-cols-4 gap-4 text-center">
               <div>
                 <p className="font-bold text-lg text-gray-800">{traveler.totalTrips}</p>
@@ -211,7 +217,7 @@ const ViewProfileModal = ({
           </div>
 
           {/* Travel Level Section */}
-          <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-orange-50 border-b">
+          <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-orange-50 border-b shrink-0">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <Trophy className="text-yellow-500" size={20} />
@@ -227,8 +233,8 @@ const ViewProfileModal = ({
             <Progress value={progressPercentage} className="h-2" />
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-auto">
+          {/* Scrollable Content */}
+          <ScrollArea className="flex-1">
             <div className="p-6">
               {/* Bio */}
               <div className="mb-6">
@@ -432,7 +438,7 @@ const ViewProfileModal = ({
                 </TabsContent>
               </Tabs>
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </DialogContent>
     </Dialog>

@@ -3,7 +3,14 @@ import { useState } from "react";
 import TravelerCard from "./TravelerCard";
 
 const TravelersList = () => {
-  const [followingUsers, setFollowingUsers] = useState<string[]>([]);
+  const [followingStatus, setFollowingStatus] = useState<{ [key: string]: boolean }>({});
+
+  const handleFollow = (userId: string) => {
+    setFollowingStatus(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
+  };
 
   const travelers = [
     {
@@ -13,79 +20,89 @@ const TravelersList = () => {
       location: "Barcelona, Spain",
       totalTrips: 12,
       countries: 8,
-      followers: 245,
-      following: 189,
-      bio: "Adventure seeker and culture enthusiast. Love exploring hidden gems!",
+      followers: 1240,
+      following: 89,
+      bio: "Adventure seeker and cultural enthusiast. Always looking for the next hidden gem to explore.",
       pastTrips: [
-        { name: "Japan Discovery", destinations: "Tokyo, Kyoto, Osaka", year: "2024", rating: 5 },
-        { name: "European Circuit", destinations: "Paris, Rome, Amsterdam", year: "2023", rating: 4.8 },
-        { name: "Bali Adventure", destinations: "Ubud, Canggu, Nusa Penida", year: "2023", rating: 4.9 }
+        { name: "Mediterranean Adventure", destinations: "Greece, Italy, Spain", year: "2024", rating: 4.8 },
+        { name: "Nordic Expedition", destinations: "Norway, Sweden, Finland", year: "2023", rating: 4.9 }
       ],
-      recentPhotos: ["🏯", "🗼", "🏝️", "🍜"],
+      recentPhotos: ["🏛️", "🍝", "🌅", "⛵"],
       reviews: [
-        { place: "Senso-ji Temple", rating: 5, text: "Absolutely magical at sunrise!" },
-        { place: "Eiffel Tower", rating: 4.5, text: "Classic but still breathtaking" }
-      ]
+        { place: "Santorini, Greece", rating: 5, text: "Absolutely breathtaking sunsets and amazing local cuisine!" }
+      ],
+      publications: [],
+      achievements: [],
+      travelLevel: {
+        level: 1,
+        title: "Explorer",
+        currentXP: 100,
+        nextLevelXP: 500
+      }
     },
     {
-      id: "2", 
-      name: "Alex Chen",
-      avatar: "AC",
-      location: "San Francisco, USA",
+      id: "2",
+      name: "Marcus Chen",
+      avatar: "MC",
+      location: "Tokyo, Japan",
       totalTrips: 18,
       countries: 15,
-      followers: 432,
-      following: 298,
-      bio: "Digital nomad exploring the world one city at a time 🌍",
+      followers: 2100,
+      following: 156,
+      bio: "Food lover and photography enthusiast. Documenting flavors and moments from around the world.",
       pastTrips: [
-        { name: "Southeast Asia Tour", destinations: "Thailand, Vietnam, Cambodia", year: "2024", rating: 4.7 },
-        { name: "South America Trek", destinations: "Peru, Bolivia, Chile", year: "2023", rating: 5 },
-        { name: "African Safari", destinations: "Kenya, Tanzania", year: "2022", rating: 4.9 }
+        { name: "Southeast Asia Food Tour", destinations: "Thailand, Vietnam, Malaysia", year: "2024", rating: 4.7 },
+        { name: "European City Break", destinations: "Paris, Berlin, Prague", year: "2023", rating: 4.6 }
       ],
-      recentPhotos: ["🦁", "🏔️", "🛕", "🌅"],
+      recentPhotos: ["🍜", "📸", "🌸", "🗼"],
       reviews: [
-        { place: "Machu Picchu", rating: 5, text: "Life-changing experience!" },
-        { place: "Angkor Wat", rating: 4.8, text: "Best visited at sunrise" }
-      ]
+        { place: "Bangkok Street Food", rating: 5, text: "Incredible variety and authentic flavors at every corner!" }
+      ],
+      publications: [],
+      achievements: [],
+      travelLevel: {
+        level: 2,
+        title: "Wanderer",
+        currentXP: 750,
+        nextLevelXP: 1000
+      }
     },
     {
       id: "3",
-      name: "Sofia Andersson", 
+      name: "Sofia Andersson",
       avatar: "SA",
       location: "Stockholm, Sweden",
-      totalTrips: 9,
-      countries: 12,
-      followers: 167,
-      following: 143,
-      bio: "Sustainable travel advocate. Capturing moments, not just photos.",
+      totalTrips: 25,
+      countries: 22,
+      followers: 3500,
+      following: 234,
+      bio: "Nature photographer and sustainable travel advocate. Capturing the beauty of our planet responsibly.",
       pastTrips: [
-        { name: "Nordic Adventure", destinations: "Iceland, Norway, Finland", year: "2024", rating: 4.6 },
-        { name: "Mediterranean Escape", destinations: "Greece, Croatia, Italy", year: "2023", rating: 4.8 },
-        { name: "Morocco Journey", destinations: "Marrakech, Fez, Casablanca", year: "2023", rating: 4.7 }
+        { name: "Patagonia Wilderness", destinations: "Argentina, Chile", year: "2024", rating: 5.0 },
+        { name: "Arctic Circle Adventure", destinations: "Iceland, Greenland", year: "2023", rating: 4.9 }
       ],
-      recentPhotos: ["🏔️", "🌊", "🕌", "🐪"],
+      recentPhotos: ["🏔️", "🐧", "❄️", "🌌"],
       reviews: [
-        { place: "Santorini", rating: 4.9, text: "Perfect sunset views!" },
-        { place: "Marrakech Medina", rating: 4.5, text: "Sensory overload in the best way" }
-      ]
+        { place: "Torres del Paine", rating: 5, text: "One of the most spectacular landscapes I've ever witnessed!" }
+      ],
+      publications: [],
+      achievements: [],
+      travelLevel: {
+        level: 4,
+        title: "Adventurer",
+        currentXP: 2250,
+        nextLevelXP: 3000
+      }
     }
   ];
 
-  const handleFollow = (userId: string) => {
-    setFollowingUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    );
-  };
-
   return (
-    <div className="space-y-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {travelers.map((traveler) => (
         <TravelerCard
           key={traveler.id}
           traveler={traveler}
-          isFollowing={followingUsers.includes(traveler.id)}
+          isFollowing={followingStatus[traveler.id] || false}
           onFollow={handleFollow}
         />
       ))}
