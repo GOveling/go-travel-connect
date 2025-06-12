@@ -1,26 +1,5 @@
-
 import { useState } from "react";
-
-interface UseAuthFormReturn {
-  isSignUp: boolean;
-  email: string;
-  password: string;
-  name: string;
-  confirmPassword: string;
-  showPassword: boolean;
-  showConfirmPassword: boolean;
-  isLoading: boolean;
-  setEmail: (email: string) => void;
-  setPassword: (password: string) => void;
-  setName: (name: string) => void;
-  setConfirmPassword: (password: string) => void;
-  setShowPassword: (show: boolean) => void;
-  setShowConfirmPassword: (show: boolean) => void;
-  setIsLoading: (loading: boolean) => void;
-  toggleMode: () => void;
-  resetForm: () => void;
-  isFormValid: boolean;
-}
+import type { UseAuthFormReturn } from '@/types';
 
 export const useAuthForm = (): UseAuthFormReturn => {
   const [isSignUp, setIsSignUp] = useState(false);

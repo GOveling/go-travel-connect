@@ -1,3 +1,7 @@
+import type { Traveler, TripHistory, Review, Publication, Achievement, TravelLevel } from '@/types';
+
+// Re-export types for backward compatibility
+export type { Traveler, TripHistory as Trip, Review, Publication, Achievement, TravelLevel };
 
 export interface Trip {
   name: string;

@@ -1,9 +1,9 @@
-
 import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal, Camera } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import type { Collaborator, TripCoordinate, Trip, TripCardProps } from '@/types';
 
 interface Collaborator {
   id: string;

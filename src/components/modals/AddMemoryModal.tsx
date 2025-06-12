@@ -3,6 +3,7 @@ import { Camera, MapPin, Share, Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import type { Trip, AddMemoryModalProps } from '@/types';
 import InstaTripUploadModal from "./InstaTripUploadModal";
 import TripPhotobookSelectorModal from "./TripPhotobookSelectorModal";
 

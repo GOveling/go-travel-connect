@@ -1,17 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-}
+import type { Trip } from '@/types';
 
 interface CurrentTripContentProps {
   currentTrip: Trip | null;

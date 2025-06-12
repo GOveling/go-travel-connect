@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import ViewProfileModal from "@/components/modals/ViewProfileModal";
-import { Traveler, Publication } from "@/data/travelers";
+import type { Traveler, Publication, TravelerCardProps } from '@/types';
 
 interface TravelerCardProps {
   traveler: Traveler;

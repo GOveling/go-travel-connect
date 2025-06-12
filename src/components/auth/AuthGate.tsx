@@ -2,6 +2,7 @@
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthForm } from "@/hooks/useAuthForm";
+import type { AuthGateProps } from '@/types';
 import AuthHeader from "./AuthHeader";
 import GoogleAuthButton from "./GoogleAuthButton";
 import AuthForm from "./AuthForm";

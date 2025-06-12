@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import PublicationPhotosModal from "@/components/modals/PublicationPhotosModal";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import type { FriendPublication, FollowedFriendsPublicationsProps } from '@/types';
 
 interface FriendPublication {
   id: string;

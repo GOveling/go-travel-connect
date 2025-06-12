@@ -1,38 +1,7 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Users, UserPlus, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface TripCoordinate {
-  name: string;
-  lat: number;
-  lng: number;
-}
-
-interface Collaborator {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: "owner" | "editor" | "viewer";
-}
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  travelers: number;
-  image: string;
-  coordinates: TripCoordinate[];
-  collaborators?: Collaborator[];
-  isGroupTrip?: boolean;
-}
-
-interface TripMapProps {
-  trips: Trip[];
-}
+import type { TripCoordinate, Collaborator, Trip, TripMapProps } from '@/types';
 
 const TripMap = ({ trips }: TripMapProps) => {
   const getStatusColor = (status: string) => {
