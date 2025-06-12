@@ -1,4 +1,3 @@
-
 import { Camera, MapPin, Share, Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,24 +5,6 @@ import { useState } from "react";
 import type { Trip, AddMemoryModalProps } from '@/types';
 import InstaTripUploadModal from "./InstaTripUploadModal";
 import TripPhotobookSelectorModal from "./TripPhotobookSelectorModal";
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-}
-
-interface AddMemoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: number) => void;
-  onCreatePublication?: () => void;
-  onOpenTripPhotobook?: (trip: Trip) => void;
-  trips?: Trip[];
-}
 
 const AddMemoryModal = ({ 
   isOpen, 

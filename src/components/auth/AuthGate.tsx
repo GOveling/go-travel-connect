@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthForm } from "@/hooks/useAuthForm";
@@ -7,10 +6,6 @@ import AuthHeader from "./AuthHeader";
 import GoogleAuthButton from "./GoogleAuthButton";
 import AuthForm from "./AuthForm";
 import AuthModeToggle from "./AuthModeToggle";
-
-interface AuthGateProps {
-  onAuthSuccess: () => void;
-}
 
 const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const isMobile = useIsMobile();

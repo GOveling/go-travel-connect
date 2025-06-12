@@ -1,64 +1,8 @@
+
 import type { Traveler, TripHistory, Review, Publication, Achievement, TravelLevel } from '@/types';
 
 // Re-export types for backward compatibility
 export type { Traveler, TripHistory as Trip, Review, Publication, Achievement, TravelLevel };
-
-export interface Trip {
-  name: string;
-  destinations: string;
-  year: string;
-  rating: number;
-}
-
-export interface Review {
-  place: string;
-  rating: number;
-  text: string;
-}
-
-export interface Publication {
-  id: string;
-  images: string[];
-  text: string;
-  location?: string;
-  createdAt: string;
-}
-
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  earned: boolean;
-  progress: number;
-  total: number;
-  points: number;
-  earnedDate?: string;
-}
-
-export interface TravelLevel {
-  level: number;
-  title: string;
-  currentXP: number;
-  nextLevelXP: number;
-}
-
-export interface Traveler {
-  id: string;
-  name: string;
-  avatar: string;
-  location: string;
-  totalTrips: number;
-  countries: number;
-  followers: number;
-  following: number;
-  bio: string;
-  pastTrips: Trip[];
-  recentPhotos: string[];
-  reviews: Review[];
-  publications: Publication[];
-  achievements: Achievement[];
-  travelLevel: TravelLevel;
-}
 
 export const travelersData: Traveler[] = [
   {

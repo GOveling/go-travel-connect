@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Brain } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,12 +9,6 @@ import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";
 import AnalyticsTab from "./ai-smart-route/AnalyticsTab";
-
-interface AISmartRouteModalProps {
-  trip: Trip | null;
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) => {
   const [isGenerating, setIsGenerating] = useState(false);

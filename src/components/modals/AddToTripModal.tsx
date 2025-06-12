@@ -6,24 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import type { Trip, AddToTripModalProps } from '@/types';
 
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-}
-
-interface AddToTripModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  existingTrips: Trip[];
-  onAddToExistingTrip: (tripId: number) => void;
-  onCreateNewTrip: () => void;
-  postLocation?: string;
-}
-
 const AddToTripModal = ({ 
   isOpen, 
   onClose, 
