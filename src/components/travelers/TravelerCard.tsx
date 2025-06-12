@@ -1,65 +1,10 @@
-
 import { MapPin, Camera, MessageSquare, UserPlus, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import ViewProfileModal from "@/components/modals/ViewProfileModal";
-
-interface Trip {
-  name: string;
-  destinations: string;
-  year: string;
-  rating: number;
-}
-
-interface Review {
-  place: string;
-  rating: number;
-  text: string;
-}
-
-interface Publication {
-  id: string;
-  images: string[];
-  text: string;
-  location?: string;
-  createdAt: string;
-}
-
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  earned: boolean;
-  progress: number;
-  total: number;
-  points: number;
-  earnedDate?: string;
-}
-
-interface Traveler {
-  id: string;
-  name: string;
-  avatar: string;
-  location: string;
-  totalTrips: number;
-  countries: number;
-  followers: number;
-  following: number;
-  bio: string;
-  pastTrips: Trip[];
-  recentPhotos: string[];
-  reviews: Review[];
-  publications: Publication[];
-  achievements: Achievement[];
-  travelLevel: {
-    level: number;
-    title: string;
-    currentXP: number;
-    nextLevelXP: number;
-  };
-}
+import { Traveler, Publication } from "@/data/travelers";
 
 interface TravelerCardProps {
   traveler: Traveler;
