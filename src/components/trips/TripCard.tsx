@@ -1,47 +1,10 @@
+
 import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal, Camera } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { Collaborator, TripCoordinate, Trip, TripCardProps } from '@/types';
-
-interface Collaborator {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: "owner" | "editor" | "viewer";
-}
-
-interface TripCoordinate {
-  name: string;
-  lat: number;
-  lng: number;
-}
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  travelers: number;
-  image: string;
-  isGroupTrip: boolean;
-  collaborators?: Collaborator[];
-  coordinates: TripCoordinate[];
-}
-
-interface TripCardProps {
-  trip: Trip;
-  onViewDetails: (trip: Trip) => void;
-  onEditTrip: (trip: Trip) => void;
-  onInviteFriends: (trip: Trip) => void;
-  onGroupOptions: (trip: Trip) => void;
-  onAISmartRoute: (trip: Trip) => void;
-  onViewSavedPlaces: (trip: Trip) => void;
-  onCreatePhotobook: (trip: Trip) => void;
-}
+import type { Trip, TripCardProps } from '@/types';
 
 const TripCard = ({
   trip,

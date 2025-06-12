@@ -1,3 +1,4 @@
+
 import { MapPin, Heart, MessageCircle, Share2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,30 +7,6 @@ import { useState } from "react";
 import PublicationPhotosModal from "@/components/modals/PublicationPhotosModal";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import type { FriendPublication, FollowedFriendsPublicationsProps } from '@/types';
-
-interface FriendPublication {
-  id: string;
-  friendName: string;
-  friendAvatar?: string;
-  images: string[];
-  text: string;
-  createdAt: number;
-  location?: string;
-  likes: number;
-  comments: number;
-  liked: boolean;
-}
-
-interface FollowedFriendsPublicationsProps {
-  publications: FriendPublication[];
-  onLike: (id: string) => void;
-  onComment: (id: string) => void;
-  onShare: (id: string) => void;
-  formatTimeAgo: (timestamp: number) => string;
-  trips?: any[];
-  onAddToExistingTrip?: (tripId: number, place: any) => void;
-  onCreateNewTrip?: (tripData: any) => void;
-}
 
 const FollowedFriendsPublications = ({
   publications,

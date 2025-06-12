@@ -1,23 +1,8 @@
+
 import { MapPin, Plus, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProfilePost, ProfilePublicationProps } from '@/types';
-
-interface ProfilePost {
-  id: string;
-  images: string[];
-  text: string;
-  createdAt: number;
-  location?: string;
-  tripId?: number;
-}
-
-interface ProfilePublicationProps {
-  posts: ProfilePost[];
-  onProfilePublicationClick: () => void;
-  onAddToTrip: (post: ProfilePost) => void;
-  formatTimeAgo: (timestamp: number) => string;
-}
 
 const ProfilePublication = ({ 
   posts, 

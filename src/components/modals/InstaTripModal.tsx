@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { X, Camera, MapPin, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6,24 +7,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import AddToTripModal from "./AddToTripModal";
-
-interface InstaTripImage {
-  id: string;
-  src: string;
-  addedAt: number;
-  text?: string;
-  location?: string;
-  tripId?: number;
-}
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-}
+import type { InstaTripImage, Trip } from '@/types';
 
 interface InstaTripModalProps {
   isOpen: boolean;
@@ -46,7 +30,14 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
       destination: "Paris → Rome → Barcelona",
       dates: "Dec 15 - Dec 25, 2024",
       status: "upcoming",
-      image: "🇪🇺"
+      travelers: 2,
+      image: "🇪🇺",
+      isGroupTrip: false,
+      coordinates: [
+        { name: "Paris", lat: 48.8566, lng: 2.3522 },
+        { name: "Rome", lat: 41.9028, lng: 12.4964 },
+        { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
+      ]
     },
     {
       id: 2,
@@ -54,7 +45,12 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
       destination: "Tokyo, Japan",
       dates: "Jan 8 - Jan 15, 2025",
       status: "planning",
-      image: "🇯🇵"
+      travelers: 1,
+      image: "🇯🇵",
+      isGroupTrip: false,
+      coordinates: [
+        { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
+      ]
     }
   ];
 

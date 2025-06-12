@@ -1,3 +1,4 @@
+
 import { MapPin, Camera, MessageSquare, UserPlus, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,12 +6,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import ViewProfileModal from "@/components/modals/ViewProfileModal";
 import type { Traveler, Publication, TravelerCardProps } from '@/types';
-
-interface TravelerCardProps {
-  traveler: Traveler;
-  isFollowing: boolean;
-  onFollow: (userId: string) => void;
-}
 
 const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) => {
   const [isViewProfileModalOpen, setIsViewProfileModalOpen] = useState(false);
