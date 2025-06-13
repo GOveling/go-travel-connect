@@ -78,7 +78,7 @@ const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
     { 
       icon: Award, 
       title: "Travel Achievements", 
-      subtitle: "Your travel milestones", 
+      subtitle: "Level 5 Explorer • 12 badges earned", 
       color: "text-purple-600",
       onClick: () => setIsTravelAchievementsModalOpen(true)
     },
@@ -102,7 +102,7 @@ const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
     { label: "Countries Visited", value: "8" },
     { label: "Cities Explored", value: "24" },
     { label: "Places Visited", value: placesVisited.toString() },
-    { label: "Reviews Written", value: "15" },
+    { label: "Achievement Points", value: "1,250" },
   ];
 
   const handleSignOut = () => {

@@ -1,0 +1,368 @@
+
+import { TravelerLevel, AchievementBadge } from '@/types/gamification';
+
+export const TRAVELER_LEVELS: TravelerLevel[] = [
+  { level: 1, title: "Backpack Explorer", requiredXP: 0, currentXP: 0, nextLevelXP: 1000, unlockedFeatures: ["Basic Trip Planning"], color: "from-green-400 to-green-600", icon: "🎒" },
+  { level: 2, title: "City Wanderer", requiredXP: 1000, currentXP: 0, nextLevelXP: 2500, unlockedFeatures: ["City Recommendations"], color: "from-blue-400 to-blue-600", icon: "🏙️" },
+  { level: 3, title: "Culture Seeker", requiredXP: 2500, currentXP: 0, nextLevelXP: 4500, unlockedFeatures: ["Cultural Insights"], color: "from-purple-400 to-purple-600", icon: "🏛️" },
+  { level: 4, title: "Adventure Guide", requiredXP: 4500, currentXP: 0, nextLevelXP: 7000, unlockedFeatures: ["Adventure Planning"], color: "from-orange-400 to-orange-600", icon: "🧗" },
+  { level: 5, title: "Explorer", requiredXP: 7000, currentXP: 0, nextLevelXP: 10000, unlockedFeatures: ["Route Optimization"], color: "from-red-400 to-red-600", icon: "🧭" },
+  { level: 6, title: "Journey Master", requiredXP: 10000, currentXP: 0, nextLevelXP: 14000, unlockedFeatures: ["Premium Routes"], color: "from-indigo-400 to-indigo-600", icon: "🗺️" },
+  { level: 7, title: "Wanderer", requiredXP: 14000, currentXP: 0, nextLevelXP: 19000, unlockedFeatures: ["Community Features"], color: "from-pink-400 to-pink-600", icon: "🌟" },
+  { level: 8, title: "Globe Trotter", requiredXP: 19000, currentXP: 0, nextLevelXP: 25000, unlockedFeatures: ["Global Insights"], color: "from-yellow-400 to-yellow-600", icon: "🌍" },
+  { level: 9, title: "Travel Guru", requiredXP: 25000, currentXP: 0, nextLevelXP: 32000, unlockedFeatures: ["Expert Recommendations"], color: "from-teal-400 to-teal-600", icon: "🧘" },
+  { level: 10, title: "Nomad", requiredXP: 32000, currentXP: 0, nextLevelXP: 40000, unlockedFeatures: ["Nomad Tools"], color: "from-cyan-400 to-cyan-600", icon: "🏜️" },
+  { level: 11, title: "World Explorer", requiredXP: 40000, currentXP: 0, nextLevelXP: 50000, unlockedFeatures: ["World Explorer Badge"], color: "from-emerald-400 to-emerald-600", icon: "🌎" },
+  { level: 12, title: "Cultural Ambassador", requiredXP: 50000, currentXP: 0, nextLevelXP: 62000, unlockedFeatures: ["Cultural Programs"], color: "from-violet-400 to-violet-600", icon: "🎭" },
+  { level: 13, title: "Adventure Legend", requiredXP: 62000, currentXP: 0, nextLevelXP: 76000, unlockedFeatures: ["Legend Status"], color: "from-rose-400 to-rose-600", icon: "🏔️" },
+  { level: 14, title: "Master Traveler", requiredXP: 76000, currentXP: 0, nextLevelXP: 92000, unlockedFeatures: ["Master Benefits"], color: "from-amber-400 to-amber-600", icon: "👑" },
+  { level: 15, title: "Epic Voyager", requiredXP: 92000, currentXP: 0, nextLevelXP: 110000, unlockedFeatures: ["Epic Rewards"], color: "from-lime-400 to-lime-600", icon: "⚡" },
+  { level: 16, title: "Cosmic Explorer", requiredXP: 110000, currentXP: 0, nextLevelXP: 130000, unlockedFeatures: ["Cosmic Features"], color: "from-fuchsia-400 to-fuchsia-600", icon: "🚀" },
+  { level: 17, title: "Infinity Traveler", requiredXP: 130000, currentXP: 0, nextLevelXP: 152000, unlockedFeatures: ["Infinity Access"], color: "from-sky-400 to-sky-600", icon: "♾️" },
+  { level: 18, title: "Dimensional Wanderer", requiredXP: 152000, currentXP: 0, nextLevelXP: 176000, unlockedFeatures: ["Dimensional Portal"], color: "from-slate-400 to-slate-600", icon: "🌌" },
+  { level: 19, title: "Mythical Adventurer", requiredXP: 176000, currentXP: 0, nextLevelXP: 202000, unlockedFeatures: ["Mythical Powers"], color: "from-stone-400 to-stone-600", icon: "🔮" },
+  { level: 20, title: "Legendary Traveler", requiredXP: 202000, currentXP: 0, nextLevelXP: 202000, unlockedFeatures: ["All Features Unlocked"], color: "from-gradient-to-r from-yellow-400 via-red-500 to-pink-500", icon: "🏆" }
+];
+
+export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
+  // Global Exploration
+  {
+    id: "first-country",
+    title: "First Country",
+    description: "Visit your first country",
+    category: "global-exploration",
+    icon: "🌍",
+    earned: false,
+    progress: 0,
+    total: 1,
+    points: 500,
+    rarity: "common",
+    criteria: "Visit 1 country"
+  },
+  {
+    id: "country-collector",
+    title: "Country Collector",
+    description: "Visit 5 different countries",
+    category: "global-exploration",
+    icon: "🗺️",
+    earned: false,
+    progress: 0,
+    total: 5,
+    points: 1500,
+    rarity: "rare",
+    criteria: "Visit 5 countries"
+  },
+  {
+    id: "world-citizen",
+    title: "World Citizen",
+    description: "Visit 15 different countries",
+    category: "global-exploration",
+    icon: "🌎",
+    earned: false,
+    progress: 0,
+    total: 15,
+    points: 5000,
+    rarity: "epic",
+    criteria: "Visit 15 countries"
+  },
+  {
+    id: "travel-marathon",
+    title: "Travel Marathon",
+    description: "Visit 3 countries in one month",
+    category: "global-exploration",
+    icon: "🏃",
+    earned: false,
+    progress: 0,
+    total: 3,
+    points: 2500,
+    rarity: "rare",
+    criteria: "Visit 3 countries within 30 days"
+  },
+
+  // Local Discoveries & Culture
+  {
+    id: "city-explorer",
+    title: "City Explorer",
+    description: "Visit 5 different cities",
+    category: "local-discoveries",
+    icon: "🏙️",
+    earned: false,
+    progress: 0,
+    total: 5,
+    points: 1000,
+    rarity: "common",
+    criteria: "Visit 5 cities"
+  },
+  {
+    id: "museum-enthusiast",
+    title: "Museum Enthusiast",
+    description: "Visit 10 museums or cultural sites",
+    category: "local-discoveries",
+    icon: "🏛️",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 2000,
+    rarity: "rare",
+    criteria: "Visit 10 museums or cultural sites"
+  },
+  {
+    id: "photo-journalist",
+    title: "Photo Journalist",
+    description: "Upload 50 geo-tagged photos",
+    category: "local-discoveries",
+    icon: "📸",
+    earned: false,
+    progress: 0,
+    total: 50,
+    points: 1500,
+    rarity: "rare",
+    criteria: "Upload 50 photos with location tags"
+  },
+
+  // Food & Nightlife
+  {
+    id: "foodie",
+    title: "Foodie",
+    description: "Check into 20 restaurants",
+    category: "food-nightlife",
+    icon: "🍽️",
+    earned: false,
+    progress: 0,
+    total: 20,
+    points: 1200,
+    rarity: "common",
+    criteria: "Visit 20 restaurants"
+  },
+  {
+    id: "cuisine-master",
+    title: "Cuisine Master",
+    description: "Try 10 different cuisines",
+    category: "food-nightlife",
+    icon: "🍜",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 2000,
+    rarity: "rare",
+    criteria: "Experience 10 different cuisine types"
+  },
+  {
+    id: "night-owl",
+    title: "Night Owl",
+    description: "Visit 15 nightlife venues",
+    category: "food-nightlife",
+    icon: "🌙",
+    earned: false,
+    progress: 0,
+    total: 15,
+    points: 1800,
+    rarity: "rare",
+    criteria: "Visit 15 bars, clubs, or entertainment venues"
+  },
+
+  // Family & Experience
+  {
+    id: "family-traveler",
+    title: "Family Traveler",
+    description: "Visit 10 family-friendly destinations",
+    category: "family-experience",
+    icon: "👨‍👩‍👧‍👦",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 1500,
+    rarity: "common",
+    criteria: "Visit 10 family-friendly places"
+  },
+  {
+    id: "beach-lover",
+    title: "Beach Lover",
+    description: "Visit 8 beaches",
+    category: "family-experience",
+    icon: "🏖️",
+    earned: false,
+    progress: 0,
+    total: 8,
+    points: 1000,
+    rarity: "common",
+    criteria: "Visit 8 different beaches"
+  },
+  {
+    id: "route-master",
+    title: "Route Master",
+    description: "Complete 5 AI-generated routes",
+    category: "family-experience",
+    icon: "🗺️",
+    earned: false,
+    progress: 0,
+    total: 5,
+    points: 2500,
+    rarity: "rare",
+    criteria: "Complete 5 AI smart routes"
+  },
+
+  // Contributions & Community
+  {
+    id: "reviewer",
+    title: "Reviewer",
+    description: "Write 25 reviews",
+    category: "contributions",
+    icon: "⭐",
+    earned: false,
+    progress: 0,
+    total: 25,
+    points: 2000,
+    rarity: "rare",
+    criteria: "Write 25 place reviews"
+  },
+  {
+    id: "itinerary-creator",
+    title: "Itinerary Creator",
+    description: "Create 10 travel itineraries with AI",
+    category: "contributions",
+    icon: "📝",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 3000,
+    rarity: "epic",
+    criteria: "Create 10 AI-assisted itineraries"
+  },
+  {
+    id: "map-pioneer",
+    title: "Map Pioneer",
+    description: "Pin 100 places on your maps",
+    category: "contributions",
+    icon: "📍",
+    earned: false,
+    progress: 0,
+    total: 100,
+    points: 2500,
+    rarity: "rare",
+    criteria: "Pin 100 locations to your travel maps"
+  },
+
+  // Special Badges
+  {
+    id: "explorer-of-the-day",
+    title: "Explorer of the Day",
+    description: "Visit 3 places in one day",
+    category: "special",
+    icon: "🌟",
+    earned: false,
+    progress: 0,
+    total: 3,
+    points: 1000,
+    rarity: "rare",
+    criteria: "Visit 3 different places in a single day"
+  },
+  {
+    id: "explorer-100",
+    title: "Explorer 100%",
+    description: "Collect all standard badges",
+    category: "special",
+    icon: "💯",
+    earned: false,
+    progress: 0,
+    total: 1,
+    points: 10000,
+    rarity: "legendary",
+    criteria: "Earn all available achievement badges"
+  },
+  {
+    id: "legendary-medal",
+    title: "Legendary Medal",
+    description: "Reach Level 20",
+    category: "special",
+    icon: "🏆",
+    earned: false,
+    progress: 0,
+    total: 1,
+    points: 10000,
+    rarity: "legendary",
+    criteria: "Achieve maximum traveler level (20)"
+  },
+
+  // Publication Badges
+  {
+    id: "content-creator",
+    title: "Content Creator",
+    description: "Share 10 travel posts",
+    category: "publications",
+    icon: "📱",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 1000,
+    rarity: "common",
+    criteria: "Create 10 travel publications"
+  },
+  {
+    id: "influencer",
+    title: "Influencer",
+    description: "Share 50 travel posts",
+    category: "publications",
+    icon: "📢",
+    earned: false,
+    progress: 0,
+    total: 50,
+    points: 3000,
+    rarity: "epic",
+    criteria: "Create 50 travel publications"
+  },
+  {
+    id: "travel-celebrity",
+    title: "Travel Celebrity",
+    description: "Share 100 travel posts",
+    category: "publications",
+    icon: "🌟",
+    earned: false,
+    progress: 0,
+    total: 100,
+    points: 7500,
+    rarity: "legendary",
+    criteria: "Create 100 travel publications"
+  },
+
+  // Social Badges
+  {
+    id: "social-butterfly",
+    title: "Social Butterfly",
+    description: "Connect with 100 fellow travelers",
+    category: "social",
+    icon: "🦋",
+    earned: false,
+    progress: 0,
+    total: 100,
+    points: 1500,
+    rarity: "common",
+    criteria: "Make 100 traveler connections"
+  },
+  {
+    id: "community-leader",
+    title: "Community Leader",
+    description: "Connect with 1,000 fellow travelers",
+    category: "social",
+    icon: "👥",
+    earned: false,
+    progress: 0,
+    total: 1000,
+    points: 5000,
+    rarity: "epic",
+    criteria: "Make 1,000 traveler connections"
+  },
+  {
+    id: "network-master",
+    title: "Network Master",
+    description: "Connect with 10,000 fellow travelers",
+    category: "social",
+    icon: "🌐",
+    earned: false,
+    progress: 0,
+    total: 10000,
+    points: 15000,
+    rarity: "legendary",
+    criteria: "Make 10,000 traveler connections"
+  }
+];
