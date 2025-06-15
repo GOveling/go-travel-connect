@@ -1,25 +1,47 @@
+
 import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TravelDocumentsModal from "@/components/modals/TravelDocumentsModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
 import TravelAchievementsModal from "@/components/modals/TravelAchievementsModal";
 import ShareProfileModal from "@/components/modals/ShareProfileModal";
 import SettingsModal from "@/components/modals/SettingsModal";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileSectionProps {
   onSignOut?: () => void;
 }
 
 const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
+  const { user, signOut } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
   const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
   const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
   const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  // Fetch user profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        setProfile(data);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   // Mock trips data to calculate places visited from completed trips
   const userTrips = [
@@ -105,10 +127,27 @@ const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
     { label: "Achievement Points", value: "1,250" },
   ];
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    await signOut();
     if (onSignOut) {
       onSignOut();
     }
+  };
+
+  // Get user initials for avatar
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name
+        .split(' ')
+        .map((name: string) => name[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return 'U';
   };
 
   return (
@@ -117,10 +156,12 @@ const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
       <div className="pt-8 pb-4 text-center">
         <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-white shadow-lg">
           <AvatarFallback className="bg-gradient-to-r from-blue-500 to-orange-500 text-white text-2xl font-bold">
-            JD
+            {getInitials()}
           </AvatarFallback>
         </Avatar>
-        <h2 className="text-2xl font-bold text-gray-800 mb-1">John Doe</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">
+          {profile?.full_name || user?.email || 'Traveler'}
+        </h2>
         <p className="text-gray-600 mb-2">Travel Enthusiast</p>
         <div className="flex items-center justify-center space-x-2">
           <span className="text-sm bg-gradient-to-r from-blue-500 to-orange-500 text-white px-3 py-1 rounded-full">

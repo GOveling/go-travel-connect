@@ -1,6 +1,8 @@
+
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthForm } from "@/hooks/useAuthForm";
+import { useAuth } from "@/hooks/useAuth";
 import type { AuthGateProps } from '@/types';
 import AuthHeader from "./AuthHeader";
 import GoogleAuthButton from "./GoogleAuthButton";
@@ -9,6 +11,7 @@ import AuthModeToggle from "./AuthModeToggle";
 
 const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const isMobile = useIsMobile();
+  const { signUp, signIn, signInWithGoogle } = useAuth();
   const {
     isSignUp,
     email,
@@ -33,33 +36,28 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (isSignUp) {
-      if (password !== confirmPassword) {
-        console.error("Passwords don't match");
-        setIsLoading(false);
-        return;
+    try {
+      if (isSignUp) {
+        if (password !== confirmPassword) {
+          console.error("Passwords don't match");
+          return;
+        }
+        await signUp(email, password, name);
+      } else {
+        await signIn(email, password);
       }
-      console.log("Sign up:", name, email);
-    } else {
-      console.log("Sign in:", email);
-    }
-
-    // Simulate authentication delay
-    setTimeout(() => {
+    } finally {
       setIsLoading(false);
-      onAuthSuccess();
-    }, 1000);
+    }
   };
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    console.log("Google authentication");
-    
-    // Simulate Google auth delay
-    setTimeout(() => {
+    try {
+      await signInWithGoogle();
+    } finally {
       setIsLoading(false);
-      onAuthSuccess();
-    }, 1000);
+    }
   };
 
   return (
