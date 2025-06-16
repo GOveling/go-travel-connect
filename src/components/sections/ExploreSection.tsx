@@ -10,6 +10,7 @@ import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import TravelersSection from "./TravelersSection";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
+import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
