@@ -1,67 +1,99 @@
-
 import { useState } from "react";
+import { User } from "@supabase/supabase-js";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import BottomNavigation from "@/components/navigation/BottomNavigation";
-import HomeSection from "@/components/sections/HomeSection";
-import TripsSection from "@/components/sections/TripsSection";
-import ExploreSection from "@/components/sections/ExploreSection";
-import BookingSection from "@/components/sections/BookingSection";
-import TravelersSection from "@/components/sections/TravelersSection";
-import ProfileSection from "@/components/sections/ProfileSection";
-
-const queryClient = new QueryClient();
+import { BottomNavigation } from "@/components/navigation/BottomNavigation";
+import { HomeSection } from "@/components/sections/HomeSection";
+import { ExploreSection } from "@/components/sections/ExploreSection";
+import { TripsSection } from "@/components/sections/TripsSection";
+import { BookingSection } from "@/components/sections/BookingSection";
+import { TravelersSection } from "@/components/sections/TravelersSection";
+import { ProfileSection } from "@/components/sections/ProfileSection";
+import { HomeModals } from "@/components/home/HomeModals";
+import { useHomeState } from "@/hooks/useHomeState";
+import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import BackendApiExample from "@/components/BackendApiExample";
 
 interface IndexProps {
-  onSignOut?: () => void;
+  onSignOut: () => void;
 }
 
 const Index = ({ onSignOut }: IndexProps) => {
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState("home");
+  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
+  const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
+  const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
+  const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
+  const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
+  const [isViewProfileModalOpen, setIsViewProfileModalOpen] = useState(false);
+  const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
+  const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
 
-  // Listen for navigation events
-  const handleNavigateToTrips = () => {
-    setActiveSection('trips');
-  };
-
-  // Add event listener for navigation
-  window.addEventListener('navigateToTrips', handleNavigateToTrips);
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'home':
-        return <HomeSection />;
-      case 'trips':
-        return <TripsSection />;
-      case 'explore':
-        return <ExploreSection />;
-      case 'booking':
-        return <BookingSection />;
-      case 'travelers':
-        return <TravelersSection />;
-      case 'profile':
-        return <ProfileSection onSignOut={onSignOut} />;
-      default:
-        return <HomeSection />;
-    }
-  };
+  const { user } = useHomeState();
+  const { handleCloseAllModals } = useHomeHandlers(
+    setIsNotificationsModalOpen,
+    setIsNewTripModalOpen,
+    setIsProfilePublicationModalOpen,
+    setIsInstaTripModalOpen,
+    setIsAddMemoryModalOpen,
+    setIsViewProfileModalOpen,
+    setIsShareProfileModalOpen,
+    setIsTravelAchievementsModalOpen
+  );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="min-h-screen bg-gray-50 pb-20">
-          {renderContent()}
-          <BottomNavigation 
-            activeTab={activeSection} 
-            setActiveTab={setActiveSection}
+    <div className="min-h-screen bg-gray-50">
+      <BottomNavigation activeSection={activeSection} setActiveSection={setActiveSection} />
+      <Toaster />
+      <Sonner />
+      
+      <main className="pb-20">
+        {activeSection === "home" && (
+          <HomeSection 
+            user={user}
+            onNotificationsClick={() => setIsNotificationsModalOpen(true)}
+            onNewTripClick={() => setIsNewTripModalOpen(true)}
+            onProfilePublicationClick={() => setIsProfilePublicationModalOpen(true)}
+            onInstaTripClick={() => setIsInstaTripModalOpen(true)}
+            onAddMemoryClick={() => setIsAddMemoryModalOpen(true)}
           />
-        </div>
-        <Toaster />
-        <Sonner />
-      </TooltipProvider>
-    </QueryClientProvider>
+        )}
+        
+        {activeSection === "explore" && <ExploreSection />}
+        {activeSection === "trips" && <TripsSection />}
+        {activeSection === "booking" && <BookingSection />}
+        {activeSection === "travelers" && <TravelersSection />}
+        
+        {activeSection === "profile" && (
+          <ProfileSection 
+            onSignOut={onSignOut}
+            user={user}
+            onEditProfile={() => setIsViewProfileModalOpen(true)}
+            onShareProfile={() => setIsShareProfileModalOpen(true)}
+            onTravelAchievements={() => setIsTravelAchievementsModalOpen(true)}
+            onApiTest={() => setActiveSection("api-test")}
+          />
+        )}
+
+        {activeSection === "api-test" && (
+          <div className="container mx-auto px-4 py-6">
+            <BackendApiExample />
+          </div>
+        )}
+      </main>
+
+      <HomeModals
+        isNotificationsModalOpen={isNotificationsModalOpen}
+        isNewTripModalOpen={isNewTripModalOpen}
+        isProfilePublicationModalOpen={isProfilePublicationModalOpen}
+        isInstaTripModalOpen={isInstaTripModalOpen}
+        isAddMemoryModalOpen={isAddMemoryModalOpen}
+        isViewProfileModalOpen={isViewProfileModalOpen}
+        isShareProfileModalOpen={isShareProfileModalOpen}
+        isTravelAchievementsModalOpen={isTravelAchievementsModalOpen}
+        onClose={handleCloseAllModals}
+      />
+    </div>
   );
 };
 
