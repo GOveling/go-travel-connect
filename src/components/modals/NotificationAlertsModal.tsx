@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -122,8 +121,8 @@ const NotificationAlertsModal = ({ isOpen, onClose, notificationCount, onMarkAll
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] p-0">
-        <DialogHeader className="p-4 sm:p-6 pb-0">
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="p-4 sm:p-6 pb-4 flex-shrink-0">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Bell size={24} className="text-blue-600" />
@@ -146,118 +145,120 @@ const NotificationAlertsModal = ({ isOpen, onClose, notificationCount, onMarkAll
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 px-4 sm:px-6">
-          <div className="space-y-4 pb-6">
-            {/* Recent Notifications */}
-            {recentNotifications.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Recent</h3>
-                <div className="space-y-3">
-                  {recentNotifications.map((notification) => {
-                    const Icon = notification.icon;
-                    return (
-                      <div 
-                        key={notification.id} 
-                        className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 ${
-                          !notification.isRead ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => markAsRead(notification.id)}
-                      >
-                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-                          !notification.isRead ? 'bg-blue-100' : 'bg-gray-100'
-                        }`}>
-                          <Icon size={14} className={notification.color} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <p className={`text-sm font-medium ${
-                                !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                              }`}>
-                                {notification.title}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">
-                                {notification.message}
-                              </p>
-                              <div className="flex items-center space-x-1 mt-2">
-                                <Clock size={12} className="text-gray-400" />
-                                <span className="text-xs text-gray-500">
-                                  {notification.time}
-                                </span>
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="px-4 sm:px-6 pb-6">
+            <div className="space-y-4">
+              {/* Recent Notifications */}
+              {recentNotifications.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Recent</h3>
+                  <div className="space-y-3">
+                    {recentNotifications.map((notification) => {
+                      const Icon = notification.icon;
+                      return (
+                        <div 
+                          key={notification.id} 
+                          className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 ${
+                            !notification.isRead ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => markAsRead(notification.id)}
+                        >
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+                            !notification.isRead ? 'bg-blue-100' : 'bg-gray-100'
+                          }`}>
+                            <Icon size={14} className={notification.color} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className={`text-sm font-medium ${
+                                  !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                                }`}>
+                                  {notification.title}
+                                </p>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center space-x-1 mt-2">
+                                  <Clock size={12} className="text-gray-400" />
+                                  <span className="text-xs text-gray-500">
+                                    {notification.time}
+                                  </span>
+                                </div>
                               </div>
+                              {!notification.isRead && (
+                                <div className="w-2 h-2 bg-blue-600 rounded-full mt-1"></div>
+                              )}
                             </div>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-600 rounded-full mt-1"></div>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Separator */}
-            {olderNotifications.length > 0 && <Separator />}
+              {/* Separator */}
+              {olderNotifications.length > 0 && <Separator />}
 
-            {/* Older Notifications */}
-            {olderNotifications.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Earlier</h3>
-                <div className="space-y-3">
-                  {olderNotifications.map((notification) => {
-                    const Icon = notification.icon;
-                    return (
-                      <div 
-                        key={notification.id} 
-                        className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 ${
-                          !notification.isRead ? 'bg-blue-50' : ''
-                        }`}
-                        onClick={() => markAsRead(notification.id)}
-                      >
-                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-                          !notification.isRead ? 'bg-blue-100' : 'bg-gray-100'
-                        }`}>
-                          <Icon size={14} className={notification.color} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <p className={`text-sm font-medium ${
-                                !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                              }`}>
-                                {notification.title}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-1">
-                                {notification.message}
-                              </p>
-                              <div className="flex items-center space-x-1 mt-2">
-                                <Clock size={12} className="text-gray-400" />
-                                <span className="text-xs text-gray-500">
-                                  {notification.time}
-                                </span>
+              {/* Older Notifications */}
+              {olderNotifications.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Earlier</h3>
+                  <div className="space-y-3">
+                    {olderNotifications.map((notification) => {
+                      const Icon = notification.icon;
+                      return (
+                        <div 
+                          key={notification.id} 
+                          className={`flex items-start space-x-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 ${
+                            !notification.isRead ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => markAsRead(notification.id)}
+                        >
+                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+                            !notification.isRead ? 'bg-blue-100' : 'bg-gray-100'
+                          }`}>
+                            <Icon size={14} className={notification.color} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className={`text-sm font-medium ${
+                                  !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                                }`}>
+                                  {notification.title}
+                                </p>
+                                <p className="text-xs text-gray-600 mt-1">
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center space-x-1 mt-2">
+                                  <Clock size={12} className="text-gray-400" />
+                                  <span className="text-xs text-gray-500">
+                                    {notification.time}
+                                  </span>
+                                </div>
                               </div>
+                              {!notification.isRead && (
+                                <div className="w-2 h-2 bg-blue-600 rounded-full mt-1"></div>
+                              )}
                             </div>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-600 rounded-full mt-1"></div>
-                            )}
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Empty state */}
-            {notifications.length === 0 && (
-              <div className="text-center py-8">
-                <Bell size={48} className="text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No notifications yet</p>
-              </div>
-            )}
+              {/* Empty state */}
+              {notifications.length === 0 && (
+                <div className="text-center py-8">
+                  <Bell size={48} className="text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No notifications yet</p>
+                </div>
+              )}
+            </div>
           </div>
         </ScrollArea>
       </DialogContent>
