@@ -2,11 +2,11 @@
 import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
 
 interface BottomNavigationProps {
-  activeSection: string;
-  setActiveSection: (section: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-const BottomNavigation = ({ activeSection, setActiveSection }: BottomNavigationProps) => {
+const BottomNavigation = ({ activeTab, setActiveTab }: BottomNavigationProps) => {
   const navItems = [
     { id: "home", icon: Home, label: "Home" },
     { id: "explore", icon: Compass, label: "Explore" },
@@ -20,12 +20,12 @@ const BottomNavigation = ({ activeSection, setActiveSection }: BottomNavigationP
       <div className="flex justify-around items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeSection === item.id;
+          const isActive = activeTab === item.id;
           
           return (
             <button
               key={item.id}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${
                 isActive
                   ? "bg-gradient-to-r from-purple-600 to-orange-500 text-white scale-105"
