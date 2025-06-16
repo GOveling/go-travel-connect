@@ -12,6 +12,9 @@ export const useModalState = () => {
   const [isPhotobookModalOpen, setIsPhotobookModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isViewProfileModalOpen, setIsViewProfileModalOpen] = useState(false);
+  const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
+  const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
 
   return {
     isNotificationModalOpen,
@@ -34,5 +37,11 @@ export const useModalState = () => {
     setIsLoginModalOpen,
     isSignUpModalOpen,
     setIsSignUpModalOpen,
+    isViewProfileModalOpen,
+    setIsViewProfileModalOpen,
+    isShareProfileModalOpen,
+    setIsShareProfileModalOpen,
+    isTravelAchievementsModalOpen,
+    setIsTravelAchievementsModalOpen,
   };
 };

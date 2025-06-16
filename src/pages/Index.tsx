@@ -13,6 +13,7 @@ import ProfileSection from "@/components/sections/ProfileSection";
 import HomeModals from "@/components/home/HomeModals";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { useAuth } from "@/hooks/useAuth";
 import BackendApiExample from "@/components/BackendApiExample";
 
 interface IndexProps {
@@ -23,6 +24,7 @@ const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState("home");
   const homeState = useHomeState();
   const handlers = useHomeHandlers(homeState);
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -41,7 +43,7 @@ const Index = ({ onSignOut }: IndexProps) => {
         {activeSection === "profile" && (
           <ProfileSection 
             onSignOut={onSignOut}
-            user={homeState.user}
+            user={user}
             onEditProfile={() => homeState.setIsViewProfileModalOpen(true)}
             onShareProfile={() => homeState.setIsShareProfileModalOpen(true)}
             onTravelAchievements={() => homeState.setIsTravelAchievementsModalOpen(true)}
