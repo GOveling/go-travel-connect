@@ -10,17 +10,12 @@ import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import TravelersSection from "./TravelersSection";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
-import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
-  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  
-  // Notification count state
-  const [notificationCount, setNotificationCount] = useState(5);
 
   // Get actual trips from shared state
   const { trips, addPlaceToTrip, setTrips } = useHomeState();
@@ -443,44 +438,16 @@ const ExploreSection = () => {
     setSelectedPlace(null);
   };
 
-  const handleNotificationClick = () => {
-    setIsNotificationModalOpen(true);
-  };
-
-  const handleMarkAllNotificationsRead = () => {
-    setNotificationCount(0);
-  };
-
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(category);
   };
 
   return (
     <div className="min-h-screen p-4 space-y-6">
-      {/* Header with Notification Bell */}
-      <div className="pt-8 pb-4 flex justify-between items-start">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Explore</h2>
-          <p className="text-gray-600">Discover amazing places and connect with fellow travelers</p>
-        </div>
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNotificationClick}
-            className="relative p-2 hover:bg-gray-100 rounded-full"
-          >
-            <Bell size={24} className="text-gray-600" />
-            {notificationCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 min-w-[20px]"
-              >
-                {notificationCount > 9 ? '9+' : notificationCount}
-              </Badge>
-            )}
-          </Button>
-        </div>
+      {/* Header - removed notification bell section completely */}
+      <div className="pt-8 pb-4">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Explore</h2>
+        <p className="text-gray-600">Discover amazing places and connect with fellow travelers</p>
       </div>
 
       {/* Search Bar */}
@@ -619,13 +586,6 @@ const ExploreSection = () => {
         existingTrips={trips.filter(trip => trip.status !== 'completed')}
         onAddToExistingTrip={handleAddToExistingTrip}
         onCreateNewTrip={handleCreateNewTrip}
-      />
-
-      <NotificationAlertsModal
-        isOpen={isNotificationModalOpen}
-        onClose={() => setIsNotificationModalOpen(false)}
-        notificationCount={notificationCount}
-        onMarkAllRead={handleMarkAllNotificationsRead}
       />
     </div>
   );
