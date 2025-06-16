@@ -13,6 +13,7 @@ import ProfileSection from "@/components/sections/ProfileSection";
 import HomeModals from "@/components/home/HomeModals";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { useAuth } from "@/hooks/useAuth";
 import BackendApiExample from "@/components/BackendApiExample";
 
 interface IndexProps {
@@ -21,28 +22,10 @@ interface IndexProps {
 
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState("home");
-  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
-  const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
-  const [isProfilePublicationModalOpen, setIsProfilePublicationModalOpen] = useState(false);
-  const [isInstaTripModalOpen, setIsInstaTripModalOpen] = useState(false);
-  const [isAddMemoryModalOpen, setIsAddMemoryModalOpen] = useState(false);
-  const [isViewProfileModalOpen, setIsViewProfileModalOpen] = useState(false);
-  const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
-  const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
+  const { user } = useAuth();
 
   const homeState = useHomeState();
-  const homeHandlers = useHomeHandlers();
-
-  const handleCloseAllModals = () => {
-    setIsNotificationsModalOpen(false);
-    setIsNewTripModalOpen(false);
-    setIsProfilePublicationModalOpen(false);
-    setIsInstaTripModalOpen(false);
-    setIsAddMemoryModalOpen(false);
-    setIsViewProfileModalOpen(false);
-    setIsShareProfileModalOpen(false);
-    setIsTravelAchievementsModalOpen(false);
-  };
+  const homeHandlers = useHomeHandlers(homeState);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,16 +34,7 @@ const Index = ({ onSignOut }: IndexProps) => {
       <Sonner />
       
       <main className="pb-20">
-        {activeSection === "home" && (
-          <HomeSection 
-            user={homeState.user}
-            onNotificationsClick={() => setIsNotificationsModalOpen(true)}
-            onNewTripClick={() => setIsNewTripModalOpen(true)}
-            onProfilePublicationClick={() => setIsProfilePublicationModalOpen(true)}
-            onInstaTripClick={() => setIsInstaTripModalOpen(true)}
-            onAddMemoryClick={() => setIsAddMemoryModalOpen(true)}
-          />
-        )}
+        {activeSection === "home" && <HomeSection />}
         
         {activeSection === "explore" && <ExploreSection />}
         {activeSection === "trips" && <TripsSection />}
@@ -70,10 +44,10 @@ const Index = ({ onSignOut }: IndexProps) => {
         {activeSection === "profile" && (
           <ProfileSection 
             onSignOut={onSignOut}
-            user={homeState.user}
-            onEditProfile={() => setIsViewProfileModalOpen(true)}
-            onShareProfile={() => setIsShareProfileModalOpen(true)}
-            onTravelAchievements={() => setIsTravelAchievementsModalOpen(true)}
+            user={user}
+            onEditProfile={() => {}}
+            onShareProfile={() => {}}
+            onTravelAchievements={() => {}}
             onApiTest={() => setActiveSection("api-test")}
           />
         )}
@@ -85,17 +59,7 @@ const Index = ({ onSignOut }: IndexProps) => {
         )}
       </main>
 
-      <HomeModals
-        isNotificationsModalOpen={isNotificationsModalOpen}
-        isNewTripModalOpen={isNewTripModalOpen}
-        isProfilePublicationModalOpen={isProfilePublicationModalOpen}
-        isInstaTripModalOpen={isInstaTripModalOpen}
-        isAddMemoryModalOpen={isAddMemoryModalOpen}
-        isViewProfileModalOpen={isViewProfileModalOpen}
-        isShareProfileModalOpen={isShareProfileModalOpen}
-        isTravelAchievementsModalOpen={isTravelAchievementsModalOpen}
-        onClose={handleCloseAllModals}
-      />
+      <HomeModals homeState={homeState} handlers={homeHandlers} />
     </div>
   );
 };
