@@ -217,8 +217,8 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+      <DialogContent className="w-[95vw] max-w-lg mx-auto h-[90vh] flex flex-col p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b flex-shrink-0">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -238,7 +238,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
         </DialogHeader>
 
         {/* Quick Actions */}
-        <div className="px-6 py-4 bg-gray-50 border-b">
+        <div className="px-6 py-4 bg-gray-50 border-b flex-shrink-0">
           <div className="flex flex-wrap gap-2">
             <Button 
               variant="outline" 
@@ -416,7 +416,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
         </ScrollArea>
 
         {/* Footer */}
-        <div className="p-4 border-t bg-gray-50">
+        <div className="p-4 border-t bg-gray-50 flex-shrink-0">
           <p className="text-xs text-gray-500 text-center">
             Changes are saved automatically • Configure notifications to enhance your travel experience
           </p>
