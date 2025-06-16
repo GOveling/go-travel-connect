@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { TravelerLevel } from "@/types/gamification";
 import { Trophy, Star } from "lucide-react";
+import { TRAVELER_LEVELS } from "@/data/gamificationData";
 
 interface LevelProgressCardProps {
   level: TravelerLevel;
@@ -13,6 +14,10 @@ interface LevelProgressCardProps {
 const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
   const progressPercentage = (level.currentXP / level.nextLevelXP) * 100;
   const isMaxLevel = level.level === 20;
+  
+  // Get the next level information
+  const nextLevel = TRAVELER_LEVELS.find(l => l.level === level.level + 1);
+  const nextLevelName = nextLevel ? nextLevel.title : "Max Level";
 
   return (
     <Card className="overflow-hidden">
@@ -47,7 +52,7 @@ const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
             {!isMaxLevel && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm opacity-90">
-                  <span>Progress to Next Level</span>
+                  <span>Progress to {nextLevelName}</span>
                   <span>{level.currentXP} / {level.nextLevelXP} XP</span>
                 </div>
                 <Progress 
@@ -55,7 +60,7 @@ const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
                   className="h-3 bg-white/20"
                 />
                 <div className="text-sm opacity-90">
-                  {level.nextLevelXP - level.currentXP} XP needed for {level.level < 20 ? `Level ${level.level + 1}` : 'Max Level'}
+                  {level.nextLevelXP - level.currentXP} XP needed for {nextLevelName}
                 </div>
               </div>
             )}
