@@ -36,6 +36,144 @@ export type Database = {
         }
         Relationships: []
       }
+      trips: {
+        Row: {
+          accommodation: string | null
+          budget: string | null
+          created_at: string
+          dates: string
+          description: string | null
+          destination: string
+          id: string
+          image: string | null
+          is_group_trip: boolean | null
+          name: string
+          status: string
+          transportation: string | null
+          travelers: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accommodation?: string | null
+          budget?: string | null
+          created_at?: string
+          dates: string
+          description?: string | null
+          destination: string
+          id?: string
+          image?: string | null
+          is_group_trip?: boolean | null
+          name: string
+          status?: string
+          transportation?: string | null
+          travelers?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accommodation?: string | null
+          budget?: string | null
+          created_at?: string
+          dates?: string
+          description?: string | null
+          destination?: string
+          id?: string
+          image?: string | null
+          is_group_trip?: boolean | null
+          name?: string
+          status?: string
+          transportation?: string | null
+          travelers?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          achievement_points: number | null
+          cities_explored: number | null
+          countries_visited: number | null
+          created_at: string
+          id: string
+          level: number | null
+          places_visited: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_points?: number | null
+          cities_explored?: number | null
+          countries_visited?: number | null
+          created_at?: string
+          id?: string
+          level?: number | null
+          places_visited?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_points?: number | null
+          cities_explored?: number | null
+          countries_visited?: number | null
+          created_at?: string
+          id?: string
+          level?: number | null
+          places_visited?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
