@@ -8,7 +8,6 @@ import { useState } from "react";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import TravelersSection from "./TravelersSection";
-import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
 
