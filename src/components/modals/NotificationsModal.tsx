@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,7 +41,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
   const { toast } = useToast();
   
   const [settings, setSettings] = useState<NotificationSetting[]>([
-    // Social Notifications
+    // Social Notifications - All enabled by default
     {
       id: 'friend_requests',
       title: 'Friend Requests',
@@ -74,12 +73,12 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
       id: 'photo_tags',
       title: 'Photo Tags',
       description: 'When you\'re tagged in travel photos',
-      enabled: false,
+      enabled: true,
       icon: Camera,
       category: 'social',
       color: 'text-purple-600'
     },
-    // Travel Notifications
+    // Travel Notifications - All enabled by default
     {
       id: 'travel_updates',
       title: 'Travel Updates',
@@ -139,7 +138,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
       id: 'location_sharing',
       title: 'Real-time Location',
       description: 'Share your current location with friends',
-      enabled: false,
+      enabled: true,
       icon: MapPin,
       color: 'text-red-600'
     },
@@ -200,13 +199,11 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
   };
 
   const resetToDefaults = () => {
-    setSettings(prev => prev.map(setting => ({
-      ...setting,
-      enabled: ['friend_requests', 'trip_likes', 'comments', 'travel_updates', 'achievements', 'trip_reminders', 'instant_trip'].includes(setting.id)
-    })));
+    setSettings(prev => prev.map(setting => ({ ...setting, enabled: true })));
+    setPrivacySettings(prev => prev.map(setting => ({ ...setting, enabled: true })));
     toast({
       title: "Settings reset",
-      description: "Notification preferences restored to defaults",
+      description: "All notification preferences enabled by default",
     });
   };
 
