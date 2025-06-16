@@ -1,15 +1,16 @@
+
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { BottomNavigation } from "@/components/navigation/BottomNavigation";
-import { HomeSection } from "@/components/sections/HomeSection";
-import { ExploreSection } from "@/components/sections/ExploreSection";
-import { TripsSection } from "@/components/sections/TripsSection";
-import { BookingSection } from "@/components/sections/BookingSection";
-import { TravelersSection } from "@/components/sections/TravelersSection";
-import { ProfileSection } from "@/components/sections/ProfileSection";
-import { HomeModals } from "@/components/home/HomeModals";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
+import HomeSection from "@/components/sections/HomeSection";
+import ExploreSection from "@/components/sections/ExploreSection";
+import TripsSection from "@/components/sections/TripsSection";
+import BookingSection from "@/components/sections/BookingSection";
+import TravelersSection from "@/components/sections/TravelersSection";
+import ProfileSection from "@/components/sections/ProfileSection";
+import HomeModals from "@/components/home/HomeModals";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 import BackendApiExample from "@/components/BackendApiExample";
@@ -29,17 +30,19 @@ const Index = ({ onSignOut }: IndexProps) => {
   const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
   const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
 
-  const { user } = useHomeState();
-  const { handleCloseAllModals } = useHomeHandlers(
-    setIsNotificationsModalOpen,
-    setIsNewTripModalOpen,
-    setIsProfilePublicationModalOpen,
-    setIsInstaTripModalOpen,
-    setIsAddMemoryModalOpen,
-    setIsViewProfileModalOpen,
-    setIsShareProfileModalOpen,
-    setIsTravelAchievementsModalOpen
-  );
+  const homeState = useHomeState();
+  const homeHandlers = useHomeHandlers();
+
+  const handleCloseAllModals = () => {
+    setIsNotificationsModalOpen(false);
+    setIsNewTripModalOpen(false);
+    setIsProfilePublicationModalOpen(false);
+    setIsInstaTripModalOpen(false);
+    setIsAddMemoryModalOpen(false);
+    setIsViewProfileModalOpen(false);
+    setIsShareProfileModalOpen(false);
+    setIsTravelAchievementsModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -50,7 +53,7 @@ const Index = ({ onSignOut }: IndexProps) => {
       <main className="pb-20">
         {activeSection === "home" && (
           <HomeSection 
-            user={user}
+            user={homeState.user}
             onNotificationsClick={() => setIsNotificationsModalOpen(true)}
             onNewTripClick={() => setIsNewTripModalOpen(true)}
             onProfilePublicationClick={() => setIsProfilePublicationModalOpen(true)}
@@ -67,7 +70,7 @@ const Index = ({ onSignOut }: IndexProps) => {
         {activeSection === "profile" && (
           <ProfileSection 
             onSignOut={onSignOut}
-            user={user}
+            user={homeState.user}
             onEditProfile={() => setIsViewProfileModalOpen(true)}
             onShareProfile={() => setIsShareProfileModalOpen(true)}
             onTravelAchievements={() => setIsTravelAchievementsModalOpen(true)}

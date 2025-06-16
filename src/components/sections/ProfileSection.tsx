@@ -1,3 +1,4 @@
+
 import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share, Share2, Trophy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -271,26 +272,14 @@ export const ProfileSection = ({
         <CardHeader>
           <CardTitle className="text-lg">Preferences</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">Notifications</p>
-            <Switch
-              checked={true}
-              onChange={() => {}}
-              className="w-6 h-6 rounded-full border-2 border-gray-300"
-            />
+            <div className="text-sm text-blue-600">Enabled</div>
           </div>
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">Language</p>
-            <Select
-              value="English"
-              onChange={() => {}}
-              className="w-24"
-            >
-              <option value="English">English</option>
-              <option value="Spanish">Spanish</option>
-              <option value="French">French</option>
-            </Select>
+            <div className="text-sm text-gray-800">English</div>
           </div>
         </CardContent>
       </Card>
