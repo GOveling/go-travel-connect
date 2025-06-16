@@ -1,5 +1,5 @@
 
-import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share, Share2, Trophy } from "lucide-react";
+import { User, FileText, Bell, Settings, LogOut, Camera, Award, Share } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -14,23 +14,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileSectionProps {
-  onSignOut: () => void;
-  user: any;
-  onEditProfile: () => void;
-  onShareProfile: () => void;
-  onTravelAchievements: () => void;
-  onApiTest?: () => void;
+  onSignOut?: () => void;
 }
 
-export const ProfileSection = ({
-  onSignOut,
-  user,
-  onEditProfile,
-  onShareProfile,
-  onTravelAchievements,
-  onApiTest,
-}: ProfileSectionProps) => {
-  const { user: authUser, signOut } = useAuth();
+const ProfileSection = ({ onSignOut }: ProfileSectionProps) => {
+  const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
@@ -163,7 +151,7 @@ export const ProfileSection = ({
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen p-4 space-y-6">
       {/* Header */}
       <div className="pt-8 pb-4 text-center">
         <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-white shadow-lg">
@@ -226,63 +214,34 @@ export const ProfileSection = ({
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
-        <h3 className="font-semibold text-gray-800 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            onClick={onEditProfile}
-            className="h-12 flex items-center justify-center gap-2"
-          >
-            <User className="w-4 h-4" />
-            Edit Profile
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onShareProfile}
-            className="h-12 flex items-center justify-center gap-2"
-          >
-            <Share2 className="w-4 h-4" />
-            Share Profile
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onTravelAchievements}
-            className="h-12 flex items-center justify-center gap-2"
-          >
-            <Trophy className="w-4 h-4" />
-            Achievements
-          </Button>
-          {onApiTest && (
-            <Button
-              variant="outline"
-              onClick={onApiTest}
-              className="h-12 flex items-center justify-center gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              Test API
-            </Button>
-          )}
-        </div>
+      {/* Menu Items */}
+      <div className="space-y-3">
+        {menuItems.map((item, index) => {
+          const Icon = item.icon;
+          return (
+            <Card key={index} className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <Icon size={20} className={item.color} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-800">{item.title}</h3>
+                    <p className="text-sm text-gray-600">{item.subtitle}</p>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={item.onClick || (() => {})}
+                  >
+                    →
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
-
-      {/* Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Preferences</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">Notifications</p>
-            <div className="text-sm text-blue-600">Enabled</div>
-          </div>
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">Language</p>
-            <div className="text-sm text-gray-800">English</div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Sign Out */}
       <Card className="border-red-200">
