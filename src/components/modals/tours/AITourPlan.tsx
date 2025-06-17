@@ -1,8 +1,7 @@
-
 import { Brain, MapPin, Calendar, Users, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AITourPlan, formatTourSummary, getTotalTourBudgetEstimate } from "./aiTourUtils";
+import { type AITourPlan, formatTourSummary, getTotalTourBudgetEstimate } from "./aiTourUtils";
 
 interface AITourPlanProps {
   plan: AITourPlan;
