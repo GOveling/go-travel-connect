@@ -1,5 +1,6 @@
 
-import { Check, History } from "lucide-react";
+import { Check, History, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface PaymentRecord {
   amount: number;
@@ -9,9 +10,12 @@ interface PaymentRecord {
 
 interface PaymentRecordProps {
   payments: PaymentRecord[];
+  paymentKey?: string;
+  onDeletePayment?: (paymentKey: string, timestamp: number) => void;
+  canDelete?: boolean;
 }
 
-const PaymentRecordComponent = ({ payments }: PaymentRecordProps) => {
+const PaymentRecordComponent = ({ payments, paymentKey, onDeletePayment, canDelete = false }: PaymentRecordProps) => {
   if (payments.length === 0) return null;
 
   return (
@@ -28,9 +32,21 @@ const PaymentRecordComponent = ({ payments }: PaymentRecordProps) => {
             <span className="text-green-600 font-medium">
               +${payment.amount.toFixed(2)}
             </span>
-            <span className="text-gray-500">
-              {payment.date}
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-500">
+                {payment.date}
+              </span>
+              {canDelete && paymentKey && onDeletePayment && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onDeletePayment(paymentKey, payment.timestamp)}
+                  className="h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <X size={10} />
+                </Button>
+              )}
+            </div>
           </div>
         ))}
       </div>

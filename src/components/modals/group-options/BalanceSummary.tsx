@@ -61,6 +61,13 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
     }));
   };
 
+  const deletePayment = (paymentKey: string, timestamp: number) => {
+    setPaymentHistory(prev => ({
+      ...prev,
+      [paymentKey]: (prev[paymentKey] || []).filter(payment => payment.timestamp !== timestamp)
+    }));
+  };
+
   const getTotalPaid = (paymentKey: string): number => {
     const payments = paymentHistory[paymentKey] || [];
     return payments.reduce((total, payment) => total + payment.amount, 0);
@@ -113,6 +120,7 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                               paymentInputs={paymentInputs}
                               setPaymentInputs={setPaymentInputs}
                               addPayment={addPayment}
+                              deletePayment={deletePayment}
                             />
                           ))}
                         </div>

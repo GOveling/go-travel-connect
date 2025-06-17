@@ -25,6 +25,7 @@ interface SettlementCardProps {
   paymentInputs: Record<string, string>;
   setPaymentInputs: (inputs: Record<string, string>) => void;
   addPayment: (paymentKey: string, amount: string) => void;
+  deletePayment?: (paymentKey: string, timestamp: number) => void;
 }
 
 const SettlementCard = ({ 
@@ -34,7 +35,8 @@ const SettlementCard = ({
   getTotalPaid, 
   paymentInputs, 
   setPaymentInputs, 
-  addPayment 
+  addPayment,
+  deletePayment
 }: SettlementCardProps) => {
   const paymentKey = `${settlement.from}-${settlement.to}`;
   const totalPaid = getTotalPaid(paymentKey);
@@ -54,7 +56,12 @@ const SettlementCard = ({
         </span>
       </div>
 
-      <PaymentRecordComponent payments={settlement.payments} />
+      <PaymentRecordComponent 
+        payments={settlement.payments} 
+        paymentKey={paymentKey}
+        onDeletePayment={deletePayment}
+        canDelete={canEditPayment}
+      />
       
       <PaymentSummary totalPaid={totalPaid} remainingAmount={remainingAmount} />
       
