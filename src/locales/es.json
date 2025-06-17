@@ -24,7 +24,133 @@
     "next": "Siguiente",
     "previous": "Anterior",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "viewMore": "Ver Más",
+    "loadMore": "Cargar Más",
+    "seeAll": "Ver Todo"
+  },
+  "home": {
+    "welcomeBack": "Bienvenido de Vuelta",
+    "travelSmart": "Viaja Inteligente",
+    "travelMore": "Viaja Más",
+    "quickStats": {
+      "title": "Estadísticas Rápidas",
+      "tripsPlanned": "Viajes Planeados",
+      "placesVisited": "Lugares Visitados",
+      "countriesExplored": "Países Explorados"
+    },
+    "currentTrip": {
+      "currentTrip": "Viaje Actual",
+      "upcomingTrip": "Próximo Viaje",
+      "viewDetails": "Ver Detalles",
+      "planNewTrip": "Planear Nuevo Viaje",
+      "noTrips": "Aún no hay viajes planeados",
+      "startPlanning": "¡Comienza a planear tu aventura!",
+      "viewAllTrips": "Ver Todos los Viajes"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "bookFlight": "Reservar Vuelo",
+      "findHotel": "Encontrar Hotel",
+      "exploreDestinations": "Explorar Destinos",
+      "viewTrips": "Ver Mis Viajes"
+    },
+    "popularPlaces": {
+      "title": "Lugares Populares",
+      "subtitle": "Descubre destinos increíbles alrededor del mundo"
+    }
+  },
+  "explore": {
+    "title": "Explorar",
+    "subtitle": "Descubre lugares increíbles alrededor del mundo",
+    "searchPlaceholder": "Buscar destinos, actividades...",
+    "categories": {
+      "all": "Todo",
+      "attractions": "Atracciones",
+      "restaurants": "Restaurantes",
+      "hotels": "Hoteles",
+      "activities": "Actividades",
+      "nature": "Naturaleza",
+      "culture": "Cultura",
+      "nightlife": "Vida Nocturna",
+      "shopping": "Compras"
+    },
+    "filters": {
+      "title": "Filtros",
+      "rating": "Calificación",
+      "priceRange": "Rango de Precio",
+      "location": "Ubicación",
+      "openNow": "Abierto Ahora",
+      "apply": "Aplicar Filtros",
+      "clear": "Limpiar Todo"
+    },
+    "addToTrip": "Agregar al Viaje"
+  },
+  "trips": {
+    "title": "Mis Viajes",
+    "subtitle": "Planea y gestiona tus aventuras",
+    "newTrip": "Nuevo Viaje",
+    "mapView": "Vista de Mapa",
+    "backToList": "Volver a la Lista",
+    "quickStats": {
+      "upcoming": "Próximos",
+      "inProgress": "En Progreso",
+      "completed": "Completados",
+      "total": "Total de Viajes"
+    },
+    "status": {
+      "upcoming": "Próximo",
+      "inProgress": "En Progreso",
+      "completed": "Completado"
+    },
+    "actions": {
+      "viewDetails": "Ver Detalles",
+      "editTrip": "Editar Viaje",
+      "inviteFriends": "Invitar Amigos",
+      "groupOptions": "Opciones de Grupo",
+      "aiSmartRoute": "Ruta Inteligente IA",
+      "viewSavedPlaces": "Ver Lugares Guardados"
+    },
+    "templates": {
+      "title": "Plantillas de Viaje",
+      "subtitle": "Inicio rápido con viajes prediseñados",
+      "beachVacation": "Vacaciones en la Playa",
+      "mountainTrip": "Aventura en la Montaña",
+      "cityBreak": "Escapada Urbana",
+      "backpacking": "Mochilero"
+    },
+    "share": {
+      "title": "Compartir con Compañeros Viajeros",
+      "subtitle": "Invita amigos a unirse a la aventura",
+      "shareApp": "Compartir App"
+    }
+  },
+  "booking": {
+    "title": "Reservas",
+    "subtitle": "Reserva lo esencial para tu viaje",
+    "specialOffer": {
+      "title": "Oferta Especial",
+      "subtitle": "¡Ahorra hasta 30% en vuelos esta semana!",
+      "bookNow": "Reservar Ahora"
+    },
+    "categories": {
+      "flights": "Vuelos",
+      "hotels": "Hoteles",
+      "carRental": "Alquiler de Autos",
+      "tours": "Tours y Actividades",
+      "restaurants": "Restaurantes",
+      "esim": "eSIM y Datos"
+    },
+    "quickBook": {
+      "title": "Reserva Rápida",
+      "popularFlights": "Vuelos Populares",
+      "topHotels": "Mejores Hoteles"
+    },
+    "recentBookings": {
+      "title": "Reservas Recientes",
+      "noBookings": "No hay reservas recientes",
+      "viewAll": "Ver Todas las Reservas"
+    }
   },
   "settings": {
     "title": "Configuración",

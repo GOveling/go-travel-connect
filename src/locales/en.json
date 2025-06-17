@@ -24,7 +24,133 @@
     "next": "Next",
     "previous": "Previous",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "viewMore": "View More",
+    "loadMore": "Load More",
+    "seeAll": "See All"
+  },
+  "home": {
+    "welcomeBack": "Welcome Back",
+    "travelSmart": "Travel Smart",
+    "travelMore": "Travel More",
+    "quickStats": {
+      "title": "Quick Stats",
+      "tripsPlanned": "Trips Planned",
+      "placesVisited": "Places Visited",
+      "countriesExplored": "Countries Explored"
+    },
+    "currentTrip": {
+      "currentTrip": "Current Trip",
+      "upcomingTrip": "Upcoming Trip",
+      "viewDetails": "View Details",
+      "planNewTrip": "Plan New Trip",
+      "noTrips": "No trips planned yet",
+      "startPlanning": "Start planning your adventure!",
+      "viewAllTrips": "View All Trips"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "bookFlight": "Book Flight",
+      "findHotel": "Find Hotel",
+      "exploreDestinations": "Explore Destinations",
+      "viewTrips": "View My Trips"
+    },
+    "popularPlaces": {
+      "title": "Popular Places",
+      "subtitle": "Discover amazing destinations around the world"
+    }
+  },
+  "explore": {
+    "title": "Explore",
+    "subtitle": "Discover amazing places around the world",
+    "searchPlaceholder": "Search destinations, activities...",
+    "categories": {
+      "all": "All",
+      "attractions": "Attractions",
+      "restaurants": "Restaurants", 
+      "hotels": "Hotels",
+      "activities": "Activities",
+      "nature": "Nature",
+      "culture": "Culture",
+      "nightlife": "Nightlife",
+      "shopping": "Shopping"
+    },
+    "filters": {
+      "title": "Filters",
+      "rating": "Rating",
+      "priceRange": "Price Range",
+      "location": "Location",
+      "openNow": "Open Now",
+      "apply": "Apply Filters",
+      "clear": "Clear All"
+    },
+    "addToTrip": "Add to Trip"
+  },
+  "trips": {
+    "title": "My Trips",
+    "subtitle": "Plan and manage your adventures",
+    "newTrip": "New Trip",
+    "mapView": "Map View",
+    "backToList": "Back to List",
+    "quickStats": {
+      "upcoming": "Upcoming",
+      "inProgress": "In Progress", 
+      "completed": "Completed",
+      "total": "Total Trips"
+    },
+    "status": {
+      "upcoming": "Upcoming",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "editTrip": "Edit Trip",
+      "inviteFriends": "Invite Friends",
+      "groupOptions": "Group Options",
+      "aiSmartRoute": "AI Smart Route",
+      "viewSavedPlaces": "View Saved Places"
+    },
+    "templates": {
+      "title": "Trip Templates",
+      "subtitle": "Quick start with pre-designed trips",
+      "beachVacation": "Beach Vacation",
+      "mountainTrip": "Mountain Adventure",
+      "cityBreak": "City Break",
+      "backpacking": "Backpacking"
+    },
+    "share": {
+      "title": "Share with Fellow Travelers",
+      "subtitle": "Invite friends to join the adventure",
+      "shareApp": "Share App"
+    }
+  },
+  "booking": {
+    "title": "Booking",
+    "subtitle": "Book your travel essentials",
+    "specialOffer": {
+      "title": "Special Offer",
+      "subtitle": "Save up to 30% on flights this week!",
+      "bookNow": "Book Now"
+    },
+    "categories": {
+      "flights": "Flights",
+      "hotels": "Hotels",
+      "carRental": "Car Rental",
+      "tours": "Tours & Activities",
+      "restaurants": "Restaurants",
+      "esim": "eSIM & Data"
+    },
+    "quickBook": {
+      "title": "Quick Book",
+      "popularFlights": "Popular Flights",
+      "topHotels": "Top Hotels"
+    },
+    "recentBookings": {
+      "title": "Recent Bookings",
+      "noBookings": "No recent bookings",
+      "viewAll": "View All Bookings"
+    }
   },
   "settings": {
     "title": "Settings",

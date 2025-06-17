@@ -24,7 +24,133 @@
     "next": "Avanti",
     "previous": "Precedente",
     "yes": "Sì",
-    "no": "No"
+    "no": "No",
+    "viewMore": "Vedi Altro",
+    "loadMore": "Carica Altro",
+    "seeAll": "Vedi Tutto"
+  },
+  "home": {
+    "welcomeBack": "Bentornato",
+    "travelSmart": "Viaggia Intelligente",
+    "travelMore": "Viaggia di Più",
+    "quickStats": {
+      "title": "Statistiche Rapide",
+      "tripsPlanned": "Viaggi Pianificati",
+      "placesVisited": "Luoghi Visitati",
+      "countriesExplored": "Paesi Esplorati"
+    },
+    "currentTrip": {
+      "currentTrip": "Viaggio Attuale",
+      "upcomingTrip": "Prossimo Viaggio",
+      "viewDetails": "Vedi Dettagli",
+      "planNewTrip": "Pianifica Nuovo Viaggio",
+      "noTrips": "Nessun viaggio pianificato ancora",
+      "startPlanning": "Inizia a pianificare la tua avventura!",
+      "viewAllTrips": "Vedi Tutti i Viaggi"
+    },
+    "quickActions": {
+      "title": "Azioni Rapide",
+      "bookFlight": "Prenota Volo",
+      "findHotel": "Trova Hotel",
+      "exploreDestinations": "Esplora Destinazioni",
+      "viewTrips": "Vedi I Miei Viaggi"
+    },
+    "popularPlaces": {
+      "title": "Luoghi Popolari",
+      "subtitle": "Scopri destinazioni incredibili in tutto il mondo"
+    }
+  },
+  "explore": {
+    "title": "Esplora",
+    "subtitle": "Scopri luoghi incredibili in tutto il mondo",
+    "searchPlaceholder": "Cerca destinazioni, attività...",
+    "categories": {
+      "all": "Tutto",
+      "attractions": "Attrazioni",
+      "restaurants": "Ristoranti",
+      "hotels": "Hotel",
+      "activities": "Attività",
+      "nature": "Natura",
+      "culture": "Cultura",
+      "nightlife": "Vita Notturna",
+      "shopping": "Shopping"
+    },
+    "filters": {
+      "title": "Filtri",
+      "rating": "Valutazione",
+      "priceRange": "Fascia di Prezzo",
+      "location": "Posizione",
+      "openNow": "Aperto Ora",
+      "apply": "Applica Filtri",
+      "clear": "Cancella Tutto"
+    },
+    "addToTrip": "Aggiungi al Viaggio"
+  },
+  "trips": {
+    "title": "I Miei Viaggi",
+    "subtitle": "Pianifica e gestisci le tue avventure",
+    "newTrip": "Nuovo Viaggio",
+    "mapView": "Vista Mappa",
+    "backToList": "Torna alla Lista",
+    "quickStats": {
+      "upcoming": "Prossimi",
+      "inProgress": "In Corso",
+      "completed": "Completati",
+      "total": "Viaggi Totali"
+    },
+    "status": {
+      "upcoming": "Prossimo",
+      "inProgress": "In Corso",
+      "completed": "Completato"
+    },
+    "actions": {
+      "viewDetails": "Vedi Dettagli",
+      "editTrip": "Modifica Viaggio",
+      "inviteFriends": "Invita Amici",
+      "groupOptions": "Opzioni Gruppo",
+      "aiSmartRoute": "Percorso Intelligente IA",
+      "viewSavedPlaces": "Vedi Luoghi Salvati"
+    },
+    "templates": {
+      "title": "Modelli di Viaggio",
+      "subtitle": "Inizio rapido con viaggi pre-progettati",
+      "beachVacation": "Vacanza al Mare",
+      "mountainTrip": "Avventura in Montagna",
+      "cityBreak": "Fuga in Città",
+      "backpacking": "Zaino in Spalla"
+    },
+    "share": {
+      "title": "Condividi con Compagni di Viaggio",
+      "subtitle": "Invita amici a unirsi all'avventura",
+      "shareApp": "Condividi App"
+    }
+  },
+  "booking": {
+    "title": "Prenotazioni",
+    "subtitle": "Prenota l'essenziale per il tuo viaggio",
+    "specialOffer": {
+      "title": "Offerta Speciale",
+      "subtitle": "Risparmia fino al 30% sui voli questa settimana!",
+      "bookNow": "Prenota Ora"
+    },
+    "categories": {
+      "flights": "Voli",
+      "hotels": "Hotel",
+      "carRental": "Noleggio Auto",
+      "tours": "Tour e Attività",
+      "restaurants": "Ristoranti",
+      "esim": "eSIM e Dati"
+    },
+    "quickBook": {
+      "title": "Prenotazione Rapida",
+      "popularFlights": "Voli Popolari",
+      "topHotels": "Migliori Hotel"
+    },
+    "recentBookings": {
+      "title": "Prenotazioni Recenti",
+      "noBookings": "Nessuna prenotazione recente",
+      "viewAll": "Vedi Tutte le Prenotazioni"
+    }
   },
   "settings": {
     "title": "Impostazioni",

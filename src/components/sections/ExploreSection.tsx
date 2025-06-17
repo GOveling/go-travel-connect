@@ -5,12 +5,14 @@ import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import ExploreFilterModal, { FilterOptions } from "@/components/modals/ExploreFilterModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import ExploreHeader from "./explore/ExploreHeader";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreTabsContent from "./explore/ExploreTabsContent";
 import { places, categories } from "./explore/exploreData";
 
 const ExploreSection = () => {
+  const { t } = useLanguage();
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
@@ -68,7 +70,7 @@ const ExploreSection = () => {
     const selectedTrip = trips.find(trip => trip.id === tripId);
     
     toast({
-      title: "Place added to trip!",
+      title: t("explore.addToTrip"),
       description: `${place.name} has been saved to ${selectedTrip?.name}`,
     });
     
@@ -101,7 +103,7 @@ const ExploreSection = () => {
     }
 
     toast({
-      title: "Filters applied",
+      title: t("filters.apply"),
       description: "Search results updated based on your preferences",
     });
   };

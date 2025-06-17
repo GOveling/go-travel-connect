@@ -24,7 +24,133 @@
     "next": "下一步",
     "previous": "上一步",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "viewMore": "查看更多",
+    "loadMore": "加载更多",
+    "seeAll": "查看全部"
+  },
+  "home": {
+    "welcomeBack": "欢迎回来",
+    "travelSmart": "智能旅行",
+    "travelMore": "畅游世界",
+    "quickStats": {
+      "title": "快速统计",
+      "tripsPlanned": "计划的旅行",
+      "placesVisited": "访问的地点",
+      "countriesExplored": "探索的国家"
+    },
+    "currentTrip": {
+      "currentTrip": "当前旅行",
+      "upcomingTrip": "即将到来的旅行",
+      "viewDetails": "查看详情",
+      "planNewTrip": "计划新旅行",
+      "noTrips": "尚未计划任何旅行",
+      "startPlanning": "开始计划您的冒险之旅！",
+      "viewAllTrips": "查看所有旅行"
+    },
+    "quickActions": {
+      "title": "快速操作",
+      "bookFlight": "预订航班",
+      "findHotel": "寻找酒店",
+      "exploreDestinations": "探索目的地",
+      "viewTrips": "查看我的旅行"
+    },
+    "popularPlaces": {
+      "title": "热门地点",
+      "subtitle": "发现世界各地的精彩目的地"
+    }
+  },
+  "explore": {
+    "title": "探索",
+    "subtitle": "发现世界各地的精彩地点",
+    "searchPlaceholder": "搜索目的地、活动...",
+    "categories": {
+      "all": "全部",
+      "attractions": "景点",
+      "restaurants": "餐厅",
+      "hotels": "酒店",
+      "activities": "活动",
+      "nature": "自然",
+      "culture": "文化",
+      "nightlife": "夜生活",
+      "shopping": "购物"
+    },
+    "filters": {
+      "title": "筛选",
+      "rating": "评分",
+      "priceRange": "价格范围",
+      "location": "位置",
+      "openNow": "现在营业",
+      "apply": "应用筛选",
+      "clear": "清除所有"
+    },
+    "addToTrip": "添加到旅行"
+  },
+  "trips": {
+    "title": "我的旅行",
+    "subtitle": "计划和管理您的冒险",
+    "newTrip": "新旅行",
+    "mapView": "地图视图",
+    "backToList": "返回列表",
+    "quickStats": {
+      "upcoming": "即将到来",
+      "inProgress": "进行中",
+      "completed": "已完成",
+      "total": "总旅行数"
+    },
+    "status": {
+      "upcoming": "即将到来",
+      "inProgress": "进行中",
+      "completed": "已完成"
+    },
+    "actions": {
+      "viewDetails": "查看详情",
+      "editTrip": "编辑旅行",
+      "inviteFriends": "邀请朋友",
+      "groupOptions": "群组选项",
+      "aiSmartRoute": "AI智能路线",
+      "viewSavedPlaces": "查看保存的地点"
+    },
+    "templates": {
+      "title": "旅行模板",
+      "subtitle": "使用预设计的旅行快速开始",
+      "beachVacation": "海滩度假",
+      "mountainTrip": "山区冒险",
+      "cityBreak": "城市旅行",
+      "backpacking": "背包旅行"
+    },
+    "share": {
+      "title": "与旅行伙伴分享",
+      "subtitle": "邀请朋友加入冒险",
+      "shareApp": "分享应用"
+    }
+  },
+  "booking": {
+    "title": "预订",
+    "subtitle": "预订您的旅行必需品",
+    "specialOffer": {
+      "title": "特别优惠",
+      "subtitle": "本周航班最高可节省30%！",
+      "bookNow": "立即预订"
+    },
+    "categories": {
+      "flights": "航班",
+      "hotels": "酒店",
+      "carRental": "租车",
+      "tours": "旅游和活动",
+      "restaurants": "餐厅",
+      "esim": "eSIM和数据"
+    },
+    "quickBook": {
+      "title": "快速预订",
+      "popularFlights": "热门航班",
+      "topHotels": "顶级酒店"
+    },
+    "recentBookings": {
+      "title": "最近预订",
+      "noBookings": "没有最近的预订",
+      "viewAll": "查看所有预订"
+    }
   },
   "settings": {
     "title": "设置",

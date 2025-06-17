@@ -6,6 +6,7 @@ import CarRentalModal from "@/components/modals/CarRentalModal";
 import ToursModal from "@/components/modals/ToursModal";
 import RestaurantModal from "@/components/modals/RestaurantModal";
 import ESIMModal from "@/components/modals/ESIMModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 import BookingHeader from "./booking/BookingHeader";
 import SpecialOfferCard from "./booking/SpecialOfferCard";
 import BookingCategoriesGrid from "./booking/BookingCategoriesGrid";
@@ -13,6 +14,7 @@ import QuickBookSection from "./booking/QuickBookSection";
 import RecentBookingsSection from "./booking/RecentBookingsSection";
 
 const BookingSection = () => {
+  const { t } = useLanguage();
   const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
   const [isHotelModalOpen, setIsHotelModalOpen] = useState(false);
   const [isCarRentalModalOpen, setIsCarRentalModalOpen] = useState(false);

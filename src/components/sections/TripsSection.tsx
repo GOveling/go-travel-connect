@@ -19,8 +19,10 @@ import QuickStats from "@/components/trips/QuickStats";
 import TripTemplates from "@/components/trips/TripTemplates";
 import ShareSection from "@/components/trips/ShareSection";
 import { useHomeState } from "@/hooks/useHomeState";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const TripsSection = () => {
+  const { t } = useLanguage();
   const [showMap, setShowMap] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [showTripDetail, setShowTripDetail] = useState(false);
@@ -97,7 +99,7 @@ const TripsSection = () => {
         <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Trip Map</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.mapView")}</h2>
               <p className="text-gray-600 text-sm sm:text-base">View all your trip destinations</p>
             </div>
             <Button 
@@ -105,7 +107,7 @@ const TripsSection = () => {
               onClick={() => setShowMap(false)}
               className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
             >
-              Back to List
+              {t("trips.backToList")}
             </Button>
           </div>
         </div>
@@ -122,8 +124,8 @@ const TripsSection = () => {
       <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">My Trips</h2>
-            <p className="text-gray-600 text-sm sm:text-base">Plan and manage your adventures</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.title")}</h2>
+            <p className="text-gray-600 text-sm sm:text-base">{t("trips.subtitle")}</p>
           </div>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             <Button 
@@ -132,14 +134,14 @@ const TripsSection = () => {
               className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
             >
               <Map size={20} className="mr-2" />
-              Map View
+              {t("trips.mapView")}
             </Button>
             <Button 
               className="bg-gradient-to-r from-blue-500 to-orange-500 border-0 w-full sm:w-auto"
               onClick={() => setShowNewTripModal(true)}
             >
               <Plus size={20} className="mr-2" />
-              New Trip
+              {t("trips.newTrip")}
             </Button>
           </div>
         </div>
