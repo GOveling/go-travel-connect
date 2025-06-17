@@ -1,5 +1,5 @@
 
-import { FileText, Bell, Settings, Award, Share } from "lucide-react";
+import { FileText, Bell, Settings, Award, Share, MessageSquare } from "lucide-react";
 import { MenuItemConfig } from "@/types/profile";
 import { TravelStats } from "@/types/profile";
 
@@ -11,6 +11,7 @@ interface ProfileMenuConfigProps {
     setIsTravelAchievementsModalOpen: (open: boolean) => void;
     setIsShareProfileModalOpen: (open: boolean) => void;
     setIsSettingsModalOpen: (open: boolean) => void;
+    setIsMyReviewsModalOpen: (open: boolean) => void;
   };
 }
 
@@ -22,6 +23,13 @@ export const useProfileMenuConfig = ({ stats, modalState }: ProfileMenuConfigPro
       subtitle: "Passports, visas, tickets", 
       color: "text-blue-600",
       onClick: () => modalState.setIsTravelDocumentsModalOpen(true)
+    },
+    { 
+      icon: MessageSquare, 
+      title: "My Reviews", 
+      subtitle: "Manage your place reviews", 
+      color: "text-indigo-600",
+      onClick: () => modalState.setIsMyReviewsModalOpen(true)
     },
     { 
       icon: Bell, 
