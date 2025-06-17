@@ -2,7 +2,6 @@
 import { FileText, Bell, Settings, Award, Share, MessageSquare } from "lucide-react";
 import { MenuItemConfig } from "@/types/profile";
 import { TravelStats } from "@/types/profile";
-import { useGamification } from "@/hooks/useGamification";
 
 interface ProfileMenuConfigProps {
   stats: TravelStats;
@@ -17,8 +16,6 @@ interface ProfileMenuConfigProps {
 }
 
 export const useProfileMenuConfig = ({ stats, modalState }: ProfileMenuConfigProps): MenuItemConfig[] => {
-  const { currentLevel, totalPoints } = useGamification();
-
   return [
     { 
       icon: FileText, 
@@ -44,7 +41,7 @@ export const useProfileMenuConfig = ({ stats, modalState }: ProfileMenuConfigPro
     { 
       icon: Award, 
       title: "Travel Achievements", 
-      subtitle: `Level ${currentLevel.level} ${currentLevel.title} • ${totalPoints} points earned`, 
+      subtitle: `Level ${stats.level} Explorer • ${stats.achievement_points} points earned`, 
       color: "text-purple-600",
       onClick: () => modalState.setIsTravelAchievementsModalOpen(true)
     },
