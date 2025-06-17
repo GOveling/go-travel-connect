@@ -1,17 +1,21 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import HomeHeader from "@/components/home/HomeHeader";
 import QuickStats from "@/components/home/QuickStats";
 import CurrentTrip from "@/components/home/CurrentTrip";
 import QuickActions from "@/components/home/QuickActions";
+import HomePopularPlace from "@/components/home/HomePopularPlace";
 import HomeModals from "@/components/home/HomeModals";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 
 const HomeSection = () => {
   const homeState = useHomeState();
   const handlers = useHomeHandlers(homeState);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
 
   // Listen for navigation to trips section
   useEffect(() => {
@@ -24,6 +28,16 @@ const HomeSection = () => {
       window.dispatchEvent(new CustomEvent('navigateToTrips'));
     };
   }, []);
+
+  const handlePlaceClick = (place: any) => {
+    setSelectedPlace(place);
+    setIsPlaceModalOpen(true);
+  };
+
+  const handleClosePlaceModal = () => {
+    setIsPlaceModalOpen(false);
+    setSelectedPlace(null);
+  };
 
   return (
     <div className="min-h-screen p-4 space-y-4">
@@ -52,8 +66,22 @@ const HomeSection = () => {
 
       <QuickActions />
 
+      {/* Popular Place Globally */}
+      <HomePopularPlace onPlaceClick={handlePlaceClick} />
+
       {/* Render all modals */}
       <HomeModals homeState={homeState} handlers={handlers} />
+
+      {/* Place Detail Modal */}
+      <PlaceDetailModal 
+        place={selectedPlace}
+        isOpen={isPlaceModalOpen}
+        onClose={handleClosePlaceModal}
+        onAddToTrip={() => {
+          // Handle add to trip functionality here if needed
+          setIsPlaceModalOpen(false);
+        }}
+      />
     </div>
   );
 };
