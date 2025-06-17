@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useMemo } from "react";
 import FlightBookingModal from "@/components/modals/FlightBookingModal";
 import HotelBookingModal from "@/components/modals/HotelBookingModal";
 import TransportationModal from "@/components/modals/TransportationModal";
@@ -21,6 +22,22 @@ const BookingSection = () => {
   const [isRestaurantModalOpen, setIsRestaurantModalOpen] = useState(false);
   const [isESIMModalOpen, setIsESIMModalOpen] = useState(false);
 
+  // Memoizar los handlers para evitar re-renders innecesarios
+  const modalHandlers = useMemo(() => ({
+    openFlight: () => setIsFlightModalOpen(true),
+    closeFlight: () => setIsFlightModalOpen(false),
+    openHotel: () => setIsHotelModalOpen(true),
+    closeHotel: () => setIsHotelModalOpen(false),
+    openTransportation: () => setIsTransportationModalOpen(true),
+    closeTransportation: () => setIsTransportationModalOpen(false),
+    openTours: () => setIsToursModalOpen(true),
+    closeTours: () => setIsToursModalOpen(false),
+    openRestaurant: () => setIsRestaurantModalOpen(true),
+    closeRestaurant: () => setIsRestaurantModalOpen(false),
+    openESIM: () => setIsESIMModalOpen(true),
+    closeESIM: () => setIsESIMModalOpen(false),
+  }), []);
+
   return (
     <div className="min-h-screen p-4 space-y-6">
       <BookingHeader />
@@ -28,17 +45,17 @@ const BookingSection = () => {
       <SpecialOfferCard />
 
       <BookingCategoriesGrid
-        onFlightClick={() => setIsFlightModalOpen(true)}
-        onHotelClick={() => setIsHotelModalOpen(true)}
-        onCarRentalClick={() => setIsTransportationModalOpen(true)}
-        onToursClick={() => setIsToursModalOpen(true)}
-        onESIMClick={() => setIsESIMModalOpen(true)}
-        onRestaurantClick={() => setIsRestaurantModalOpen(true)}
+        onFlightClick={modalHandlers.openFlight}
+        onHotelClick={modalHandlers.openHotel}
+        onCarRentalClick={modalHandlers.openTransportation}
+        onToursClick={modalHandlers.openTours}
+        onESIMClick={modalHandlers.openESIM}
+        onRestaurantClick={modalHandlers.openRestaurant}
       />
 
       <QuickBookSection
-        onFlightClick={() => setIsFlightModalOpen(true)}
-        onHotelClick={() => setIsHotelModalOpen(true)}
+        onFlightClick={modalHandlers.openFlight}
+        onHotelClick={modalHandlers.openHotel}
       />
 
       <RecentBookingsSection />
@@ -46,32 +63,32 @@ const BookingSection = () => {
       {/* All Modals */}
       <FlightBookingModal
         isOpen={isFlightModalOpen}
-        onClose={() => setIsFlightModalOpen(false)}
+        onClose={modalHandlers.closeFlight}
       />
       
       <HotelBookingModal
         isOpen={isHotelModalOpen}
-        onClose={() => setIsHotelModalOpen(false)}
+        onClose={modalHandlers.closeHotel}
       />
       
       <TransportationModal
         isOpen={isTransportationModalOpen}
-        onClose={() => setIsTransportationModalOpen(false)}
+        onClose={modalHandlers.closeTransportation}
       />
       
       <ToursModal
         isOpen={isToursModalOpen}
-        onClose={() => setIsToursModalOpen(false)}
+        onClose={modalHandlers.closeTours}
       />
       
       <RestaurantModal
         isOpen={isRestaurantModalOpen}
-        onClose={() => setIsRestaurantModalOpen(false)}
+        onClose={modalHandlers.closeRestaurant}
       />
 
       <ESIMModal
         isOpen={isESIMModalOpen}
-        onClose={() => setIsESIMModalOpen(false)}
+        onClose={modalHandlers.closeESIM}
       />
     </div>
   );

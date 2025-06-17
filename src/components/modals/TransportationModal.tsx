@@ -8,10 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useHomeState } from "@/hooks/useHomeState";
+import { useDataState } from "@/hooks/state/useDataState";
+import { useTransportationState } from "@/hooks/useTransportationState";
 import TripSelectorWithAI from "./transportation/TripSelectorWithAI";
 import AITransportationPlan from "./transportation/AITransportationPlan";
-import { getAITransportationPlan, AITransportationPlan as AITransportationPlanType } from "./transportation/aiTransportationUtils";
 
 interface TransportationModalProps {
   isOpen: boolean;
@@ -19,72 +19,16 @@ interface TransportationModalProps {
 }
 
 const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
-  const [formData, setFormData] = useState({
-    origin: '',
-    destination: '',
-    date: '',
-    transportType: '',
-    passengers: 1
-  });
-  const [selectedTripId, setSelectedTripId] = useState<string>('manual');
-  const [aiTransportationPlan, setAiTransportationPlan] = useState<AITransportationPlanType | null>(null);
   const { toast } = useToast();
-  const { trips } = useHomeState();
-
-  const handleTripSelection = (tripId: string) => {
-    setSelectedTripId(tripId);
-    
-    if (tripId === 'manual') {
-      // Reset form when manual entry is selected
-      setFormData({
-        origin: '',
-        destination: '',
-        date: '',
-        transportType: '',
-        passengers: 1
-      });
-      setAiTransportationPlan(null);
-      return;
-    }
-
-    const selectedTrip = trips.find(trip => trip.id.toString() === tripId);
-    if (selectedTrip) {
-      // 🤖 AI Protocol: Generate transportation plan
-      const aiPlan = getAITransportationPlan(selectedTrip);
-      setAiTransportationPlan(aiPlan);
-
-      // If only one recommendation, auto-fill the form
-      if (aiPlan.recommendations.length === 1) {
-        const rec = aiPlan.recommendations[0];
-        setFormData(prev => ({
-          ...prev,
-          destination: rec.destination,
-          date: rec.date,
-          transportType: rec.transportType,
-          passengers: selectedTrip.travelers || 1
-        }));
-
-        toast({
-          title: "🤖 IA optimizó transporte",
-          description: `${rec.transportType} planificado para ${rec.destination}. ${rec.reason}`,
-        });
-      } else if (aiPlan.recommendations.length > 1) {
-        // Clear single form for multi-destination transportation
-        setFormData({
-          origin: '',
-          destination: '',
-          date: '',
-          transportType: '',
-          passengers: selectedTrip.travelers || 1
-        });
-
-        toast({
-          title: "🤖 IA planificó transportes multi-destino",
-          description: `${aiPlan.recommendations.length} transportes recomendados. Confianza: ${aiPlan.aiConfidence}.`,
-        });
-      }
-    }
-  };
+  const { trips } = useDataState();
+  
+  const {
+    formData,
+    selectedTripId,
+    aiTransportationPlan,
+    handleTripSelection,
+    updateFormData
+  } = useTransportationState(trips);
 
   const handleSearch = () => {
     if (aiTransportationPlan && aiTransportationPlan.recommendations.length > 1) {
@@ -161,7 +105,7 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
                       id="origin"
                       placeholder="Ciudad o lugar de partida"
                       value={formData.origin}
-                      onChange={(e) => setFormData(prev => ({ ...prev, origin: e.target.value }))}
+                      onChange={(e) => updateFormData({ origin: e.target.value })}
                       className="pl-10"
                     />
                   </div>
@@ -175,7 +119,7 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
                       id="destination"
                       placeholder="Ciudad o lugar de destino"
                       value={formData.destination}
-                      onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                      onChange={(e) => updateFormData({ destination: e.target.value })}
                       className="pl-10"
                     />
                   </div>
@@ -189,7 +133,7 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
                       id="date"
                       type="date"
                       value={formData.date}
-                      onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                      onChange={(e) => updateFormData({ date: e.target.value })}
                       className="pl-10"
                     />
                   </div>
@@ -197,7 +141,10 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="transportType">Tipo de Transporte</Label>
-                  <Select value={formData.transportType} onValueChange={(value) => setFormData(prev => ({ ...prev, transportType: value }))}>
+                  <Select 
+                    value={formData.transportType} 
+                    onValueChange={(value) => updateFormData({ transportType: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar transporte" />
                     </SelectTrigger>
@@ -224,7 +171,7 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
                       min="1"
                       max="10"
                       value={formData.passengers}
-                      onChange={(e) => setFormData(prev => ({ ...prev, passengers: parseInt(e.target.value) }))}
+                      onChange={(e) => updateFormData({ passengers: parseInt(e.target.value) })}
                       className="pl-10"
                     />
                   </div>
