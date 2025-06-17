@@ -10,9 +10,10 @@ interface ProfileHeaderProps {
   loading: boolean;
   onEditClick?: () => void;
   avatarUrl?: string;
+  description?: string;
 }
 
-const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl }: ProfileHeaderProps) => {
+const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl, description }: ProfileHeaderProps) => {
   const { currentLevel } = useGamification();
 
   if (loading) {
@@ -54,7 +55,9 @@ const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl 
       <h2 className="text-2xl font-bold text-gray-800 mb-1">
         {displayName}
       </h2>
-      <p className="text-gray-600 mb-2">Travel Enthusiast</p>
+      <p className="text-gray-600 mb-2">
+        {description || "Travel Enthusiast"}
+      </p>
       <div className="flex items-center justify-center space-x-2">
         <span className="text-sm bg-gradient-to-r from-blue-500 to-orange-500 text-white px-3 py-1 rounded-full">
           {currentLevel.title}

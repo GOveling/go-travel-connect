@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Save, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -21,12 +22,14 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
   const { user } = useAuth();
   const { toast } = useToast();
   const [fullName, setFullName] = useState("");
+  const [description, setDescription] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || "");
+      setDescription(profile.description || "");
       setAvatarUrl(profile.avatar_url || "");
     }
   }, [profile]);
@@ -49,14 +52,25 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
   const handleSave = async () => {
     if (!user) return;
 
+    // Validate description length
+    if (description.length > 120) {
+      toast({
+        title: "Descripción muy larga",
+        description: "La descripción no puede tener más de 120 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      console.log('Updating profile with:', { fullName, avatarUrl });
+      console.log('Updating profile with:', { fullName, description, avatarUrl });
       
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: fullName.trim() || null,
+          description: description.trim() || null,
           avatar_url: avatarUrl.trim() || null,
           updated_at: new Date().toISOString()
         })
@@ -88,6 +102,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
 
   const handleClose = () => {
     setFullName(profile?.full_name || "");
+    setDescription(profile?.description || "");
     setAvatarUrl(profile?.avatar_url || "");
     onClose();
   };
@@ -139,6 +154,23 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
                 placeholder="Ingresa tu nombre completo"
                 className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+                Descripción
+              </Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Travel Enthusiast"
+                maxLength={120}
+                className="min-h-[80px] border-2 border-gray-200 focus:border-blue-500 rounded-xl resize-none"
+              />
+              <p className="text-xs text-gray-400">
+                {description.length}/120 caracteres
+              </p>
             </div>
 
             <div className="space-y-2">

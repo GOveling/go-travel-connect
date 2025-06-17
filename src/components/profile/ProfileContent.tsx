@@ -49,6 +49,7 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
         loading={profileLoading}
         onEditClick={handleEditProfile}
         avatarUrl={profile?.avatar_url}
+        description={profile?.description}
       />
 
       <TravelStatsCard 
