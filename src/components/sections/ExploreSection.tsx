@@ -3,7 +3,7 @@ import { useState } from "react";
 import ExploreHeader from "./explore/ExploreHeader";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreTabsContent from "./explore/ExploreTabsContent";
-import { places } from "./explore/exploreData";
+import { allPlaces } from "./explore/exploreData";
 
 const ExploreSection = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,7 +14,7 @@ const ExploreSection = () => {
   };
 
   // Filter places based on search term and category
-  const filteredPlaces = places.filter(place => {
+  const filteredPlaces = allPlaces.filter(place => {
     const matchesSearch = place.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          place.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || place.category === selectedCategory;
@@ -22,7 +22,7 @@ const ExploreSection = () => {
   });
 
   // Get unique categories
-  const categories = ["All", ...Array.from(new Set(places.map(place => place.category)))];
+  const categories = ["All", ...Array.from(new Set(allPlaces.map(place => place.category)))];
 
   return (
     <div className="min-h-screen bg-gray-50">
