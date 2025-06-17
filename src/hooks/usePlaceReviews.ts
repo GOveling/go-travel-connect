@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,7 +13,6 @@ interface Review {
   created_at: string;
   updated_at: string;
   anonymous?: boolean;
-  // We'll use placeholder values for user info since profiles table relation is not available
   user_name?: string;
   user_avatar?: string;
 }
@@ -34,18 +32,27 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
     try {
       const { data, error } = await supabase
         .from('place_reviews')
-        .select('*')
+        .select(`
+          *,
+          profiles!place_reviews_user_id_fkey (
+            full_name
+          )
+        `)
         .eq('place_id', placeId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Add user info based on anonymous setting
-      const reviewsWithUserInfo = data?.map(review => ({
-        ...review,
-        user_name: review.anonymous ? 'Anonymous User' : 'Verified User',
-        user_avatar: review.anonymous ? '👤' : '👤'
-      })) || [];
+      // Add user info based on anonymous setting and profile data
+      const reviewsWithUserInfo = data?.map(review => {
+        const profileName = review.profiles?.full_name;
+        
+        return {
+          ...review,
+          user_name: review.anonymous ? 'Anonymous User' : (profileName || 'Verified User'),
+          user_avatar: review.anonymous ? '👤' : '👤'
+        };
+      }) || [];
 
       setReviews(reviewsWithUserInfo);
     } catch (error) {
