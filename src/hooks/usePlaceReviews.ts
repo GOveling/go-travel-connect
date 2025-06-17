@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,7 +17,7 @@ interface Review {
   user_avatar?: string;
   profiles?: {
     full_name: string | null;
-  };
+  } | null;
 }
 
 export const usePlaceReviews = (placeId: string, placeName: string) => {
@@ -34,29 +33,39 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // First fetch reviews
+      const { data: reviewsData, error: reviewsError } = await supabase
         .from('place_reviews')
-        .select(`
-          *,
-          profiles (
-            full_name
-          )
-        `)
+        .select('*')
         .eq('place_id', placeId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (reviewsError) throw reviewsError;
 
-      // Add user info based on anonymous setting and profile data
-      const reviewsWithUserInfo = data?.map(review => {
-        const profileName = review.profiles?.full_name;
-        
-        return {
-          ...review,
-          user_name: review.anonymous ? 'Anonymous User' : (profileName || 'Verified User'),
-          user_avatar: review.anonymous ? '👤' : '👤'
-        };
-      }) || [];
+      // Then fetch profiles for each review
+      const reviewsWithUserInfo = await Promise.all(
+        (reviewsData || []).map(async (review) => {
+          let profileName = null;
+          
+          // Only fetch profile if not anonymous
+          if (!review.anonymous) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', review.user_id)
+              .maybeSingle();
+            
+            profileName = profileData?.full_name;
+          }
+
+          return {
+            ...review,
+            user_name: review.anonymous ? 'Anonymous User' : (profileName || 'Verified User'),
+            user_avatar: review.anonymous ? '👤' : '👤',
+            profiles: review.anonymous ? null : { full_name: profileName }
+          };
+        })
+      );
 
       setReviews(reviewsWithUserInfo);
     } catch (error) {
