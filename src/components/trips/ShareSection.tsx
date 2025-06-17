@@ -2,22 +2,19 @@
 import { Share2, Link, Smartphone, ExternalLink, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 const ShareSection = () => {
-  const { t } = useLanguage();
-  
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
           <Share2 size={20} className="text-blue-600" />
-          <span>{t("trips.share.title")}</span>
+          <span>Share app with your Travelers Friends</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="bg-blue-50 p-3 rounded-lg">
-          <h4 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">{t("trips.share.subtitle")}</h4>
+          <h4 className="font-medium text-blue-800 mb-1 text-sm sm:text-base">Invite Friends to Join</h4>
           <p className="text-xs sm:text-sm text-blue-600">Share the app with fellow travelers and discover amazing destinations together. Build your travel community!</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

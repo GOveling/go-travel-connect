@@ -1,15 +1,14 @@
 
-import { Plane, Building, Car, MapPin, Coffee, Wifi } from "lucide-react";
+import { Plane, Building, Car, Utensils, Smartphone, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BookingCategoriesGridProps {
   onFlightClick: () => void;
   onHotelClick: () => void;
   onCarRentalClick: () => void;
   onToursClick: () => void;
-  onRestaurantClick: () => void;
   onESIMClick: () => void;
+  onRestaurantClick: () => void;
 }
 
 const BookingCategoriesGrid = ({
@@ -17,35 +16,76 @@ const BookingCategoriesGrid = ({
   onHotelClick,
   onCarRentalClick,
   onToursClick,
-  onRestaurantClick,
-  onESIMClick
+  onESIMClick,
+  onRestaurantClick
 }: BookingCategoriesGridProps) => {
-  const { t } = useLanguage();
-  
-  const categories = [
-    { icon: Plane, label: t("booking.categories.flights"), onClick: onFlightClick, color: "bg-blue-500" },
-    { icon: Building, label: t("booking.categories.hotels"), onClick: onHotelClick, color: "bg-green-500" },
-    { icon: Car, label: t("booking.categories.carRental"), onClick: onCarRentalClick, color: "bg-purple-500" },
-    { icon: MapPin, label: t("booking.categories.tours"), onClick: onToursClick, color: "bg-orange-500" },
-    { icon: Coffee, label: t("booking.categories.restaurants"), onClick: onRestaurantClick, color: "bg-pink-500" },
-    { icon: Wifi, label: t("booking.categories.esim"), onClick: onESIMClick, color: "bg-indigo-500" },
+  const bookingCategories = [
+    {
+      icon: Plane,
+      title: "Flights",
+      subtitle: "Find the best deals",
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
+      action: onFlightClick
+    },
+    {
+      icon: Building,
+      title: "Hotels",
+      subtitle: "Comfortable stays",
+      color: "from-green-500 to-green-600",
+      bgColor: "bg-green-50",
+      action: onHotelClick
+    },
+    {
+      icon: Car,
+      title: "Car Rental",
+      subtitle: "Explore at your pace",
+      color: "from-purple-500 to-purple-600",
+      bgColor: "bg-purple-50",
+      action: onCarRentalClick
+    },
+    {
+      icon: MapPin,
+      title: "Tours",
+      subtitle: "Guided experiences",
+      color: "from-orange-500 to-orange-600",
+      bgColor: "bg-orange-50",
+      action: onToursClick
+    },
+    {
+      icon: Smartphone,
+      title: "eSIMs",
+      subtitle: "Stay connected",
+      color: "from-pink-500 to-pink-600",
+      bgColor: "bg-pink-50",
+      action: onESIMClick
+    },
+    {
+      icon: Utensils,
+      title: "Restaurants",
+      subtitle: "Reserve tables",
+      color: "from-red-500 to-red-600",
+      bgColor: "bg-red-50",
+      action: onRestaurantClick
+    }
   ];
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {categories.map((category, index) => {
+      {bookingCategories.map((category, index) => {
         const Icon = category.icon;
         return (
           <Card 
             key={index} 
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={category.onClick}
+            className={`overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${category.bgColor} cursor-pointer`}
+            onClick={category.action}
           >
-            <CardContent className="p-6 text-center">
-              <div className={`w-12 h-12 ${category.color} rounded-full flex items-center justify-center mx-auto mb-3`}>
+            <CardContent className="p-4 text-center">
+              <div className={`w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center`}>
                 <Icon size={24} className="text-white" />
               </div>
-              <p className="font-medium text-gray-700">{category.label}</p>
+              <h3 className="font-semibold text-gray-800 mb-1">{category.title}</h3>
+              <p className="text-xs text-gray-600">{category.subtitle}</p>
             </CardContent>
           </Card>
         );

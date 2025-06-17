@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TripTemplatesProps {
   onBeachVacation: () => void;
@@ -16,12 +15,10 @@ const TripTemplates = ({
   onCityBreak, 
   onBackpacking 
 }: TripTemplatesProps) => {
-  const { t } = useLanguage();
-  
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base sm:text-lg">{t("trips.templates.title")}</CardTitle>
+        <CardTitle className="text-base sm:text-lg">Quick Trip Templates</CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-2 sm:gap-3">
         <Button 
@@ -30,7 +27,7 @@ const TripTemplates = ({
           onClick={onBeachVacation}
         >
           <span className="text-lg sm:text-xl">🏖️</span>
-          <span className="text-xs sm:text-sm">{t("trips.templates.beachVacation")}</span>
+          <span className="text-xs sm:text-sm">Beach Vacation</span>
         </Button>
         <Button 
           variant="outline" 
@@ -38,7 +35,7 @@ const TripTemplates = ({
           onClick={onMountainTrip}
         >
           <span className="text-lg sm:text-xl">🏔️</span>
-          <span className="text-xs sm:text-sm">{t("trips.templates.mountainTrip")}</span>
+          <span className="text-xs sm:text-sm">Mountain Trip</span>
         </Button>
         <Button 
           variant="outline" 
@@ -46,7 +43,7 @@ const TripTemplates = ({
           onClick={onCityBreak}
         >
           <span className="text-lg sm:text-xl">🏛️</span>
-          <span className="text-xs sm:text-sm">{t("trips.templates.cityBreak")}</span>
+          <span className="text-xs sm:text-sm">City Break</span>
         </Button>
         <Button 
           variant="outline" 
@@ -54,7 +51,7 @@ const TripTemplates = ({
           onClick={onBackpacking}
         >
           <span className="text-lg sm:text-xl">🎒</span>
-          <span className="text-xs sm:text-sm">{t("trips.templates.backpacking")}</span>
+          <span className="text-xs sm:text-sm">Backpacking</span>
         </Button>
       </CardContent>
     </Card>

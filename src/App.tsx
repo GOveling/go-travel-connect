@@ -29,22 +29,32 @@ const App = () => {
     );
   }
 
+  if (!user) {
+    return (
+      <LanguageProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <AuthGate onAuthSuccess={() => {}} />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </LanguageProvider>
+    );
+  }
+
   return (
     <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          {!user ? (
-            <AuthGate onAuthSuccess={() => {}} />
-          ) : (
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index onSignOut={signOut} />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          )}
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index onSignOut={signOut} />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
     </LanguageProvider>

@@ -34,21 +34,13 @@ interface LanguageProviderProps {
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    try {
-      const savedLanguage = localStorage.getItem('appLanguage') as Language;
-      return savedLanguage && savedLanguage in translations ? savedLanguage : 'en';
-    } catch {
-      return 'en';
-    }
+    const savedLanguage = localStorage.getItem('appLanguage') as Language;
+    return savedLanguage || 'en';
   });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    try {
-      localStorage.setItem('appLanguage', lang);
-    } catch {
-      console.warn('Failed to save language to localStorage');
-    }
+    localStorage.setItem('appLanguage', lang);
   };
 
   const t = (key: string, variables?: Record<string, string>): string => {
@@ -91,13 +83,7 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    // Provide a fallback context to prevent crashes
-    console.error('useLanguage must be used within a LanguageProvider. Using fallback context.');
-    return {
-      language: 'en' as Language,
-      setLanguage: () => {},
-      t: (key: string) => key
-    };
+    throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 };
