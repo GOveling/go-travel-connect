@@ -376,6 +376,3 @@ export const allPlaces = [
 ];
 
 export const categories = ["All", "Landmarks", "Museums", "Beaches", "Historical", "Nature", "Restaurants", "Next Concerts", "Night Life", "Fun for Kids"];
-
-// Export places as an alias for allPlaces for backward compatibility
-export const places = allPlaces;

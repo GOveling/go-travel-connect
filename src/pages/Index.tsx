@@ -9,6 +9,7 @@ import HomeSection from "@/components/sections/HomeSection";
 import TripsSection from "@/components/sections/TripsSection";
 import ExploreSection from "@/components/sections/ExploreSection";
 import BookingSection from "@/components/sections/BookingSection";
+import TravelersSection from "@/components/sections/TravelersSection";
 import ProfileSection from "@/components/sections/ProfileSection";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,14 @@ interface IndexProps {
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState('home');
 
+  // Listen for navigation events
+  const handleNavigateToTrips = () => {
+    setActiveSection('trips');
+  };
+
+  // Add event listener for navigation
+  window.addEventListener('navigateToTrips', handleNavigateToTrips);
+
   const renderContent = () => {
     switch (activeSection) {
       case 'home':
@@ -30,6 +39,8 @@ const Index = ({ onSignOut }: IndexProps) => {
         return <ExploreSection />;
       case 'booking':
         return <BookingSection />;
+      case 'travelers':
+        return <TravelersSection />;
       case 'profile':
         return <ProfileSection onSignOut={onSignOut} />;
       default:
