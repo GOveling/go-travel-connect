@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Settings, User, Bell, Shield, Globe, Moon, Sun, Smartphone, HelpCircle, Languages } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -23,7 +22,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const [locationSharing, setLocationSharing] = useState(false);
   const [profileVisibility, setProfileVisibility] = useState("public");
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
-    return localStorage.getItem('appLanguage') || 'es';
+    return localStorage.getItem('appLanguage') || 'en';
   });
 
   // Handle dark mode toggle
