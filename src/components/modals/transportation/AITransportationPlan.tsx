@@ -1,8 +1,7 @@
-
 import { Brain, MapPin, Calendar, Users, Clock, Car, Plane, Home } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { type AITransportationPlan, formatTransportationSummary, getTransportationBudgetEstimate } from "./aiTransportationUtils";
+import { AITransportationPlan, formatTransportationSummary, getTransportationBudgetEstimate } from "./aiTransportationUtils";
 
 interface AITransportationPlanProps {
   plan: AITransportationPlan;
