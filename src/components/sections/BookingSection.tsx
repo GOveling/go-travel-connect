@@ -2,7 +2,7 @@
 import { useState } from "react";
 import FlightBookingModal from "@/components/modals/FlightBookingModal";
 import HotelBookingModal from "@/components/modals/HotelBookingModal";
-import CarRentalModal from "@/components/modals/CarRentalModal";
+import TransportationModal from "@/components/modals/TransportationModal";
 import ToursModal from "@/components/modals/ToursModal";
 import RestaurantModal from "@/components/modals/RestaurantModal";
 import ESIMModal from "@/components/modals/ESIMModal";
@@ -17,7 +17,7 @@ const BookingSection = () => {
   const { t } = useLanguage();
   const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
   const [isHotelModalOpen, setIsHotelModalOpen] = useState(false);
-  const [isCarRentalModalOpen, setIsCarRentalModalOpen] = useState(false);
+  const [isTransportationModalOpen, setIsTransportationModalOpen] = useState(false);
   const [isToursModalOpen, setIsToursModalOpen] = useState(false);
   const [isRestaurantModalOpen, setIsRestaurantModalOpen] = useState(false);
   const [isESIMModalOpen, setIsESIMModalOpen] = useState(false);
@@ -31,7 +31,7 @@ const BookingSection = () => {
       <BookingCategoriesGrid
         onFlightClick={() => setIsFlightModalOpen(true)}
         onHotelClick={() => setIsHotelModalOpen(true)}
-        onCarRentalClick={() => setIsCarRentalModalOpen(true)}
+        onCarRentalClick={() => setIsTransportationModalOpen(true)}
         onToursClick={() => setIsToursModalOpen(true)}
         onESIMClick={() => setIsESIMModalOpen(true)}
         onRestaurantClick={() => setIsRestaurantModalOpen(true)}
@@ -55,9 +55,9 @@ const BookingSection = () => {
         onClose={() => setIsHotelModalOpen(false)}
       />
       
-      <CarRentalModal
-        isOpen={isCarRentalModalOpen}
-        onClose={() => setIsCarRentalModalOpen(false)}
+      <TransportationModal
+        isOpen={isTransportationModalOpen}
+        onClose={() => setIsTransportationModalOpen(false)}
       />
       
       <ToursModal
