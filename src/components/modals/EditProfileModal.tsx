@@ -1,14 +1,14 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Save, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import ImageUploadSection from "./profile/ImageUploadSection";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -20,9 +20,16 @@ interface EditProfileModalProps {
 const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditProfileModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [fullName, setFullName] = useState(profile?.full_name || "");
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
+  const [fullName, setFullName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || "");
+      setAvatarUrl(profile.avatar_url || "");
+    }
+  }, [profile]);
 
   const getInitials = () => {
     if (fullName) {
@@ -74,18 +81,15 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
     }
   };
 
-  const handleImageUpload = () => {
-    // Por ahora, permitiremos ingresar URL manual
-    // En una implementación más completa se podría usar file upload
-    const url = prompt("Ingresa la URL de tu nueva foto de perfil:");
-    if (url) {
-      setAvatarUrl(url);
-    }
+  const handleClose = () => {
+    setFullName(profile?.full_name || "");
+    setAvatarUrl(profile?.avatar_url || "");
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto rounded-2xl p-0 overflow-hidden">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="w-[95vw] max-w-md mx-auto rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Header con gradiente */}
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-6 text-white relative">
           <DialogHeader>
@@ -96,7 +100,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
           <Button
             variant="ghost"
             size="icon"
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 text-white hover:bg-white/20"
           >
             <X size={20} />
@@ -105,30 +109,12 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
 
         {/* Contenido del modal */}
         <div className="p-6 space-y-6">
-          {/* Avatar Section */}
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative">
-              <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
-                {avatarUrl ? (
-                  <AvatarImage src={avatarUrl} alt="Profile" />
-                ) : (
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-orange-500 text-white text-2xl font-bold">
-                    {getInitials()}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <Button
-                size="icon"
-                onClick={handleImageUpload}
-                className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 bg-blue-600 hover:bg-blue-700 shadow-lg"
-              >
-                <Camera size={16} />
-              </Button>
-            </div>
-            <p className="text-sm text-gray-500 text-center">
-              Toca el ícono de cámara para cambiar tu foto
-            </p>
-          </div>
+          {/* Image Upload Section */}
+          <ImageUploadSection
+            currentAvatarUrl={avatarUrl}
+            onImageChange={setAvatarUrl}
+            initials={getInitials()}
+          />
 
           {/* Form Fields */}
           <div className="space-y-4">
@@ -159,48 +145,13 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
                 El email no se puede cambiar
               </p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="avatarUrl" className="text-sm font-medium text-gray-700">
-                URL de la foto (opcional)
-              </Label>
-              <Input
-                id="avatarUrl"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://ejemplo.com/mi-foto.jpg"
-                className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
-              />
-            </div>
-          </div>
-
-          {/* Profile Stats Preview */}
-          <div className="bg-gray-50 rounded-xl p-4">
-            <h4 className="font-medium text-gray-700 mb-3">Vista previa del perfil</h4>
-            <div className="flex items-center space-x-3">
-              <Avatar className="w-12 h-12">
-                {avatarUrl ? (
-                  <AvatarImage src={avatarUrl} alt="Preview" />
-                ) : (
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-orange-500 text-white font-bold">
-                    {getInitials()}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div>
-                <p className="font-medium text-gray-800">
-                  {fullName || "Nombre del usuario"}
-                </p>
-                <p className="text-sm text-gray-500">Travel Enthusiast</p>
-              </div>
-            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-2">
+          <div className="flex space-x-3 pt-4">
             <Button
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 h-12 rounded-xl border-2 border-gray-200 hover:bg-gray-50"
               disabled={isLoading}
             >

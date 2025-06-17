@@ -1,5 +1,5 @@
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Edit } from "lucide-react";
 
@@ -8,9 +8,10 @@ interface ProfileHeaderProps {
   initials: string;
   loading: boolean;
   onEditClick?: () => void;
+  avatarUrl?: string;
 }
 
-const ProfileHeader = ({ displayName, initials, loading, onEditClick }: ProfileHeaderProps) => {
+const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl }: ProfileHeaderProps) => {
   if (loading) {
     return (
       <div className="pt-8 pb-4 text-center">
@@ -29,9 +30,13 @@ const ProfileHeader = ({ displayName, initials, loading, onEditClick }: ProfileH
           className="w-24 h-24 mx-auto mb-4 border-4 border-white shadow-lg cursor-pointer hover:scale-105 transition-transform duration-200"
           onClick={onEditClick}
         >
-          <AvatarFallback className="bg-gradient-to-r from-blue-500 to-orange-500 text-white text-2xl font-bold">
-            {initials}
-          </AvatarFallback>
+          {avatarUrl ? (
+            <AvatarImage src={avatarUrl} alt="Profile" />
+          ) : (
+            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-orange-500 text-white text-2xl font-bold">
+              {initials}
+            </AvatarFallback>
+          )}
         </Avatar>
         
         {/* Edit icon overlay */}

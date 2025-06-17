@@ -36,7 +36,10 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
     modalState.setIsEditProfileModalOpen(true);
   };
 
-  const displayName = profile?.full_name || user?.email || 'Traveler';
+  // Display name logic: prioritize full_name, fallback to email or 'Traveler'
+  const displayName = profile?.full_name && profile.full_name.trim() 
+    ? profile.full_name 
+    : user?.email || 'Traveler';
 
   return (
     <div className="space-y-6">
@@ -45,6 +48,7 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
         initials={getInitials()}
         loading={profileLoading}
         onEditClick={handleEditProfile}
+        avatarUrl={profile?.avatar_url}
       />
 
       <TravelStatsCard 
