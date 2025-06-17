@@ -149,26 +149,24 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
   const getAdjustedBalance = (person: string) => {
     const originalBalance = calculatePersonBalance(person);
     
-    // Calcular total de pagos realizados por esta persona
-    let totalPaid = 0;
+    // Calcular ajustes por pagos realizados y recibidos
+    let paymentAdjustment = 0;
+    
     Object.entries(settlementPayments).forEach(([key, payments]) => {
-      const [from] = key.split('-');
+      const [from, to] = key.split('-');
+      const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
+      
       if (from === person) {
-        totalPaid += payments.reduce((sum, payment) => sum + payment.amount, 0);
+        // Esta persona hizo pagos, reduce su deuda
+        paymentAdjustment -= totalPayments;
       }
-    });
-
-    // Calcular total de pagos recibidos por esta persona
-    let totalReceived = 0;
-    Object.entries(settlementPayments).forEach(([key, payments]) => {
-      const [, to] = key.split('-');
       if (to === person) {
-        totalReceived += payments.reduce((sum, payment) => sum + payment.amount, 0);
+        // Esta persona recibió pagos, reduce lo que le deben
+        paymentAdjustment += totalPayments;
       }
     });
 
-    // Balance ajustado: balance original + dinero recibido - dinero pagado
-    return originalBalance + totalReceived - totalPaid;
+    return originalBalance + paymentAdjustment;
   };
 
   const getTotalExpenses = () => {
@@ -238,7 +236,7 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                           {settlements.map((settlement, index) => {
                             const paymentKey = `${settlement.from}-${settlement.to}`;
                             const totalPaid = getTotalPaid(paymentKey);
-                            const remainingAmount = settlement.amount - totalPaid;
+                            const remainingAmount = Math.max(0, settlement.amount - totalPaid);
                             const canEditPayment = settlement.from === participant.name;
                             
                             return (
@@ -328,7 +326,7 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                                           size="sm"
                                           onClick={() => handlePaymentAdd(paymentKey, paymentInputs[paymentKey] || '0')}
                                           className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
-                                          disabled={!paymentInputs[paymentKey] || parseFloat(paymentInputs[paymentKey]) <= 0}
+                                          disabled={!paymentInputs[paymentKey] || parseFloat(paymentInputs[paymentKey]) <= 0 || parseFloat(paymentInputs[paymentKey]) > remainingAmount}
                                         >
                                           Añadir
                                         </Button>
