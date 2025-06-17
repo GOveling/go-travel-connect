@@ -1,0 +1,34 @@
+
+{
+  "home": {
+    "welcomeBack": "欢迎回来",
+    "travelSmart": "智能旅行",
+    "travelMore": "畅游世界",
+    "quickStats": {
+      "title": "快速统计",
+      "tripsPlanned": "计划的旅行",
+      "placesVisited": "访问的地点",
+      "countriesExplored": "探索的国家"
+    },
+    "currentTrip": {
+      "currentTrip": "当前旅行",
+      "upcomingTrip": "即将到来的旅行",
+      "viewDetails": "查看详情",
+      "planNewTrip": "计划新旅行",
+      "noTrips": "尚未计划任何旅行",
+      "startPlanning": "开始计划您的冒险之旅！",
+      "viewAllTrips": "查看所有旅行"
+    },
+    "quickActions": {
+      "title": "快速操作",
+      "bookFlight": "预订航班",
+      "findHotel": "寻找酒店",
+      "exploreDestinations": "探索目的地",
+      "viewTrips": "查看我的旅行"
+    },
+    "popularPlaces": {
+      "title": "热门地点",
+      "subtitle": "发现世界各地的精彩目的地"
+    }
+  }
+}

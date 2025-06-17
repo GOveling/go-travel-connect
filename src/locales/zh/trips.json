@@ -1,0 +1,42 @@
+
+{
+  "trips": {
+    "title": "我的旅行",
+    "subtitle": "计划和管理您的冒险",
+    "newTrip": "新旅行",
+    "mapView": "地图视图",
+    "backToList": "返回列表",
+    "quickStats": {
+      "upcoming": "即将到来",
+      "inProgress": "进行中",
+      "completed": "已完成",
+      "total": "总旅行数"
+    },
+    "status": {
+      "upcoming": "即将到来",
+      "inProgress": "进行中",
+      "completed": "已完成"
+    },
+    "actions": {
+      "viewDetails": "查看详情",
+      "editTrip": "编辑旅行",
+      "inviteFriends": "邀请朋友",
+      "groupOptions": "群组选项",
+      "aiSmartRoute": "AI智能路线",
+      "viewSavedPlaces": "查看保存的地点"
+    },
+    "templates": {
+      "title": "旅行模板",
+      "subtitle": "使用预设计的旅行快速开始",
+      "beachVacation": "海滩度假",
+      "mountainTrip": "山区冒险",
+      "cityBreak": "城市旅行",
+      "backpacking": "背包旅行"
+    },
+    "share": {
+      "title": "与旅行伙伴分享",
+      "subtitle": "邀请朋友加入冒险",
+      "shareApp": "分享应用"
+    }
+  }
+}

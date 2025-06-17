@@ -1,0 +1,52 @@
+
+{
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "language": "Language / Idioma",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "appearance": "Appearance",
+    "support": "Support",
+    "profileVisibility": {
+      "label": "Profile Visibility",
+      "description": "Who can see your profile",
+      "public": "Public",
+      "friends": "Friends Only",
+      "private": "Private"
+    },
+    "appLanguage": {
+      "label": "App Language",
+      "description": "Choose your preferred language"
+    },
+    "pushNotifications": {
+      "label": "Push Notifications",
+      "description": "Receive notifications on your device"
+    },
+    "emailNotifications": {
+      "label": "Email Notifications",
+      "description": "Receive updates via email"
+    },
+    "locationSharing": {
+      "label": "Location Sharing",
+      "description": "Share your location with friends"
+    },
+    "darkMode": {
+      "label": "Dark Mode",
+      "description": "Use dark theme"
+    },
+    "helpCenter": {
+      "title": "Help Center",
+      "description": "Get help and support"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "Read our privacy policy"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "description": "View terms and conditions"
+    },
+    "appVersion": "Travel App v1.0.0"
+  }
+}

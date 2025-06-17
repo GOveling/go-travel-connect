@@ -1,0 +1,34 @@
+
+{
+  "home": {
+    "welcomeBack": "Welcome Back",
+    "travelSmart": "Travel Smart",
+    "travelMore": "Travel More",
+    "quickStats": {
+      "title": "Quick Stats",
+      "tripsPlanned": "Trips Planned",
+      "placesVisited": "Places Visited",
+      "countriesExplored": "Countries Explored"
+    },
+    "currentTrip": {
+      "currentTrip": "Current Trip",
+      "upcomingTrip": "Upcoming Trip",
+      "viewDetails": "View Details",
+      "planNewTrip": "Plan New Trip",
+      "noTrips": "No trips planned yet",
+      "startPlanning": "Start planning your adventure!",
+      "viewAllTrips": "View All Trips"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "bookFlight": "Book Flight",
+      "findHotel": "Find Hotel",
+      "exploreDestinations": "Explore Destinations",
+      "viewTrips": "View My Trips"
+    },
+    "popularPlaces": {
+      "title": "Popular Places",
+      "subtitle": "Discover amazing destinations around the world"
+    }
+  }
+}

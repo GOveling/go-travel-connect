@@ -1,22 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-// Import translation files
-import en from '@/locales/en.json';
-import es from '@/locales/es.json';
-import pt from '@/locales/pt.json';
-import fr from '@/locales/fr.json';
-import it from '@/locales/it.json';
-import zh from '@/locales/zh.json';
-
-const translations = {
-  en,
-  es,
-  pt,
-  fr,
-  it,
-  zh
-};
+import { translations } from '@/locales/loader';
 
 export type Language = 'en' | 'es' | 'pt' | 'fr' | 'it' | 'zh';
 

@@ -1,0 +1,30 @@
+
+{
+  "booking": {
+    "title": "Booking",
+    "subtitle": "Book your travel essentials",
+    "specialOffer": {
+      "title": "Special Offer",
+      "subtitle": "Save up to 30% on flights this week!",
+      "bookNow": "Book Now"
+    },
+    "categories": {
+      "flights": "Flights",
+      "hotels": "Hotels",
+      "carRental": "Car Rental",
+      "tours": "Tours & Activities",
+      "restaurants": "Restaurants",
+      "esim": "eSIM & Data"
+    },
+    "quickBook": {
+      "title": "Quick Book",
+      "popularFlights": "Popular Flights",
+      "topHotels": "Top Hotels"
+    },
+    "recentBookings": {
+      "title": "Recent Bookings",
+      "noBookings": "No recent bookings",
+      "viewAll": "View All Bookings"
+    }
+  }
+}

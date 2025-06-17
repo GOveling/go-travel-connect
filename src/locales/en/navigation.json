@@ -1,0 +1,11 @@
+
+{
+  "navigation": {
+    "home": "Home",
+    "explore": "Explore",
+    "trips": "My Trips",
+    "booking": "Booking",
+    "profile": "Profile",
+    "travelers": "Travelers"
+  }
+}

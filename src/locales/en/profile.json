@@ -1,0 +1,45 @@
+
+{
+  "profile": {
+    "editProfile": "Edit Profile",
+    "travelStats": "Travel Stats",
+    "countriesVisited": "Countries Visited",
+    "citiesExplored": "Cities Explored",
+    "placesVisited": "Places Visited",
+    "achievementPoints": "Achievement Points",
+    "signOut": "Sign Out",
+    "fullName": "Full name",
+    "description": "Description",
+    "email": "Email",
+    "emailCannotChange": "Email cannot be changed",
+    "charactersLeft": "{{count}}/70 characters",
+    "enterFullName": "Enter your full name",
+    "travelEnthusiast": "Travel Enthusiast",
+    "menu": {
+      "travelDocuments": {
+        "title": "Travel Documents",
+        "subtitle": "Passports, visas, tickets"
+      },
+      "myReviews": {
+        "title": "My Reviews",
+        "subtitle": "Manage your place reviews"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "subtitle": "Manage alerts & updates"
+      },
+      "travelAchievements": {
+        "title": "Travel Achievements",
+        "subtitle": "Level {{level}} {{title}} • {{points}} points earned"
+      },
+      "shareProfile": {
+        "title": "Share Profile",
+        "subtitle": "Connect with travelers"
+      },
+      "settings": {
+        "title": "Settings",
+        "subtitle": "App preferences"
+      }
+    }
+  }
+}

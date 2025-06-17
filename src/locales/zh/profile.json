@@ -1,0 +1,45 @@
+
+{
+  "profile": {
+    "editProfile": "编辑资料",
+    "travelStats": "旅行统计",
+    "countriesVisited": "访问的国家",
+    "citiesExplored": "探索的城市",
+    "placesVisited": "访问的地点",
+    "achievementPoints": "成就积分",
+    "signOut": "退出登录",
+    "fullName": "全名",
+    "description": "描述",
+    "email": "邮箱",
+    "emailCannotChange": "邮箱无法更改",
+    "charactersLeft": "{{count}}/70 字符",
+    "enterFullName": "输入您的全名",
+    "travelEnthusiast": "旅行爱好者",
+    "menu": {
+      "travelDocuments": {
+        "title": "旅行文件",
+        "subtitle": "护照、签证、票据"
+      },
+      "myReviews": {
+        "title": "我的评论",
+        "subtitle": "管理您的地点评论"
+      },
+      "notifications": {
+        "title": "通知",
+        "subtitle": "管理提醒和更新"
+      },
+      "travelAchievements": {
+        "title": "旅行成就",
+        "subtitle": "等级 {{level}} {{title}} • 获得 {{points}} 积分"
+      },
+      "shareProfile": {
+        "title": "分享资料",
+        "subtitle": "与旅行者连接"
+      },
+      "settings": {
+        "title": "设置",
+        "subtitle": "应用偏好设置"
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+
+{
+  "navigation": {
+    "home": "主页",
+    "explore": "探索",
+    "trips": "我的旅行",
+    "booking": "预订",
+    "profile": "个人资料",
+    "travelers": "旅行者"
+  }
+}

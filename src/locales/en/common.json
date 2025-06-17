@@ -1,0 +1,24 @@
+
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "search": "Search",
+    "filter": "Filter",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "viewMore": "View More",
+    "loadMore": "Load More",
+    "seeAll": "See All"
+  }
+}

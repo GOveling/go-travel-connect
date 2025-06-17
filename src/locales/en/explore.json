@@ -1,0 +1,43 @@
+
+{
+  "explore": {
+    "title": "Explore",
+    "subtitle": "Discover amazing places around the world",
+    "searchPlaceholder": "Search destinations, activities...",
+    "categories": {
+      "all": "All",
+      "attractions": "Attractions",
+      "restaurants": "Restaurants", 
+      "hotels": "Hotels",
+      "activities": "Activities",
+      "nature": "Nature",
+      "culture": "Culture",
+      "nightlife": "Nightlife",
+      "shopping": "Shopping"
+    },
+    "filters": {
+      "title": "Filters",
+      "rating": "Rating",
+      "priceRange": "Price Range",
+      "location": "Location",
+      "openNow": "Open Now",
+      "apply": "Apply Filters",
+      "clear": "Clear All"
+    },
+    "addToTrip": "Add to Trip",
+    "nearbyPlaces": {
+      "title": "Nearby Places",
+      "subtitle": "Recommended for you",
+      "description": "Discover recommended places near your location",
+      "exploreNow": "Explore Now",
+      "viewDetails": "View Details",
+      "samplePlaces": {
+        "park": "Beautiful city park perfect for walks and exercise.",
+        "museum": "Impressive collection of contemporary and classical art.",
+        "cafe": "Cozy coffee shop with great atmosphere and specialty coffee.",
+        "plaza": "Beautiful colonial architecture plaza with cultural events.",
+        "market": "Traditional market with local products and authentic food."
+      }
+    }
+  }
+}

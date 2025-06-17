@@ -1,0 +1,42 @@
+
+{
+  "trips": {
+    "title": "My Trips",
+    "subtitle": "Plan and manage your adventures",
+    "newTrip": "New Trip",
+    "mapView": "Map View",
+    "backToList": "Back to List",
+    "quickStats": {
+      "upcoming": "Upcoming",
+      "inProgress": "In Progress", 
+      "completed": "Completed",
+      "total": "Total Trips"
+    },
+    "status": {
+      "upcoming": "Upcoming",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "editTrip": "Edit Trip",
+      "inviteFriends": "Invite Friends",
+      "groupOptions": "Group Options",
+      "aiSmartRoute": "AI Smart Route",
+      "viewSavedPlaces": "View Saved Places"
+    },
+    "templates": {
+      "title": "Trip Templates",
+      "subtitle": "Quick start with pre-designed trips",
+      "beachVacation": "Beach Vacation",
+      "mountainTrip": "Mountain Adventure",
+      "cityBreak": "City Break",
+      "backpacking": "Backpacking"
+    },
+    "share": {
+      "title": "Share with Fellow Travelers",
+      "subtitle": "Invite friends to join the adventure",
+      "shareApp": "Share App"
+    }
+  }
+}

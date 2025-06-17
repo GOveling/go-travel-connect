@@ -1,0 +1,30 @@
+
+{
+  "booking": {
+    "title": "预订",
+    "subtitle": "预订您的旅行必需品",
+    "specialOffer": {
+      "title": "特别优惠",
+      "subtitle": "本周航班最高可节省30%！",
+      "bookNow": "立即预订"
+    },
+    "categories": {
+      "flights": "航班",
+      "hotels": "酒店",
+      "carRental": "租车",
+      "tours": "旅游和活动",
+      "restaurants": "餐厅",
+      "esim": "eSIM和数据"
+    },
+    "quickBook": {
+      "title": "快速预订",
+      "popularFlights": "热门航班",
+      "topHotels": "顶级酒店"
+    },
+    "recentBookings": {
+      "title": "最近预订",
+      "noBookings": "没有最近的预订",
+      "viewAll": "查看所有预订"
+    }
+  }
+}
