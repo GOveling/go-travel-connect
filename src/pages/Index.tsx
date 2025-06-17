@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import HomeSection from "@/components/sections/HomeSection";
 import TripsSection from "@/components/sections/TripsSection";
@@ -14,27 +14,35 @@ interface IndexProps {
 
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState('home');
+  const navigationInitialized = useRef(false);
 
-  // Memoize the navigation handler to prevent recreation on every render
+  // Memoizar el handler de navegación
   const handleNavigateToTrips = useCallback(() => {
     setActiveSection('trips');
   }, []);
 
-  // Use useEffect for event listener to prevent memory leaks
+  // Configurar el event listener de forma más estable
   useEffect(() => {
-    const handleNavigationEvent = () => {
+    // Prevenir múltiples inicializaciones
+    if (navigationInitialized.current) return;
+    navigationInitialized.current = true;
+
+    const handleNavigationEvent = (event: Event) => {
+      console.log('Navigation event received:', event.type);
       handleNavigateToTrips();
     };
 
-    window.addEventListener('navigateToTrips', handleNavigationEvent);
+    // Usar addEventListener con options para mejor control
+    window.addEventListener('navigateToTrips', handleNavigationEvent, { passive: true });
 
-    // Cleanup event listener on unmount
     return () => {
+      navigationInitialized.current = false;
       window.removeEventListener('navigateToTrips', handleNavigationEvent);
     };
   }, [handleNavigateToTrips]);
 
-  const renderContent = () => {
+  // Memoizar el contenido renderizado para prevenir re-renderizados innecesarios
+  const renderContent = useCallback(() => {
     switch (activeSection) {
       case 'home':
         return <HomeSection />;
@@ -51,7 +59,7 @@ const Index = ({ onSignOut }: IndexProps) => {
       default:
         return <HomeSection />;
     }
-  };
+  }, [activeSection, onSignOut]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">

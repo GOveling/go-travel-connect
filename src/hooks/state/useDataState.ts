@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Trip } from "@/types/aiSmartRoute";
 import { InstaTripImage, ProfilePost, FriendPublication } from "../types/homeStateTypes";
 import { initialTripsData } from "../data/mockTripsData";
@@ -11,6 +11,8 @@ export const useDataState = () => {
   const [profilePosts, setProfilePosts] = useState<ProfilePost[]>([]);
   const [trips, setTrips] = useState<Trip[]>(initialTripsData);
   const [selectedPostForTrip, setSelectedPostForTrip] = useState<ProfilePost | null>(null);
+  const cleanupInitialized = useRef(false);
+  
   const [friendPublications, setFriendPublications] = useState<FriendPublication[]>([
     {
       id: "friend1-pub1",
@@ -22,7 +24,7 @@ export const useDataState = () => {
         "https://images.unsplash.com/photo-1504208434309-cb69f4fe52b0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
       ],
       text: "Amazing sunset at the beach today! Perfect end to our vacation.",
-      createdAt: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
+      createdAt: Date.now() - 2 * 60 * 60 * 1000,
       location: "Malibu Beach, California",
       likes: 24,
       comments: 3,
@@ -37,7 +39,7 @@ export const useDataState = () => {
         "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
       ],
       text: "Hiking through the Redwood Forest. These trees are incredible!",
-      createdAt: Date.now() - 8 * 60 * 60 * 1000, // 8 hours ago
+      createdAt: Date.now() - 8 * 60 * 60 * 1000,
       location: "Redwood National Park",
       likes: 42,
       comments: 7,
@@ -54,7 +56,7 @@ export const useDataState = () => {
         "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
       ],
       text: "Our first day in Rome! The Colosseum is even more impressive in person.",
-      createdAt: Date.now() - 24 * 60 * 60 * 1000, // 1 day ago
+      createdAt: Date.now() - 24 * 60 * 60 * 1000,
       location: "Rome, Italy",
       likes: 63,
       comments: 12,
@@ -62,25 +64,32 @@ export const useDataState = () => {
     }
   ]);
 
-  // Memoize the cleanup function to prevent unnecessary re-renders
+  // Optimizar la función de limpieza con useCallback estable
   const cleanupExpiredImages = useCallback(() => {
     const now = Date.now();
     const twelveHoursAgo = now - (12 * 60 * 60 * 1000);
     
-    setInstaTripImages(prev => 
-      prev.filter(image => image.addedAt >= twelveHoursAgo)
-    );
+    setInstaTripImages(prev => {
+      const filtered = prev.filter(image => image.addedAt >= twelveHoursAgo);
+      // Solo actualizar si realmente hay cambios
+      return filtered.length !== prev.length ? filtered : prev;
+    });
   }, []);
 
-  // Clean up expired images periodically with better cleanup
+  // Mejorar el manejo de cleanup con intervals más largos y mejor control
   useEffect(() => {
-    // Run cleanup immediately on mount
+    // Prevenir múltiples inicializaciones
+    if (cleanupInitialized.current) return;
+    cleanupInitialized.current = true;
+
+    // Ejecutar limpieza inicial
     cleanupExpiredImages();
 
-    // Set up interval for periodic cleanup
-    const interval = setInterval(cleanupExpiredImages, 5 * 60 * 1000); // Check every 5 minutes instead of 1 minute
+    // Configurar interval menos frecuente para reducir re-renderizados
+    const interval = setInterval(cleanupExpiredImages, 15 * 60 * 1000); // Cada 15 minutos
 
     return () => {
+      cleanupInitialized.current = false;
       clearInterval(interval);
     };
   }, [cleanupExpiredImages]);

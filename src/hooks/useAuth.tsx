@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,40 +10,74 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const mounted = useRef(true);
+  const authInitialized = useRef(false);
 
-  // Memoize auth state change handler to prevent recreation
-  const handleAuthStateChange = useCallback((event: string, session: Session | null) => {
-    if (!mounted.current) return;
+  // Estabilizar el handler con useCallback y dependencias mínimas
+  const handleAuthStateChange = useCallback((event: AuthChangeEvent, session: Session | null) => {
+    if (!mounted.current || !authInitialized.current) return;
     
     console.log('Auth state change:', event, session?.user?.id);
-    setSession(session);
-    setUser(session?.user ?? null);
+    
+    // Solo actualizar si realmente cambió algo
+    setSession(prevSession => {
+      if (prevSession?.user?.id === session?.user?.id) return prevSession;
+      return session;
+    });
+    
+    setUser(prevUser => {
+      const newUser = session?.user ?? null;
+      if (prevUser?.id === newUser?.id) return prevUser;
+      return newUser;
+    });
+    
     setLoading(false);
   }, []);
 
   useEffect(() => {
     mounted.current = true;
     
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Error getting session:', error);
+    // Prevenir múltiples inicializaciones
+    if (authInitialized.current) return;
+    authInitialized.current = true;
+    
+    let authSubscription: any = null;
+    
+    const initializeAuth = async () => {
+      try {
+        // Configurar listener ANTES de verificar sesión
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+        authSubscription = subscription;
+        
+        // Verificar sesión existente
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (mounted.current) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted.current) {
+          setLoading(false);
+        }
       }
-      if (mounted.current) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    });
+    };
+    
+    initializeAuth();
 
     return () => {
       mounted.current = false;
-      subscription.unsubscribe();
+      authInitialized.current = false;
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
-  }, [handleAuthStateChange]);
+  }, []); // Dependencias vacías para ejecutar solo una vez
 
   const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     try {

@@ -11,71 +11,74 @@ import { useAuth } from "./hooks/useAuth";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { useMemo } from "react";
 
-// Create QueryClient outside component to prevent recreation on every render
+// QueryClient singleton para prevenir recreaciones
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Prevent aggressive refetching that could cause instability
       refetchOnWindowFocus: false,
       refetchOnMount: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 10 * 60 * 1000, // 10 minutos
+      gcTime: 15 * 60 * 1000, // 15 minutos
     },
   },
 });
 
+// Componente de loading memoizado
+const LoadingScreen = () => (
+  <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-orange-500 flex items-center justify-center">
+    <div className="text-white text-lg">Loading...</div>
+  </div>
+);
+
+// Componente de providers memoizado
+const AppProviders = ({ children }: { children: React.ReactNode }) => (
+  <LanguageProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        {children}
+      </TooltipProvider>
+    </QueryClientProvider>
+  </LanguageProvider>
+);
+
 const App = () => {
   const { user, loading, signOut } = useAuth();
 
-  // Memoize the loading screen to prevent unnecessary re-renders
-  const loadingScreen = useMemo(() => (
-    <LanguageProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-orange-500 flex items-center justify-center">
-            <div className="text-white text-lg">Loading...</div>
-          </div>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </LanguageProvider>
+  // Memoizar componentes para prevenir re-renderizados innecesarios
+  const loadingComponent = useMemo(() => (
+    <AppProviders>
+      <LoadingScreen />
+    </AppProviders>
   ), []);
 
-  // Memoize the auth gate to prevent unnecessary re-renders
-  const authGate = useMemo(() => (
-    <LanguageProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <AuthGate onAuthSuccess={() => {}} />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </LanguageProvider>
+  const authComponent = useMemo(() => (
+    <AppProviders>
+      <AuthGate onAuthSuccess={() => {}} />
+    </AppProviders>
   ), []);
+
+  const mainAppComponent = useMemo(() => (
+    <AppProviders>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index onSignOut={signOut} />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </AppProviders>
+  ), [signOut]);
 
   if (loading) {
-    return loadingScreen;
+    return loadingComponent;
   }
 
   if (!user) {
-    return authGate;
+    return authComponent;
   }
 
-  return (
-    <LanguageProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index onSignOut={signOut} />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </LanguageProvider>
-  );
+  return mainAppComponent;
 };
 
 export default App;
