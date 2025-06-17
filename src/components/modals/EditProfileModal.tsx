@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -53,10 +52,10 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
     if (!user) return;
 
     // Validate description length
-    if (description.length > 120) {
+    if (description.length > 70) {
       toast({
         title: "Descripción muy larga",
-        description: "La descripción no puede tener más de 120 caracteres.",
+        description: "La descripción no puede tener más de 70 caracteres.",
         variant: "destructive",
       });
       return;
@@ -165,11 +164,11 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Travel Enthusiast"
-                maxLength={120}
+                maxLength={70}
                 className="min-h-[80px] border-2 border-gray-200 focus:border-blue-500 rounded-xl resize-none"
               />
               <p className="text-xs text-gray-400">
-                {description.length}/120 caracteres
+                {description.length}/70 caracteres
               </p>
             </div>
 
