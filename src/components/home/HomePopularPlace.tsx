@@ -27,7 +27,7 @@ interface HomePopularPlaceProps {
 // Mock data for popular places globally saved by users
 const popularPlaces: PopularPlace[] = [
   {
-    id: "1",
+    id: "santorini-sunset-point",
     name: "Santorini Sunset Point",
     location: "Santorini, Greece",
     rating: 4.9,
@@ -42,7 +42,7 @@ const popularPlaces: PopularPlace[] = [
     lng: 25.4615
   },
   {
-    id: "2", 
+    id: "kyoto-bamboo-grove", 
     name: "Kyoto Bamboo Grove",
     location: "Kyoto, Japan",
     rating: 4.8,
@@ -57,7 +57,7 @@ const popularPlaces: PopularPlace[] = [
     lng: 135.6728
   },
   {
-    id: "3",
+    id: "machu-picchu",
     name: "Machu Picchu",
     location: "Cusco, Peru", 
     rating: 4.9,
@@ -72,7 +72,7 @@ const popularPlaces: PopularPlace[] = [
     lng: -72.5450
   },
   {
-    id: "4",
+    id: "cafe-central-vienna",
     name: "Café Central",
     location: "Vienna, Austria",
     rating: 4.7,
@@ -87,7 +87,7 @@ const popularPlaces: PopularPlace[] = [
     lng: 16.3660
   },
   {
-    id: "5",
+    id: "northern-lights-lodge-tromso",
     name: "Northern Lights Lodge",
     location: "Tromsø, Norway",
     rating: 4.8,

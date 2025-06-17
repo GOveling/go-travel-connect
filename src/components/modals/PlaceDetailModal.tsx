@@ -5,16 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Review {
-  id: string;
-  userName: string;
-  userAvatar: string;
-  rating: number;
-  comment: string;
-  date: string;
-  helpful: number;
-}
+import { usePlaceReviews } from "@/hooks/usePlaceReviews";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PlaceDetailModalProps {
   place: {
@@ -27,6 +19,7 @@ interface PlaceDetailModalProps {
     hours?: string;
     website?: string;
     phone?: string;
+    id?: string; // Add id for database operations
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -34,51 +27,18 @@ interface PlaceDetailModalProps {
   onAddToTrip?: () => void;
 }
 
-// Mock reviews data - in a real app, this would come from an API
-const mockReviews: Review[] = [
-  {
-    id: "1",
-    userName: "Sarah Johnson",
-    userAvatar: "👩‍💼",
-    rating: 5,
-    comment: "Absolutely breathtaking! The sunset views are incredible and worth every minute of the visit. Perfect spot for photography.",
-    date: "2024-01-15",
-    helpful: 12
-  },
-  {
-    id: "2",
-    userName: "Miguel Rodriguez",
-    userAvatar: "👨‍🎨",
-    rating: 4,
-    comment: "Beautiful place but can get very crowded during peak hours. I recommend visiting early morning for the best experience.",
-    date: "2024-01-10",
-    helpful: 8
-  },
-  {
-    id: "3",
-    userName: "Emma Chen",
-    userAvatar: "👩‍🔬",
-    rating: 5,
-    comment: "A must-visit destination! The atmosphere is magical and the views are unforgettable. Bring a camera!",
-    date: "2024-01-08",
-    helpful: 15
-  },
-  {
-    id: "4",
-    userName: "Alex Thompson",
-    userAvatar: "👨‍💻",
-    rating: 4,
-    comment: "Great place with amazing scenery. The facilities are well-maintained and staff is friendly.",
-    date: "2024-01-05",
-    helpful: 6
-  }
-];
-
 const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, onAddToTrip }: PlaceDetailModalProps) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [userRating, setUserRating] = useState(0);
+  const { user } = useAuth();
+
+  // Use the place ID or fallback to a generated ID based on name
+  const placeId = place?.id || place?.name?.toLowerCase().replace(/\s+/g, '-') || '';
+  const placeName = place?.name || '';
+
+  const { reviews, loading, submitting, submitReview } = usePlaceReviews(placeId, placeName);
 
   if (!place) return null;
 
@@ -108,16 +68,30 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
     }
   };
 
-  const handleSubmitReview = () => {
-    // TODO: Implement review submission
-    console.log("Submitting review:", { text: reviewText, rating: userRating });
-    setShowReviewForm(false);
-    setReviewText("");
-    setUserRating(0);
+  const handleSubmitReview = async () => {
+    const success = await submitReview(userRating, reviewText);
+    if (success) {
+      setShowReviewForm(false);
+      setReviewText("");
+      setUserRating(0);
+    }
   };
 
   const handleRatingClick = () => {
     setShowReviews(!showReviews);
+  };
+
+  // Calculate average rating from database reviews
+  const averageRating = reviews.length > 0 
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    : place.rating.toString();
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -141,8 +115,8 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                 onClick={handleRatingClick}
               >
                 <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                <span className="font-medium">{place.rating}</span>
-                <span className="text-sm text-gray-500">({mockReviews.length} reviews)</span>
+                <span className="font-medium">{averageRating}</span>
+                <span className="text-sm text-gray-500">({reviews.length} reviews)</span>
                 {showReviews ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
               </div>
               <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -171,39 +145,44 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-gray-800">Global Reviews</h4>
-                  <span className="text-sm text-gray-500">{mockReviews.length} reviews</span>
+                  <span className="text-sm text-gray-500">{reviews.length} reviews</span>
                 </div>
                 
-                <div className="space-y-4 max-h-60 overflow-y-auto">
-                  {mockReviews.map((review) => (
-                    <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
-                      <div className="flex items-start space-x-3">
-                        <span className="text-2xl">{review.userAvatar}</span>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-sm">{review.userName}</span>
-                            <span className="text-xs text-gray-500">{review.date}</span>
-                          </div>
-                          <div className="flex items-center space-x-1 mb-2">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i}
-                                size={12}
-                                className={i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
-                              />
-                            ))}
-                          </div>
-                          <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
-                          <div className="flex items-center space-x-2">
-                            <button className="text-xs text-gray-500 hover:text-purple-600">
-                              👍 Helpful ({review.helpful})
-                            </button>
+                {loading ? (
+                  <div className="text-center py-4">
+                    <span className="text-sm text-gray-500">Loading reviews...</span>
+                  </div>
+                ) : reviews.length > 0 ? (
+                  <div className="space-y-4 max-h-60 overflow-y-auto">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
+                        <div className="flex items-start space-x-3">
+                          <span className="text-2xl">{review.user_avatar}</span>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium text-sm">{review.user_name}</span>
+                              <span className="text-xs text-gray-500">{formatDate(review.created_at)}</span>
+                            </div>
+                            <div className="flex items-center space-x-1 mb-2">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i}
+                                  size={12}
+                                  className={i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-sm text-gray-700">{review.comment}</p>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <span className="text-sm text-gray-500">No reviews yet. Be the first to review!</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -274,49 +253,60 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
               <CardContent className="p-4 space-y-3">
                 <h4 className="font-semibold text-gray-800">Write a Review</h4>
                 
-                {/* Star Rating */}
-                <div className="flex space-x-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setUserRating(star)}
-                      className="focus:outline-none"
-                    >
-                      <Star 
-                        size={20}
-                        className={star <= userRating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
-                      />
-                    </button>
-                  ))}
-                </div>
+                {!user && (
+                  <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                    <p className="text-sm text-yellow-800">Please sign in to write a review.</p>
+                  </div>
+                )}
 
-                {/* Review Text */}
-                <Textarea
-                  placeholder="Share your experience..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  className="resize-none"
-                  rows={3}
-                />
+                {user && (
+                  <>
+                    {/* Star Rating */}
+                    <div className="flex space-x-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setUserRating(star)}
+                          className="focus:outline-none"
+                        >
+                          <Star 
+                            size={20}
+                            className={star <= userRating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                          />
+                        </button>
+                      ))}
+                    </div>
 
-                {/* Submit Buttons */}
-                <div className="flex space-x-2">
-                  <Button 
-                    onClick={handleSubmitReview}
-                    size="sm"
-                    className="bg-gradient-to-r from-purple-600 to-orange-500"
-                    disabled={!reviewText.trim() || userRating === 0}
-                  >
-                    Submit Review
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowReviewForm(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
+                    {/* Review Text */}
+                    <Textarea
+                      placeholder="Share your experience..."
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      className="resize-none"
+                      rows={3}
+                    />
+
+                    {/* Submit Buttons */}
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={handleSubmitReview}
+                        size="sm"
+                        className="bg-gradient-to-r from-purple-600 to-orange-500"
+                        disabled={!reviewText.trim() || userRating === 0 || submitting}
+                      >
+                        {submitting ? "Submitting..." : "Submit Review"}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowReviewForm(false)}
+                        disabled={submitting}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
