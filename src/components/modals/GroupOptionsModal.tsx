@@ -18,7 +18,7 @@ interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string;
+  paidBy: string[];
   splitBetween: string[];
   date: string;
 }
@@ -119,7 +119,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const [newExpense, setNewExpense] = useState({
     description: "",
     amount: "",
-    paidBy: "",
+    paidBy: [] as string[],
     splitBetween: [] as string[]
   });
 
@@ -168,7 +168,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   }
 
   const handleAddExpense = () => {
-    if (newExpense.description && newExpense.amount && newExpense.paidBy) {
+    if (newExpense.description && newExpense.amount && newExpense.paidBy.length > 0) {
       if (editingExpenseId) {
         // Update existing expense
         setExpenses(expenses.map(expense => 
@@ -178,7 +178,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 description: newExpense.description,
                 amount: parseFloat(newExpense.amount),
                 paidBy: newExpense.paidBy,
-                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy]
+                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy
               }
             : expense
         ));
@@ -190,12 +190,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           description: newExpense.description,
           amount: parseFloat(newExpense.amount),
           paidBy: newExpense.paidBy,
-          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy],
+          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy,
           date: new Date().toISOString().split('T')[0]
         };
         setExpenses([...expenses, expense]);
       }
-      setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
+      setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
     }
   };
 
@@ -215,7 +215,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const handleCancelEdit = () => {
     setEditingExpenseId(null);
-    setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
+    setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
   };
 
   const handleCreateDecision = () => {

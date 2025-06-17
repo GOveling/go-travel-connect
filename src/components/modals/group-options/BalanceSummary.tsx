@@ -52,8 +52,9 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
   const calculatePersonBalance = (person: string) => {
     let balance = 0;
     expenses.forEach(expense => {
-      if (expense.paidBy === person) {
-        balance += expense.amount;
+      // Handle multiple people who paid
+      if (expense.paidBy.includes(person)) {
+        balance += expense.amount / expense.paidBy.length;
       }
       if (expense.splitBetween.includes(person)) {
         balance -= expense.amount / expense.splitBetween.length;

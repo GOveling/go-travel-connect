@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Users } from "lucide-react";
 
@@ -12,7 +11,7 @@ interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string;
+  paidBy: string[];
   splitBetween: string[];
   date: string;
 }
@@ -30,7 +29,7 @@ interface ExpenseFormProps {
   newExpense: {
     description: string;
     amount: string;
-    paidBy: string;
+    paidBy: string[];
     splitBetween: string[];
   };
   setNewExpense: (expense: any) => void;
@@ -47,6 +46,37 @@ const ExpenseForm = ({
   onAddExpense,
   onCancelEdit
 }: ExpenseFormProps) => {
+  const handlePaidByChange = (participantName: string, checked: boolean) => {
+    if (checked) {
+      setNewExpense({
+        ...newExpense,
+        paidBy: [...newExpense.paidBy, participantName]
+      });
+    } else {
+      setNewExpense({
+        ...newExpense,
+        paidBy: newExpense.paidBy.filter(name => name !== participantName)
+      });
+    }
+  };
+
+  const handleSelectAllPaidBy = () => {
+    const allSelected = newExpense.paidBy.length === allParticipants.length;
+    if (allSelected) {
+      // Deselect all
+      setNewExpense({
+        ...newExpense,
+        paidBy: []
+      });
+    } else {
+      // Select all
+      setNewExpense({
+        ...newExpense,
+        paidBy: allParticipants.map(p => p.name)
+      });
+    }
+  };
+
   const handleSplitBetweenChange = (participantName: string, checked: boolean) => {
     if (checked) {
       setNewExpense({
@@ -78,7 +108,8 @@ const ExpenseForm = ({
     }
   };
 
-  const allSelected = newExpense.splitBetween.length === allParticipants.length;
+  const allPaidBySelected = newExpense.paidBy.length === allParticipants.length;
+  const allSplitSelected = newExpense.splitBetween.length === allParticipants.length;
 
   return (
     <Card>
@@ -111,27 +142,47 @@ const ExpenseForm = ({
             />
           </div>
           <div>
-            <Label htmlFor="paidBy" className="text-sm">Paid By</Label>
-            <Select 
-              value={newExpense.paidBy} 
-              onValueChange={(value) => setNewExpense({...newExpense, paidBy: value})}
-            >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select who paid" />
-              </SelectTrigger>
-              <SelectContent>
-                {allParticipants.map((participant) => (
-                  <SelectItem key={participant.id} value={participant.name}>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                        {participant.avatar}
-                      </div>
-                      <span>{participant.name}</span>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-sm">Paid By</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAllPaidBy}
+                className="h-8 px-3 text-xs"
+              >
+                <Users size={14} className="mr-1" />
+                {allPaidBySelected ? "Deselect All" : "Select All"}
+              </Button>
+            </div>
+            <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
+              {allParticipants.map((participant) => (
+                <div key={participant.id} className="flex items-center space-x-3">
+                  <Checkbox
+                    id={`paid-${participant.id}`}
+                    checked={newExpense.paidBy.includes(participant.name)}
+                    onCheckedChange={(checked) => 
+                      handlePaidByChange(participant.name, checked as boolean)
+                    }
+                    className="h-5 w-5"
+                  />
+                  <label 
+                    htmlFor={`paid-${participant.id}`} 
+                    className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
+                  >
+                    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                      {participant.avatar}
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                    <span className="text-sm">{participant.name}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+            {newExpense.paidBy.length > 0 && (
+              <p className="text-xs text-gray-600 mt-2">
+                Selected: {newExpense.paidBy.join(", ")}
+              </p>
+            )}
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -144,7 +195,7 @@ const ExpenseForm = ({
                 className="h-8 px-3 text-xs"
               >
                 <Users size={14} className="mr-1" />
-                {allSelected ? "Deselect All" : "Select All"}
+                {allSplitSelected ? "Deselect All" : "Select All"}
               </Button>
             </div>
             <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
