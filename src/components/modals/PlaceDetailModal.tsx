@@ -1,9 +1,20 @@
+
 import { useState } from "react";
-import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X } from "lucide-react";
+import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X, ChevronDown, ChevronUp, Bot } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+
+interface Review {
+  id: string;
+  userName: string;
+  userAvatar: string;
+  rating: number;
+  comment: string;
+  date: string;
+  helpful: number;
+}
 
 interface PlaceDetailModalProps {
   place: {
@@ -23,12 +34,71 @@ interface PlaceDetailModalProps {
   onAddToTrip?: () => void;
 }
 
+// Mock reviews data - in a real app, this would come from an API
+const mockReviews: Review[] = [
+  {
+    id: "1",
+    userName: "Sarah Johnson",
+    userAvatar: "👩‍💼",
+    rating: 5,
+    comment: "Absolutely breathtaking! The sunset views are incredible and worth every minute of the visit. Perfect spot for photography.",
+    date: "2024-01-15",
+    helpful: 12
+  },
+  {
+    id: "2",
+    userName: "Miguel Rodriguez",
+    userAvatar: "👨‍🎨",
+    rating: 4,
+    comment: "Beautiful place but can get very crowded during peak hours. I recommend visiting early morning for the best experience.",
+    date: "2024-01-10",
+    helpful: 8
+  },
+  {
+    id: "3",
+    userName: "Emma Chen",
+    userAvatar: "👩‍🔬",
+    rating: 5,
+    comment: "A must-visit destination! The atmosphere is magical and the views are unforgettable. Bring a camera!",
+    date: "2024-01-08",
+    helpful: 15
+  },
+  {
+    id: "4",
+    userName: "Alex Thompson",
+    userAvatar: "👨‍💻",
+    rating: 4,
+    comment: "Great place with amazing scenery. The facilities are well-maintained and staff is friendly.",
+    date: "2024-01-05",
+    helpful: 6
+  }
+];
+
 const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, onAddToTrip }: PlaceDetailModalProps) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [userRating, setUserRating] = useState(0);
 
   if (!place) return null;
+
+  // AI-generated recommended time based on place category and type
+  const getAIRecommendedTime = () => {
+    const category = place.category.toLowerCase();
+    if (category.includes('tourist') || category.includes('attraction')) {
+      return "2-3 hours";
+    } else if (category.includes('park') || category.includes('nature')) {
+      return "1-2 hours";
+    } else if (category.includes('cafe') || category.includes('restaurant')) {
+      return "45-90 minutes";
+    } else if (category.includes('hotel') || category.includes('accommodation')) {
+      return "Check-in experience";
+    } else if (category.includes('museum') || category.includes('gallery')) {
+      return "1.5-2.5 hours";
+    } else {
+      return "1-2 hours";
+    }
+  };
 
   const handleAddToTrip = () => {
     if (onAddToTrip) {
@@ -44,6 +114,10 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
     setShowReviewForm(false);
     setReviewText("");
     setUserRating(0);
+  };
+
+  const handleRatingClick = () => {
+    setShowReviews(!showReviews);
   };
 
   return (
@@ -62,9 +136,14 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
           {/* Basic Info */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
+              <div 
+                className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                onClick={handleRatingClick}
+              >
                 <Star size={16} className="text-yellow-500 fill-yellow-500" />
                 <span className="font-medium">{place.rating}</span>
+                <span className="text-sm text-gray-500">({mockReviews.length} reviews)</span>
+                {showReviews ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
               </div>
               <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
                 {place.category}
@@ -75,7 +154,59 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
               <MapPin size={16} />
               <span>{place.location}</span>
             </div>
+
+            {/* AI Recommended Time */}
+            <div className="flex items-center space-x-2 text-purple-600 bg-purple-50 p-3 rounded-lg">
+              <Bot size={16} />
+              <div>
+                <span className="font-medium text-sm">AI Recommended Time</span>
+                <p className="text-sm">{getAIRecommendedTime()}</p>
+              </div>
+            </div>
           </div>
+
+          {/* Reviews Section */}
+          {showReviews && (
+            <Card className="border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-gray-800">Global Reviews</h4>
+                  <span className="text-sm text-gray-500">{mockReviews.length} reviews</span>
+                </div>
+                
+                <div className="space-y-4 max-h-60 overflow-y-auto">
+                  {mockReviews.map((review) => (
+                    <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
+                      <div className="flex items-start space-x-3">
+                        <span className="text-2xl">{review.userAvatar}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-medium text-sm">{review.userName}</span>
+                            <span className="text-xs text-gray-500">{review.date}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i}
+                                size={12}
+                                className={i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
+                          <div className="flex items-center space-x-2">
+                            <button className="text-xs text-gray-500 hover:text-purple-600">
+                              👍 Helpful ({review.helpful})
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Description */}
           <div>
