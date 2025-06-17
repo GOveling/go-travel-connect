@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -6,23 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Edit, X } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
 import BalanceSummary from "./BalanceSummary";
-
-interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
-}
-
-interface Collaborator {
-  id: number;
-  name: string;
-  email: string;
-  avatar: string;
-  role: string;
-}
+import { Expense, Collaborator } from "@/types";
 
 interface ExpensesTabProps {
   expenses: Expense[];
