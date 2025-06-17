@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Check, DollarSign } from "lucide-react";
+import { ArrowRight, Check, DollarSign, History } from "lucide-react";
 
 interface Expense {
   id: number;
@@ -24,11 +24,17 @@ interface Collaborator {
   role: string;
 }
 
+interface PaymentRecord {
+  amount: number;
+  date: string;
+  timestamp: number;
+}
+
 interface Settlement {
   from: string;
   to: string;
   amount: number;
-  paid?: number;
+  payments: PaymentRecord[];
 }
 
 interface BalanceSummaryProps {
@@ -37,8 +43,8 @@ interface BalanceSummaryProps {
 }
 
 const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
-  // State to track partial payments - key format: "from-to"
-  const [partialPayments, setPartialPayments] = useState<Record<string, number>>({});
+  // State to track payment history - key format: "from-to"
+  const [paymentHistory, setPaymentHistory] = useState<Record<string, PaymentRecord[]>>({});
   const [paymentInputs, setPaymentInputs] = useState<Record<string, string>>({});
 
   const calculatePersonBalance = (person: string) => {
@@ -76,13 +82,13 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
           const paymentAmount = Math.min(remainingDebt, creditor.balance);
           if (paymentAmount > 0.01) {
             const paymentKey = `${person}-${creditor.name}`;
-            const paidAmount = partialPayments[paymentKey] || 0;
+            const payments = paymentHistory[paymentKey] || [];
             
             settlements.push({
               from: person,
               to: creditor.name,
               amount: paymentAmount,
-              paid: paidAmount
+              payments: payments
             });
             remainingDebt -= paymentAmount;
           }
@@ -106,13 +112,13 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
           const paymentAmount = Math.min(remainingCredit, Math.abs(debtor.balance));
           if (paymentAmount > 0.01) {
             const paymentKey = `${debtor.name}-${person}`;
-            const paidAmount = partialPayments[paymentKey] || 0;
+            const payments = paymentHistory[paymentKey] || [];
             
             settlements.push({
               from: debtor.name,
               to: person,
               amount: paymentAmount,
-              paid: paidAmount
+              payments: payments
             });
             remainingCredit -= paymentAmount;
           }
@@ -123,16 +129,31 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
     return settlements;
   };
 
-  const handlePaymentUpdate = (paymentKey: string, amount: string) => {
+  const addPayment = (paymentKey: string, amount: string) => {
     const numAmount = parseFloat(amount) || 0;
-    setPartialPayments(prev => ({
+    if (numAmount <= 0) return;
+
+    const newPayment: PaymentRecord = {
+      amount: numAmount,
+      date: new Date().toLocaleDateString(),
+      timestamp: Date.now()
+    };
+
+    setPaymentHistory(prev => ({
       ...prev,
-      [paymentKey]: numAmount
+      [paymentKey]: [...(prev[paymentKey] || []), newPayment]
     }));
+
+    // Clear the input after adding payment
     setPaymentInputs(prev => ({
       ...prev,
-      [paymentKey]: amount
+      [paymentKey]: ''
     }));
+  };
+
+  const getTotalPaid = (paymentKey: string): number => {
+    const payments = paymentHistory[paymentKey] || [];
+    return payments.reduce((total, payment) => total + payment.amount, 0);
   };
 
   const getAdjustedBalance = (person: string) => {
@@ -140,19 +161,19 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
     
     // Calculate total payments made by this person
     let totalPaid = 0;
-    Object.entries(partialPayments).forEach(([key, amount]) => {
+    Object.entries(paymentHistory).forEach(([key, payments]) => {
       const [from] = key.split('-');
       if (from === person) {
-        totalPaid += amount;
+        totalPaid += payments.reduce((sum, payment) => sum + payment.amount, 0);
       }
     });
 
     // Calculate total payments received by this person
     let totalReceived = 0;
-    Object.entries(partialPayments).forEach(([key, amount]) => {
+    Object.entries(paymentHistory).forEach(([key, payments]) => {
       const [, to] = key.split('-');
       if (to === person) {
-        totalReceived += amount;
+        totalReceived += payments.reduce((sum, payment) => sum + payment.amount, 0);
       }
     });
 
@@ -198,8 +219,8 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                         <div className="space-y-3">
                           {settlements.map((settlement, index) => {
                             const paymentKey = `${settlement.from}-${settlement.to}`;
-                            const paidAmount = settlement.paid || 0;
-                            const remainingAmount = settlement.amount - paidAmount;
+                            const totalPaid = getTotalPaid(paymentKey);
+                            const remainingAmount = settlement.amount - totalPaid;
                             const canEditPayment = settlement.from === participant.name || settlement.from === "You";
                             
                             return (
@@ -214,23 +235,47 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                                     ${settlement.amount.toFixed(2)}
                                   </span>
                                 </div>
-                                
-                                {paidAmount > 0 && (
-                                  <div className="flex items-center justify-between mb-2 text-xs">
-                                    <span className="text-green-600 flex items-center">
-                                      <Check size={12} className="mr-1" />
-                                      Paid: ${paidAmount.toFixed(2)}
-                                    </span>
-                                    <span className="text-red-600">
-                                      Remaining: ${remainingAmount.toFixed(2)}
-                                    </span>
+
+                                {/* Payment History */}
+                                {settlement.payments.length > 0 && (
+                                  <div className="mb-3 space-y-2">
+                                    <div className="flex items-center text-xs text-gray-600 mb-1">
+                                      <History size={12} className="mr-1" />
+                                      Payment History:
+                                    </div>
+                                    <div className="max-h-24 overflow-y-auto space-y-1">
+                                      {settlement.payments
+                                        .sort((a, b) => b.timestamp - a.timestamp)
+                                        .map((payment, paymentIndex) => (
+                                        <div key={paymentIndex} className="flex justify-between items-center text-xs bg-white rounded px-2 py-1">
+                                          <span className="text-green-600 font-medium">
+                                            +${payment.amount.toFixed(2)}
+                                          </span>
+                                          <span className="text-gray-500">
+                                            {payment.date}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
                                 )}
                                 
+                                {/* Summary */}
+                                <div className="flex items-center justify-between mb-2 text-xs">
+                                  <span className="text-green-600 flex items-center">
+                                    <Check size={12} className="mr-1" />
+                                    Total Paid: ${totalPaid.toFixed(2)}
+                                  </span>
+                                  <span className={remainingAmount > 0.01 ? "text-red-600" : "text-green-600"}>
+                                    Remaining: ${remainingAmount.toFixed(2)}
+                                  </span>
+                                </div>
+                                
+                                {/* Payment Input */}
                                 {canEditPayment && remainingAmount > 0.01 && (
                                   <div className="mt-2 space-y-2">
                                     <Label htmlFor={`payment-${paymentKey}`} className="text-xs">
-                                      Mark payment made:
+                                      Add new payment:
                                     </Label>
                                     <div className="flex space-x-2">
                                       <div className="relative flex-1">
@@ -251,15 +296,17 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                                       </div>
                                       <Button
                                         size="sm"
-                                        onClick={() => handlePaymentUpdate(paymentKey, paymentInputs[paymentKey] || '0')}
+                                        onClick={() => addPayment(paymentKey, paymentInputs[paymentKey] || '0')}
                                         className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
+                                        disabled={!paymentInputs[paymentKey] || parseFloat(paymentInputs[paymentKey]) <= 0}
                                       >
-                                        Update
+                                        Add
                                       </Button>
                                     </div>
                                   </div>
                                 )}
                                 
+                                {/* Fully Paid Status */}
                                 {remainingAmount <= 0.01 && (
                                   <div className="mt-2 text-xs text-green-600 font-medium flex items-center">
                                     <Check size={12} className="mr-1" />
