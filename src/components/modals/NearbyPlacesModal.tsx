@@ -4,6 +4,7 @@ import { MapPin, Star, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface NearbyPlace {
   id: string;
@@ -23,6 +24,8 @@ interface NearbyPlacesModalProps {
 }
 
 const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalProps) => {
+  const { t } = useLanguage();
+  
   const nearbyPlaces: NearbyPlace[] = [
     {
       id: "nearby-1",
@@ -31,7 +34,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
       rating: 4.5,
       image: "🌳",
       category: "Parks",
-      description: "Un hermoso parque urbano perfecto para caminar y hacer ejercicio.",
+      description: t("explore.nearbyPlaces.samplePlaces.park"),
       distance: "0.5 km"
     },
     {
@@ -41,7 +44,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
       rating: 4.7,
       image: "🎨",
       category: "Museum",
-      description: "Impresionante colección de arte contemporáneo y clásico.",
+      description: t("explore.nearbyPlaces.samplePlaces.museum"),
       distance: "0.8 km"
     },
     {
@@ -51,7 +54,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
       rating: 4.3,
       image: "☕",
       category: "Cafe",
-      description: "Acogedor café con excelente ambiente y café de especialidad.",
+      description: t("explore.nearbyPlaces.samplePlaces.cafe"),
       distance: "0.3 km"
     },
     {
@@ -61,7 +64,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
       rating: 4.6,
       image: "🏛️",
       category: "Tourist Attraction",
-      description: "Hermosa plaza con arquitectura colonial y eventos culturales.",
+      description: t("explore.nearbyPlaces.samplePlaces.plaza"),
       distance: "1.2 km"
     },
     {
@@ -71,7 +74,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
       rating: 4.4,
       image: "🏪",
       category: "Market",
-      description: "Mercado tradicional con productos locales y comida auténtica.",
+      description: t("explore.nearbyPlaces.samplePlaces.market"),
       distance: "0.7 km"
     }
   ];
@@ -99,13 +102,13 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800 flex items-center">
             <MapPin className="mr-2 text-purple-600" size={24} />
-            Lugares Cercanos Recomendados
+            {t("explore.nearbyPlaces.title")}
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            Descubre lugares interesantes cerca de tu ubicación actual
+            {t("explore.nearbyPlaces.description")}
           </p>
           
           <div className="space-y-3">
@@ -147,7 +150,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
                           {place.category}
                         </span>
                         <Button size="sm" variant="ghost" className="text-xs text-purple-600 h-6 px-2">
-                          Ver detalles
+                          {t("explore.nearbyPlaces.viewDetails")}
                         </Button>
                       </div>
                     </div>
@@ -163,7 +166,7 @@ const NearbyPlacesModal = ({ isOpen, onClose, onPlaceClick }: NearbyPlacesModalP
               onClick={onClose}
               className="w-full"
             >
-              Cerrar
+              {t("common.close")}
             </Button>
           </div>
         </div>

@@ -84,7 +84,21 @@
       "apply": "应用筛选",
       "clear": "清除所有"
     },
-    "addToTrip": "添加到旅行"
+    "addToTrip": "添加到旅行",
+    "nearbyPlaces": {
+      "title": "附近地点",
+      "subtitle": "为您推荐",
+      "description": "探索您附近的推荐地点",
+      "exploreNow": "立即探索",
+      "viewDetails": "查看详情",
+      "samplePlaces": {
+        "park": "美丽的城市公园，适合散步和锻炼。",
+        "museum": "令人印象深刻的当代和古典艺术收藏。",
+        "cafe": "温馨的咖啡厅，氛围很好，提供特色咖啡。",
+        "plaza": "美丽的殖民建筑广场和文化活动。",
+        "market": "传统市场，有当地产品和正宗食物。"
+      }
+    }
   },
   "trips": {
     "title": "我的旅行",
