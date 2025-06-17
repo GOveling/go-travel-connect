@@ -1,6 +1,4 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TravelersSection from "../TravelersSection";
 import ExploreCategoryTabs from "./ExploreCategoryTabs";
 import ExploreFeaturedDestination from "./ExploreFeaturedDestination";
 import ExplorePlacesGrid from "./ExplorePlacesGrid";
@@ -35,34 +33,23 @@ const ExploreTabsContent = ({
   onPlaceClick 
 }: ExploreTabsContentProps) => {
   return (
-    <Tabs defaultValue="places" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="places" className="text-gray-700 data-[state=active]:text-black">Places</TabsTrigger>
-        <TabsTrigger value="travelers" className="text-gray-700 data-[state=active]:text-black">Travelers</TabsTrigger>
-      </TabsList>
+    <div className="w-full space-y-6">
+      <ExploreCategoryTabs 
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onCategoryClick={onCategoryClick}
+      />
 
-      <TabsContent value="places" className="space-y-6">
-        <ExploreCategoryTabs 
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onCategoryClick={onCategoryClick}
-        />
+      {selectedCategory === "All" && (
+        <ExploreFeaturedDestination onPlaceClick={onPlaceClick} />
+      )}
 
-        {selectedCategory === "All" && (
-          <ExploreFeaturedDestination onPlaceClick={onPlaceClick} />
-        )}
-
-        <ExplorePlacesGrid 
-          places={filteredPlaces}
-          selectedCategory={selectedCategory}
-          onPlaceClick={onPlaceClick}
-        />
-      </TabsContent>
-
-      <TabsContent value="travelers" className="space-y-6">
-        <TravelersSection />
-      </TabsContent>
-    </Tabs>
+      <ExplorePlacesGrid 
+        places={filteredPlaces}
+        selectedCategory={selectedCategory}
+        onPlaceClick={onPlaceClick}
+      />
+    </div>
   );
 };
 
