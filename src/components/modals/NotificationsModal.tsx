@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,11 +11,8 @@ import {
   Bell,
   BellRing,
   Shield,
-  Users,
   MapPin,
   Camera,
-  MessageSquare,
-  Heart,
   Award,
   Settings,
   Check,
@@ -33,7 +31,7 @@ interface NotificationSetting {
   description: string;
   enabled: boolean;
   icon: any;
-  category: 'social' | 'travel' | 'privacy';
+  category: 'travel' | 'privacy';
   color: string;
 }
 
@@ -41,43 +39,6 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
   const { toast } = useToast();
   
   const [settings, setSettings] = useState<NotificationSetting[]>([
-    // Social Notifications - All enabled by default
-    {
-      id: 'friend_requests',
-      title: 'Friend Requests',
-      description: 'Get notified when someone wants to connect',
-      enabled: true,
-      icon: Users,
-      category: 'social',
-      color: 'text-blue-600'
-    },
-    {
-      id: 'trip_likes',
-      title: 'Trip Likes & Hearts',
-      description: 'When someone likes your trips or photos',
-      enabled: true,
-      icon: Heart,
-      category: 'social',
-      color: 'text-red-500'
-    },
-    {
-      id: 'comments',
-      title: 'Comments & Mentions',
-      description: 'Comments on your posts and when you\'re mentioned',
-      enabled: true,
-      icon: MessageSquare,
-      category: 'social',
-      color: 'text-green-600'
-    },
-    {
-      id: 'photo_tags',
-      title: 'Photo Tags',
-      description: 'When you\'re tagged in travel photos',
-      enabled: true,
-      icon: Camera,
-      category: 'social',
-      color: 'text-purple-600'
-    },
     // Travel Notifications - All enabled by default
     {
       id: 'travel_updates',
@@ -141,14 +102,6 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
       enabled: true,
       icon: MapPin,
       color: 'text-red-600'
-    },
-    {
-      id: 'activity_status',
-      title: 'Online Status',
-      description: 'Show when you\'re active on the app',
-      enabled: true,
-      icon: Users,
-      color: 'text-green-600'
     }
   ]);
 
@@ -186,7 +139,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
     setSettings(prev => prev.map(setting => ({ ...setting, enabled: true })));
     toast({
       title: "All notifications enabled",
-      description: "You'll receive all travel and social updates",
+      description: "You'll receive all travel updates",
     });
   };
 
@@ -207,7 +160,6 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
     });
   };
 
-  const socialSettings = settings.filter(s => s.category === 'social');
   const travelSettings = settings.filter(s => s.category === 'travel');
   const enabledCount = settings.filter(s => s.enabled).length;
   const totalCount = settings.length;
@@ -269,53 +221,6 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
 
         <ScrollArea className="flex-1 px-6">
           <div className="space-y-6 py-6">
-            {/* Social Notifications */}
-            <Card className="border-0 shadow-sm bg-blue-50/30">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Users size={16} className="text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 text-sm">Social Notifications</h3>
-                    <p className="text-xs text-gray-600">Connect with other travelers</p>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {socialSettings.filter(s => s.enabled).length}/{socialSettings.length}
-                  </Badge>
-                </div>
-                <div className="space-y-3">
-                  {socialSettings.map((setting) => {
-                    const Icon = setting.icon;
-                    return (
-                      <div key={setting.id} className="flex items-center space-x-3 p-3 rounded-lg bg-white/60 hover:bg-white transition-colors">
-                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-                          <Icon size={16} className={setting.color} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                {setting.title}
-                              </p>
-                              <p className="text-xs text-gray-600 mt-0.5">
-                                {setting.description}
-                              </p>
-                            </div>
-                            <Switch
-                              checked={setting.enabled}
-                              onCheckedChange={() => toggleSetting(setting.id)}
-                              className="ml-3"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Travel Notifications */}
             <Card className="border-0 shadow-sm bg-green-50/30">
               <CardContent className="p-4">
