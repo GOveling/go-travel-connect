@@ -13,7 +13,7 @@ interface Review {
   comment: string;
   created_at: string;
   updated_at: string;
-  // We'll need to get user info from profiles table
+  // We'll use placeholder values for user info since profiles table relation is not available
   user_name?: string;
   user_avatar?: string;
 }
@@ -33,22 +33,17 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
     try {
       const { data, error } = await supabase
         .from('place_reviews')
-        .select(`
-          *,
-          profiles (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('place_id', placeId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      // Add placeholder user info since we don't have profiles table relation
       const reviewsWithUserInfo = data?.map(review => ({
         ...review,
-        user_name: review.profiles?.full_name || 'Anonymous User',
-        user_avatar: review.profiles?.avatar_url || '👤'
+        user_name: 'Anonymous User',
+        user_avatar: '👤'
       })) || [];
 
       setReviews(reviewsWithUserInfo);

@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import ExploreHeader from "./explore/ExploreHeader";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreTabsContent from "./explore/ExploreTabsContent";
-import { allPlaces, categories } from "./explore/exploreData";
+import { places, categories } from "./explore/exploreData";
 
 const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
@@ -31,8 +31,8 @@ const ExploreSection = () => {
   // Filter places based on selected category and active filters
   const getFilteredPlaces = () => {
     let filtered = selectedCategory === "All" 
-      ? allPlaces.slice(0, 4) 
-      : allPlaces.filter(place => place.category === selectedCategory);
+      ? places.slice(0, 4) 
+      : places.filter(place => place.category === selectedCategory);
 
     // Apply additional filters if not using "All" categories
     if (!activeFilters.categories.includes("All") && activeFilters.categories.length > 0) {
