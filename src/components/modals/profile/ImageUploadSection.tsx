@@ -4,6 +4,8 @@ import { Camera, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ImageUploadSectionProps {
   currentAvatarUrl: string;
@@ -13,13 +15,40 @@ interface ImageUploadSectionProps {
 
 const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: ImageUploadSectionProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isUsingCamera, setIsUsingCamera] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadImageToSupabase = async (file: File): Promise<string | null> => {
+    if (!user) return null;
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+    const filePath = `avatars/${fileName}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -41,12 +70,23 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageUrl = e.target?.result as string;
+    setIsUploading(true);
+    const imageUrl = await uploadImageToSupabase(file);
+    
+    if (imageUrl) {
       onImageChange(imageUrl);
-    };
-    reader.readAsDataURL(file);
+      toast({
+        title: "Éxito",
+        description: "Imagen subida correctamente",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo subir la imagen",
+        variant: "destructive"
+      });
+    }
+    setIsUploading(false);
   };
 
   const startCamera = async () => {
@@ -69,7 +109,7 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
     }
   };
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext('2d');
       if (context) {
@@ -77,8 +117,29 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
         
-        const imageData = canvasRef.current.toDataURL('image/jpeg', 0.8);
-        onImageChange(imageData);
+        canvasRef.current.toBlob(async (blob) => {
+          if (blob) {
+            setIsUploading(true);
+            const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
+            const imageUrl = await uploadImageToSupabase(file);
+            
+            if (imageUrl) {
+              onImageChange(imageUrl);
+              toast({
+                title: "Éxito",
+                description: "Foto capturada y guardada correctamente",
+              });
+            } else {
+              toast({
+                title: "Error",
+                description: "No se pudo guardar la foto",
+                variant: "destructive"
+              });
+            }
+            setIsUploading(false);
+          }
+        }, 'image/jpeg', 0.8);
+        
         stopCamera();
       }
     }
@@ -104,11 +165,15 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
           />
         </div>
         <div className="flex space-x-3">
-          <Button onClick={capturePhoto} className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            onClick={capturePhoto} 
+            className="bg-blue-600 hover:bg-blue-700"
+            disabled={isUploading}
+          >
             <Camera size={16} className="mr-2" />
-            Capturar
+            {isUploading ? "Guardando..." : "Capturar"}
           </Button>
-          <Button onClick={stopCamera} variant="outline">
+          <Button onClick={stopCamera} variant="outline" disabled={isUploading}>
             <X size={16} className="mr-2" />
             Cancelar
           </Button>
@@ -137,6 +202,7 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
           onClick={startCamera}
           variant="outline"
           className="flex items-center space-x-2 border-2 border-blue-200 hover:bg-blue-50 text-blue-700"
+          disabled={isUploading}
         >
           <Camera size={16} />
           <span>Cámara</span>
@@ -146,9 +212,10 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
           onClick={() => fileInputRef.current?.click()}
           variant="outline"
           className="flex items-center space-x-2 border-2 border-green-200 hover:bg-green-50 text-green-700"
+          disabled={isUploading}
         >
           <Upload size={16} />
-          <span>Dispositivo</span>
+          <span>{isUploading ? "Subiendo..." : "Dispositivo"}</span>
         </Button>
       </div>
       

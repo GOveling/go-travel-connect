@@ -25,7 +25,14 @@ export const useProfileData = () => {
         .maybeSingle();
       
       if (error) throw error;
-      setProfile(data);
+      
+      // Force a state update to trigger re-renders
+      setProfile(prevProfile => {
+        if (JSON.stringify(prevProfile) !== JSON.stringify(data)) {
+          return data;
+        }
+        return prevProfile;
+      });
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch profile');
@@ -39,7 +46,7 @@ export const useProfileData = () => {
   }, [user]);
 
   const getInitials = () => {
-    if (profile?.full_name) {
+    if (profile?.full_name && profile.full_name.trim()) {
       return profile.full_name
         .split(' ')
         .map((name: string) => name[0])
