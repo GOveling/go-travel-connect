@@ -128,6 +128,11 @@ const getPriorityFromTransportType = (transportType: string): 'high' | 'medium' 
   }
 };
 
+// Helper function to format dates for input fields
+const formatDateForInput = (date: Date) => {
+  return date.toISOString().split('T')[0];
+};
+
 export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
   console.log('🚗 AI Transportation Planning Analysis:', {
     tripName: trip.name,
@@ -173,10 +178,6 @@ export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
       if (costMatch) {
         totalCost += parseInt(costMatch[1]);
       }
-
-      const formatDateForInput = (date: Date) => {
-        return date.toISOString().split('T')[0];
-      };
 
       let reason = '';
       if (places.length >= 2) {
