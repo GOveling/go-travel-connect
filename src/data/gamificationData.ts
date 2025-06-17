@@ -8,7 +8,7 @@ export const TRAVELER_LEVELS: TravelerLevel[] = [
   { level: 4, title: "Adventure Guide", requiredXP: 4500, currentXP: 0, nextLevelXP: 7000, unlockedFeatures: ["Adventure Planning"], color: "from-orange-400 to-orange-600", icon: "🧗" },
   { level: 5, title: "Explorer", requiredXP: 7000, currentXP: 0, nextLevelXP: 10000, unlockedFeatures: ["Route Optimization"], color: "from-red-400 to-red-600", icon: "🧭" },
   { level: 6, title: "Journey Master", requiredXP: 10000, currentXP: 0, nextLevelXP: 14000, unlockedFeatures: ["Premium Routes"], color: "from-indigo-400 to-indigo-600", icon: "🗺️" },
-  { level: 7, title: "Wanderer", requiredXP: 14000, currentXP: 0, nextLevelXP: 19000, unlockedFeatures: ["Community Features"], color: "from-pink-400 to-pink-600", icon: "🌟" },
+  { level: 7, title: "Wanderer", requiredXP: 14000, currentXP: 0, nextLevelXP: 19000, unlockedFeatures: ["Advanced Planning"], color: "from-pink-400 to-pink-600", icon: "🌟" },
   { level: 8, title: "Globe Trotter", requiredXP: 19000, currentXP: 0, nextLevelXP: 25000, unlockedFeatures: ["Global Insights"], color: "from-yellow-400 to-yellow-600", icon: "🌍" },
   { level: 9, title: "Travel Guru", requiredXP: 25000, currentXP: 0, nextLevelXP: 32000, unlockedFeatures: ["Expert Recommendations"], color: "from-teal-400 to-teal-600", icon: "🧘" },
   { level: 10, title: "Nomad", requiredXP: 32000, currentXP: 0, nextLevelXP: 40000, unlockedFeatures: ["Nomad Tools"], color: "from-cyan-400 to-cyan-600", icon: "🏜️" },
@@ -78,6 +78,19 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     rarity: "rare",
     criteria: "Visit 3 countries within 30 days"
   },
+  {
+    id: "continent-explorer",
+    title: "Continent Explorer",
+    description: "Visit 3 different continents",
+    category: "global-exploration",
+    icon: "🌏",
+    earned: false,
+    progress: 0,
+    total: 3,
+    points: 3000,
+    rarity: "epic",
+    criteria: "Visit 3 different continents"
+  },
 
   // Local Discoveries & Culture
   {
@@ -119,6 +132,32 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     rarity: "rare",
     criteria: "Upload 50 photos with location tags"
   },
+  {
+    id: "historic-hunter",
+    title: "Historic Hunter",
+    description: "Visit 20 historical landmarks",
+    category: "local-discoveries",
+    icon: "🏰",
+    earned: false,
+    progress: 0,
+    total: 20,
+    points: 2500,
+    rarity: "rare",
+    criteria: "Visit 20 historical landmarks"
+  },
+  {
+    id: "architecture-admirer",
+    title: "Architecture Admirer",
+    description: "Visit 15 architectural wonders",
+    category: "local-discoveries",
+    icon: "🏗️",
+    earned: false,
+    progress: 0,
+    total: 15,
+    points: 2000,
+    rarity: "rare",
+    criteria: "Visit 15 notable architectural sites"
+  },
 
   // Food & Nightlife
   {
@@ -148,17 +187,43 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     criteria: "Experience 10 different cuisine types"
   },
   {
-    id: "night-owl",
-    title: "Night Owl",
-    description: "Visit 15 nightlife venues",
+    id: "street-food-explorer",
+    title: "Street Food Explorer",
+    description: "Try street food in 8 different places",
     category: "food-nightlife",
-    icon: "🌙",
+    icon: "🌮",
     earned: false,
     progress: 0,
-    total: 15,
+    total: 8,
+    points: 1500,
+    rarity: "rare",
+    criteria: "Experience street food in 8 locations"
+  },
+  {
+    id: "local-market-visitor",
+    title: "Local Market Visitor",
+    description: "Visit 12 local markets",
+    category: "food-nightlife",
+    icon: "🛒",
+    earned: false,
+    progress: 0,
+    total: 12,
     points: 1800,
     rarity: "rare",
-    criteria: "Visit 15 bars, clubs, or entertainment venues"
+    criteria: "Visit 12 local food markets"
+  },
+  {
+    id: "coffee-connoisseur",
+    title: "Coffee Connoisseur",
+    description: "Visit 25 coffee shops",
+    category: "food-nightlife",
+    icon: "☕",
+    earned: false,
+    progress: 0,
+    total: 25,
+    points: 1000,
+    rarity: "common",
+    criteria: "Visit 25 coffee shops worldwide"
   },
 
   // Family & Experience
@@ -201,8 +266,34 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     rarity: "rare",
     criteria: "Complete 5 AI smart routes"
   },
+  {
+    id: "nature-enthusiast",
+    title: "Nature Enthusiast",
+    description: "Visit 15 natural parks or reserves",
+    category: "family-experience",
+    icon: "🌲",
+    earned: false,
+    progress: 0,
+    total: 15,
+    points: 2000,
+    rarity: "rare",
+    criteria: "Visit 15 natural parks or nature reserves"
+  },
+  {
+    id: "mountain-climber",
+    title: "Mountain Climber",
+    description: "Visit 10 mountain destinations",
+    category: "family-experience",
+    icon: "⛰️",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 2500,
+    rarity: "rare",
+    criteria: "Visit 10 mountain destinations"
+  },
 
-  // Contributions & Community
+  // Contributions & Reviews
   {
     id: "reviewer",
     title: "Reviewer",
@@ -242,6 +333,19 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     rarity: "rare",
     criteria: "Pin 100 locations to your travel maps"
   },
+  {
+    id: "travel-photographer",
+    title: "Travel Photographer",
+    description: "Upload 100 travel photos",
+    category: "contributions",
+    icon: "📷",
+    earned: false,
+    progress: 0,
+    total: 100,
+    points: 3000,
+    rarity: "epic",
+    criteria: "Upload 100 travel photos"
+  },
 
   // Special Badges
   {
@@ -256,6 +360,58 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     points: 1000,
     rarity: "rare",
     criteria: "Visit 3 different places in a single day"
+  },
+  {
+    id: "weekend-warrior",
+    title: "Weekend Warrior",
+    description: "Complete a weekend trip",
+    category: "special",
+    icon: "⚡",
+    earned: false,
+    progress: 0,
+    total: 1,
+    points: 1500,
+    rarity: "rare",
+    criteria: "Complete a 2-3 day weekend trip"
+  },
+  {
+    id: "early-bird",
+    title: "Early Bird",
+    description: "Visit places before 8 AM on 5 occasions",
+    category: "special",
+    icon: "🌅",
+    earned: false,
+    progress: 0,
+    total: 5,
+    points: 1200,
+    rarity: "rare",
+    criteria: "Check into places before 8 AM on 5 different days"
+  },
+  {
+    id: "night-explorer",
+    title: "Night Explorer",
+    description: "Explore cities after 10 PM on 10 occasions",
+    category: "special",
+    icon: "🌙",
+    earned: false,
+    progress: 0,
+    total: 10,
+    points: 1800,
+    rarity: "rare",
+    criteria: "Explore places after 10 PM on 10 different occasions"
+  },
+  {
+    id: "seasonal-traveler",
+    title: "Seasonal Traveler",
+    description: "Travel in all 4 seasons",
+    category: "special",
+    icon: "🍂",
+    earned: false,
+    progress: 0,
+    total: 4,
+    points: 2500,
+    rarity: "epic",
+    criteria: "Take trips in spring, summer, autumn, and winter"
   },
   {
     id: "explorer-100",
@@ -282,87 +438,5 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     points: 10000,
     rarity: "legendary",
     criteria: "Achieve maximum traveler level (20)"
-  },
-
-  // Publication Badges
-  {
-    id: "content-creator",
-    title: "Content Creator",
-    description: "Share 10 travel posts",
-    category: "publications",
-    icon: "📱",
-    earned: false,
-    progress: 0,
-    total: 10,
-    points: 1000,
-    rarity: "common",
-    criteria: "Create 10 travel publications"
-  },
-  {
-    id: "influencer",
-    title: "Influencer",
-    description: "Share 50 travel posts",
-    category: "publications",
-    icon: "📢",
-    earned: false,
-    progress: 0,
-    total: 50,
-    points: 3000,
-    rarity: "epic",
-    criteria: "Create 50 travel publications"
-  },
-  {
-    id: "travel-celebrity",
-    title: "Travel Celebrity",
-    description: "Share 100 travel posts",
-    category: "publications",
-    icon: "🌟",
-    earned: false,
-    progress: 0,
-    total: 100,
-    points: 7500,
-    rarity: "legendary",
-    criteria: "Create 100 travel publications"
-  },
-
-  // Social Badges
-  {
-    id: "social-butterfly",
-    title: "Social Butterfly",
-    description: "Connect with 100 fellow travelers",
-    category: "social",
-    icon: "🦋",
-    earned: false,
-    progress: 0,
-    total: 100,
-    points: 1500,
-    rarity: "common",
-    criteria: "Make 100 traveler connections"
-  },
-  {
-    id: "community-leader",
-    title: "Community Leader",
-    description: "Connect with 1,000 fellow travelers",
-    category: "social",
-    icon: "👥",
-    earned: false,
-    progress: 0,
-    total: 1000,
-    points: 5000,
-    rarity: "epic",
-    criteria: "Make 1,000 traveler connections"
-  },
-  {
-    id: "network-master",
-    title: "Network Master",
-    description: "Connect with 10,000 fellow travelers",
-    category: "social",
-    icon: "🌐",
-    earned: false,
-    progress: 0,
-    total: 10000,
-    points: 15000,
-    rarity: "legendary",
-    criteria: "Make 10,000 traveler connections"
   }
 ];
