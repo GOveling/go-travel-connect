@@ -263,7 +263,6 @@ export interface TripCardProps {
   onGroupOptions: (trip: Trip) => void;
   onAISmartRoute: (trip: Trip) => void;
   onViewSavedPlaces: (trip: Trip) => void;
-  onCreatePhotobook: (trip: Trip) => void;
 }
 
 export interface ProfilePublicationProps {
