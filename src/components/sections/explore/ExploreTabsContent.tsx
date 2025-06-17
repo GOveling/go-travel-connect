@@ -1,6 +1,7 @@
 
 import ExploreCategoryTabs from "./ExploreCategoryTabs";
 import ExploreFeaturedDestination from "./ExploreFeaturedDestination";
+import ExplorePopularPlace from "./ExplorePopularPlace";
 import ExplorePlacesGrid from "./ExplorePlacesGrid";
 
 interface Place {
@@ -41,7 +42,10 @@ const ExploreTabsContent = ({
       />
 
       {selectedCategory === "All" && (
-        <ExploreFeaturedDestination onPlaceClick={onPlaceClick} />
+        <>
+          <ExploreFeaturedDestination onPlaceClick={onPlaceClick} />
+          <ExplorePopularPlace onPlaceClick={onPlaceClick} />
+        </>
       )}
 
       <ExplorePlacesGrid 
