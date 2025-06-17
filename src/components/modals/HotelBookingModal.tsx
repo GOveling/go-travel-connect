@@ -1,15 +1,17 @@
 
 import { useState } from "react";
-import { Building, X } from "lucide-react";
+import { Building, X, Brain } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
 import { getDestinationDateRanges } from "@/utils/dateUtils";
-import TripSelector from "./hotel-booking/TripSelector";
+import TripSelectorWithAI from "./hotel-booking/TripSelectorWithAI";
 import MultiDestinationBooking from "./hotel-booking/MultiDestinationBooking";
 import SingleDestinationForm from "./hotel-booking/SingleDestinationForm";
 import SpecialOfferCard from "./hotel-booking/SpecialOfferCard";
+import AIHotelPlan from "./hotel-booking/AIHotelPlan";
+import { getAIHotelBookingPlan, AIHotelBookingPlan } from "./hotel-booking/aiHotelDateUtils";
 
 interface HotelBookingModalProps {
   isOpen: boolean;
@@ -35,6 +37,7 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
   const [selectedTripId, setSelectedTripId] = useState<string>('manual');
   const [multiDestinationBookings, setMultiDestinationBookings] = useState<DestinationBooking[]>([]);
   const [isMultiDestination, setIsMultiDestination] = useState(false);
+  const [aiHotelPlan, setAiHotelPlan] = useState<AIHotelBookingPlan | null>(null);
   const { toast } = useToast();
   const { trips } = useHomeState();
 
@@ -52,11 +55,16 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
       });
       setMultiDestinationBookings([]);
       setIsMultiDestination(false);
+      setAiHotelPlan(null);
       return;
     }
 
     const selectedTrip = trips.find(trip => trip.id.toString() === tripId);
     if (selectedTrip) {
+      // 🤖 AI Protocol: Generate hotel booking plan
+      const aiPlan = getAIHotelBookingPlan(selectedTrip);
+      setAiHotelPlan(aiPlan);
+
       // Check if trip has multiple destinations using coordinates
       const destinations = selectedTrip.coordinates || [];
       const isMultiDest = destinations.length > 1;
@@ -64,23 +72,14 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
       setIsMultiDestination(isMultiDest);
 
       if (isMultiDest) {
-        // Handle multi-destination trip
-        const dateRanges = getDestinationDateRanges(selectedTrip.dates, destinations.length);
-        
-        const bookings: DestinationBooking[] = destinations.map((dest, index) => {
-          const range = dateRanges[index];
-          const formatDateForInput = (date: Date) => {
-            return date.toISOString().split('T')[0];
-          };
-
-          return {
-            destination: dest.name,
-            checkIn: formatDateForInput(range.startDate),
-            checkOut: formatDateForInput(range.endDate),
-            guests: selectedTrip.travelers || 2,
-            rooms: 1
-          };
-        });
+        // Handle multi-destination trip with AI recommendations
+        const bookings: DestinationBooking[] = aiPlan.recommendations.map((rec) => ({
+          destination: rec.destination,
+          checkIn: rec.checkIn,
+          checkOut: rec.checkOut,
+          guests: selectedTrip.travelers || 2,
+          rooms: 1
+        }));
 
         setMultiDestinationBookings(bookings);
         
@@ -92,47 +91,31 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
           guests: 2,
           rooms: 1
         });
-      } else {
-        // Handle single destination trip (existing logic)
-        const parseTripDates = (dateStr: string) => {
-          try {
-            const [dateRange, year] = dateStr.split(', ');
-            const [startDate, endDate] = dateRange.split(' - ');
-            const currentYear = year || new Date().getFullYear().toString();
-            
-            const parseDate = (dateStr: string) => {
-              const [month, day] = dateStr.trim().split(' ');
-              const monthMap: { [key: string]: string } = {
-                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
-                'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
-                'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
-              };
-              const monthNum = monthMap[month] || '01';
-              const dayNum = day.padStart(2, '0');
-              return `${currentYear}-${monthNum}-${dayNum}`;
-            };
 
-            return {
-              checkIn: parseDate(startDate),
-              checkOut: parseDate(endDate)
-            };
-          } catch (error) {
-            console.log('Error parsing dates:', error);
-            return { checkIn: '', checkOut: '' };
-          }
-        };
-
-        const { checkIn, checkOut } = parseTripDates(selectedTrip.dates);
+        // Show AI automation toast for multi-destination
+        toast({
+          title: "🤖 IA optimizó reservas multi-destino",
+          description: `${aiPlan.recommendations.length} hoteles planificados. Confianza: ${aiPlan.aiConfidence}.`,
+        });
+      } else if (aiPlan.recommendations.length === 1) {
+        // Handle single destination trip with AI optimization
+        const rec = aiPlan.recommendations[0];
         
         setFormData(prev => ({
           ...prev,
-          destination: destinations[0]?.name || selectedTrip.destination,
-          checkIn,
-          checkOut,
+          destination: rec.destination,
+          checkIn: rec.checkIn,
+          checkOut: rec.checkOut,
           guests: selectedTrip.travelers || 2
         }));
         
         setMultiDestinationBookings([]);
+
+        // Show AI automation toast
+        toast({
+          title: "🤖 IA optimizó fechas de hotel",
+          description: `${rec.nights} noches en ${rec.destination}. ${rec.reason}`,
+        });
       }
     }
   };
@@ -148,13 +131,13 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
   const handleSearch = () => {
     if (isMultiDestination) {
       toast({
-        title: "Searching Hotels for All Destinations",
-        description: `Finding the best deals for your ${multiDestinationBookings.length} destinations...`,
+        title: "Buscando Hoteles para Todos los Destinos",
+        description: `Encontrando las mejores ofertas para tus ${multiDestinationBookings.length} destinos...`,
       });
     } else {
       toast({
-        title: "Searching Hotels",
-        description: "Finding the best deals for your stay...",
+        title: "Buscando Hoteles",
+        description: "Encontrando las mejores ofertas para tu estancia...",
       });
     }
     onClose();
@@ -176,8 +159,8 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
           <div className="flex items-center space-x-3 pt-2">
             <Building size={24} />
             <div>
-              <h2 className="text-xl font-bold">Hotel Booking</h2>
-              <p className="text-sm opacity-90">Find your perfect stay</p>
+              <h2 className="text-xl font-bold">Reserva de Hoteles</h2>
+              <p className="text-sm opacity-90">IA optimiza tu estancia perfecta</p>
             </div>
           </div>
         </div>
@@ -186,11 +169,16 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
           <SpecialOfferCard />
 
           <div className="space-y-4">
-            <TripSelector 
+            <TripSelectorWithAI 
               selectedTripId={selectedTripId}
               trips={trips}
               onTripSelection={handleTripSelection}
             />
+
+            {/* AI Hotel Plan Display */}
+            {aiHotelPlan && selectedTripId !== 'manual' && (
+              <AIHotelPlan plan={aiHotelPlan} />
+            )}
 
             {/* Multi-destination bookings */}
             {isMultiDestination && multiDestinationBookings.length > 0 && (
@@ -213,7 +201,7 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
               className="w-full bg-gradient-to-r from-green-500 to-green-600"
             >
               <Building size={16} className="mr-2" />
-              {isMultiDestination ? `Search Hotels for ${multiDestinationBookings.length} Destinations` : 'Search Hotels'}
+              {isMultiDestination ? `Buscar Hoteles para ${multiDestinationBookings.length} Destinos` : 'Buscar Hoteles'}
             </Button>
           </div>
         </div>
