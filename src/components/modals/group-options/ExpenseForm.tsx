@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string[];
+  paidBy: string;
   splitBetween: string[];
   date: string;
 }
@@ -28,7 +29,7 @@ interface ExpenseFormProps {
   newExpense: {
     description: string;
     amount: string;
-    paidBy: string[];
+    paidBy: string;
     splitBetween: string[];
   };
   setNewExpense: (expense: any) => void;
@@ -55,20 +56,6 @@ const ExpenseForm = ({
       setNewExpense({
         ...newExpense,
         splitBetween: newExpense.splitBetween.filter(name => name !== participantName)
-      });
-    }
-  };
-
-  const handlePaidByChange = (participantName: string, checked: boolean) => {
-    if (checked) {
-      setNewExpense({
-        ...newExpense,
-        paidBy: [...newExpense.paidBy, participantName]
-      });
-    } else {
-      setNewExpense({
-        ...newExpense,
-        paidBy: newExpense.paidBy.filter(name => name !== participantName)
       });
     }
   };
@@ -104,35 +91,27 @@ const ExpenseForm = ({
             />
           </div>
           <div>
-            <Label className="text-sm">Paid By</Label>
-            <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
-              {allParticipants.map((participant) => (
-                <div key={participant.id} className="flex items-center space-x-3">
-                  <Checkbox
-                    id={`paid-${participant.id}`}
-                    checked={newExpense.paidBy.includes(participant.name)}
-                    onCheckedChange={(checked) => 
-                      handlePaidByChange(participant.name, checked as boolean)
-                    }
-                    className="h-5 w-5"
-                  />
-                  <label 
-                    htmlFor={`paid-${participant.id}`} 
-                    className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
-                  >
-                    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                      {participant.avatar}
+            <Label htmlFor="paidBy" className="text-sm">Paid By</Label>
+            <Select 
+              value={newExpense.paidBy} 
+              onValueChange={(value) => setNewExpense({...newExpense, paidBy: value})}
+            >
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Select who paid" />
+              </SelectTrigger>
+              <SelectContent>
+                {allParticipants.map((participant) => (
+                  <SelectItem key={participant.id} value={participant.name}>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
+                        {participant.avatar}
+                      </div>
+                      <span>{participant.name}</span>
                     </div>
-                    <span className="text-sm">{participant.name}</span>
-                  </label>
-                </div>
-              ))}
-            </div>
-            {newExpense.paidBy.length > 0 && (
-              <p className="text-xs text-gray-600 mt-2">
-                Selected: {newExpense.paidBy.join(", ")}
-              </p>
-            )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label className="text-sm">Split Between</Label>
