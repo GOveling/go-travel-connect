@@ -16,6 +16,7 @@ export interface TransportationRecommendation {
   destinationIndex: number;
   priority: 'high' | 'medium' | 'low';
   bookingRequired: boolean;
+  transportCategory: 'airport-arrival' | 'inter-destination' | 'local-transport' | 'airport-departure' | 'home-return';
 }
 
 export interface AITransportationPlan {
@@ -26,6 +27,13 @@ export interface AITransportationPlan {
   aiConfidence: 'high' | 'medium' | 'low';
   optimizationNotes: string[];
   totalEstimatedCost: string;
+  fullJourneyMap: {
+    airportArrivals: number;
+    interDestinationTransports: number;
+    localTransports: number;
+    airportDepartures: number;
+    homeReturn: boolean;
+  };
 }
 
 const getTransportTypeFromPlaces = (places: SavedPlace[], destinationName: string): string => {
@@ -109,6 +117,12 @@ const getTransportDetails = (transportType: string, origin: string, destination:
       cost: '$2-5',
       route: `Metro/Subway en ${destination}`,
       bookingRequired: false
+    },
+    'airport-shuttle': {
+      duration: '45-90 min',
+      cost: '$25-60',
+      route: `Shuttle aeropuerto → ${destination}`,
+      bookingRequired: true
     }
   };
   
@@ -117,7 +131,7 @@ const getTransportDetails = (transportType: string, origin: string, destination:
 
 const getPriorityFromTransportType = (transportType: string): 'high' | 'medium' | 'low' => {
   const highPriority = ['flight', 'train', 'ferry'];
-  const mediumPriority = ['bus', 'car-rental'];
+  const mediumPriority = ['bus', 'car-rental', 'airport-shuttle'];
   
   if (highPriority.includes(transportType)) {
     return 'high';
@@ -131,6 +145,81 @@ const getPriorityFromTransportType = (transportType: string): 'high' | 'medium' 
 // Helper function to format dates for input fields
 const formatDateForInput = (date: Date) => {
   return date.toISOString().split('T')[0];
+};
+
+// Generate airport arrival transport for first destination
+const generateAirportArrivalTransport = (
+  destination: any, 
+  places: SavedPlace[], 
+  startDate: Date, 
+  index: number
+): TransportationRecommendation => {
+  const airportTransportType = places.length > 3 ? 'airport-shuttle' : 'taxi';
+  const details = getTransportDetails(airportTransportType, `Aeropuerto ${destination.name}`, destination.name);
+  
+  return {
+    destination: destination.name,
+    date: formatDateForInput(startDate),
+    transportType: airportTransportType,
+    route: `Aeropuerto ${destination.name} → Centro ciudad`,
+    estimatedDuration: details.duration,
+    estimatedCost: details.cost,
+    aiOptimized: true,
+    reason: `${airportTransportType} recomendado desde aeropuerto basado en ${places.length} lugares guardados`,
+    relatedPlaces: places.slice(0, 3).map(place => place.name),
+    destinationIndex: index,
+    priority: 'high' as const,
+    bookingRequired: details.bookingRequired,
+    transportCategory: 'airport-arrival' as const
+  };
+};
+
+// Generate airport departure transport for last destination
+const generateAirportDepartureTransport = (
+  destination: any, 
+  places: SavedPlace[], 
+  endDate: Date, 
+  index: number
+): TransportationRecommendation => {
+  const airportTransportType = places.length > 3 ? 'airport-shuttle' : 'taxi';
+  const details = getTransportDetails(airportTransportType, destination.name, `Aeropuerto ${destination.name}`);
+  
+  return {
+    destination: destination.name,
+    date: formatDateForInput(endDate),
+    transportType: airportTransportType,
+    route: `Centro ciudad → Aeropuerto ${destination.name}`,
+    estimatedDuration: details.duration,
+    estimatedCost: details.cost,
+    aiOptimized: true,
+    reason: `${airportTransportType} para salida desde aeropuerto`,
+    relatedPlaces: places.slice(0, 3).map(place => place.name),
+    destinationIndex: index,
+    priority: 'high' as const,
+    bookingRequired: details.bookingRequired,
+    transportCategory: 'airport-departure' as const
+  };
+};
+
+// Generate home return transport option
+const generateHomeReturnTransport = (
+  trip: Trip
+): TransportationRecommendation => {
+  return {
+    destination: 'Casa',
+    date: formatDateForInput(new Date()), // Current date as placeholder
+    transportType: 'taxi',
+    route: 'Aeropuerto → Casa',
+    estimatedDuration: '45-90 min',
+    estimatedCost: '$30-80',
+    aiOptimized: true,
+    reason: 'Transporte opcional para retorno a casa desde aeropuerto',
+    relatedPlaces: [],
+    destinationIndex: -1,
+    priority: 'medium' as const,
+    bookingRequired: false,
+    transportCategory: 'home-return' as const
+  };
 };
 
 export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
@@ -151,7 +240,14 @@ export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
       recommendations: [],
       aiConfidence: 'low',
       optimizationNotes: ['No se encontraron destinos en el itinerario'],
-      totalEstimatedCost: '$0'
+      totalEstimatedCost: '$0',
+      fullJourneyMap: {
+        airportArrivals: 0,
+        interDestinationTransports: 0,
+        localTransports: 0,
+        airportDepartures: 0,
+        homeReturn: false
+      }
     };
   }
 
@@ -161,12 +257,32 @@ export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
   const recommendations: TransportationRecommendation[] = [];
   const optimizationNotes: string[] = [];
   let totalCost = 0;
+  let journeyMap = {
+    airportArrivals: 0,
+    interDestinationTransports: 0,
+    localTransports: 0,
+    airportDepartures: 0,
+    homeReturn: false
+  };
 
   destinationRanges.forEach((range, index) => {
     const destination = destinations[index];
     const places = savedPlacesByDestination[destination.name] || [];
     
-    // Inter-city transportation (between destinations)
+    // 1. Airport arrival transport for first destination
+    if (index === 0) {
+      const arrivalTransport = generateAirportArrivalTransport(destination, places, range.startDate, index);
+      recommendations.push(arrivalTransport);
+      journeyMap.airportArrivals++;
+      
+      // Extract cost for calculation
+      const costMatch = arrivalTransport.estimatedCost.match(/\$(\d+)/);
+      if (costMatch) {
+        totalCost += parseInt(costMatch[1]);
+      }
+    }
+
+    // 2. Inter-destination transportation (between destinations)
     if (index > 0) {
       const previousDestination = destinations[index - 1];
       const transportType = getTransportTypeFromPlaces(places, destination.name);
@@ -198,11 +314,13 @@ export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
         relatedPlaces: places.slice(0, 3).map(place => place.name),
         destinationIndex: index,
         priority,
-        bookingRequired: details.bookingRequired
+        bookingRequired: details.bookingRequired,
+        transportCategory: 'inter-destination' as const
       });
+      journeyMap.interDestinationTransports++;
     }
 
-    // Local transportation within destination
+    // 3. Local transportation within destination
     if (places.length > 1) {
       const localTransport = places.length > 3 ? 'metro' : 'taxi';
       const details = getTransportDetails(localTransport, '', destination.name);
@@ -218,15 +336,38 @@ export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
         reason: `${localTransport} recomendado para moverse entre ${places.length} lugares guardados`,
         relatedPlaces: places.slice(0, 3).map(place => place.name),
         destinationIndex: index,
-        priority: 'medium',
-        bookingRequired: details.bookingRequired
+        priority: 'medium' as const,
+        bookingRequired: details.bookingRequired,
+        transportCategory: 'local-transport' as const
       });
+      journeyMap.localTransports++;
+    }
+
+    // 4. Airport departure transport for last destination
+    if (index === totalDestinations - 1) {
+      const departureTransport = generateAirportDepartureTransport(destination, places, range.endDate, index);
+      recommendations.push(departureTransport);
+      journeyMap.airportDepartures++;
+      
+      // Extract cost for calculation
+      const costMatch = departureTransport.estimatedCost.match(/\$(\d+)/);
+      if (costMatch) {
+        totalCost += parseInt(costMatch[1]);
+      }
     }
 
     if (range.days > 4) {
       optimizationNotes.push(`${destination.name}: Estancia larga - considerar car rental para mayor flexibilidad`);
     }
   });
+
+  // 5. Home return transport (optional)
+  const homeReturnTransport = generateHomeReturnTransport(trip);
+  recommendations.push(homeReturnTransport);
+  journeyMap.homeReturn = true;
+
+  // Add optimization notes for full journey
+  optimizationNotes.push(`Itinerario completo: ${journeyMap.airportArrivals} llegadas, ${journeyMap.interDestinationTransports} conexiones, ${journeyMap.localTransports} transportes locales, ${journeyMap.airportDepartures} salidas`);
 
   // Determine AI confidence
   let confidence: 'high' | 'medium' | 'low' = 'high';
@@ -253,7 +394,8 @@ export const getAITransportationPlan = (trip: Trip): AITransportationPlan => {
     recommendations,
     aiConfidence: confidence,
     optimizationNotes,
-    totalEstimatedCost: `$${totalCost.toLocaleString()} USD aprox.`
+    totalEstimatedCost: `$${totalCost.toLocaleString()} USD aprox.`,
+    fullJourneyMap: journeyMap
   };
 
   console.log('🚗 AI Transportation Plan:', plan);
