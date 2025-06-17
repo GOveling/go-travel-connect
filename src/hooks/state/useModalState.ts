@@ -9,7 +9,6 @@ export const useModalState = () => {
   const [isNewTripModalOpen, setIsNewTripModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [isTripDetailModalOpen, setIsTripDetailModalOpen] = useState(false);
-  const [isPhotobookModalOpen, setIsPhotobookModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
 
@@ -28,8 +27,6 @@ export const useModalState = () => {
     setIsAddToTripModalOpen,
     isTripDetailModalOpen,
     setIsTripDetailModalOpen,
-    isPhotobookModalOpen,
-    setIsPhotobookModalOpen,
     isLoginModalOpen,
     setIsLoginModalOpen,
     isSignUpModalOpen,
