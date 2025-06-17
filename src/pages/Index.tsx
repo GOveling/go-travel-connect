@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import HomeSection from "@/components/sections/HomeSection";
 import TripsSection from "@/components/sections/TripsSection";
@@ -15,13 +15,24 @@ interface IndexProps {
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState('home');
 
-  // Listen for navigation events
-  const handleNavigateToTrips = () => {
+  // Memoize the navigation handler to prevent recreation on every render
+  const handleNavigateToTrips = useCallback(() => {
     setActiveSection('trips');
-  };
+  }, []);
 
-  // Add event listener for navigation
-  window.addEventListener('navigateToTrips', handleNavigateToTrips);
+  // Use useEffect for event listener to prevent memory leaks
+  useEffect(() => {
+    const handleNavigationEvent = () => {
+      handleNavigateToTrips();
+    };
+
+    window.addEventListener('navigateToTrips', handleNavigationEvent);
+
+    // Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener('navigateToTrips', handleNavigationEvent);
+    };
+  }, [handleNavigateToTrips]);
 
   const renderContent = () => {
     switch (activeSection) {

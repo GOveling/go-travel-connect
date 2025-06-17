@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,28 +9,43 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const mounted = useRef(true);
+
+  // Memoize auth state change handler to prevent recreation
+  const handleAuthStateChange = useCallback((event: string, session: Session | null) => {
+    if (!mounted.current) return;
+    
+    console.log('Auth state change:', event, session?.user?.id);
+    setSession(session);
+    setUser(session?.user ?? null);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
+    mounted.current = true;
+    
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error);
+      }
+      if (mounted.current) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
       }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      mounted.current = false;
+      subscription.unsubscribe();
+    };
+  }, [handleAuthStateChange]);
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -63,9 +78,9 @@ export const useAuth = () => {
       });
       return { error };
     }
-  };
+  }, [toast]);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -90,9 +105,9 @@ export const useAuth = () => {
       });
       return { error };
     }
-  };
+  }, [toast]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
@@ -110,9 +125,9 @@ export const useAuth = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -136,7 +151,7 @@ export const useAuth = () => {
       });
       return { error };
     }
-  };
+  }, [toast]);
 
   return {
     user,

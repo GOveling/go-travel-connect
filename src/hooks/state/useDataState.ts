@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Trip } from "@/types/aiSmartRoute";
 import { InstaTripImage, ProfilePost, FriendPublication } from "../types/homeStateTypes";
 import { initialTripsData } from "../data/mockTripsData";
@@ -62,19 +62,28 @@ export const useDataState = () => {
     }
   ]);
 
-  // Clean up expired images periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const twelveHoursAgo = now - (12 * 60 * 60 * 1000);
-      
-      setInstaTripImages(prev => 
-        prev.filter(image => image.addedAt >= twelveHoursAgo)
-      );
-    }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
+  // Memoize the cleanup function to prevent unnecessary re-renders
+  const cleanupExpiredImages = useCallback(() => {
+    const now = Date.now();
+    const twelveHoursAgo = now - (12 * 60 * 60 * 1000);
+    
+    setInstaTripImages(prev => 
+      prev.filter(image => image.addedAt >= twelveHoursAgo)
+    );
   }, []);
+
+  // Clean up expired images periodically with better cleanup
+  useEffect(() => {
+    // Run cleanup immediately on mount
+    cleanupExpiredImages();
+
+    // Set up interval for periodic cleanup
+    const interval = setInterval(cleanupExpiredImages, 5 * 60 * 1000); // Check every 5 minutes instead of 1 minute
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [cleanupExpiredImages]);
 
   return {
     selectedTripForPhotobook,
