@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TravelStats } from "@/types/profile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TravelStatsCardProps {
   stats: TravelStats;
@@ -9,17 +10,19 @@ interface TravelStatsCardProps {
 }
 
 const TravelStatsCard = ({ stats, loading }: TravelStatsCardProps) => {
+  const { t } = useLanguage();
+  
   const statItems = [
-    { label: "Countries Visited", value: stats.countries_visited.toString() },
-    { label: "Cities Explored", value: stats.cities_explored.toString() },
-    { label: "Places Visited", value: stats.places_visited.toString() },
-    { label: "Achievement Points", value: stats.achievement_points.toString() },
+    { label: t("profile.countriesVisited"), value: stats.countries_visited.toString() },
+    { label: t("profile.citiesExplored"), value: stats.cities_explored.toString() },
+    { label: t("profile.placesVisited"), value: stats.places_visited.toString() },
+    { label: t("profile.achievementPoints"), value: stats.achievement_points.toString() },
   ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg text-center">Travel Stats</CardTitle>
+        <CardTitle className="text-lg text-center">{t("profile.travelStats")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4 text-center">

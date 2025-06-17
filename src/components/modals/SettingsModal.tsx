@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ interface SettingsModalProps {
 }
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
+  const { language, setLanguage, t } = useLanguage();
+  
   const [darkMode, setDarkMode] = useState(() => {
     // Check if dark mode is already enabled
     return document.documentElement.classList.contains('dark');
@@ -21,9 +24,6 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [locationSharing, setLocationSharing] = useState(false);
   const [profileVisibility, setProfileVisibility] = useState("public");
-  const [selectedLanguage, setSelectedLanguage] = useState(() => {
-    return localStorage.getItem('appLanguage') || 'en';
-  });
 
   // Handle dark mode toggle
   const handleDarkModeToggle = (enabled: boolean) => {
@@ -37,12 +37,9 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     }
   };
 
-  // Handle language change
-  const handleLanguageChange = (language: string) => {
-    setSelectedLanguage(language);
-    localStorage.setItem('appLanguage', language);
-    // Here you would typically trigger a global language change
-    // For now, we'll just store it in localStorage
+  // Handle language change - now integrated with context
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage as any);
   };
 
   // Load preferences on component mount
@@ -59,32 +56,32 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
   const settingSections = [
     {
-      title: "Account",
+      title: t("settings.account"),
       icon: User,
       items: [
         {
-          label: "Profile Visibility",
-          description: "Who can see your profile",
+          label: t("settings.profileVisibility.label"),
+          description: t("settings.profileVisibility.description"),
           type: "select",
           value: profileVisibility,
           onChange: setProfileVisibility,
           options: [
-            { value: "public", label: "Public" },
-            { value: "friends", label: "Friends Only" },
-            { value: "private", label: "Private" }
+            { value: "public", label: t("settings.profileVisibility.public") },
+            { value: "friends", label: t("settings.profileVisibility.friends") },
+            { value: "private", label: t("settings.profileVisibility.private") }
           ]
         }
       ]
     },
     {
-      title: "Language / Idioma",
+      title: t("settings.language"),
       icon: Languages,
       items: [
         {
-          label: "App Language",
-          description: "Choose your preferred language",
+          label: t("settings.appLanguage.label"),
+          description: t("settings.appLanguage.description"),
           type: "select",
-          value: selectedLanguage,
+          value: language,
           onChange: handleLanguageChange,
           options: [
             { value: "en", label: "English" },
@@ -98,19 +95,19 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       ]
     },
     {
-      title: "Notifications",
+      title: t("settings.notifications"),
       icon: Bell,
       items: [
         {
-          label: "Push Notifications",
-          description: "Receive notifications on your device",
+          label: t("settings.pushNotifications.label"),
+          description: t("settings.pushNotifications.description"),
           type: "switch",
           value: pushNotifications,
           onChange: setPushNotifications
         },
         {
-          label: "Email Notifications",
-          description: "Receive updates via email",
+          label: t("settings.emailNotifications.label"),
+          description: t("settings.emailNotifications.description"),
           type: "switch",
           value: emailNotifications,
           onChange: setEmailNotifications
@@ -118,12 +115,12 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       ]
     },
     {
-      title: "Privacy",
+      title: t("settings.privacy"),
       icon: Shield,
       items: [
         {
-          label: "Location Sharing",
-          description: "Share your location with friends",
+          label: t("settings.locationSharing.label"),
+          description: t("settings.locationSharing.description"),
           type: "switch",
           value: locationSharing,
           onChange: setLocationSharing
@@ -131,12 +128,12 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       ]
     },
     {
-      title: "Appearance",
+      title: t("settings.appearance"),
       icon: darkMode ? Moon : Sun,
       items: [
         {
-          label: "Dark Mode",
-          description: "Use dark theme",
+          label: t("settings.darkMode.label"),
+          description: t("settings.darkMode.description"),
           type: "switch",
           value: darkMode,
           onChange: handleDarkModeToggle
@@ -151,7 +148,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Settings className="text-purple-600" size={24} />
-            <span>Settings</span>
+            <span>{t("settings.title")}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -206,26 +203,26 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-base">
                 <HelpCircle size={18} className="text-gray-600" />
-                <span>Support</span>
+                <span>{t("settings.support")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="ghost" className="w-full justify-start p-0 h-auto">
                 <div className="text-left">
-                  <p className="text-sm font-medium">Help Center</p>
-                  <p className="text-xs text-gray-500">Get help and support</p>
+                  <p className="text-sm font-medium">{t("settings.helpCenter.title")}</p>
+                  <p className="text-xs text-gray-500">{t("settings.helpCenter.description")}</p>
                 </div>
               </Button>
               <Button variant="ghost" className="w-full justify-start p-0 h-auto">
                 <div className="text-left">
-                  <p className="text-sm font-medium">Privacy Policy</p>
-                  <p className="text-xs text-gray-500">Read our privacy policy</p>
+                  <p className="text-sm font-medium">{t("settings.privacyPolicy.title")}</p>
+                  <p className="text-xs text-gray-500">{t("settings.privacyPolicy.description")}</p>
                 </div>
               </Button>
               <Button variant="ghost" className="w-full justify-start p-0 h-auto">
                 <div className="text-left">
-                  <p className="text-sm font-medium">Terms of Service</p>
-                  <p className="text-xs text-gray-500">View terms and conditions</p>
+                  <p className="text-sm font-medium">{t("settings.termsOfService.title")}</p>
+                  <p className="text-xs text-gray-500">{t("settings.termsOfService.description")}</p>
                 </div>
               </Button>
             </CardContent>
@@ -233,7 +230,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
           {/* App Version */}
           <div className="text-center text-xs text-gray-500 pt-2">
-            Travel App v1.0.0
+            {t("settings.appVersion")}
           </div>
         </div>
       </DialogContent>

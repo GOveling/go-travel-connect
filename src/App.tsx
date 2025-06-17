@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthGate from "./components/auth/AuthGate";
 import { useAuth } from "./hooks/useAuth";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -16,41 +17,47 @@ const App = () => {
 
   if (loading) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-orange-500 flex items-center justify-center">
-            <div className="text-white text-lg">Loading...</div>
-          </div>
-        </TooltipProvider>
-      </QueryClientProvider>
+      <LanguageProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-orange-500 flex items-center justify-center">
+              <div className="text-white text-lg">Loading...</div>
+            </div>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </LanguageProvider>
     );
   }
 
   if (!user) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <AuthGate onAuthSuccess={() => {}} />
-        </TooltipProvider>
-      </QueryClientProvider>
+      <LanguageProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <AuthGate onAuthSuccess={() => {}} />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </LanguageProvider>
     );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index onSignOut={signOut} />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <LanguageProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index onSignOut={signOut} />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </LanguageProvider>
   );
 };
 

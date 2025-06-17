@@ -1,5 +1,6 @@
 
 import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -7,12 +8,14 @@ interface BottomNavigationProps {
 }
 
 const BottomNavigation = ({ activeTab, setActiveTab }: BottomNavigationProps) => {
+  const { t } = useLanguage();
+  
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    { id: "explore", icon: Compass, label: "Explore" },
-    { id: "trips", icon: MapPin, label: "My Trips" },
-    { id: "booking", icon: Calendar, label: "Booking" },
-    { id: "profile", icon: User, label: "Profile" },
+    { id: "home", icon: Home, label: t("navigation.home") },
+    { id: "explore", icon: Compass, label: t("navigation.explore") },
+    { id: "trips", icon: MapPin, label: t("navigation.trips") },
+    { id: "booking", icon: Calendar, label: t("navigation.booking") },
+    { id: "profile", icon: User, label: t("navigation.profile") },
   ];
 
   return (

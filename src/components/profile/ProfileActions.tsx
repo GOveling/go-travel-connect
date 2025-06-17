@@ -2,12 +2,15 @@
 import { LogOut } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProfileActionsProps {
   onSignOut: () => void;
 }
 
 const ProfileActions = ({ onSignOut }: ProfileActionsProps) => {
+  const { t } = useLanguage();
+  
   return (
     <Card className="border-red-200">
       <CardContent className="p-4">
@@ -17,7 +20,7 @@ const ProfileActions = ({ onSignOut }: ProfileActionsProps) => {
           onClick={onSignOut}
         >
           <LogOut size={20} className="mr-2" />
-          Sign Out
+          {t("profile.signOut")}
         </Button>
       </CardContent>
     </Card>

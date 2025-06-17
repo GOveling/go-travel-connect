@@ -1,0 +1,124 @@
+
+{
+  "navigation": {
+    "home": "主页",
+    "explore": "探索",
+    "trips": "我的旅行",
+    "booking": "预订",
+    "profile": "个人资料",
+    "travelers": "旅行者"
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除",
+    "close": "关闭",
+    "loading": "加载中...",
+    "saving": "保存中...",
+    "search": "搜索",
+    "filter": "筛选",
+    "submit": "提交",
+    "confirm": "确认",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "yes": "是",
+    "no": "否"
+  },
+  "settings": {
+    "title": "设置",
+    "account": "账户",
+    "language": "语言 / Language",
+    "notifications": "通知",
+    "privacy": "隐私",
+    "appearance": "外观",
+    "support": "支持",
+    "profileVisibility": {
+      "label": "资料可见性",
+      "description": "谁可以看到您的资料",
+      "public": "公开",
+      "friends": "仅好友",
+      "private": "私人"
+    },
+    "appLanguage": {
+      "label": "应用语言",
+      "description": "选择您的首选语言"
+    },
+    "pushNotifications": {
+      "label": "推送通知",
+      "description": "在您的设备上接收通知"
+    },
+    "emailNotifications": {
+      "label": "邮件通知",
+      "description": "通过电子邮件接收更新"
+    },
+    "locationSharing": {
+      "label": "位置共享",
+      "description": "与朋友分享您的位置"
+    },
+    "darkMode": {
+      "label": "深色模式",
+      "description": "使用深色主题"
+    },
+    "helpCenter": {
+      "title": "帮助中心",
+      "description": "获取帮助和支持"
+    },
+    "privacyPolicy": {
+      "title": "隐私政策",
+      "description": "阅读我们的隐私政策"
+    },
+    "termsOfService": {
+      "title": "服务条款",
+      "description": "查看条款和条件"
+    },
+    "appVersion": "Travel App v1.0.0"
+  },
+  "profile": {
+    "editProfile": "编辑资料",
+    "travelStats": "旅行统计",
+    "countriesVisited": "访问的国家",
+    "citiesExplored": "探索的城市",
+    "placesVisited": "访问的地点",
+    "achievementPoints": "成就积分",
+    "signOut": "退出登录",
+    "fullName": "全名",
+    "description": "描述",
+    "email": "邮箱",
+    "emailCannotChange": "邮箱无法更改",
+    "charactersLeft": "{{count}}/70 字符",
+    "enterFullName": "输入您的全名",
+    "travelEnthusiast": "旅行爱好者",
+    "menu": {
+      "travelDocuments": {
+        "title": "旅行文件",
+        "subtitle": "护照、签证、票据"
+      },
+      "myReviews": {
+        "title": "我的评论",
+        "subtitle": "管理您的地点评论"
+      },
+      "notifications": {
+        "title": "通知",
+        "subtitle": "管理提醒和更新"
+      },
+      "travelAchievements": {
+        "title": "旅行成就",
+        "subtitle": "等级 {{level}} {{title}} • 获得 {{points}} 积分"
+      },
+      "shareProfile": {
+        "title": "分享资料",
+        "subtitle": "与旅行者连接"
+      },
+      "settings": {
+        "title": "设置",
+        "subtitle": "应用偏好设置"
+      }
+    }
+  },
+  "travelers": {
+    "title": "旅行者社区",
+    "subtitle": "与其他旅行者联系，发现新的冒险"
+  }
+}

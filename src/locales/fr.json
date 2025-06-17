@@ -1,0 +1,124 @@
+
+{
+  "navigation": {
+    "home": "Accueil",
+    "explore": "Explorer",
+    "trips": "Mes Voyages",
+    "booking": "Réservation",
+    "profile": "Profil",
+    "travelers": "Voyageurs"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "saving": "Enregistrement...",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "account": "Compte",
+    "language": "Langue / Language",
+    "notifications": "Notifications",
+    "privacy": "Confidentialité",
+    "appearance": "Apparence",
+    "support": "Support",
+    "profileVisibility": {
+      "label": "Visibilité du Profil",
+      "description": "Qui peut voir votre profil",
+      "public": "Public",
+      "friends": "Amis Seulement",
+      "private": "Privé"
+    },
+    "appLanguage": {
+      "label": "Langue de l'App",
+      "description": "Choisissez votre langue préférée"
+    },
+    "pushNotifications": {
+      "label": "Notifications Push",
+      "description": "Recevoir des notifications sur votre appareil"
+    },
+    "emailNotifications": {
+      "label": "Notifications Email",
+      "description": "Recevoir des mises à jour par email"
+    },
+    "locationSharing": {
+      "label": "Partage de Localisation",
+      "description": "Partager votre localisation avec vos amis"
+    },
+    "darkMode": {
+      "label": "Mode Sombre",
+      "description": "Utiliser le thème sombre"
+    },
+    "helpCenter": {
+      "title": "Centre d'Aide",
+      "description": "Obtenir de l'aide et du support"
+    },
+    "privacyPolicy": {
+      "title": "Politique de Confidentialité",
+      "description": "Lire notre politique de confidentialité"
+    },
+    "termsOfService": {
+      "title": "Conditions de Service",
+      "description": "Voir les termes et conditions"
+    },
+    "appVersion": "Travel App v1.0.0"
+  },
+  "profile": {
+    "editProfile": "Modifier le Profil",
+    "travelStats": "Statistiques de Voyage",
+    "countriesVisited": "Pays Visités",
+    "citiesExplored": "Villes Explorées",
+    "placesVisited": "Lieux Visités",
+    "achievementPoints": "Points de Réussite",
+    "signOut": "Se Déconnecter",
+    "fullName": "Nom complet",
+    "description": "Description",
+    "email": "Email",
+    "emailCannotChange": "L'email ne peut pas être modifié",
+    "charactersLeft": "{{count}}/70 caractères",
+    "enterFullName": "Entrez votre nom complet",
+    "travelEnthusiast": "Passionné de Voyage",
+    "menu": {
+      "travelDocuments": {
+        "title": "Documents de Voyage",
+        "subtitle": "Passeports, visas, billets"
+      },
+      "myReviews": {
+        "title": "Mes Avis",
+        "subtitle": "Gérer vos avis de lieux"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "subtitle": "Gérer les alertes et mises à jour"
+      },
+      "travelAchievements": {
+        "title": "Réussites de Voyage",
+        "subtitle": "Niveau {{level}} {{title}} • {{points}} points gagnés"
+      },
+      "shareProfile": {
+        "title": "Partager le Profil",
+        "subtitle": "Se connecter avec des voyageurs"
+      },
+      "settings": {
+        "title": "Paramètres",
+        "subtitle": "Préférences de l'app"
+      }
+    }
+  },
+  "travelers": {
+    "title": "Communauté de Voyageurs",
+    "subtitle": "Connectez-vous avec d'autres voyageurs et découvrez de nouvelles aventures"
+  }
+}

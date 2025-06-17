@@ -3,6 +3,7 @@ import { FileText, Bell, Settings, Award, Share, MessageSquare } from "lucide-re
 import { MenuItemConfig } from "@/types/profile";
 import { TravelStats } from "@/types/profile";
 import { useGamification } from "@/hooks/useGamification";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProfileMenuConfigProps {
   stats: TravelStats;
@@ -18,47 +19,52 @@ interface ProfileMenuConfigProps {
 
 export const useProfileMenuConfig = ({ stats, modalState }: ProfileMenuConfigProps): MenuItemConfig[] => {
   const { currentLevel, totalPoints } = useGamification();
+  const { t } = useLanguage();
 
   return [
     { 
       icon: FileText, 
-      title: "Travel Documents", 
-      subtitle: "Passports, visas, tickets", 
+      title: t("profile.menu.travelDocuments.title"), 
+      subtitle: t("profile.menu.travelDocuments.subtitle"), 
       color: "text-blue-600",
       onClick: () => modalState.setIsTravelDocumentsModalOpen(true)
     },
     { 
       icon: MessageSquare, 
-      title: "My Reviews", 
-      subtitle: "Manage your place reviews", 
+      title: t("profile.menu.myReviews.title"), 
+      subtitle: t("profile.menu.myReviews.subtitle"), 
       color: "text-indigo-600",
       onClick: () => modalState.setIsMyReviewsModalOpen(true)
     },
     { 
       icon: Bell, 
-      title: "Notifications", 
-      subtitle: "Manage alerts & updates", 
+      title: t("profile.menu.notifications.title"), 
+      subtitle: t("profile.menu.notifications.subtitle"), 
       color: "text-green-600",
       onClick: () => modalState.setIsNotificationsModalOpen(true)
     },
     { 
       icon: Award, 
-      title: "Travel Achievements", 
-      subtitle: `Level ${currentLevel.level} ${currentLevel.title} • ${totalPoints} points earned`, 
+      title: t("profile.menu.travelAchievements.title"), 
+      subtitle: t("profile.menu.travelAchievements.subtitle", { 
+        level: currentLevel.level.toString(), 
+        title: currentLevel.title, 
+        points: totalPoints.toString() 
+      }), 
       color: "text-purple-600",
       onClick: () => modalState.setIsTravelAchievementsModalOpen(true)
     },
     { 
       icon: Share, 
-      title: "Share Profile", 
-      subtitle: "Connect with travelers", 
+      title: t("profile.menu.shareProfile.title"), 
+      subtitle: t("profile.menu.shareProfile.subtitle"), 
       color: "text-orange-600",
       onClick: () => modalState.setIsShareProfileModalOpen(true)
     },
     { 
       icon: Settings, 
-      title: "Settings", 
-      subtitle: "App preferences", 
+      title: t("profile.menu.settings.title"), 
+      subtitle: t("profile.menu.settings.subtitle"), 
       color: "text-gray-600",
       onClick: () => modalState.setIsSettingsModalOpen(true)
     },

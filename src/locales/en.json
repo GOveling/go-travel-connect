@@ -1,0 +1,124 @@
+
+{
+  "navigation": {
+    "home": "Home",
+    "explore": "Explore",
+    "trips": "My Trips",
+    "booking": "Booking",
+    "profile": "Profile",
+    "travelers": "Travelers"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "search": "Search",
+    "filter": "Filter",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "language": "Language / Idioma",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "appearance": "Appearance",
+    "support": "Support",
+    "profileVisibility": {
+      "label": "Profile Visibility",
+      "description": "Who can see your profile",
+      "public": "Public",
+      "friends": "Friends Only",
+      "private": "Private"
+    },
+    "appLanguage": {
+      "label": "App Language",
+      "description": "Choose your preferred language"
+    },
+    "pushNotifications": {
+      "label": "Push Notifications",
+      "description": "Receive notifications on your device"
+    },
+    "emailNotifications": {
+      "label": "Email Notifications",
+      "description": "Receive updates via email"
+    },
+    "locationSharing": {
+      "label": "Location Sharing",
+      "description": "Share your location with friends"
+    },
+    "darkMode": {
+      "label": "Dark Mode",
+      "description": "Use dark theme"
+    },
+    "helpCenter": {
+      "title": "Help Center",
+      "description": "Get help and support"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "Read our privacy policy"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "description": "View terms and conditions"
+    },
+    "appVersion": "Travel App v1.0.0"
+  },
+  "profile": {
+    "editProfile": "Edit Profile",
+    "travelStats": "Travel Stats",
+    "countriesVisited": "Countries Visited",
+    "citiesExplored": "Cities Explored",
+    "placesVisited": "Places Visited",
+    "achievementPoints": "Achievement Points",
+    "signOut": "Sign Out",
+    "fullName": "Full name",
+    "description": "Description",
+    "email": "Email",
+    "emailCannotChange": "Email cannot be changed",
+    "charactersLeft": "{{count}}/70 characters",
+    "enterFullName": "Enter your full name",
+    "travelEnthusiast": "Travel Enthusiast",
+    "menu": {
+      "travelDocuments": {
+        "title": "Travel Documents",
+        "subtitle": "Passports, visas, tickets"
+      },
+      "myReviews": {
+        "title": "My Reviews",
+        "subtitle": "Manage your place reviews"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "subtitle": "Manage alerts & updates"
+      },
+      "travelAchievements": {
+        "title": "Travel Achievements",
+        "subtitle": "Level {{level}} {{title}} • {{points}} points earned"
+      },
+      "shareProfile": {
+        "title": "Share Profile",
+        "subtitle": "Connect with travelers"
+      },
+      "settings": {
+        "title": "Settings",
+        "subtitle": "App preferences"
+      }
+    }
+  },
+  "travelers": {
+    "title": "Travel Community",
+    "subtitle": "Connect with fellow travelers and discover new adventures"
+  }
+}
