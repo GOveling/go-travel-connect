@@ -38,8 +38,8 @@ const BookingCategoriesGrid = ({
     },
     {
       icon: Car,
-      title: "Transportations",
-      subtitle: "All transport options",
+      title: "Car Rental",
+      subtitle: "Explore at your pace",
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50",
       action: onCarRentalClick

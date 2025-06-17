@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState } from "react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import HomeSection from "@/components/sections/HomeSection";
 import TripsSection from "@/components/sections/TripsSection";
@@ -14,35 +14,16 @@ interface IndexProps {
 
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState('home');
-  const navigationInitialized = useRef(false);
 
-  // Memoizar el handler de navegación
-  const handleNavigateToTrips = useCallback(() => {
+  // Listen for navigation events
+  const handleNavigateToTrips = () => {
     setActiveSection('trips');
-  }, []);
+  };
 
-  // Configurar el event listener de forma más estable
-  useEffect(() => {
-    // Prevenir múltiples inicializaciones
-    if (navigationInitialized.current) return;
-    navigationInitialized.current = true;
+  // Add event listener for navigation
+  window.addEventListener('navigateToTrips', handleNavigateToTrips);
 
-    const handleNavigationEvent = (event: Event) => {
-      console.log('Navigation event received:', event.type);
-      handleNavigateToTrips();
-    };
-
-    // Usar addEventListener con options para mejor control
-    window.addEventListener('navigateToTrips', handleNavigationEvent, { passive: true });
-
-    return () => {
-      navigationInitialized.current = false;
-      window.removeEventListener('navigateToTrips', handleNavigationEvent);
-    };
-  }, [handleNavigateToTrips]);
-
-  // Memoizar el contenido renderizado para prevenir re-renderizados innecesarios
-  const renderContent = useCallback(() => {
+  const renderContent = () => {
     switch (activeSection) {
       case 'home':
         return <HomeSection />;
@@ -59,7 +40,7 @@ const Index = ({ onSignOut }: IndexProps) => {
       default:
         return <HomeSection />;
     }
-  }, [activeSection, onSignOut]);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
