@@ -32,7 +32,31 @@ export const useProfileData = () => {
       }
       
       console.log('Profile data fetched:', data);
-      setProfile(data);
+      
+      // Si no existe perfil, crear uno automáticamente
+      if (!data) {
+        console.log('No profile found, creating one...');
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            full_name: null,
+            avatar_url: null
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          throw insertError;
+        }
+        
+        console.log('Profile created:', newProfile);
+        setProfile(newProfile);
+      } else {
+        setProfile(data);
+      }
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch profile');

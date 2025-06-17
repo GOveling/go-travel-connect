@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Camera, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,20 +26,29 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
     if (!user) return null;
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+    const filePath = fileName;
 
     try {
+      console.log('Uploading to path:', filePath);
+      
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
+      console.log('Upload successful, public URL:', data.publicUrl);
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
