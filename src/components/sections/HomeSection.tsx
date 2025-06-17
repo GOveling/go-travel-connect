@@ -1,81 +1,55 @@
 
-import { useEffect } from "react";
-import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
-import HomeHeader from "@/components/home/HomeHeader";
-import QuickStats from "@/components/home/QuickStats";
-import CurrentTrip from "@/components/home/CurrentTrip";
-import QuickActions from "@/components/home/QuickActions";
-import ProfilePublication from "@/components/home/ProfilePublication";
-import FollowedFriendsPublications from "@/components/home/FollowedFriendsPublications";
-import HomeModals from "@/components/home/HomeModals";
-import { useHomeState } from "@/hooks/useHomeState";
-import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { Trip } from "@/types";
+import QuickStats from "../home/QuickStats";
+import CurrentTrip from "../home/CurrentTrip";
+import QuickActions from "../home/QuickActions";
 
-const HomeSection = () => {
-  const homeState = useHomeState();
-  const handlers = useHomeHandlers(homeState);
+interface HomeSectionProps {
+  trips: Trip[];
+  onCreateTrip: () => void;
+  onViewAllTrips: () => void;
+  onOpenExploreSection: () => void;
+  onOpenTravelDocuments: () => void;
+  onOpenAIAssistant: () => void;
+}
 
-  // Listen for navigation to trips section
-  useEffect(() => {
-    const handleNavigateToTrips = () => {
-      window.dispatchEvent(new CustomEvent('navigateToTrips'));
-    };
-
-    // Override the handleNavigateToTrips to trigger the global navigation
-    handlers.handleNavigateToTrips = () => {
-      window.dispatchEvent(new CustomEvent('navigateToTrips'));
-    };
-  }, []);
+const HomeSection = ({
+  trips,
+  onCreateTrip,
+  onViewAllTrips,
+  onOpenExploreSection,
+  onOpenTravelDocuments,
+  onOpenAIAssistant
+}: HomeSectionProps) => {
+  // Find the current trip (traveling status)
+  const currentTrip = trips.find(trip => trip.status === 'traveling') || null;
+  
+  // Find the nearest upcoming trip
+  const upcomingTrips = trips.filter(trip => trip.status === 'upcoming');
+  const nearestUpcomingTrip = upcomingTrips.length > 0 ? upcomingTrips[0] : null;
 
   return (
-    <div className="min-h-screen p-4 space-y-4">
-      {/* Minimized Location, Date & Weather Widget */}
-      <div className="pt-2">
-        <LocationWeatherWidget />
-      </div>
-
-      {/* Header with Logo, InstanTrip button, and Notification Bell */}
-      <HomeHeader
-        notificationCount={homeState.notificationCount}
-        instaTripImageCount={homeState.instaTripImages.length}
-        onNotificationClick={handlers.handleNotificationClick}
-        onInstaTripClick={handlers.handleInstaTripClick}
-      />
-
+    <div className="space-y-6 pb-6">
       {/* Quick Stats */}
-      <QuickStats />
+      <QuickStats trips={trips} />
 
-      <CurrentTrip 
-        currentTrip={homeState.currentTrip}
-        travelingTrip={homeState.travelingTrip}
-        nearestUpcomingTrip={homeState.nearestUpcomingTrip}
-        onViewDetail={handlers.handleViewCurrentTripDetail}
-        onPlanNewTrip={handlers.handlePlanNewTrip}
-        onNavigateToTrips={handlers.handleNavigateToTrips}
+      {/* Current Trip */}
+      <CurrentTrip
+        currentTrip={currentTrip}
+        travelingTrip={currentTrip}
+        nearestUpcomingTrip={nearestUpcomingTrip}
+        onViewDetail={onViewAllTrips}
+        onPlanNewTrip={onCreateTrip}
+        onNavigateToTrips={onViewAllTrips}
       />
 
-      <QuickActions onAddMemoryClick={handlers.handleAddMemoryClick} />
-
-      <FollowedFriendsPublications
-        publications={homeState.friendPublications}
-        onLike={handlers.handleLikePublication}
-        onComment={handlers.handleCommentPublication}
-        onShare={handlers.handleSharePublication}
-        formatTimeAgo={handlers.formatTimeAgo}
-        trips={homeState.trips}
-        onAddToExistingTrip={homeState.addPlaceToTrip}
-        onCreateNewTrip={handlers.handleCreateTrip}
+      {/* Quick Actions */}
+      <QuickActions
+        onCreateTrip={onCreateTrip}
+        onExplore={onOpenExploreSection}
+        onTravelDocuments={onOpenTravelDocuments}
+        onAIAssistant={onOpenAIAssistant}
       />
-
-      <ProfilePublication
-        posts={homeState.profilePosts}
-        onProfilePublicationClick={handlers.handleProfilePublicationClick}
-        onAddToTrip={handlers.handleAddToTrip}
-        formatTimeAgo={handlers.formatTimeAgo}
-      />
-
-      {/* All Modals */}
-      <HomeModals homeState={homeState} handlers={handlers} />
     </div>
   );
 };

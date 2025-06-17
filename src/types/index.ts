@@ -94,96 +94,6 @@ export interface RouteConfiguration {
   itinerary: DayItinerary[];
 }
 
-// Home State Types
-export interface InstaTripImage {
-  id: string;
-  src: string;
-  addedAt: number;
-  text?: string;
-  location?: string;
-  tripId?: number;
-}
-
-export interface ProfilePost {
-  id: string;
-  images: string[];
-  text: string;
-  createdAt: number;
-  location?: string;
-  tripId?: number;
-}
-
-export interface FriendPublication {
-  id: string;
-  friendName: string;
-  friendAvatar?: string;
-  images: string[];
-  text: string;
-  createdAt: number;
-  location?: string;
-  likes: number;
-  comments: number;
-  liked: boolean;
-}
-
-// Traveler Types
-export interface TripHistory {
-  name: string;
-  destinations: string;
-  year: string;
-  rating: number;
-}
-
-export interface Review {
-  place: string;
-  rating: number;
-  text: string;
-}
-
-export interface Publication {
-  id: string;
-  images: string[];
-  text: string;
-  location?: string;
-  createdAt: string;
-}
-
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  earned: boolean;
-  progress: number;
-  total: number;
-  points: number;
-  earnedDate?: string;
-}
-
-export interface TravelLevel {
-  level: number;
-  title: string;
-  currentXP: number;
-  nextLevelXP: number;
-}
-
-export interface Traveler {
-  id: string;
-  name: string;
-  avatar: string;
-  location: string;
-  totalTrips: number;
-  countries: number;
-  followers: number;
-  following: number;
-  bio: string;
-  pastTrips: TripHistory[];
-  recentPhotos: string[];
-  reviews: Review[];
-  publications: Publication[];
-  achievements: Achievement[];
-  travelLevel: TravelLevel;
-}
-
 // Auth Form Types
 export interface UseAuthFormReturn {
   isSignUp: boolean;
@@ -220,39 +130,15 @@ export interface CurrentTripProps {
   onNavigateToTrips?: () => void;
 }
 
-export interface AddMemoryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: number) => void;
-  onCreatePublication?: () => void;
-  onOpenTripPhotobook?: (trip: Trip) => void;
-  trips?: Trip[];
-}
-
 export interface AISmartRouteModalProps {
   trip: Trip | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export interface AddToTripModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  existingTrips: Trip[];
-  onAddToExistingTrip: (tripId: number) => void;
-  onCreateNewTrip: () => void;
-  postLocation?: string;
-}
-
 // Component Props Types
 export interface TripMapProps {
   trips: Trip[];
-}
-
-export interface TravelerCardProps {
-  traveler: Traveler;
-  isFollowing: boolean;
-  onFollow: (userId: string) => void;
 }
 
 export interface TripCardProps {
@@ -264,22 +150,4 @@ export interface TripCardProps {
   onAISmartRoute: (trip: Trip) => void;
   onViewSavedPlaces: (trip: Trip) => void;
   onCreatePhotobook: (trip: Trip) => void;
-}
-
-export interface ProfilePublicationProps {
-  posts: ProfilePost[];
-  onProfilePublicationClick: () => void;
-  onAddToTrip: (post: ProfilePost) => void;
-  formatTimeAgo: (timestamp: number) => string;
-}
-
-export interface FollowedFriendsPublicationsProps {
-  publications: FriendPublication[];
-  onLike: (id: string) => void;
-  onComment: (id: string) => void;
-  onShare: (id: string) => void;
-  formatTimeAgo: (timestamp: number) => string;
-  trips?: Trip[];
-  onAddToExistingTrip?: (tripId: number, place: any) => void;
-  onCreateNewTrip?: (tripData: any) => void;
 }

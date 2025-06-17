@@ -1,7 +1,6 @@
 
-import { Star, MapPin } from "lucide-react";
+import { MapPin, Star, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 interface Place {
   name: string;
@@ -24,41 +23,60 @@ interface ExplorePlacesGridProps {
 }
 
 const ExplorePlacesGrid = ({ places, selectedCategory, onPlaceClick }: ExplorePlacesGridProps) => {
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">
-          {selectedCategory === "All" ? "Trending Places" : `${selectedCategory} Places`}
-        </h3>
-        <Button variant="ghost" size="sm" className="text-purple-600">
-          View All
-        </Button>
+  if (places.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <MapPin size={48} className="mx-auto text-gray-400 mb-4" />
+        <h3 className="text-lg font-semibold text-gray-600 mb-2">No places found</h3>
+        <p className="text-gray-500">Try selecting a different category or search term.</p>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-800">
+          {selectedCategory === "All" ? "All Places" : selectedCategory}
+        </h3>
+        <span className="text-sm text-gray-600">{places.length} places found</span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
         {places.map((place, index) => (
           <Card 
-            key={index} 
-            className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
+            key={index}
+            className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border-2 hover:border-purple-200"
             onClick={() => onPlaceClick(place)}
           >
-            <CardContent className="p-0">
-              <div className="aspect-square bg-gradient-to-br from-purple-100 to-orange-100 flex items-center justify-center">
-                <span className="text-4xl">{place.image}</span>
-              </div>
-              <div className="p-3">
-                <h4 className="font-semibold text-sm mb-1">{place.name}</h4>
-                <div className="flex items-center space-x-1 mb-2">
-                  <MapPin size={12} className="text-gray-500" />
-                  <span className="text-xs text-gray-500">{place.location}</span>
+            <CardContent className="p-4">
+              <div className="flex items-start space-x-4">
+                <div className="text-3xl flex-shrink-0">
+                  {place.image}
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1">
-                    <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                    <span className="text-xs font-medium">{place.rating}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-semibold text-gray-800 truncate">{place.name}</h4>
+                      <div className="flex items-center space-x-1 text-sm text-gray-600">
+                        <MapPin size={14} />
+                        <span className="truncate">{place.location}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-2">
+                      <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                      <span className="text-sm font-medium">{place.rating}</span>
+                    </div>
                   </div>
-                  <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
-                    {place.category}
-                  </span>
+                  
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    {place.description}
+                  </p>
+                  
+                  <div className="flex items-center space-x-1 text-xs text-gray-500">
+                    <Clock size={12} />
+                    <span>{place.hours}</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
