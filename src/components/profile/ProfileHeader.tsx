@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Edit } from "lucide-react";
+import { useGamification } from "@/hooks/useGamification";
 
 interface ProfileHeaderProps {
   displayName: string;
@@ -12,6 +13,8 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl }: ProfileHeaderProps) => {
+  const { currentLevel } = useGamification();
+
   if (loading) {
     return (
       <div className="pt-8 pb-4 text-center">
@@ -54,7 +57,7 @@ const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl 
       <p className="text-gray-600 mb-2">Travel Enthusiast</p>
       <div className="flex items-center justify-center space-x-2">
         <span className="text-sm bg-gradient-to-r from-blue-500 to-orange-500 text-white px-3 py-1 rounded-full">
-          Explorer Level
+          {currentLevel.title}
         </span>
       </div>
     </div>
