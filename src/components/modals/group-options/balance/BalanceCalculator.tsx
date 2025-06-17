@@ -50,8 +50,8 @@ export const calculatePersonBalance = (person: string, expenses: Expense[]) => {
   return balance;
 };
 
-export const calculateSettlements = (
-  person: string, 
+// Calculate global settlements that are consistent for all users
+export const calculateGlobalSettlements = (
   expenses: Expense[], 
   allParticipants: Collaborator[], 
   paymentHistory: Record<string, PaymentRecord[]>
@@ -64,76 +64,71 @@ export const calculateSettlements = (
     balances.set(participant.name, calculatePersonBalance(participant.name, expenses));
   });
   
-  const personBalance = balances.get(person) || 0;
+  // Separate creditors (positive balance) and debtors (negative balance)
+  const creditors = allParticipants
+    .map(p => ({ name: p.name, balance: balances.get(p.name) || 0 }))
+    .filter(p => p.balance > 0.01)
+    .sort((a, b) => b.balance - a.balance);
+    
+  const debtors = allParticipants
+    .map(p => ({ name: p.name, balance: Math.abs(balances.get(p.name) || 0) }))
+    .filter(p => (balances.get(p.name) || 0) < -0.01)
+    .sort((a, b) => b.balance - a.balance);
   
-  if (personBalance < -0.01) {
-    // Person owes money - find who they owe to
-    const amountOwed = Math.abs(personBalance);
+  // Create settlements by matching debtors with creditors
+  let creditorIndex = 0;
+  let debtorIndex = 0;
+  let remainingCredit = creditors[creditorIndex]?.balance || 0;
+  let remainingDebt = debtors[debtorIndex]?.balance || 0;
+  
+  while (creditorIndex < creditors.length && debtorIndex < debtors.length) {
+    const creditor = creditors[creditorIndex];
+    const debtor = debtors[debtorIndex];
     
-    // Find people with positive balances (creditors)
-    const creditors = allParticipants
-      .filter(p => p.name !== person)
-      .map(p => ({ name: p.name, balance: balances.get(p.name) || 0 }))
-      .filter(p => p.balance > 0.01)
-      .sort((a, b) => b.balance - a.balance);
+    const settlementAmount = Math.min(remainingCredit, remainingDebt);
     
-    let remainingDebt = amountOwed;
+    if (settlementAmount > 0.01) {
+      const paymentKey = `${debtor.name}-${creditor.name}`;
+      const payments = paymentHistory[paymentKey] || [];
+      
+      settlements.push({
+        from: debtor.name,
+        to: creditor.name,
+        amount: settlementAmount,
+        payments: payments
+      });
+    }
     
-    creditors.forEach(creditor => {
-      if (remainingDebt > 0.01) {
-        const paymentAmount = Math.min(remainingDebt, creditor.balance);
-        
-        if (paymentAmount > 0.01) {
-          const paymentKey = `${person}-${creditor.name}`;
-          const payments = paymentHistory[paymentKey] || [];
-          
-          settlements.push({
-            from: person,
-            to: creditor.name,
-            amount: paymentAmount,
-            payments: payments
-          });
-          
-          remainingDebt -= paymentAmount;
-        }
-      }
-    });
+    remainingCredit -= settlementAmount;
+    remainingDebt -= settlementAmount;
     
-  } else if (personBalance > 0.01) {
-    // Person is owed money - find who owes them
-    const amountOwed = personBalance;
+    if (remainingCredit <= 0.01) {
+      creditorIndex++;
+      remainingCredit = creditors[creditorIndex]?.balance || 0;
+    }
     
-    // Find people with negative balances (debtors)
-    const debtors = allParticipants
-      .filter(p => p.name !== person)
-      .map(p => ({ name: p.name, balance: balances.get(p.name) || 0 }))
-      .filter(p => p.balance < -0.01)
-      .sort((a, b) => a.balance - b.balance);
-    
-    let remainingCredit = amountOwed;
-    
-    debtors.forEach(debtor => {
-      if (remainingCredit > 0.01) {
-        const paymentAmount = Math.min(remainingCredit, Math.abs(debtor.balance));
-        
-        if (paymentAmount > 0.01) {
-          const paymentKey = `${debtor.name}-${person}`;
-          const payments = paymentHistory[paymentKey] || [];
-          
-          settlements.push({
-            from: debtor.name,
-            to: person,
-            amount: paymentAmount,
-            payments: payments
-          });
-          
-          remainingCredit -= paymentAmount;
-        }
-      }
-    });
+    if (remainingDebt <= 0.01) {
+      debtorIndex++;
+      remainingDebt = debtors[debtorIndex]?.balance || 0;
+    }
   }
   
   return settlements;
+};
+
+export const calculateSettlements = (
+  person: string, 
+  expenses: Expense[], 
+  allParticipants: Collaborator[], 
+  paymentHistory: Record<string, PaymentRecord[]>
+): Settlement[] => {
+  // Get global settlements and filter for this person
+  const globalSettlements = calculateGlobalSettlements(expenses, allParticipants, paymentHistory);
+  
+  // Return settlements where this person is involved (either as debtor or creditor)
+  return globalSettlements.filter(settlement => 
+    settlement.from === person || settlement.to === person
+  );
 };
 
 export const getAdjustedBalance = (person: string, expenses: Expense[], paymentHistory: Record<string, PaymentRecord[]>) => {
