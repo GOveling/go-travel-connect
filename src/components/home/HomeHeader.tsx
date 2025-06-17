@@ -14,9 +14,9 @@ const HomeHeader = ({
     t
   } = useLanguage();
   return <div className="pb-4">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-2 mx-0 px-0">
         {/* Logo on the left */}
-        <div className="flex-1 flex justify-start mx-[30px] px-0">
+        <div className="flex-1 flex justify-start px-0 mx-[5px]">
           <img src="/lovable-uploads/ab817c30-2b47-4b5b-9678-711900c7df72.png" alt="GOveling Logo" className="h-32 w-auto object-contain" />
         </div>
         
