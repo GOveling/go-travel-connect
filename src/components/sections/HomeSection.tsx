@@ -8,6 +8,7 @@ import QuickActions from "@/components/home/QuickActions";
 import HomePopularPlace from "@/components/home/HomePopularPlace";
 import HomeModals from "@/components/home/HomeModals";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 
@@ -16,6 +17,7 @@ const HomeSection = () => {
   const handlers = useHomeHandlers(homeState);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
+  const [isNearbyPlacesModalOpen, setIsNearbyPlacesModalOpen] = useState(false);
 
   // Listen for navigation to trips section
   useEffect(() => {
@@ -37,6 +39,14 @@ const HomeSection = () => {
   const handleClosePlaceModal = () => {
     setIsPlaceModalOpen(false);
     setSelectedPlace(null);
+  };
+
+  const handleNearbyAlertsClick = () => {
+    setIsNearbyPlacesModalOpen(true);
+  };
+
+  const handleCloseNearbyPlacesModal = () => {
+    setIsNearbyPlacesModalOpen(false);
   };
 
   return (
@@ -64,7 +74,7 @@ const HomeSection = () => {
         onNavigateToTrips={handlers.handleNavigateToTrips}
       />
 
-      <QuickActions />
+      <QuickActions onNearbyAlertsClick={handleNearbyAlertsClick} />
 
       {/* Popular Place Globally */}
       <HomePopularPlace onPlaceClick={handlePlaceClick} />
@@ -81,6 +91,13 @@ const HomeSection = () => {
           // Handle add to trip functionality here if needed
           setIsPlaceModalOpen(false);
         }}
+      />
+
+      {/* Nearby Places Modal */}
+      <NearbyPlacesModal
+        isOpen={isNearbyPlacesModalOpen}
+        onClose={handleCloseNearbyPlacesModal}
+        onPlaceClick={handlePlaceClick}
       />
     </div>
   );
