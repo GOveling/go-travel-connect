@@ -5,6 +5,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import QuickStats from "@/components/home/QuickStats";
 import CurrentTrip from "@/components/home/CurrentTrip";
 import QuickActions from "@/components/home/QuickActions";
+import HomeModals from "@/components/home/HomeModals";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 
@@ -50,6 +51,9 @@ const HomeSection = () => {
       />
 
       <QuickActions />
+
+      {/* Render all modals */}
+      <HomeModals homeState={homeState} handlers={handlers} />
     </div>
   );
 };
