@@ -13,6 +13,7 @@ interface Review {
   comment: string;
   created_at: string;
   updated_at: string;
+  anonymous?: boolean;
   // We'll use placeholder values for user info since profiles table relation is not available
   user_name?: string;
   user_avatar?: string;
@@ -39,11 +40,11 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
 
       if (error) throw error;
 
-      // Add placeholder user info since we don't have profiles table relation
+      // Add user info based on anonymous setting
       const reviewsWithUserInfo = data?.map(review => ({
         ...review,
-        user_name: 'Anonymous User',
-        user_avatar: '👤'
+        user_name: review.anonymous ? 'Anonymous User' : 'Verified User',
+        user_avatar: review.anonymous ? '👤' : '👤'
       })) || [];
 
       setReviews(reviewsWithUserInfo);
@@ -60,7 +61,7 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
   };
 
   // Submit a new review
-  const submitReview = async (rating: number, comment: string) => {
+  const submitReview = async (rating: number, comment: string, anonymous: boolean = false) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -88,7 +89,8 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
           place_id: placeId,
           place_name: placeName,
           rating,
-          comment: comment.trim()
+          comment: comment.trim(),
+          anonymous
         });
 
       if (error) throw error;

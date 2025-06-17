@@ -53,16 +53,24 @@ export const useMyReviews = () => {
     if (!user) return false;
 
     try {
-      const { error } = await supabase
+      console.log('Updating review with:', updates);
+      
+      const { data, error } = await supabase
         .from('place_reviews')
         .update({
           ...updates,
           updated_at: new Date().toISOString()
         })
         .eq('id', reviewId)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
+
+      console.log('Review updated successfully:', data);
 
       toast({
         title: "Review updated!",

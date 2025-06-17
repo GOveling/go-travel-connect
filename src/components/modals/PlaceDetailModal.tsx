@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { usePlaceReviews } from "@/hooks/usePlaceReviews";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -32,6 +34,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   const [showReviews, setShowReviews] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [userRating, setUserRating] = useState(0);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const { user } = useAuth();
 
   // Use the place ID or fallback to a generated ID based on name
@@ -69,11 +72,12 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   };
 
   const handleSubmitReview = async () => {
-    const success = await submitReview(userRating, reviewText);
+    const success = await submitReview(userRating, reviewText, isAnonymous);
     if (success) {
       setShowReviewForm(false);
       setReviewText("");
       setUserRating(0);
+      setIsAnonymous(false);
     }
   };
 
@@ -285,6 +289,15 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                       className="resize-none"
                       rows={3}
                     />
+
+                    {/* Anonymous Toggle */}
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={isAnonymous}
+                        onCheckedChange={setIsAnonymous}
+                      />
+                      <Label>Post anonymously</Label>
+                    </div>
 
                     {/* Submit Buttons */}
                     <div className="flex space-x-2">
