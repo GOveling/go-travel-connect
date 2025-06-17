@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Users } from "lucide-react";
 
 interface Expense {
   id: number;
@@ -73,6 +74,22 @@ const ExpenseForm = ({
     }
   };
 
+  const handleSelectAllPaidBy = () => {
+    const allSelected = newExpense.paidBy.length === allParticipants.length;
+    setNewExpense({
+      ...newExpense,
+      paidBy: allSelected ? [] : allParticipants.map(p => p.name)
+    });
+  };
+
+  const handleSelectAllSplitBetween = () => {
+    const allSelected = newExpense.splitBetween.length === allParticipants.length;
+    setNewExpense({
+      ...newExpense,
+      splitBetween: allSelected ? [] : allParticipants.map(p => p.name)
+    });
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3 md:pb-4">
@@ -104,7 +121,19 @@ const ExpenseForm = ({
             />
           </div>
           <div>
-            <Label className="text-sm">Paid By</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-sm">Paid By</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAllPaidBy}
+                className="h-7 px-2 text-xs"
+              >
+                <Users size={12} className="mr-1" />
+                {newExpense.paidBy.length === allParticipants.length ? "Deselect All" : "Select All"}
+              </Button>
+            </div>
             <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
               {allParticipants.map((participant) => (
                 <div key={participant.id} className="flex items-center space-x-3">
@@ -135,7 +164,19 @@ const ExpenseForm = ({
             )}
           </div>
           <div>
-            <Label className="text-sm">Split Between</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-sm">Split Between</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAllSplitBetween}
+                className="h-7 px-2 text-xs"
+              >
+                <Users size={12} className="mr-1" />
+                {newExpense.splitBetween.length === allParticipants.length ? "Deselect All" : "Select All"}
+              </Button>
+            </div>
             <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
               {allParticipants.map((participant) => (
                 <div key={participant.id} className="flex items-center space-x-3">

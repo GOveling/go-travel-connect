@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -261,7 +260,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const handleCancelEdit = () => {
     setEditingExpenseId(null);
-    setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
+    setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
   };
 
   const handleCreateDecision = () => {

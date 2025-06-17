@@ -31,16 +31,22 @@ interface Settlement {
 
 export const calculatePersonBalance = (person: string, expenses: Expense[]) => {
   let balance = 0;
+  
   expenses.forEach(expense => {
     const paidBy = expense.paidBy;
+    const splitBetween = expense.splitBetween;
     
+    // Amount this person paid
     if (paidBy.includes(person)) {
       balance += expense.amount / paidBy.length;
     }
-    if (expense.splitBetween.includes(person)) {
-      balance -= expense.amount / expense.splitBetween.length;
+    
+    // Amount this person owes
+    if (splitBetween.includes(person)) {
+      balance -= expense.amount / splitBetween.length;
     }
   });
+  
   return balance;
 };
 
@@ -51,24 +57,32 @@ export const calculateSettlements = (
   paymentHistory: Record<string, PaymentRecord[]>
 ): Settlement[] => {
   const settlements: Settlement[] = [];
-  const personBalance = calculatePersonBalance(person, expenses);
   
-  if (personBalance < 0) {
-    // Person owes money
+  // Calculate all individual balances
+  const balances = new Map<string, number>();
+  allParticipants.forEach(participant => {
+    balances.set(participant.name, calculatePersonBalance(participant.name, expenses));
+  });
+  
+  const personBalance = balances.get(person) || 0;
+  
+  if (personBalance < -0.01) {
+    // Person owes money - find who they owe to
     const amountOwed = Math.abs(personBalance);
     
-    // Find people who are owed money (positive balance)
+    // Find people with positive balances (creditors)
     const creditors = allParticipants
       .filter(p => p.name !== person)
-      .map(p => ({ name: p.name, balance: calculatePersonBalance(p.name, expenses) }))
-      .filter(p => p.balance > 0)
+      .map(p => ({ name: p.name, balance: balances.get(p.name) || 0 }))
+      .filter(p => p.balance > 0.01)
       .sort((a, b) => b.balance - a.balance);
     
     let remainingDebt = amountOwed;
     
     creditors.forEach(creditor => {
-      if (remainingDebt > 0) {
+      if (remainingDebt > 0.01) {
         const paymentAmount = Math.min(remainingDebt, creditor.balance);
+        
         if (paymentAmount > 0.01) {
           const paymentKey = `${person}-${creditor.name}`;
           const payments = paymentHistory[paymentKey] || [];
@@ -79,26 +93,29 @@ export const calculateSettlements = (
             amount: paymentAmount,
             payments: payments
           });
+          
           remainingDebt -= paymentAmount;
         }
       }
     });
-  } else if (personBalance > 0) {
-    // Person is owed money
+    
+  } else if (personBalance > 0.01) {
+    // Person is owed money - find who owes them
     const amountOwed = personBalance;
     
-    // Find people who owe money (negative balance)
+    // Find people with negative balances (debtors)
     const debtors = allParticipants
       .filter(p => p.name !== person)
-      .map(p => ({ name: p.name, balance: calculatePersonBalance(p.name, expenses) }))
-      .filter(p => p.balance < 0)
+      .map(p => ({ name: p.name, balance: balances.get(p.name) || 0 }))
+      .filter(p => p.balance < -0.01)
       .sort((a, b) => a.balance - b.balance);
     
     let remainingCredit = amountOwed;
     
     debtors.forEach(debtor => {
-      if (remainingCredit > 0) {
+      if (remainingCredit > 0.01) {
         const paymentAmount = Math.min(remainingCredit, Math.abs(debtor.balance));
+        
         if (paymentAmount > 0.01) {
           const paymentKey = `${debtor.name}-${person}`;
           const payments = paymentHistory[paymentKey] || [];
@@ -109,6 +126,7 @@ export const calculateSettlements = (
             amount: paymentAmount,
             payments: payments
           });
+          
           remainingCredit -= paymentAmount;
         }
       }
@@ -121,23 +139,21 @@ export const calculateSettlements = (
 export const getAdjustedBalance = (person: string, expenses: Expense[], paymentHistory: Record<string, PaymentRecord[]>) => {
   const originalBalance = calculatePersonBalance(person, expenses);
   
-  // Calculate total payments made by this person
-  let totalPaid = 0;
+  // Calculate net effect of payments for this person
+  let paymentAdjustment = 0;
+  
   Object.entries(paymentHistory).forEach(([key, payments]) => {
-    const [from] = key.split('-');
+    const [from, to] = key.split('-');
+    const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    
     if (from === person) {
-      totalPaid += payments.reduce((sum, payment) => sum + payment.amount, 0);
+      // This person made payments, so their debt decreases (balance increases)
+      paymentAdjustment += totalPayments;
+    } else if (to === person) {
+      // This person received payments, so their credit decreases (balance decreases)
+      paymentAdjustment -= totalPayments;
     }
   });
-
-  // Calculate total payments received by this person
-  let totalReceived = 0;
-  Object.entries(paymentHistory).forEach(([key, payments]) => {
-    const [, to] = key.split('-');
-    if (to === person) {
-      totalReceived += payments.reduce((sum, payment) => sum + payment.amount, 0);
-    }
-  });
-
-  return originalBalance + totalPaid - totalReceived;
+  
+  return originalBalance + paymentAdjustment;
 };

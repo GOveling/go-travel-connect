@@ -34,10 +34,10 @@ const PaymentInput = ({
             type="number"
             placeholder="0.00"
             value={paymentInputs[paymentKey] || ''}
-            onChange={(e) => setPaymentInputs(prev => ({
-              ...prev,
+            onChange={(e) => setPaymentInputs({
+              ...paymentInputs,
               [paymentKey]: e.target.value
-            }))}
+            })}
             className="pl-6 h-8 text-xs"
             max={remainingAmount}
             step="0.01"
