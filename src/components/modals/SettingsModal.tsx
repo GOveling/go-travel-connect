@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Settings, User, Bell, Shield, Globe, Moon, Sun, Smartphone, HelpCircle } from "lucide-react";
+import { Settings, User, Bell, Shield, Globe, Moon, Sun, Smartphone, HelpCircle, Languages } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,9 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [locationSharing, setLocationSharing] = useState(false);
   const [profileVisibility, setProfileVisibility] = useState("public");
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    return localStorage.getItem('appLanguage') || 'es';
+  });
 
   // Handle dark mode toggle
   const handleDarkModeToggle = (enabled: boolean) => {
@@ -35,7 +38,15 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     }
   };
 
-  // Load dark mode preference on component mount
+  // Handle language change
+  const handleLanguageChange = (language: string) => {
+    setSelectedLanguage(language);
+    localStorage.setItem('appLanguage', language);
+    // Here you would typically trigger a global language change
+    // For now, we'll just store it in localStorage
+  };
+
+  // Load preferences on component mount
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode');
     if (savedDarkMode === 'true') {
@@ -62,6 +73,27 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             { value: "public", label: "Public" },
             { value: "friends", label: "Friends Only" },
             { value: "private", label: "Private" }
+          ]
+        }
+      ]
+    },
+    {
+      title: "Language / Idioma",
+      icon: Languages,
+      items: [
+        {
+          label: "App Language",
+          description: "Choose your preferred language",
+          type: "select",
+          value: selectedLanguage,
+          onChange: handleLanguageChange,
+          options: [
+            { value: "en", label: "English" },
+            { value: "es", label: "Español" },
+            { value: "pt", label: "Português" },
+            { value: "fr", label: "Français" },
+            { value: "it", label: "Italiano" },
+            { value: "zh", label: "中文" }
           ]
         }
       ]
@@ -150,7 +182,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                           />
                         ) : item.type === "select" ? (
                           <Select value={item.value as string} onValueChange={item.onChange}>
-                            <SelectTrigger className="w-24">
+                            <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
