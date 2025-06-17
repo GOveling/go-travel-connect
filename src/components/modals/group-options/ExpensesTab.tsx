@@ -11,7 +11,7 @@ interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string;
+  paidBy: string[];
   splitBetween: string[];
   date: string;
 }
@@ -30,7 +30,7 @@ interface ExpensesTabProps {
   newExpense: {
     description: string;
     amount: string;
-    paidBy: string;
+    paidBy: string[];
     splitBetween: string[];
   };
   setNewExpense: (expense: any) => void;
@@ -77,7 +77,7 @@ const ExpensesTab = ({
                       <span className="font-bold text-green-600">${expense.amount.toFixed(2)}</span>
                     </div>
                     <div className="text-xs text-gray-600 space-y-1">
-                      <div>Paid by: {expense.paidBy}</div>
+                      <div>Paid by: {Array.isArray(expense.paidBy) ? expense.paidBy.join(", ") : expense.paidBy}</div>
                       <div>Split: {expense.splitBetween.join(", ")}</div>
                       <div>Date: {expense.date}</div>
                     </div>
@@ -144,7 +144,7 @@ const ExpensesTab = ({
                   <TableRow key={expense.id}>
                     <TableCell>{expense.description}</TableCell>
                     <TableCell>${expense.amount.toFixed(2)}</TableCell>
-                    <TableCell>{expense.paidBy}</TableCell>
+                    <TableCell>{Array.isArray(expense.paidBy) ? expense.paidBy.join(", ") : expense.paidBy}</TableCell>
                     <TableCell>{expense.splitBetween.join(", ")}</TableCell>
                     <TableCell>{expense.date}</TableCell>
                     <TableCell>

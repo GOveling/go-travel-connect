@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +10,7 @@ interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string;
+  paidBy: string[];
   splitBetween: string[];
   date: string;
 }
@@ -50,8 +49,12 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
   const calculatePersonBalance = (person: string) => {
     let balance = 0;
     expenses.forEach(expense => {
-      if (expense.paidBy === person) {
-        balance += expense.amount;
+      // Handle both array and string formats for backward compatibility
+      const paidBy = Array.isArray(expense.paidBy) ? expense.paidBy : [expense.paidBy];
+      
+      if (paidBy.includes(person)) {
+        // If multiple people paid, split the payment amount
+        balance += expense.amount / paidBy.length;
       }
       if (expense.splitBetween.includes(person)) {
         balance -= expense.amount / expense.splitBetween.length;
