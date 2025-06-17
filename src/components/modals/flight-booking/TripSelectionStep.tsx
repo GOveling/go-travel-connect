@@ -102,10 +102,13 @@ const TripSelectionStep = ({
                         <p className="text-xs text-gray-600">{trip.destination}</p>
                         <p className="text-xs text-gray-500">{trip.dates}</p>
                         {trip.coordinates && trip.coordinates.length > 0 && (
-                          <p className="text-xs text-blue-600">
-                            🤖 {trip.coordinates.length > 1 ? 'Multi-city:' : 'Route:'} {currentLocation} → {trip.coordinates[0].name}
-                            {trip.coordinates.length > 1 && ` → ${trip.coordinates[trip.coordinates.length - 1].name} → ${currentLocation}`}
-                          </p>
+                          <div className="text-xs text-blue-600 mt-1">
+                            <p>🤖 {trip.coordinates.length > 1 ? 'Multi-city:' : 'Route:'} {currentLocation} → {trip.coordinates[0].name}</p>
+                            {trip.coordinates.length > 1 && (
+                              <p>🤖 → {trip.coordinates[trip.coordinates.length - 1].name} → {currentLocation}</p>
+                            )}
+                            <p className="text-blue-500 font-medium">🧠 IA optimizará fechas de vuelo según distancia</p>
+                          </div>
                         )}
                       </div>
                     </div>

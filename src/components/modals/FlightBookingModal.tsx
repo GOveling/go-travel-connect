@@ -13,6 +13,11 @@ import FlightOptionsView from "./flight-booking/FlightOptionsView";
 import MyFlightsView from "./flight-booking/MyFlightsView";
 import AddFlightView from "./flight-booking/AddFlightView";
 import { extractStartDate, extractEndDate } from "./flight-booking/flightBookingUtils";
+import { 
+  getAIFlightTimingRecommendation, 
+  adjustFlightDateBasedOnAI,
+  type FlightTimingRecommendation 
+} from "./flight-booking/aiFlightTimingUtils";
 
 interface FlightBookingModalProps {
   isOpen: boolean;
@@ -25,6 +30,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city'>('round-trip');
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
   const [currentLocation, setCurrentLocation] = useState("New York, NY");
+  const [aiRecommendation, setAiRecommendation] = useState<FlightTimingRecommendation | null>(null);
   const [formData, setFormData] = useState({
     from: '',
     to: '',
@@ -106,11 +112,22 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
         console.log('First destination:', firstDestination);
         console.log('Last destination:', lastDestination);
         
+        // 🤖 AI Protocol: Get flight timing recommendation for first flight
+        const aiRec = getAIFlightTimingRecommendation(
+          currentLocation,
+          firstDestination,
+          startDate
+        );
+        setAiRecommendation(aiRec);
+        
+        // Adjust flight date based on AI recommendation
+        const optimizedDepartDate = adjustFlightDateBasedOnAI(startDate, aiRec);
+        
         const newMultiCityFlights = [
           {
             from: currentLocation,
             to: firstDestination,
-            departDate: startDate,
+            departDate: optimizedDepartDate,
             passengers: 1,
             class: 'economy'
           },
@@ -123,33 +140,45 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
           }
         ];
         
-        console.log('Setting multi-city flights:', newMultiCityFlights);
+        console.log('🤖 AI optimized multi-city flights:', newMultiCityFlights);
         
         setTripType('multi-city');
         setMultiCityFlights(newMultiCityFlights);
 
         // Show AI automation toast for multi-city
         toast({
-          title: "🤖 AI Auto-filled Multi-City",
-          description: `Two one-way flights: ${currentLocation} → ${firstDestination} and ${lastDestination} → ${currentLocation}`,
+          title: "🤖 IA optimizó vuelos multi-ciudad",
+          description: `${aiRec.reason} Distancia: ${aiRec.distance}km. Vuelo ${optimizedDepartDate !== startDate ? 'un día antes' : 'el mismo día'}.`,
         });
       } else if (destinations.length === 1) {
         // Single destination trip - round trip
         const firstDestination = destinations[0].name;
+        const startDate = extractStartDate(trip.dates);
+        
+        // 🤖 AI Protocol: Get flight timing recommendation
+        const aiRec = getAIFlightTimingRecommendation(
+          currentLocation,
+          firstDestination,
+          startDate
+        );
+        setAiRecommendation(aiRec);
+        
+        // Adjust flight date based on AI recommendation
+        const optimizedDepartDate = adjustFlightDateBasedOnAI(startDate, aiRec);
         
         setFormData(prev => ({
           ...prev,
           from: currentLocation,
           to: firstDestination,
-          departDate: extractStartDate(trip.dates),
+          departDate: optimizedDepartDate,
           returnDate: extractEndDate(trip.dates)
         }));
         setTripType('round-trip');
 
         // Show AI automation toast
         toast({
-          title: "🤖 AI Auto-filled",
-          description: `Round-trip flight details populated from "${trip.name}" itinerary`,
+          title: "🤖 IA optimizó horarios de vuelo",
+          description: `${aiRec.reason} Distancia: ${aiRec.distance}km. Confianza: ${aiRec.aiConfidence}.`,
         });
       }
     }
@@ -219,6 +248,30 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             </div>
           </div>
         </div>
+
+        {/* AI Recommendation Display */}
+        {currentView === 'booking' && aiRecommendation && (
+          <div className="px-4 pt-2">
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-3">
+              <div className="flex items-center space-x-2 mb-1">
+                <span className="text-lg">🧠</span>
+                <span className="text-sm font-semibold text-purple-800">Recomendación IA</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                  aiRecommendation.aiConfidence === 'high' ? 'bg-green-100 text-green-800' :
+                  aiRecommendation.aiConfidence === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {aiRecommendation.aiConfidence}
+                </span>
+              </div>
+              <p className="text-xs text-purple-700 mb-1">{aiRecommendation.reason}</p>
+              <div className="flex justify-between text-xs text-purple-600">
+                <span>Distancia: {aiRecommendation.distance}km</span>
+                <span>Duración: {aiRecommendation.estimatedFlightDuration}</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Progress Steps - only show for booking flow */}
         {currentView === 'booking' && (
