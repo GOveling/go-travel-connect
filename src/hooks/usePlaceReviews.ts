@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,6 +16,9 @@ interface Review {
   anonymous?: boolean;
   user_name?: string;
   user_avatar?: string;
+  profiles?: {
+    full_name: string | null;
+  };
 }
 
 export const usePlaceReviews = (placeId: string, placeName: string) => {
@@ -34,7 +38,7 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
         .from('place_reviews')
         .select(`
           *,
-          profiles!place_reviews_user_id_fkey (
+          profiles (
             full_name
           )
         `)
