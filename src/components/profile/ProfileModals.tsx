@@ -5,6 +5,7 @@ import TravelAchievementsModal from "@/components/modals/TravelAchievementsModal
 import ShareProfileModal from "@/components/modals/ShareProfileModal";
 import SettingsModal from "@/components/modals/SettingsModal";
 import MyReviewsModal from "@/components/modals/MyReviewsModal";
+import EditProfileModal from "@/components/modals/EditProfileModal";
 
 interface ProfileModalsProps {
   isTravelDocumentsModalOpen: boolean;
@@ -19,6 +20,10 @@ interface ProfileModalsProps {
   setIsSettingsModalOpen: (open: boolean) => void;
   isMyReviewsModalOpen: boolean;
   setIsMyReviewsModalOpen: (open: boolean) => void;
+  isEditProfileModalOpen: boolean;
+  setIsEditProfileModalOpen: (open: boolean) => void;
+  profile?: any;
+  onProfileUpdate?: () => void;
 }
 
 const ProfileModals = ({
@@ -34,6 +39,10 @@ const ProfileModals = ({
   setIsSettingsModalOpen,
   isMyReviewsModalOpen,
   setIsMyReviewsModalOpen,
+  isEditProfileModalOpen,
+  setIsEditProfileModalOpen,
+  profile,
+  onProfileUpdate
 }: ProfileModalsProps) => {
   return (
     <>
@@ -65,6 +74,13 @@ const ProfileModals = ({
       <MyReviewsModal
         isOpen={isMyReviewsModalOpen}
         onClose={() => setIsMyReviewsModalOpen(false)}
+      />
+
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        profile={profile}
+        onProfileUpdate={onProfileUpdate || (() => {})}
       />
     </>
   );

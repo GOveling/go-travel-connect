@@ -18,7 +18,7 @@ interface ProfileContentProps {
 
 const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
   const { signOut } = useAuth();
-  const { profile, loading: profileLoading, getInitials, user } = useProfileData();
+  const { profile, loading: profileLoading, getInitials, user, refreshProfile } = useProfileData();
   const { stats, loading: statsLoading } = useTravelStats();
   const { activities, loading: activitiesLoading } = useRecentActivity();
   const modalState = useProfileModals();
@@ -32,6 +32,10 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
     }
   };
 
+  const handleEditProfile = () => {
+    modalState.setIsEditProfileModalOpen(true);
+  };
+
   const displayName = profile?.full_name || user?.email || 'Traveler';
 
   return (
@@ -40,6 +44,7 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
         displayName={displayName}
         initials={getInitials()}
         loading={profileLoading}
+        onEditClick={handleEditProfile}
       />
 
       <TravelStatsCard 
@@ -56,7 +61,11 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
 
       <ProfileActions onSignOut={handleSignOut} />
 
-      <ProfileModals {...modalState} />
+      <ProfileModals 
+        {...modalState} 
+        profile={profile}
+        onProfileUpdate={refreshProfile}
+      />
     </div>
   );
 };

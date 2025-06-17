@@ -10,31 +10,31 @@ export const useProfileData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchProfile = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      setProfile(data);
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (error) throw error;
-        setProfile(data);
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch profile');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProfile();
   }, [user]);
 
@@ -53,11 +53,16 @@ export const useProfileData = () => {
     return 'U';
   };
 
+  const refreshProfile = () => {
+    fetchProfile();
+  };
+
   return {
     profile,
     loading,
     error,
     getInitials,
-    user
+    user,
+    refreshProfile
   };
 };

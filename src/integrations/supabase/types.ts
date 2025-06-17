@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       place_reviews: {
         Row: {
+          anonymous: boolean | null
           comment: string
           created_at: string
           id: string
@@ -21,6 +22,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          anonymous?: boolean | null
           comment: string
           created_at?: string
           id?: string
@@ -31,6 +33,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          anonymous?: boolean | null
           comment?: string
           created_at?: string
           id?: string
