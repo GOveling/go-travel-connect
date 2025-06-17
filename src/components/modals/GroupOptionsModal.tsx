@@ -18,7 +18,7 @@ interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string;
+  paidBy: string[];
   splitBetween: string[];
   date: string;
 }
@@ -59,38 +59,70 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         return [
           {
             id: 1,
-            description: "Hotel Booking Paris",
+            description: "Hotel Booking Paris (3 nights)",
             amount: 450,
-            paidBy: "Alice Johnson",
+            paidBy: ["Alice Johnson"],
             splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
             date: "2024-12-10"
           },
           {
             id: 2,
-            description: "Flight Tickets",
-            amount: 850,
-            paidBy: "You",
+            description: "Flight Tickets to Europe",
+            amount: 900,
+            paidBy: ["You"],
             splitBetween: ["Alice Johnson", "Bob Smith", "You"],
             date: "2024-12-08"
+          },
+          {
+            id: 3,
+            description: "Group Dinner in Rome",
+            amount: 120,
+            paidBy: ["Bob Smith"],
+            splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
+            date: "2024-12-12"
+          },
+          {
+            id: 4,
+            description: "Museum Tickets & City Tour",
+            amount: 180,
+            paidBy: ["Carol Davis"],
+            splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
+            date: "2024-12-13"
           }
         ];
       case 3: // Bali Retreat
         return [
           {
             id: 1,
-            description: "Beach Resort Booking",
-            amount: 320,
-            paidBy: "Emma Wilson",
+            description: "Beach Resort Booking (5 nights)",
+            amount: 600,
+            paidBy: ["Emma Wilson"],
             splitBetween: ["Emma Wilson", "David Brown", "You"],
             date: "2024-11-15"
           },
           {
             id: 2,
-            description: "Yoga Classes",
-            amount: 180,
-            paidBy: "You",
+            description: "Yoga Classes & Spa Package",
+            amount: 270,
+            paidBy: ["You"],
             splitBetween: ["Emma Wilson", "David Brown", "You"],
             date: "2024-11-18"
+          },
+          {
+            id: 3,
+            description: "Scooter Rental & Gas",
+            amount: 90,
+            paidBy: ["David Brown"],
+            splitBetween: ["Emma Wilson", "David Brown", "You"],
+            date: "2024-11-16"
+          },
+          {
+            id: 4,
+            description: "Traditional Cooking Class",
+            amount: 150,
+            paidBy: ["Emma Wilson", "You"],
+            splitBetween: ["Emma Wilson", "David Brown", "You"],
+            date: "2024-11-19"
           }
         ];
       default:
@@ -164,7 +196,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const [newExpense, setNewExpense] = useState({
     description: "",
     amount: "",
-    paidBy: "",
+    paidBy: [] as string[],
     splitBetween: [] as string[]
   });
 
@@ -213,7 +245,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   }
 
   const handleAddExpense = () => {
-    if (newExpense.description && newExpense.amount && newExpense.paidBy) {
+    if (newExpense.description && newExpense.amount && newExpense.paidBy.length > 0) {
       if (editingExpenseId) {
         // Update existing expense
         setExpenses(expenses.map(expense => 
@@ -223,7 +255,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 description: newExpense.description,
                 amount: parseFloat(newExpense.amount),
                 paidBy: newExpense.paidBy,
-                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy]
+                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy
               }
             : expense
         ));
@@ -235,12 +267,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           description: newExpense.description,
           amount: parseFloat(newExpense.amount),
           paidBy: newExpense.paidBy,
-          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy],
+          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy,
           date: new Date().toISOString().split('T')[0]
         };
         setExpenses([...expenses, expense]);
       }
-      setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
+      setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
     }
   };
 
@@ -260,7 +292,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const handleCancelEdit = () => {
     setEditingExpenseId(null);
-    setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
+    setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
   };
 
   const handleCreateDecision = () => {
