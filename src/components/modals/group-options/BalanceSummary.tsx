@@ -1,10 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowRight, Check, DollarSign, History } from "lucide-react";
+import SettlementCard from "./balance/SettlementCard";
+import { calculatePersonBalance, calculateSettlements, getAdjustedBalance } from "./balance/BalanceCalculator";
 
 interface Expense {
   id: number;
@@ -29,13 +29,6 @@ interface PaymentRecord {
   timestamp: number;
 }
 
-interface Settlement {
-  from: string;
-  to: string;
-  amount: number;
-  payments: PaymentRecord[];
-}
-
 interface BalanceSummaryProps {
   expenses: Expense[];
   allParticipants: Collaborator[];
@@ -45,92 +38,6 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
   // State to track payment history - key format: "from-to"
   const [paymentHistory, setPaymentHistory] = useState<Record<string, PaymentRecord[]>>({});
   const [paymentInputs, setPaymentInputs] = useState<Record<string, string>>({});
-
-  const calculatePersonBalance = (person: string) => {
-    let balance = 0;
-    expenses.forEach(expense => {
-      // Handle both array and string formats for backward compatibility
-      const paidBy = Array.isArray(expense.paidBy) ? expense.paidBy : [expense.paidBy];
-      
-      if (paidBy.includes(person)) {
-        // If multiple people paid, split the payment amount
-        balance += expense.amount / paidBy.length;
-      }
-      if (expense.splitBetween.includes(person)) {
-        balance -= expense.amount / expense.splitBetween.length;
-      }
-    });
-    return balance;
-  };
-
-  const calculateSettlements = (person: string): Settlement[] => {
-    const settlements: Settlement[] = [];
-    const personBalance = calculatePersonBalance(person);
-    
-    if (personBalance < 0) {
-      // Person owes money
-      const amountOwed = Math.abs(personBalance);
-      
-      // Find people who are owed money (positive balance)
-      const creditors = allParticipants
-        .filter(p => p.name !== person)
-        .map(p => ({ name: p.name, balance: calculatePersonBalance(p.name) }))
-        .filter(p => p.balance > 0)
-        .sort((a, b) => b.balance - a.balance);
-      
-      let remainingDebt = amountOwed;
-      
-      creditors.forEach(creditor => {
-        if (remainingDebt > 0) {
-          const paymentAmount = Math.min(remainingDebt, creditor.balance);
-          if (paymentAmount > 0.01) {
-            const paymentKey = `${person}-${creditor.name}`;
-            const payments = paymentHistory[paymentKey] || [];
-            
-            settlements.push({
-              from: person,
-              to: creditor.name,
-              amount: paymentAmount,
-              payments: payments
-            });
-            remainingDebt -= paymentAmount;
-          }
-        }
-      });
-    } else if (personBalance > 0) {
-      // Person is owed money
-      const amountOwed = personBalance;
-      
-      // Find people who owe money (negative balance)
-      const debtors = allParticipants
-        .filter(p => p.name !== person)
-        .map(p => ({ name: p.name, balance: calculatePersonBalance(p.name) }))
-        .filter(p => p.balance < 0)
-        .sort((a, b) => a.balance - b.balance);
-      
-      let remainingCredit = amountOwed;
-      
-      debtors.forEach(debtor => {
-        if (remainingCredit > 0) {
-          const paymentAmount = Math.min(remainingCredit, Math.abs(debtor.balance));
-          if (paymentAmount > 0.01) {
-            const paymentKey = `${debtor.name}-${person}`;
-            const payments = paymentHistory[paymentKey] || [];
-            
-            settlements.push({
-              from: debtor.name,
-              to: person,
-              amount: paymentAmount,
-              payments: payments
-            });
-            remainingCredit -= paymentAmount;
-          }
-        }
-      });
-    }
-    
-    return settlements;
-  };
 
   const addPayment = (paymentKey: string, amount: string) => {
     const numAmount = parseFloat(amount) || 0;
@@ -159,30 +66,6 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
     return payments.reduce((total, payment) => total + payment.amount, 0);
   };
 
-  const getAdjustedBalance = (person: string) => {
-    const originalBalance = calculatePersonBalance(person);
-    
-    // Calculate total payments made by this person
-    let totalPaid = 0;
-    Object.entries(paymentHistory).forEach(([key, payments]) => {
-      const [from] = key.split('-');
-      if (from === person) {
-        totalPaid += payments.reduce((sum, payment) => sum + payment.amount, 0);
-      }
-    });
-
-    // Calculate total payments received by this person
-    let totalReceived = 0;
-    Object.entries(paymentHistory).forEach(([key, payments]) => {
-      const [, to] = key.split('-');
-      if (to === person) {
-        totalReceived += payments.reduce((sum, payment) => sum + payment.amount, 0);
-      }
-    });
-
-    return originalBalance + totalPaid - totalReceived;
-  };
-
   return (
     <Card>
       <CardHeader className="pb-3 md:pb-4">
@@ -191,9 +74,9 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
       <CardContent>
         <div className="space-y-2">
           {allParticipants.map((participant) => {
-            const originalBalance = calculatePersonBalance(participant.name);
-            const adjustedBalance = getAdjustedBalance(participant.name);
-            const settlements = calculateSettlements(participant.name);
+            const originalBalance = calculatePersonBalance(participant.name, expenses);
+            const adjustedBalance = getAdjustedBalance(participant.name, expenses, paymentHistory);
+            const settlements = calculateSettlements(participant.name, expenses, allParticipants, paymentHistory);
             
             return (
               <div key={participant.id} className="flex justify-between items-center p-3 bg-gray-50 rounded min-h-[52px]">
@@ -220,105 +103,18 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                       
                       {settlements.length > 0 ? (
                         <div className="space-y-3">
-                          {settlements.map((settlement, index) => {
-                            const paymentKey = `${settlement.from}-${settlement.to}`;
-                            const totalPaid = getTotalPaid(paymentKey);
-                            const remainingAmount = settlement.amount - totalPaid;
-                            const canEditPayment = settlement.from === participant.name || settlement.from === "You";
-                            
-                            return (
-                              <div key={index} className="border rounded-lg p-3 bg-gray-50">
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="flex items-center space-x-2">
-                                    <span className="font-medium text-sm">{settlement.from}</span>
-                                    <ArrowRight size={14} className="text-gray-500" />
-                                    <span className="font-medium text-sm">{settlement.to}</span>
-                                  </div>
-                                  <span className="font-semibold text-[#EA6123] text-sm">
-                                    ${settlement.amount.toFixed(2)}
-                                  </span>
-                                </div>
-
-                                {/* Payment History */}
-                                {settlement.payments.length > 0 && (
-                                  <div className="mb-3 space-y-2">
-                                    <div className="flex items-center text-xs text-gray-600 mb-1">
-                                      <History size={12} className="mr-1" />
-                                      Payment History:
-                                    </div>
-                                    <div className="max-h-24 overflow-y-auto space-y-1">
-                                      {settlement.payments
-                                        .sort((a, b) => b.timestamp - a.timestamp)
-                                        .map((payment, paymentIndex) => (
-                                        <div key={paymentIndex} className="flex justify-between items-center text-xs bg-white rounded px-2 py-1">
-                                          <span className="text-green-600 font-medium">
-                                            +${payment.amount.toFixed(2)}
-                                          </span>
-                                          <span className="text-gray-500">
-                                            {payment.date}
-                                          </span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {/* Summary */}
-                                <div className="flex items-center justify-between mb-2 text-xs">
-                                  <span className="text-green-600 flex items-center">
-                                    <Check size={12} className="mr-1" />
-                                    Total Paid: ${totalPaid.toFixed(2)}
-                                  </span>
-                                  <span className={remainingAmount > 0.01 ? "text-red-600" : "text-green-600"}>
-                                    Remaining: ${remainingAmount.toFixed(2)}
-                                  </span>
-                                </div>
-                                
-                                {/* Payment Input */}
-                                {canEditPayment && remainingAmount > 0.01 && (
-                                  <div className="mt-2 space-y-2">
-                                    <Label htmlFor={`payment-${paymentKey}`} className="text-xs">
-                                      Add new payment:
-                                    </Label>
-                                    <div className="flex space-x-2">
-                                      <div className="relative flex-1">
-                                        <DollarSign size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                        <Input
-                                          id={`payment-${paymentKey}`}
-                                          type="number"
-                                          placeholder="0.00"
-                                          value={paymentInputs[paymentKey] || ''}
-                                          onChange={(e) => setPaymentInputs(prev => ({
-                                            ...prev,
-                                            [paymentKey]: e.target.value
-                                          }))}
-                                          className="pl-6 h-8 text-xs"
-                                          max={remainingAmount}
-                                          step="0.01"
-                                        />
-                                      </div>
-                                      <Button
-                                        size="sm"
-                                        onClick={() => addPayment(paymentKey, paymentInputs[paymentKey] || '0')}
-                                        className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
-                                        disabled={!paymentInputs[paymentKey] || parseFloat(paymentInputs[paymentKey]) <= 0}
-                                      >
-                                        Add
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {/* Fully Paid Status */}
-                                {remainingAmount <= 0.01 && (
-                                  <div className="mt-2 text-xs text-green-600 font-medium flex items-center">
-                                    <Check size={12} className="mr-1" />
-                                    Fully paid!
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                          {settlements.map((settlement, index) => (
+                            <SettlementCard
+                              key={index}
+                              settlement={settlement}
+                              index={index}
+                              participantName={participant.name}
+                              getTotalPaid={getTotalPaid}
+                              paymentInputs={paymentInputs}
+                              setPaymentInputs={setPaymentInputs}
+                              addPayment={addPayment}
+                            />
+                          ))}
                         </div>
                       ) : (
                         <p className="text-sm text-gray-600">

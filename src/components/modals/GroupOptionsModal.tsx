@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -18,7 +19,7 @@ interface Expense {
   id: number;
   description: string;
   amount: number;
-  paidBy: string;
+  paidBy: string[];
   splitBetween: string[];
   date: string;
 }
@@ -61,7 +62,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             id: 1,
             description: "Hotel Booking Paris",
             amount: 450,
-            paidBy: "Alice Johnson",
+            paidBy: ["Alice Johnson"],
             splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
             date: "2024-12-10"
           },
@@ -69,7 +70,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             id: 2,
             description: "Flight Tickets",
             amount: 850,
-            paidBy: "You",
+            paidBy: ["You"],
             splitBetween: ["Alice Johnson", "Bob Smith", "You"],
             date: "2024-12-08"
           }
@@ -80,7 +81,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             id: 1,
             description: "Beach Resort Booking",
             amount: 320,
-            paidBy: "Emma Wilson",
+            paidBy: ["Emma Wilson"],
             splitBetween: ["Emma Wilson", "David Brown", "You"],
             date: "2024-11-15"
           },
@@ -88,7 +89,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             id: 2,
             description: "Yoga Classes",
             amount: 180,
-            paidBy: "You",
+            paidBy: ["You"],
             splitBetween: ["Emma Wilson", "David Brown", "You"],
             date: "2024-11-18"
           }
@@ -164,7 +165,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const [newExpense, setNewExpense] = useState({
     description: "",
     amount: "",
-    paidBy: "",
+    paidBy: [] as string[],
     splitBetween: [] as string[]
   });
 
@@ -213,7 +214,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   }
 
   const handleAddExpense = () => {
-    if (newExpense.description && newExpense.amount && newExpense.paidBy) {
+    if (newExpense.description && newExpense.amount && newExpense.paidBy.length > 0) {
       if (editingExpenseId) {
         // Update existing expense
         setExpenses(expenses.map(expense => 
@@ -223,7 +224,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 description: newExpense.description,
                 amount: parseFloat(newExpense.amount),
                 paidBy: newExpense.paidBy,
-                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy]
+                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy
               }
             : expense
         ));
@@ -235,12 +236,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           description: newExpense.description,
           amount: parseFloat(newExpense.amount),
           paidBy: newExpense.paidBy,
-          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : [newExpense.paidBy],
+          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy,
           date: new Date().toISOString().split('T')[0]
         };
         setExpenses([...expenses, expense]);
       }
-      setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
+      setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
     }
   };
 
