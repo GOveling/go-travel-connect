@@ -2,6 +2,7 @@
 import { useState } from "react";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import ExploreFilterModal, { FilterOptions } from "@/components/modals/ExploreFilterModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
 import ExploreHeader from "./explore/ExploreHeader";
@@ -13,16 +14,39 @@ const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [activeFilters, setActiveFilters] = useState<FilterOptions>({
+    categories: ["All"],
+    rating: null,
+    priceRange: [],
+    location: [],
+    openNow: false
+  });
 
   // Get actual trips from shared state
   const { trips, addPlaceToTrip, setTrips } = useHomeState();
   const { toast } = useToast();
 
-  // Filter places based on selected category
-  const filteredPlaces = selectedCategory === "All" 
-    ? allPlaces.slice(0, 4) // Show first 4 for "All" category
-    : allPlaces.filter(place => place.category === selectedCategory);
+  // Filter places based on selected category and active filters
+  const getFilteredPlaces = () => {
+    let filtered = selectedCategory === "All" 
+      ? allPlaces.slice(0, 4) 
+      : allPlaces.filter(place => place.category === selectedCategory);
+
+    // Apply additional filters if not using "All" categories
+    if (!activeFilters.categories.includes("All") && activeFilters.categories.length > 0) {
+      filtered = filtered.filter(place => activeFilters.categories.includes(place.category));
+    }
+
+    if (activeFilters.rating) {
+      filtered = filtered.filter(place => place.rating >= activeFilters.rating!);
+    }
+
+    return filtered;
+  };
+
+  const filteredPlaces = getFilteredPlaces();
 
   const handlePlaceClick = (place: any) => {
     setSelectedPlace(place);
@@ -62,10 +86,30 @@ const ExploreSection = () => {
     setSelectedCategory(category);
   };
 
+  const handleFilterClick = () => {
+    setIsFilterModalOpen(true);
+  };
+
+  const handleApplyFilters = (filters: FilterOptions) => {
+    setActiveFilters(filters);
+    
+    // Update category if filters specify specific categories
+    if (!filters.categories.includes("All") && filters.categories.length > 0) {
+      setSelectedCategory(filters.categories[0]);
+    } else {
+      setSelectedCategory("All");
+    }
+
+    toast({
+      title: "Filters applied",
+      description: "Search results updated based on your preferences",
+    });
+  };
+
   return (
     <div className="min-h-screen p-4 space-y-6">
       <ExploreHeader />
-      <ExploreSearchBar />
+      <ExploreSearchBar onFilterClick={handleFilterClick} />
       
       <ExploreTabsContent 
         categories={categories}
@@ -89,6 +133,13 @@ const ExploreSection = () => {
         existingTrips={trips.filter(trip => trip.status !== 'completed')}
         onAddToExistingTrip={handleAddToExistingTrip}
         onCreateNewTrip={handleCreateNewTrip}
+      />
+
+      <ExploreFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        currentFilters={activeFilters}
       />
     </div>
   );
