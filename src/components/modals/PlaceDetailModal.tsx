@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X, ChevronDown, ChevronUp, Bot } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -50,14 +49,20 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
     const category = place.category.toLowerCase();
     if (category.includes('tourist') || category.includes('attraction')) {
       return "2-3 hours";
-    } else if (category.includes('park') || category.includes('nature')) {
+    } else if (category.includes('park')) {
       return "1-2 hours";
+    } else if (category.includes('nature')) {
+      return "3-4 hours";
+    } else if (category.includes('museum')) {
+      return "5-6 hours";
+    } else if (category.includes('gallery')) {
+      return "4-5 hours";
+    } else if (category.includes('beach') || category.includes('lake')) {
+      return "4-5 hours";
     } else if (category.includes('cafe') || category.includes('restaurant')) {
       return "45-90 minutes";
     } else if (category.includes('hotel') || category.includes('accommodation')) {
       return "Check-in experience";
-    } else if (category.includes('museum') || category.includes('gallery')) {
-      return "1.5-2.5 hours";
     } else {
       return "1-2 hours";
     }
