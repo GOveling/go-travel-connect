@@ -13,18 +13,21 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
   const streamRef = useRef<MediaStream | null>(null);
 
   const uploadImageToSupabase = async (file: File): Promise<string | null> => {
-    if (!user) return null;
+    if (!user) {
+      console.error('No user found');
+      return null;
+    }
 
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-    const filePath = fileName;
 
     try {
-      console.log('Uploading to path:', filePath);
+      console.log('Starting upload for user:', user.id);
+      console.log('Uploading file:', fileName);
       
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, {
+        .upload(fileName, file, {
           cacheControl: '3600',
           upsert: true
         });
@@ -36,7 +39,7 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
 
       const { data } = supabase.storage
         .from('avatars')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       console.log('Upload successful, public URL:', data.publicUrl);
       return data.publicUrl;
@@ -66,22 +69,32 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
     }
 
     setIsUploading(true);
-    const imageUrl = await uploadImageToSupabase(file);
-    
-    if (imageUrl) {
-      onImageChange(imageUrl);
-      toast({
-        title: "Éxito",
-        description: "Imagen subida correctamente",
-      });
-    } else {
+    try {
+      const imageUrl = await uploadImageToSupabase(file);
+      
+      if (imageUrl) {
+        onImageChange(imageUrl);
+        toast({
+          title: "Éxito",
+          description: "Imagen subida correctamente",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo subir la imagen",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleFileSelect:', error);
       toast({
         title: "Error",
-        description: "No se pudo subir la imagen",
+        description: "Error al procesar la imagen",
         variant: "destructive"
       });
+    } finally {
+      setIsUploading(false);
     }
-    setIsUploading(false);
   };
 
   const startCamera = async () => {
@@ -96,6 +109,7 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
         setIsUsingCamera(true);
       }
     } catch (error) {
+      console.error('Camera error:', error);
       toast({
         title: "Error",
         description: "No se pudo acceder a la cámara",
@@ -106,23 +120,33 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
 
   const handleCameraCapture = async (file: File) => {
     setIsUploading(true);
-    const imageUrl = await uploadImageToSupabase(file);
-    
-    if (imageUrl) {
-      onImageChange(imageUrl);
-      toast({
-        title: "Éxito",
-        description: "Foto capturada y guardada correctamente",
-      });
-    } else {
+    try {
+      const imageUrl = await uploadImageToSupabase(file);
+      
+      if (imageUrl) {
+        onImageChange(imageUrl);
+        toast({
+          title: "Éxito",
+          description: "Foto capturada y guardada correctamente",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo guardar la foto",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleCameraCapture:', error);
       toast({
         title: "Error",
-        description: "No se pudo guardar la foto",
+        description: "Error al procesar la foto",
         variant: "destructive"
       });
+    } finally {
+      setIsUploading(false);
+      stopCamera();
     }
-    setIsUploading(false);
-    stopCamera();
   };
 
   const stopCamera = () => {

@@ -32,7 +32,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
   }, [profile]);
 
   const getInitials = () => {
-    if (fullName) {
+    if (fullName && fullName.trim()) {
       return fullName
         .split(' ')
         .map((name: string) => name[0])
@@ -51,6 +51,8 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
 
     setIsLoading(true);
     try {
+      console.log('Updating profile with:', { fullName, avatarUrl });
+      
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -60,7 +62,10 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
 
       toast({
         title: "¡Perfil actualizado!",
@@ -85,6 +90,11 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
     setFullName(profile?.full_name || "");
     setAvatarUrl(profile?.avatar_url || "");
     onClose();
+  };
+
+  const handleImageChange = (imageUrl: string) => {
+    console.log('Image changed to:', imageUrl);
+    setAvatarUrl(imageUrl);
   };
 
   return (
@@ -112,7 +122,7 @@ const EditProfileModal = ({ isOpen, onClose, profile, onProfileUpdate }: EditPro
           {/* Image Upload Section */}
           <ImageUploadSection
             currentAvatarUrl={avatarUrl}
-            onImageChange={setAvatarUrl}
+            onImageChange={handleImageChange}
             initials={getInitials()}
           />
 

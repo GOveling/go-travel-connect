@@ -41,7 +41,7 @@ export const useProfileData = () => {
           .insert({
             id: user.id,
             email: user.email,
-            full_name: null,
+            full_name: user.user_metadata?.full_name || null,
             avatar_url: null
           })
           .select()
