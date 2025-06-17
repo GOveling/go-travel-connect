@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Users } from "lucide-react";
 
 interface Expense {
   id: number;
@@ -59,6 +60,25 @@ const ExpenseForm = ({
       });
     }
   };
+
+  const handleSelectAllParticipants = () => {
+    const allSelected = newExpense.splitBetween.length === allParticipants.length;
+    if (allSelected) {
+      // Deselect all
+      setNewExpense({
+        ...newExpense,
+        splitBetween: []
+      });
+    } else {
+      // Select all
+      setNewExpense({
+        ...newExpense,
+        splitBetween: allParticipants.map(p => p.name)
+      });
+    }
+  };
+
+  const allSelected = newExpense.splitBetween.length === allParticipants.length;
 
   return (
     <Card>
@@ -114,7 +134,19 @@ const ExpenseForm = ({
             </Select>
           </div>
           <div>
-            <Label className="text-sm">Split Between</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-sm">Split Between</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAllParticipants}
+                className="h-8 px-3 text-xs"
+              >
+                <Users size={14} className="mr-1" />
+                {allSelected ? "Deselect All" : "Select All"}
+              </Button>
+            </div>
             <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
               {allParticipants.map((participant) => (
                 <div key={participant.id} className="flex items-center space-x-3">
