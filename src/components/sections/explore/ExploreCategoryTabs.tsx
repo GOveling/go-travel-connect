@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExploreCategoryTabsProps {
   categories: string[];
@@ -8,6 +9,13 @@ interface ExploreCategoryTabsProps {
 }
 
 const ExploreCategoryTabs = ({ categories, selectedCategory, onCategoryClick }: ExploreCategoryTabsProps) => {
+  const { t } = useLanguage();
+  
+  const getTranslatedCategory = (category: string) => {
+    const categoryKey = category.toLowerCase().replace(' ', '');
+    return t(`explore.categories.${categoryKey}`) || category;
+  };
+  
   return (
     <div className="flex space-x-2 overflow-x-auto pb-2">
       {categories.map((category) => (
@@ -22,7 +30,7 @@ const ExploreCategoryTabs = ({ categories, selectedCategory, onCategoryClick }: 
               : "border-gray-300"
           }`}
         >
-          {category}
+          {getTranslatedCategory(category)}
         </Button>
       ))}
     </div>

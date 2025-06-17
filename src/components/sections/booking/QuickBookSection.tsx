@@ -2,6 +2,7 @@
 import { Plane, Building } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface QuickBookSectionProps {
   onFlightClick: () => void;
@@ -9,10 +10,12 @@ interface QuickBookSectionProps {
 }
 
 const QuickBookSection = ({ onFlightClick, onHotelClick }: QuickBookSectionProps) => {
+  const { t } = useLanguage();
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Quick Book</CardTitle>
+        <CardTitle className="text-lg">{t("booking.quickBook.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <Button 
@@ -21,8 +24,8 @@ const QuickBookSection = ({ onFlightClick, onHotelClick }: QuickBookSectionProps
         >
           <Plane className="mr-3" size={20} />
           <div>
-            <p className="font-medium">Round-trip Flight</p>
-            <p className="text-xs opacity-90">From $299</p>
+            <p className="font-medium">{t("booking.quickBook.roundTrip")}</p>
+            <p className="text-xs opacity-90">{t("booking.quickBook.from")} $299</p>
           </div>
         </Button>
         <Button 
@@ -32,8 +35,8 @@ const QuickBookSection = ({ onFlightClick, onHotelClick }: QuickBookSectionProps
         >
           <Building className="mr-3" size={20} />
           <div>
-            <p className="font-medium">Hotel + Flight Package</p>
-            <p className="text-xs text-gray-600">Save up to 40%</p>
+            <p className="font-medium">{t("booking.quickBook.hotelPackage")}</p>
+            <p className="text-xs text-gray-600">{t("booking.quickBook.saveUpTo")}</p>
           </div>
         </Button>
       </CardContent>

@@ -27,7 +27,9 @@
     "no": "No",
     "viewMore": "View More",
     "loadMore": "Load More",
-    "seeAll": "See All"
+    "seeAll": "See All",
+    "apply": "Apply",
+    "clear": "Clear All"
   },
   "home": {
     "welcomeBack": "Welcome Back",
@@ -144,7 +146,11 @@
     "quickBook": {
       "title": "Quick Book",
       "popularFlights": "Popular Flights",
-      "topHotels": "Top Hotels"
+      "topHotels": "Top Hotels",
+      "roundTrip": "Round-trip Flight",
+      "from": "From",
+      "hotelPackage": "Hotel + Flight Package",
+      "saveUpTo": "Save up to 40%"
     },
     "recentBookings": {
       "title": "Recent Bookings",
@@ -245,7 +251,8 @@
   },
   "travelers": {
     "title": "Travel Community",
-    "subtitle": "Connect with fellow travelers and discover new adventures"
+    "subtitle": "Connect with fellow travelers and discover new adventures",
+    "discoverMore": "Discover More Travelers"
   },
   "notifications": {
     "title": "Notifications",

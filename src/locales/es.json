@@ -27,7 +27,9 @@
     "no": "No",
     "viewMore": "Ver Más",
     "loadMore": "Cargar Más",
-    "seeAll": "Ver Todo"
+    "seeAll": "Ver Todo",
+    "apply": "Aplicar",
+    "clear": "Limpiar Todo"
   },
   "home": {
     "welcomeBack": "Bienvenido de Vuelta",
@@ -144,7 +146,11 @@
     "quickBook": {
       "title": "Reserva Rápida",
       "popularFlights": "Vuelos Populares",
-      "topHotels": "Mejores Hoteles"
+      "topHotels": "Mejores Hoteles",
+      "roundTrip": "Vuelo de Ida y Vuelta",
+      "from": "Desde",
+      "hotelPackage": "Paquete Hotel + Vuelo",
+      "saveUpTo": "Ahorra hasta 40%"
     },
     "recentBookings": {
       "title": "Reservas Recientes",
@@ -245,7 +251,8 @@
   },
   "travelers": {
     "title": "Comunidad de Viajeros",
-    "subtitle": "Conecta con otros viajeros y descubre nuevas aventuras"
+    "subtitle": "Conecta con otros viajeros y descubre nuevas aventuras",
+    "discoverMore": "Descubrir Más Viajeros"
   },
   "notifications": {
     "title": "Notificaciones",
