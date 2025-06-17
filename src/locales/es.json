@@ -246,5 +246,13 @@
   "travelers": {
     "title": "Comunidad de Viajeros",
     "subtitle": "Conecta con otros viajeros y descubre nuevas aventuras"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar como leído",
+    "noNotifications": "No hay notificaciones"
+  },
+  "filters": {
+    "apply": "Aplicar Filtros"
   }
 }

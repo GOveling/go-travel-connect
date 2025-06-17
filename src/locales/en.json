@@ -246,5 +246,13 @@
   "travelers": {
     "title": "Travel Community",
     "subtitle": "Connect with fellow travelers and discover new adventures"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "noNotifications": "No notifications yet"
+  },
+  "filters": {
+    "apply": "Apply Filters"
   }
 }
