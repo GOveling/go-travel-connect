@@ -1,8 +1,11 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowRight, Check, DollarSign } from "lucide-react";
 
 interface Expense {
   id: number;
@@ -25,6 +28,7 @@ interface Settlement {
   from: string;
   to: string;
   amount: number;
+  paid?: number;
 }
 
 interface BalanceSummaryProps {
@@ -33,6 +37,10 @@ interface BalanceSummaryProps {
 }
 
 const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
+  // State to track partial payments - key format: "from-to"
+  const [partialPayments, setPartialPayments] = useState<Record<string, number>>({});
+  const [paymentInputs, setPaymentInputs] = useState<Record<string, string>>({});
+
   const calculatePersonBalance = (person: string) => {
     let balance = 0;
     expenses.forEach(expense => {
@@ -66,11 +74,15 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
       creditors.forEach(creditor => {
         if (remainingDebt > 0) {
           const paymentAmount = Math.min(remainingDebt, creditor.balance);
-          if (paymentAmount > 0.01) { // Avoid tiny amounts
+          if (paymentAmount > 0.01) {
+            const paymentKey = `${person}-${creditor.name}`;
+            const paidAmount = partialPayments[paymentKey] || 0;
+            
             settlements.push({
               from: person,
               to: creditor.name,
-              amount: paymentAmount
+              amount: paymentAmount,
+              paid: paidAmount
             });
             remainingDebt -= paymentAmount;
           }
@@ -92,11 +104,15 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
       debtors.forEach(debtor => {
         if (remainingCredit > 0) {
           const paymentAmount = Math.min(remainingCredit, Math.abs(debtor.balance));
-          if (paymentAmount > 0.01) { // Avoid tiny amounts
+          if (paymentAmount > 0.01) {
+            const paymentKey = `${debtor.name}-${person}`;
+            const paidAmount = partialPayments[paymentKey] || 0;
+            
             settlements.push({
               from: debtor.name,
               to: person,
-              amount: paymentAmount
+              amount: paymentAmount,
+              paid: paidAmount
             });
             remainingCredit -= paymentAmount;
           }
@@ -107,6 +123,42 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
     return settlements;
   };
 
+  const handlePaymentUpdate = (paymentKey: string, amount: string) => {
+    const numAmount = parseFloat(amount) || 0;
+    setPartialPayments(prev => ({
+      ...prev,
+      [paymentKey]: numAmount
+    }));
+    setPaymentInputs(prev => ({
+      ...prev,
+      [paymentKey]: amount
+    }));
+  };
+
+  const getAdjustedBalance = (person: string) => {
+    const originalBalance = calculatePersonBalance(person);
+    
+    // Calculate total payments made by this person
+    let totalPaid = 0;
+    Object.entries(partialPayments).forEach(([key, amount]) => {
+      const [from] = key.split('-');
+      if (from === person) {
+        totalPaid += amount;
+      }
+    });
+
+    // Calculate total payments received by this person
+    let totalReceived = 0;
+    Object.entries(partialPayments).forEach(([key, amount]) => {
+      const [, to] = key.split('-');
+      if (to === person) {
+        totalReceived += amount;
+      }
+    });
+
+    return originalBalance + totalPaid - totalReceived;
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3 md:pb-4">
@@ -115,7 +167,8 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
       <CardContent>
         <div className="space-y-2">
           {allParticipants.map((participant) => {
-            const balance = calculatePersonBalance(participant.name);
+            const originalBalance = calculatePersonBalance(participant.name);
+            const adjustedBalance = getAdjustedBalance(participant.name);
             const settlements = calculateSettlements(participant.name);
             
             return (
@@ -126,53 +179,116 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                     <Button
                       variant="ghost"
                       className={`font-medium text-sm md:text-base hover:bg-gray-200 px-2 py-1 h-auto ${
-                        balance > 0 ? 'text-green-600 hover:text-green-700' : 
-                        balance < 0 ? 'text-red-600 hover:text-red-700' : 
+                        adjustedBalance > 0 ? 'text-green-600 hover:text-green-700' : 
+                        adjustedBalance < 0 ? 'text-red-600 hover:text-red-700' : 
                         'text-gray-600 hover:text-gray-700'
                       }`}
-                      disabled={Math.abs(balance) < 0.01}
+                      disabled={Math.abs(adjustedBalance) < 0.01}
                     >
-                      {balance > 0 ? '+' : ''}${balance.toFixed(2)}
+                      {adjustedBalance > 0 ? '+' : ''}${adjustedBalance.toFixed(2)}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 bg-white">
-                    <div className="space-y-3">
+                  <PopoverContent className="w-96 bg-white">
+                    <div className="space-y-4">
                       <h4 className="font-semibold text-base">
                         Settlement Details for {participant.name}
                       </h4>
                       
                       {settlements.length > 0 ? (
-                        <div className="space-y-2">
-                          {settlements.map((settlement, index) => (
-                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
-                              <div className="flex items-center space-x-2">
-                                <span className="font-medium">{settlement.from}</span>
-                                <ArrowRight size={14} className="text-gray-500" />
-                                <span className="font-medium">{settlement.to}</span>
+                        <div className="space-y-3">
+                          {settlements.map((settlement, index) => {
+                            const paymentKey = `${settlement.from}-${settlement.to}`;
+                            const paidAmount = settlement.paid || 0;
+                            const remainingAmount = settlement.amount - paidAmount;
+                            const canEditPayment = settlement.from === participant.name || settlement.from === "You";
+                            
+                            return (
+                              <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="font-medium text-sm">{settlement.from}</span>
+                                    <ArrowRight size={14} className="text-gray-500" />
+                                    <span className="font-medium text-sm">{settlement.to}</span>
+                                  </div>
+                                  <span className="font-semibold text-[#EA6123] text-sm">
+                                    ${settlement.amount.toFixed(2)}
+                                  </span>
+                                </div>
+                                
+                                {paidAmount > 0 && (
+                                  <div className="flex items-center justify-between mb-2 text-xs">
+                                    <span className="text-green-600 flex items-center">
+                                      <Check size={12} className="mr-1" />
+                                      Paid: ${paidAmount.toFixed(2)}
+                                    </span>
+                                    <span className="text-red-600">
+                                      Remaining: ${remainingAmount.toFixed(2)}
+                                    </span>
+                                  </div>
+                                )}
+                                
+                                {canEditPayment && remainingAmount > 0.01 && (
+                                  <div className="mt-2 space-y-2">
+                                    <Label htmlFor={`payment-${paymentKey}`} className="text-xs">
+                                      Mark payment made:
+                                    </Label>
+                                    <div className="flex space-x-2">
+                                      <div className="relative flex-1">
+                                        <DollarSign size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <Input
+                                          id={`payment-${paymentKey}`}
+                                          type="number"
+                                          placeholder="0.00"
+                                          value={paymentInputs[paymentKey] || ''}
+                                          onChange={(e) => setPaymentInputs(prev => ({
+                                            ...prev,
+                                            [paymentKey]: e.target.value
+                                          }))}
+                                          className="pl-6 h-8 text-xs"
+                                          max={remainingAmount}
+                                          step="0.01"
+                                        />
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handlePaymentUpdate(paymentKey, paymentInputs[paymentKey] || '0')}
+                                        className="h-8 px-3 text-xs bg-green-600 hover:bg-green-700"
+                                      >
+                                        Update
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {remainingAmount <= 0.01 && (
+                                  <div className="mt-2 text-xs text-green-600 font-medium flex items-center">
+                                    <Check size={12} className="mr-1" />
+                                    Fully paid!
+                                  </div>
+                                )}
                               </div>
-                              <span className="font-semibold text-[#EA6123]">
-                                ${settlement.amount.toFixed(2)}
-                              </span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ) : (
                         <p className="text-sm text-gray-600">
-                          {Math.abs(balance) < 0.01 
+                          {Math.abs(adjustedBalance) < 0.01 
                             ? "All settled up! No payments needed."
                             : "No settlements required at this time."
                           }
                         </p>
                       )}
                       
-                      {balance !== 0 && (
-                        <div className="pt-2 border-t">
+                      {originalBalance !== 0 && (
+                        <div className="pt-2 border-t space-y-1">
                           <p className="text-xs text-gray-500">
-                            {balance > 0 
-                              ? `${participant.name} is owed $${balance.toFixed(2)} total`
-                              : `${participant.name} owes $${Math.abs(balance).toFixed(2)} total`
-                            }
+                            Original balance: {originalBalance > 0 ? '+' : ''}${originalBalance.toFixed(2)}
                           </p>
+                          {Math.abs(originalBalance - adjustedBalance) > 0.01 && (
+                            <p className="text-xs text-blue-600">
+                              After payments: {adjustedBalance > 0 ? '+' : ''}${adjustedBalance.toFixed(2)}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
