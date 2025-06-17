@@ -84,7 +84,21 @@
       "apply": "Apply Filters",
       "clear": "Clear All"
     },
-    "addToTrip": "Add to Trip"
+    "addToTrip": "Add to Trip",
+    "nearbyPlaces": {
+      "title": "Nearby Places",
+      "subtitle": "Recommended for you",
+      "description": "Discover recommended places near your location",
+      "exploreNow": "Explore Now",
+      "viewDetails": "View Details",
+      "samplePlaces": {
+        "park": "Beautiful city park perfect for walks and exercise.",
+        "museum": "Impressive collection of contemporary and classical art.",
+        "cafe": "Cozy coffee shop with great atmosphere and specialty coffee.",
+        "plaza": "Beautiful colonial architecture plaza with cultural events.",
+        "market": "Traditional market with local products and authentic food."
+      }
+    }
   },
   "trips": {
     "title": "My Trips",
