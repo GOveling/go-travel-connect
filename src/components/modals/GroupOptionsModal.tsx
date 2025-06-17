@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -50,10 +51,54 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const [editingDecisionId, setEditingDecisionId] = useState<number | null>(null);
   const [showCreateDecisionModal, setShowCreateDecisionModal] = useState(false);
   
-  // Start with empty expenses array - user will add data manually
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  
-  // Get trip-specific mock decisions (keeping these as examples)
+  // Get trip-specific mock data based on trip ID
+  const getTripSpecificExpenses = () => {
+    if (!trip) return [];
+    
+    switch (trip.id) {
+      case 1: // European Adventure
+        return [
+          {
+            id: 1,
+            description: "Hotel Booking Paris",
+            amount: 450,
+            paidBy: ["Alice Johnson"],
+            splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
+            date: "2024-12-10"
+          },
+          {
+            id: 2,
+            description: "Flight Tickets",
+            amount: 850,
+            paidBy: ["You"],
+            splitBetween: ["Alice Johnson", "Bob Smith", "You"],
+            date: "2024-12-08"
+          }
+        ];
+      case 3: // Bali Retreat
+        return [
+          {
+            id: 1,
+            description: "Beach Resort Booking",
+            amount: 320,
+            paidBy: ["Emma Wilson"],
+            splitBetween: ["Emma Wilson", "David Brown", "You"],
+            date: "2024-11-15"
+          },
+          {
+            id: 2,
+            description: "Yoga Classes",
+            amount: 180,
+            paidBy: ["You"],
+            splitBetween: ["Emma Wilson", "David Brown", "You"],
+            date: "2024-11-18"
+          }
+        ];
+      default:
+        return [];
+    }
+  };
+
   const getTripSpecificDecisions = () => {
     if (!trip) return [];
     
@@ -114,6 +159,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     }
   };
 
+  const [expenses, setExpenses] = useState<Expense[]>(getTripSpecificExpenses());
   const [decisions, setDecisions] = useState<Decision[]>(getTripSpecificDecisions());
 
   const [newExpense, setNewExpense] = useState({
@@ -215,7 +261,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const handleCancelEdit = () => {
     setEditingExpenseId(null);
-    setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
+    setNewExpense({ description: "", amount: "", paidBy: "", splitBetween: [] });
   };
 
   const handleCreateDecision = () => {

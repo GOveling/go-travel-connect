@@ -36,16 +36,6 @@ export interface SavedPlace {
   lng?: number;
 }
 
-// Expense interface updated to support multiple people paying
-export interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
-}
-
 export interface Trip {
   id: number;
   name: string;
