@@ -18,21 +18,21 @@ export const useProfileData = () => {
 
     try {
       setLoading(true);
+      console.log('Fetching profile for user:', user.id);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
       
-      // Force a state update to trigger re-renders
-      setProfile(prevProfile => {
-        if (JSON.stringify(prevProfile) !== JSON.stringify(data)) {
-          return data;
-        }
-        return prevProfile;
-      });
+      console.log('Profile data fetched:', data);
+      setProfile(data);
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch profile');
@@ -61,6 +61,7 @@ export const useProfileData = () => {
   };
 
   const refreshProfile = () => {
+    console.log('Refreshing profile data...');
     fetchProfile();
   };
 
