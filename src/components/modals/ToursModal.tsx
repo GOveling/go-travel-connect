@@ -8,9 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
 import TripSelectionTab from "./tours/TripSelectionTab";
-import AIRecommendationsTab from "./tours/AIRecommendationsTab";
 import ManualBookingTab from "./tours/ManualBookingTab";
-import { TourRecommendation } from "./tours/TourAIProtocol";
 import type { Trip } from "@/types";
 
 interface ToursModalProps {
@@ -73,36 +71,6 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
     });
   };
 
-  const handleSwitchToAI = () => {
-    setActiveTab("ai-recommendations");
-  };
-
-  const handleSelectRecommendation = (recommendation: TourRecommendation) => {
-    // Auto-fill form with AI recommendation data
-    setFormData(prev => ({
-      ...prev,
-      destination: recommendation.destinationName,
-      date: recommendation.suggestedDate,
-      tourType: recommendation.tourType,
-      duration: recommendation.recommendedDuration === '2-3 horas' ? 'half-day' : 
-               recommendation.recommendedDuration === '3-4 horas' ? 'half-day' :
-               recommendation.recommendedDuration === '4-6 horas' ? 'full-day' :
-               recommendation.recommendedDuration === '5-8 horas' ? 'full-day' : 'half-day'
-    }));
-
-    // Switch to manual tab to complete booking
-    setActiveTab("manual");
-
-    toast({
-      title: "Recomendación de IA Aplicada",
-      description: `Tour para "${recommendation.placeName}" programado para ${new Date(recommendation.suggestedDate).toLocaleDateString()}`,
-    });
-  };
-
-  const handleBackToTripSelection = () => {
-    setActiveTab("trip-selection");
-  };
-
   const handleSearch = () => {
     toast({
       title: "Buscando Tours",
@@ -139,19 +107,18 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
             <CardContent className="p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <Camera size={16} className="text-orange-600" />
-                <span className="text-sm font-medium text-orange-800">Sistema Inteligente de Tours</span>
+                <span className="text-sm font-medium text-orange-800">Auto-llenado Inteligente</span>
               </div>
               <p className="text-xs text-orange-700">
-                Conecta tus viajes planificados con recomendaciones de IA para reservar tours perfectos
+                Selecciona un viaje planificado para auto-llenar el formulario con tus datos de reserva
               </p>
             </CardContent>
           </Card>
 
           {/* Main Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="trip-selection" className="text-xs">Mis Viajes</TabsTrigger>
-              <TabsTrigger value="ai-recommendations" className="text-xs">IA Tours</TabsTrigger>
               <TabsTrigger value="manual" className="text-xs">Manual</TabsTrigger>
             </TabsList>
 
@@ -160,16 +127,8 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                 trips={trips}
                 selectedTrip={selectedTrip}
                 onTripSelect={handleTripSelect}
-                onSwitchToAI={handleSwitchToAI}
+                onSwitchToAI={() => {}} // No longer needed
                 onAutoFillFromTrip={handleAutoFillFromTrip}
-              />
-            </TabsContent>
-
-            <TabsContent value="ai-recommendations" className="mt-4">
-              <AIRecommendationsTab
-                selectedTrip={selectedTrip}
-                onSelectRecommendation={handleSelectRecommendation}
-                onBackToTripSelection={handleBackToTripSelection}
               />
             </TabsContent>
 

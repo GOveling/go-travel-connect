@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Users, Brain } from "lucide-react";
+import { MapPin, Calendar, Users } from "lucide-react";
 import { Trip } from "@/types";
 
 interface TripSelectionTabProps {
   trips: Trip[];
   selectedTrip: Trip | null;
   onTripSelect: (trip: Trip) => void;
-  onSwitchToAI: () => void;
+  onSwitchToAI: () => void; // Keep for interface compatibility but not used
   onAutoFillFromTrip: (trip: Trip) => void;
 }
 
@@ -19,7 +19,6 @@ const TripSelectionTab = ({
   trips, 
   selectedTrip, 
   onTripSelect, 
-  onSwitchToAI,
   onAutoFillFromTrip 
 }: TripSelectionTabProps) => {
   const getStatusColor = (status: string) => {
@@ -50,7 +49,7 @@ const TripSelectionTab = ({
             <span>Seleccionar Viaje Planificado</span>
           </CardTitle>
           <p className="text-sm text-blue-600">
-            Elige un viaje de tu planificación para auto-llenar datos y recibir recomendaciones inteligentes de tours
+            Elige un viaje de tu planificación para auto-llenar datos de reserva de tours
           </p>
         </CardHeader>
         <CardContent>
@@ -128,26 +127,15 @@ const TripSelectionTab = ({
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex space-x-2 pt-2">
+              {/* Auto-fill Button */}
+              <div className="pt-2">
                 <Button 
                   size="sm" 
                   onClick={() => onAutoFillFromTrip(selectedTrip)}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-xs"
+                  className="w-full bg-green-600 hover:bg-green-700 text-xs"
                 >
-                  Auto-llenar Datos
+                  Auto-llenar Formulario de Reserva
                 </Button>
-                {selectedTrip.savedPlaces && selectedTrip.savedPlaces.length > 0 && (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={onSwitchToAI}
-                    className="flex-1 border-purple-300 text-purple-600 hover:bg-purple-50 text-xs"
-                  >
-                    <Brain size={12} className="mr-1" />
-                    Ver Recomendaciones IA
-                  </Button>
-                )}
               </div>
             </div>
           </CardContent>
