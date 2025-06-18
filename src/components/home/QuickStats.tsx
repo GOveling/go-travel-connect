@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const QuickStats = () => {
   return (
     <div className="grid grid-cols-2 gap-4">
-      <Card className="text-white border-0" style={{ background: '#51288' }}>
+      <Card className="bg-gradient-to-br from-purple-600 to-purple-700 text-white border-0">
         <CardContent className="p-4 text-center">
           <MapPin className="mx-auto mb-2" size={24} />
           <p className="text-2xl font-bold">12</p>
