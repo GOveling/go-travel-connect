@@ -21,8 +21,11 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [selectedRouteType, setSelectedRouteType] = useState("current");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false);
-  const [currentTrip, setCurrentTrip] = useState<Trip>(trip!);
+  const [currentTrip, setCurrentTrip] = useState<Trip | null>(trip);
   const { toast } = useToast();
+
+  // Early return if trip is null
+  if (!trip || !currentTrip) return null;
 
   // Generate AI optimized routes based ONLY on actual saved places from the trip
   const generateAIRoute = async () => {
@@ -66,8 +69,6 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
     setOptimizedItinerary(selectedConfig.itinerary);
   };
-
-  if (!trip) return null;
 
   const routeConfigurations = getRouteConfigurations(currentTrip);
   const savedPlacesByDestination = getSavedPlacesByDestination(currentTrip);
