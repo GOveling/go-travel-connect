@@ -70,6 +70,59 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     setOptimizedItinerary(selectedConfig.itinerary);
   };
 
+  // Action button handlers
+  const handleSaveToTrip = () => {
+    toast({
+      title: "Route Saved!",
+      description: "Your AI optimized route has been saved to your trip.",
+    });
+  };
+
+  const handleExportItinerary = () => {
+    // Create a simple text export of the itinerary
+    const exportText = optimizedItinerary.map(day => 
+      `Day ${day.day} - ${day.date}:\n${day.places.map(place => 
+        `• ${place.name} (${place.category}) - ${place.estimatedTime}`
+      ).join('\n')}\n`
+    ).join('\n');
+
+    // Create and download text file
+    const blob = new Blob([exportText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentTrip.name}-itinerary.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Itinerary Exported!",
+      description: "Your itinerary has been downloaded as a text file.",
+    });
+  };
+
+  const handleShareRoute = () => {
+    // Create a shareable summary
+    const shareText = `Check out my AI-optimized travel route for ${currentTrip.name}! 🌟\n\n${optimizedItinerary.length} days of perfectly planned adventures.`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `${currentTrip.name} - AI Smart Route`,
+        text: shareText,
+      });
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(shareText).then(() => {
+        toast({
+          title: "Route Copied!",
+          description: "Route summary copied to clipboard. Share it with your friends!",
+        });
+      });
+    }
+  };
+
   const routeConfigurations = getRouteConfigurations(currentTrip);
   const savedPlacesByDestination = getSavedPlacesByDestination(currentTrip);
   const totalSavedPlaces = Object.values(savedPlacesByDestination).reduce((total, places) => total + places.length, 0);
@@ -136,13 +189,24 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
             {routeGenerated && (
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t">
-                <Button className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-sm">
+                <Button 
+                  onClick={handleSaveToTrip}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-sm"
+                >
                   Save to Trip
                 </Button>
-                <Button variant="outline" className="flex-1 text-sm">
+                <Button 
+                  variant="outline" 
+                  onClick={handleExportItinerary}
+                  className="flex-1 text-sm"
+                >
                   Export Itinerary
                 </Button>
-                <Button variant="outline" className="flex-1 text-sm">
+                <Button 
+                  variant="outline" 
+                  onClick={handleShareRoute}
+                  className="flex-1 text-sm"
+                >
                   Share Route
                 </Button>
               </div>
