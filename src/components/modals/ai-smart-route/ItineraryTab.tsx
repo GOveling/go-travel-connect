@@ -35,7 +35,10 @@ const ItineraryTab = ({
             {routeConfigurations[selectedRouteType]?.description}
           </p>
           <p className="text-purple-500 text-xs mt-1">
-            Based on your {totalSavedPlaces} saved places over {totalTripDays} allocated days
+            {totalSavedPlaces > 0 
+              ? `Based on your ${totalSavedPlaces} saved places over ${totalTripDays} allocated days`
+              : `Tentative itinerary for ${totalTripDays} days across your planned destinations`
+            }
           </p>
         </div>
         
@@ -55,13 +58,26 @@ const ItineraryTab = ({
       </div>
 
       {optimizedItinerary.map((day) => (
-        <Card key={day.day} className={`border-l-4 ${day.isSuggested ? 'border-l-orange-500 bg-orange-50' : 'border-l-purple-500'}`}>
+        <Card key={day.day} className={`border-l-4 ${
+          day.isTentative ? 'border-l-blue-500 bg-blue-50' :
+          day.isSuggested ? 'border-l-orange-500 bg-orange-50' : 
+          'border-l-purple-500'
+        }`}>
           <CardHeader className="pb-3">
             <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex items-center space-x-2">
-                  <Calendar className={day.isSuggested ? "text-orange-600" : "text-purple-600"} size={18} />
+                  <Calendar className={
+                    day.isTentative ? "text-blue-600" :
+                    day.isSuggested ? "text-orange-600" : 
+                    "text-purple-600"
+                  } size={18} />
                   <span className="text-base sm:text-lg">{day.date}</span>
+                  {day.isTentative && (
+                    <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-300">
+                      Tentative Plan
+                    </Badge>
+                  )}
                   {day.isSuggested && (
                     <Badge className="text-xs bg-orange-100 text-orange-800 border-orange-300">
                       AI Suggested
@@ -72,7 +88,11 @@ const ItineraryTab = ({
                   <Badge variant="outline" className="text-xs">
                     {day.destinationName}
                   </Badge>
-                  <Badge className={`text-xs ${day.isSuggested ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800'}`}>
+                  <Badge className={`text-xs ${
+                    day.isTentative ? 'bg-blue-100 text-blue-800' :
+                    day.isSuggested ? 'bg-orange-100 text-orange-800' : 
+                    'bg-purple-100 text-purple-800'
+                  }`}>
                     {day.allocatedDays} day{day.allocatedDays > 1 ? 's' : ''} allocated
                   </Badge>
                 </div>
@@ -88,6 +108,13 @@ const ItineraryTab = ({
                 </span>
               </div>
             </CardTitle>
+            {day.isTentative && (
+              <div className="bg-blue-100 p-2 rounded-lg border border-blue-200 mt-2">
+                <p className="text-xs text-blue-700">
+                  🗺️ <strong>Tentative Itinerary:</strong> This is a preliminary plan for {day.destinationName}. You can save specific places from the Explore section to create a personalized itinerary.
+                </p>
+              </div>
+            )}
             {day.isSuggested && (
               <div className="bg-orange-100 p-2 rounded-lg border border-orange-200 mt-2">
                 <p className="text-xs text-orange-700">
@@ -100,11 +127,23 @@ const ItineraryTab = ({
             {day.places.map((place, index) => (
               <div key={place.id} className="relative">
                 {index < day.places.length - 1 && (
-                  <div className={`absolute left-6 top-16 w-0.5 h-8 ${day.isSuggested ? 'bg-orange-200' : 'bg-purple-200'} hidden sm:block`}></div>
+                  <div className={`absolute left-6 top-16 w-0.5 h-8 ${
+                    day.isTentative ? 'bg-blue-200' :
+                    day.isSuggested ? 'bg-orange-200' : 
+                    'bg-purple-200'
+                  } hidden sm:block`}></div>
                 )}
-                <div className={`flex flex-col sm:flex-row sm:items-start gap-3 bg-white p-3 rounded-lg border ${day.isSuggested ? 'border-orange-200' : ''}`}>
+                <div className={`flex flex-col sm:flex-row sm:items-start gap-3 bg-white p-3 rounded-lg border ${
+                  day.isTentative ? 'border-blue-200' :
+                  day.isSuggested ? 'border-orange-200' : 
+                  ''
+                }`}>
                   <div className="flex sm:flex-col items-center sm:items-center gap-2 sm:gap-1">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 ${day.isSuggested ? 'bg-gradient-to-br from-orange-500 to-yellow-500' : 'bg-gradient-to-br from-purple-500 to-blue-500'} rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base`}>
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 ${
+                      day.isTentative ? 'bg-gradient-to-br from-blue-500 to-cyan-500' :
+                      day.isSuggested ? 'bg-gradient-to-br from-orange-500 to-yellow-500' : 
+                      'bg-gradient-to-br from-purple-500 to-blue-500'
+                    } rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base`}>
                       {place.orderInRoute}
                     </div>
                     <span className="text-xs text-gray-500">{place.bestTimeToVisit}</span>
@@ -116,6 +155,9 @@ const ItineraryTab = ({
                         <h5 className="font-semibold text-gray-800 flex items-center space-x-2 text-sm sm:text-base">
                           <span className="text-lg sm:text-xl">{place.image}</span>
                           <span className="break-words">{place.name}</span>
+                          {day.isTentative && (
+                            <span className="text-xs text-blue-600 font-normal">(Tentative)</span>
+                          )}
                           {day.isSuggested && (
                             <span className="text-xs text-orange-600 font-normal">(Suggested)</span>
                           )}
@@ -136,9 +178,21 @@ const ItineraryTab = ({
                     <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{place.description}</p>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className={`${day.isSuggested ? 'bg-orange-50' : 'bg-purple-50'} p-2 rounded`}>
-                        <span className={`font-medium ${day.isSuggested ? 'text-orange-800' : 'text-purple-800'}`}>AI Duration:</span>
-                        <span className={`${day.isSuggested ? 'text-orange-600' : 'text-purple-600'} ml-1`}>{place.aiRecommendedDuration}</span>
+                      <div className={`${
+                        day.isTentative ? 'bg-blue-50' :
+                        day.isSuggested ? 'bg-orange-50' : 
+                        'bg-purple-50'
+                      } p-2 rounded`}>
+                        <span className={`font-medium ${
+                          day.isTentative ? 'text-blue-800' :
+                          day.isSuggested ? 'text-orange-800' : 
+                          'text-purple-800'
+                        }`}>AI Duration:</span>
+                        <span className={`${
+                          day.isTentative ? 'text-blue-600' :
+                          day.isSuggested ? 'text-orange-600' : 
+                          'text-purple-600'
+                        } ml-1`}>{place.aiRecommendedDuration}</span>
                       </div>
                       <div className="bg-blue-50 p-2 rounded">
                         <span className="font-medium text-blue-800">Best Time:</span>

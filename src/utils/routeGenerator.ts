@@ -1,7 +1,7 @@
 import { Trip, DayItinerary, RouteConfiguration } from "@/types/aiSmartRoute";
 import { getDestinationDateRanges, getIndividualDayDates } from "./dateUtils";
 import { getSavedPlacesByDestination, convertToOptimizedPlaces, distributePlacesAcrossDays } from "./placeUtils";
-import { createSuggestedDayItinerary } from "./placeSuggestions";
+import { createSuggestedDayItinerary, createTentativeDestinationItinerary } from "./placeSuggestions";
 
 export const generateOptimizedRoutes = (trip: Trip | null) => {
   if (!trip) return { current: [], speed: [], leisure: [] };
@@ -21,144 +21,194 @@ export const generateOptimizedRoutes = (trip: Trip | null) => {
     const individualDates = getIndividualDayDates(destinationRange);
     const existingPlaceIds = savedPlaces.map(place => place.id);
 
-    // Current Route: Balanced distribution across allocated days
-    const currentSortedPlaces = savedPlaces
-      .sort((a, b) => {
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
-      });
-    
-    const currentDayGroups = distributePlacesAcrossDays(currentSortedPlaces, destinationRange.days, 'current');
-    
-    // Add days with saved places
-    currentDayGroups.forEach((dayPlaces, dayIndex) => {
-      if (dayPlaces.length > 0) {
-        routes.current.push({
-          day: dayCounter,
-          date: individualDates[dayIndex] || `Day ${dayCounter}`,
-          destinationName: destination.name,
-          places: convertToOptimizedPlaces(dayPlaces, 'current', destination, 1),
-          totalTime: `${Math.ceil(dayPlaces.length * 2.5)} hours`,
-          walkingTime: `${Math.ceil(dayPlaces.length * 0.5)} minutes`,
-          transportTime: `${Math.ceil(dayPlaces.length * 0.3)} minutes`,
-          freeTime: `${Math.max(2, 8 - dayPlaces.length * 2)} hours`,
-          allocatedDays: destinationRange.days
-        });
-      }
-      dayCounter++;
-    });
+    // Check if this destination has saved places
+    const hasSavedPlaces = savedPlaces.length > 0;
 
-    // Add suggested days for unused allocated days
-    if (currentDayGroups.length < destinationRange.days) {
-      for (let i = currentDayGroups.length; i < destinationRange.days; i++) {
-        const suggestedDay = createSuggestedDayItinerary(
+    if (hasSavedPlaces) {
+      // Existing logic for destinations with saved places
+      // Current Route: Balanced distribution across allocated days
+      const currentSortedPlaces = savedPlaces
+        .sort((a, b) => {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        });
+      
+      const currentDayGroups = distributePlacesAcrossDays(currentSortedPlaces, destinationRange.days, 'current');
+      
+      // Add days with saved places
+      currentDayGroups.forEach((dayPlaces, dayIndex) => {
+        if (dayPlaces.length > 0) {
+          routes.current.push({
+            day: dayCounter,
+            date: individualDates[dayIndex] || `Day ${dayCounter}`,
+            destinationName: destination.name,
+            places: convertToOptimizedPlaces(dayPlaces, 'current', destination, 1),
+            totalTime: `${Math.ceil(dayPlaces.length * 2.5)} hours`,
+            walkingTime: `${Math.ceil(dayPlaces.length * 0.5)} minutes`,
+            transportTime: `${Math.ceil(dayPlaces.length * 0.3)} minutes`,
+            freeTime: `${Math.max(2, 8 - dayPlaces.length * 2)} hours`,
+            allocatedDays: destinationRange.days
+          });
+        }
+        dayCounter++;
+      });
+
+      // Add suggested days for unused allocated days
+      if (currentDayGroups.length < destinationRange.days) {
+        for (let i = currentDayGroups.length; i < destinationRange.days; i++) {
+          const suggestedDay = createSuggestedDayItinerary(
+            dayCounter,
+            individualDates[i] || `Day ${dayCounter}`,
+            destination.name,
+            destination,
+            existingPlaceIds,
+            'current'
+          );
+          routes.current.push(suggestedDay);
+          dayCounter++;
+        }
+      }
+
+      // Similar logic for speed and leisure routes...
+      // Reset day counter for other routes
+      dayCounter -= destinationRange.days;
+
+      // Speed Route
+      const speedSortedPlaces = savedPlaces
+        .sort((a, b) => {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        });
+      
+      const speedPlacesPerDay = Math.min(4, Math.ceil(savedPlaces.length / destinationRange.days));
+      const speedDayGroups = distributePlacesAcrossDays(speedSortedPlaces.slice(0, speedPlacesPerDay * destinationRange.days), destinationRange.days, 'speed');
+      
+      speedDayGroups.forEach((dayPlaces, dayIndex) => {
+        if (dayPlaces.length > 0) {
+          routes.speed.push({
+            day: dayCounter,
+            date: individualDates[dayIndex] || `Day ${dayCounter}`,
+            destinationName: destination.name,
+            places: convertToOptimizedPlaces(dayPlaces, 'speed', destination, 1),
+            totalTime: `${dayPlaces.length * 1.5} hours`,
+            walkingTime: `${Math.ceil(dayPlaces.length * 0.7)} minutes`,
+            transportTime: `${Math.ceil(dayPlaces.length * 0.5)} minutes`,
+            freeTime: `${Math.max(1, 6 - dayPlaces.length * 1.5)} hours`,
+            allocatedDays: destinationRange.days
+          });
+        }
+        dayCounter++;
+      });
+
+      // Add suggested days for speed route
+      if (speedDayGroups.length < destinationRange.days) {
+        for (let i = speedDayGroups.length; i < destinationRange.days; i++) {
+          const suggestedDay = createSuggestedDayItinerary(
+            dayCounter,
+            individualDates[i] || `Day ${dayCounter}`,
+            destination.name,
+            destination,
+            existingPlaceIds,
+            'speed'
+          );
+          routes.speed.push(suggestedDay);
+          dayCounter++;
+        }
+      }
+
+      // Reset day counter for leisure route
+      dayCounter -= destinationRange.days;
+
+      // Leisure Route
+      const leisureSortedPlaces = savedPlaces
+        .sort((a, b) => {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        });
+      
+      const leisurePlacesPerDay = Math.max(1, Math.floor(savedPlaces.length / destinationRange.days));
+      const leisureDayGroups = distributePlacesAcrossDays(leisureSortedPlaces.slice(0, leisurePlacesPerDay * destinationRange.days), destinationRange.days, 'leisure');
+      
+      leisureDayGroups.forEach((dayPlaces, dayIndex) => {
+        if (dayPlaces.length > 0) {
+          routes.leisure.push({
+            day: dayCounter,
+            date: individualDates[dayIndex] || `Day ${dayCounter}`,
+            destinationName: destination.name,
+            places: convertToOptimizedPlaces(dayPlaces, 'leisure', destination, 1),
+            totalTime: `${dayPlaces.length * 3} hours`,
+            walkingTime: "30 minutes",
+            transportTime: "20 minutes",
+            freeTime: `${Math.max(4, 10 - dayPlaces.length * 3)} hours`,
+            allocatedDays: destinationRange.days
+          });
+        }
+        dayCounter++;
+      });
+
+      // Add suggested days for leisure route
+      if (leisureDayGroups.length < destinationRange.days) {
+        for (let i = leisureDayGroups.length; i < destinationRange.days; i++) {
+          const suggestedDay = createSuggestedDayItinerary(
+            dayCounter,
+            individualDates[i] || `Day ${dayCounter}`,
+            destination.name,
+            destination,
+            existingPlaceIds,
+            'leisure'
+          );
+          routes.leisure.push(suggestedDay);
+          dayCounter++;
+        }
+      }
+
+      // Reset day counter for next destination
+      dayCounter -= destinationRange.days;
+      dayCounter += destinationRange.days;
+    } else {
+      // NEW LOGIC: Generate tentative itinerary for destinations without saved places
+      for (let dayIndex = 0; dayIndex < destinationRange.days; dayIndex++) {
+        const currentDate = individualDates[dayIndex] || `Day ${dayCounter}`;
+        
+        // Generate tentative itinerary for current route
+        const tentativeCurrentDay = createTentativeDestinationItinerary(
           dayCounter,
-          individualDates[i] || `Day ${dayCounter}`,
+          currentDate,
           destination.name,
           destination,
-          existingPlaceIds,
-          'current'
+          'current',
+          dayIndex,
+          destinationRange.days
         );
-        routes.current.push(suggestedDay);
+        routes.current.push(tentativeCurrentDay);
+
+        // Generate tentative itinerary for speed route
+        const tentativeSpeedDay = createTentativeDestinationItinerary(
+          dayCounter,
+          currentDate,
+          destination.name,
+          destination,
+          'speed',
+          dayIndex,
+          destinationRange.days
+        );
+        routes.speed.push(tentativeSpeedDay);
+
+        // Generate tentative itinerary for leisure route
+        const tentativeLeisureDay = createTentativeDestinationItinerary(
+          dayCounter,
+          currentDate,
+          destination.name,
+          destination,
+          'leisure',
+          dayIndex,
+          destinationRange.days
+        );
+        routes.leisure.push(tentativeLeisureDay);
+
         dayCounter++;
       }
     }
-
-    // Reset day counter for other routes
-    dayCounter -= destinationRange.days;
-
-    // Speed Route
-    const speedSortedPlaces = savedPlaces
-      .sort((a, b) => {
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
-      });
-    
-    const speedPlacesPerDay = Math.min(4, Math.ceil(savedPlaces.length / destinationRange.days));
-    const speedDayGroups = distributePlacesAcrossDays(speedSortedPlaces.slice(0, speedPlacesPerDay * destinationRange.days), destinationRange.days, 'speed');
-    
-    speedDayGroups.forEach((dayPlaces, dayIndex) => {
-      if (dayPlaces.length > 0) {
-        routes.speed.push({
-          day: dayCounter,
-          date: individualDates[dayIndex] || `Day ${dayCounter}`,
-          destinationName: destination.name,
-          places: convertToOptimizedPlaces(dayPlaces, 'speed', destination, 1),
-          totalTime: `${dayPlaces.length * 1.5} hours`,
-          walkingTime: `${Math.ceil(dayPlaces.length * 0.7)} minutes`,
-          transportTime: `${Math.ceil(dayPlaces.length * 0.5)} minutes`,
-          freeTime: `${Math.max(1, 6 - dayPlaces.length * 1.5)} hours`,
-          allocatedDays: destinationRange.days
-        });
-      }
-      dayCounter++;
-    });
-
-    // Add suggested days for speed route
-    if (speedDayGroups.length < destinationRange.days) {
-      for (let i = speedDayGroups.length; i < destinationRange.days; i++) {
-        const suggestedDay = createSuggestedDayItinerary(
-          dayCounter,
-          individualDates[i] || `Day ${dayCounter}`,
-          destination.name,
-          destination,
-          existingPlaceIds,
-          'speed'
-        );
-        routes.speed.push(suggestedDay);
-        dayCounter++;
-      }
-    }
-
-    // Reset day counter for leisure route
-    dayCounter -= destinationRange.days;
-
-    // Leisure Route
-    const leisureSortedPlaces = savedPlaces
-      .sort((a, b) => {
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        return priorityOrder[b.priority] - priorityOrder[a.priority];
-      });
-    
-    const leisurePlacesPerDay = Math.max(1, Math.floor(savedPlaces.length / destinationRange.days));
-    const leisureDayGroups = distributePlacesAcrossDays(leisureSortedPlaces.slice(0, leisurePlacesPerDay * destinationRange.days), destinationRange.days, 'leisure');
-    
-    leisureDayGroups.forEach((dayPlaces, dayIndex) => {
-      if (dayPlaces.length > 0) {
-        routes.leisure.push({
-          day: dayCounter,
-          date: individualDates[dayIndex] || `Day ${dayCounter}`,
-          destinationName: destination.name,
-          places: convertToOptimizedPlaces(dayPlaces, 'leisure', destination, 1),
-          totalTime: `${dayPlaces.length * 3} hours`,
-          walkingTime: "30 minutes",
-          transportTime: "20 minutes",
-          freeTime: `${Math.max(4, 10 - dayPlaces.length * 3)} hours`,
-          allocatedDays: destinationRange.days
-        });
-      }
-      dayCounter++;
-    });
-
-    // Add suggested days for leisure route
-    if (leisureDayGroups.length < destinationRange.days) {
-      for (let i = leisureDayGroups.length; i < destinationRange.days; i++) {
-        const suggestedDay = createSuggestedDayItinerary(
-          dayCounter,
-          individualDates[i] || `Day ${dayCounter}`,
-          destination.name,
-          destination,
-          existingPlaceIds,
-          'leisure'
-        );
-        routes.leisure.push(suggestedDay);
-        dayCounter++;
-      }
-    }
-
-    // Reset day counter for next destination
-    dayCounter -= destinationRange.days;
-    dayCounter += destinationRange.days;
   });
 
   return routes;
