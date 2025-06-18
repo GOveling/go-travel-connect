@@ -78,6 +78,7 @@ const TripsSection = () => {
   };
 
   const handleAISmartRoute = (trip: any) => {
+    console.log('AI Smart Route button clicked for trip:', trip); // Debug log
     setSelectedTrip(trip);
     setShowAISmartRouteModal(true);
   };
