@@ -1,3 +1,4 @@
+
 export interface Trip {
   id: number;
   name: string;
@@ -23,6 +24,8 @@ export interface Trip {
   budget?: string;
   accommodation?: string;
   transportation?: string;
+  savedPlaces?: SavedPlace[];
+  savedPlacesByDestination?: { [key: string]: SavedPlace[] };
 }
 
 export interface SavedPlace {
