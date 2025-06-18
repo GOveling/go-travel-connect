@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trip } from "@/types/aiSmartRoute";
+import { Trip } from "@/types";
 
 interface TripSelectorWithAIProps {
   selectedTripId: string;

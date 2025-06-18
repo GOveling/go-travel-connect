@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { Brain } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Trip, DayItinerary, AISmartRouteModalProps } from '@/types';
-import { getRouteConfigurations, getSavedPlacesByDestination, calculateDestinationDays } from "@/utils/aiSmartRoute";
+import { getRouteConfigurations } from "@/utils/routeGenerator";
+import { getSavedPlacesByDestination, calculateDestinationDays } from "@/utils/aiSmartRoute";
 import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";

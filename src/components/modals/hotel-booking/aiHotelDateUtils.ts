@@ -2,6 +2,7 @@
 // AI protocol for determining optimal hotel booking dates based on itinerary
 
 import { getDestinationDateRanges } from "@/utils/dateUtils";
+import { Trip } from "@/types";
 
 export interface HotelDateRecommendation {
   destination: string;
@@ -23,7 +24,7 @@ export interface AIHotelBookingPlan {
 }
 
 export const getAIHotelBookingPlan = (
-  trip: any
+  trip: Trip
 ): AIHotelBookingPlan => {
   console.log('🤖 AI Hotel Booking Analysis:', {
     tripName: trip.name,

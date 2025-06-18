@@ -1,5 +1,5 @@
 
-import { Trip } from "@/types/aiSmartRoute";
+import { Trip } from "@/types";
 
 export const initialTripsData: Trip[] = [
   {

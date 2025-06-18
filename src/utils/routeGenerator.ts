@@ -1,4 +1,5 @@
-import { Trip, DayItinerary, RouteConfiguration } from "@/types/aiSmartRoute";
+
+import { Trip, DayItinerary, RouteConfiguration } from "@/types";
 import { getDestinationDateRanges, getIndividualDayDates } from "./dateUtils";
 import { getSavedPlacesByDestination, convertToOptimizedPlaces, distributePlacesAcrossDays } from "./placeUtils";
 import { createSuggestedDayItinerary, createTentativeDestinationItinerary } from "./placeSuggestions";

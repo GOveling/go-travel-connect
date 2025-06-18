@@ -1,5 +1,5 @@
 
-import { SavedPlace, DayItinerary, OptimizedPlace } from "@/types/aiSmartRoute";
+import { SavedPlace, DayItinerary, OptimizedPlace } from "@/types";
 
 // Popular places database organized by destination
 const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {

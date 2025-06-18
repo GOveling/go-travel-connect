@@ -1,5 +1,5 @@
 
-import { Trip, SavedPlace } from "@/types/aiSmartRoute";
+import { Trip, SavedPlace } from "@/types";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
 
 export const addPlaceToTripUtil = (
@@ -16,7 +16,7 @@ export const addPlaceToTripUtil = (
     description: place.description || "",
     estimatedTime: "2-3 hours",
     priority: "medium" as const,
-    destinationName: place.location,
+    destinationName: place.location || place.destinationName || "Unknown Location",
     lat: place.lat,
     lng: place.lng
   };
