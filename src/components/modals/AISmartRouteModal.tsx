@@ -21,11 +21,31 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [selectedRouteType, setSelectedRouteType] = useState("current");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false);
-  const [currentTrip, setCurrentTrip] = useState<Trip | null>(trip);
+  const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
   const { toast } = useToast();
 
-  // Early return if trip is null
-  if (!trip || !currentTrip) return null;
+  // Update currentTrip when trip prop changes
+  useState(() => {
+    if (trip) {
+      setCurrentTrip(trip);
+    }
+  });
+
+  // Reset modal state when it opens
+  useState(() => {
+    if (isOpen && trip) {
+      setCurrentTrip(trip);
+      setRouteGenerated(false);
+      setActiveTab("itinerary");
+      setSelectedRouteType("current");
+      setOptimizedItinerary([]);
+    }
+  });
+
+  // Early return if no trip data
+  if (!isOpen || !trip) return null;
+
+  const workingTrip = currentTrip || trip;
 
   // Generate AI optimized routes based ONLY on actual saved places from the trip
   const generateAIRoute = async () => {
@@ -35,7 +55,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Set initial route to current using actual saved places data
-    const routeConfigurations = getRouteConfigurations(currentTrip);
+    const routeConfigurations = getRouteConfigurations(workingTrip);
     setOptimizedItinerary(routeConfigurations.current.itinerary);
     setRouteGenerated(true);
     setIsGenerating(false);
@@ -49,8 +69,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   // Handle accepting recommended places
   const handleAcceptRecommendations = (acceptedPlaces: SavedPlace[]) => {
     const updatedTrip = {
-      ...currentTrip,
-      savedPlaces: [...(currentTrip.savedPlaces || []), ...acceptedPlaces]
+      ...workingTrip,
+      savedPlaces: [...(workingTrip.savedPlaces || []), ...acceptedPlaces]
     };
     setCurrentTrip(updatedTrip);
     setShowRecommendationsModal(false);
@@ -65,7 +85,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   // Handle route type change
   const handleRouteTypeChange = (routeType: string) => {
     setSelectedRouteType(routeType);
-    const routeConfigurations = getRouteConfigurations(currentTrip);
+    const routeConfigurations = getRouteConfigurations(workingTrip);
     const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
     setOptimizedItinerary(selectedConfig.itinerary);
   };
@@ -91,7 +111,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${currentTrip.name}-itinerary.txt`;
+    a.download = `${workingTrip.name}-itinerary.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -105,11 +125,11 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
   const handleShareRoute = () => {
     // Create a shareable summary
-    const shareText = `Check out my AI-optimized travel route for ${currentTrip.name}! 🌟\n\n${optimizedItinerary.length} days of perfectly planned adventures.`;
+    const shareText = `Check out my AI-optimized travel route for ${workingTrip.name}! 🌟\n\n${optimizedItinerary.length} days of perfectly planned adventures.`;
     
     if (navigator.share) {
       navigator.share({
-        title: `${currentTrip.name} - AI Smart Route`,
+        title: `${workingTrip.name} - AI Smart Route`,
         text: shareText,
       });
     } else {
@@ -123,10 +143,10 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     }
   };
 
-  const routeConfigurations = getRouteConfigurations(currentTrip);
-  const savedPlacesByDestination = getSavedPlacesByDestination(currentTrip);
+  const routeConfigurations = getRouteConfigurations(workingTrip);
+  const savedPlacesByDestination = getSavedPlacesByDestination(workingTrip);
   const totalSavedPlaces = Object.values(savedPlacesByDestination).reduce((total, places) => total + places.length, 0);
-  const destinationDays = calculateDestinationDays(currentTrip.dates, currentTrip.coordinates.length, currentTrip);
+  const destinationDays = calculateDestinationDays(workingTrip.dates, workingTrip.coordinates.length, workingTrip);
   const totalTripDays = destinationDays.reduce((a, b) => a + b, 0);
 
   return (
@@ -136,14 +156,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
           <DialogHeader>
             <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-3">
               <Brain className="text-purple-600" size={24} />
-              <span>AI Smart Route for {currentTrip.name}</span>
+              <span>AI Smart Route for {workingTrip.name}</span>
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6">
             {!routeGenerated ? (
               <InitialView 
-                trip={currentTrip}
+                trip={workingTrip}
                 isGenerating={isGenerating}
                 onGenerateRoute={generateAIRoute}
                 onStartRecommendations={totalSavedPlaces === 0 ? handleStartRecommendations : undefined}
@@ -169,7 +189,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
                 <TabsContent value="map">
                   <MapTab
-                    trip={currentTrip}
+                    trip={workingTrip}
                     totalSavedPlaces={totalSavedPlaces}
                     totalTripDays={totalTripDays}
                   />
