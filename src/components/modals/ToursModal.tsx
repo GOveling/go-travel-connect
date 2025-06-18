@@ -1,15 +1,13 @@
 
 import { useState } from "react";
-import { X, Camera } from "lucide-react";
+import { MapPin, Calendar, Users, Clock, X, Camera } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useHomeState } from "@/hooks/useHomeState";
-import TripSelectionTab from "./tours/TripSelectionTab";
-import ManualBookingTab from "./tours/ManualBookingTab";
-import type { Trip } from "@/types";
 
 interface ToursModalProps {
   isOpen: boolean;
@@ -24,122 +22,135 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
     tourType: '',
     duration: ''
   });
-  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
-  const [activeTab, setActiveTab] = useState("trip-selection");
   const { toast } = useToast();
-  const { trips } = useHomeState();
 
-  // Reset modal state when closing
-  const handleClose = () => {
-    setActiveTab("trip-selection");
-    setSelectedTrip(null);
-    setFormData({
-      destination: '',
-      date: '',
-      participants: 2,
-      tourType: '',
-      duration: ''
+  const handleSearch = () => {
+    toast({
+      title: "Searching Tours",
+      description: "Finding amazing guided experiences for you...",
     });
     onClose();
   };
 
-  const handleTripSelect = (trip: Trip) => {
-    setSelectedTrip(trip);
-    toast({
-      title: "Viaje Seleccionado",
-      description: `Datos cargados desde "${trip.name}". Usa auto-llenar para completar el formulario.`,
-    });
-  };
-
-  const handleAutoFillFromTrip = (trip: Trip) => {
-    setFormData(prev => ({
-      ...prev,
-      destination: trip.destination,
-      participants: trip.travelers,
-      // Use first available date from trip dates
-      date: trip.dates.includes(' - ') ? 
-        trip.dates.split(' - ')[0] : 
-        new Date().toISOString().split('T')[0]
-    }));
-
-    // Switch to manual tab to show filled form
-    setActiveTab("manual");
-
-    toast({
-      title: "Datos Auto-llenados",
-      description: `Información del viaje "${trip.name}" aplicada al formulario de reserva`,
-    });
-  };
-
-  const handleSearch = () => {
-    toast({
-      title: "Buscando Tours",
-      description: `Encontrando experiencias guiadas increíbles para ${formData.destination}...`,
-    });
-    handleClose();
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[90vh] overflow-y-auto p-0">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto p-0">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-4 text-white relative">
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleClose}
+            onClick={onClose}
             className="absolute right-2 top-2 text-white hover:bg-white/20 p-1 h-8 w-8"
           >
             <X size={16} />
           </Button>
           <div className="flex items-center space-x-3 pt-2">
-            <Camera size={24} />
+            <MapPin size={24} />
             <div>
-              <h2 className="text-xl font-bold">Tours & Experiencias</h2>
-              <p className="text-sm opacity-90">Reserva con guías locales expertos</p>
+              <h2 className="text-xl font-bold">Tours & Experiences</h2>
+              <p className="text-sm opacity-90">Discover guided adventures</p>
             </div>
           </div>
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Info Card */}
           <Card className="border-orange-200 bg-orange-50">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <Camera size={16} className="text-orange-600" />
-                <span className="text-sm font-medium text-orange-800">Auto-llenado Inteligente</span>
+                <span className="text-sm font-medium text-orange-800">Local Experts</span>
               </div>
               <p className="text-xs text-orange-700">
-                Selecciona un viaje planificado para auto-llenar el formulario con tus datos de reserva
+                Book tours with certified local guides and create memories!
               </p>
             </CardContent>
           </Card>
 
-          {/* Main Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="trip-selection" className="text-xs">Mis Viajes</TabsTrigger>
-              <TabsTrigger value="manual" className="text-xs">Manual</TabsTrigger>
-            </TabsList>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="destination">Destination</Label>
+              <div className="relative">
+                <MapPin size={16} className="absolute left-3 top-3 text-gray-400" />
+                <Input
+                  id="destination"
+                  placeholder="Where do you want to explore?"
+                  value={formData.destination}
+                  onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
 
-            <TabsContent value="trip-selection" className="mt-4">
-              <TripSelectionTab
-                trips={trips}
-                selectedTrip={selectedTrip}
-                onTripSelect={handleTripSelect}
-                onSwitchToAI={() => {}} // No longer needed
-                onAutoFillFromTrip={handleAutoFillFromTrip}
-              />
-            </TabsContent>
+            <div className="space-y-2">
+              <Label htmlFor="date">Tour Date</Label>
+              <div className="relative">
+                <Calendar size={16} className="absolute left-3 top-3 text-gray-400" />
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
 
-            <TabsContent value="manual" className="mt-4">
-              <ManualBookingTab
-                formData={formData}
-                onFormDataChange={setFormData}
-                onSearch={handleSearch}
-              />
-            </TabsContent>
-          </Tabs>
+            <div className="space-y-2">
+              <Label htmlFor="participants">Participants</Label>
+              <div className="relative">
+                <Users size={16} className="absolute left-3 top-3 text-gray-400" />
+                <Input
+                  id="participants"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={formData.participants}
+                  onChange={(e) => setFormData(prev => ({ ...prev, participants: parseInt(e.target.value) }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tourType">Tour Type</Label>
+              <Select value={formData.tourType} onValueChange={(value) => setFormData(prev => ({ ...prev, tourType: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select tour type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="city">City Tours</SelectItem>
+                  <SelectItem value="cultural">Cultural Tours</SelectItem>
+                  <SelectItem value="food">Food Tours</SelectItem>
+                  <SelectItem value="adventure">Adventure Tours</SelectItem>
+                  <SelectItem value="historical">Historical Tours</SelectItem>
+                  <SelectItem value="nature">Nature Tours</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="duration">Duration</Label>
+              <Select value={formData.duration} onValueChange={(value) => setFormData(prev => ({ ...prev, duration: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="half-day">Half Day (2-4 hours)</SelectItem>
+                  <SelectItem value="full-day">Full Day (6-8 hours)</SelectItem>
+                  <SelectItem value="multi-day">Multi-day (2+ days)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button 
+              onClick={handleSearch}
+              className="w-full bg-gradient-to-r from-orange-500 to-orange-600"
+            >
+              <MapPin size={16} className="mr-2" />
+              Find Tours
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
