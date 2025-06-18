@@ -17,7 +17,7 @@ const HomeHeader = ({
       <div className="flex justify-between items-center mb-2 mx-0 px-0">
         {/* Logo on the left */}
         <div className="flex-1 flex justify-start px-0 mx-[5px]">
-          <img src="/lovable-uploads/ab817c30-2b47-4b5b-9678-711900c7df72.png" alt="GOveling Logo" className="h-32 w-auto object-contain" />
+          <img alt="GOveling Logo" className="h-32 w-auto object-contain" src="/lovable-uploads/c492703b-bdd8-4cd6-9360-0748aea28be9.png" />
         </div>
         
         {/* Notification bell on the right */}
