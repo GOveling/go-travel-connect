@@ -4,6 +4,7 @@ import { Brain } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import type { Trip, DayItinerary, AISmartRouteModalProps } from '@/types';
 import { getRouteConfigurations } from "@/utils/routeGenerator";
 import { getSavedPlacesByDestination, calculateDestinationDays } from "@/utils/aiSmartRoute";
@@ -18,6 +19,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [activeTab, setActiveTab] = useState("itinerary");
   const [selectedRouteType, setSelectedRouteType] = useState("current");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
+  const { toast } = useToast();
 
   // Generate AI optimized routes based ONLY on actual saved places from the trip
   const generateAIRoute = async () => {
@@ -31,6 +33,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     setOptimizedItinerary(routeConfigurations.current.itinerary);
     setRouteGenerated(true);
     setIsGenerating(false);
+  };
+
+  // Handle place recommendations
+  const handleStartRecommendations = () => {
+    toast({
+      title: "AI Place Recommendations",
+      description: "Feature coming soon! Our AI will suggest popular places for your destinations.",
+    });
   };
 
   // Handle route type change
@@ -65,6 +75,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
               trip={trip}
               isGenerating={isGenerating}
               onGenerateRoute={generateAIRoute}
+              onStartRecommendations={totalSavedPlaces === 0 ? handleStartRecommendations : undefined}
             />
           ) : (
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

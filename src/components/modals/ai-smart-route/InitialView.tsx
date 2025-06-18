@@ -1,16 +1,17 @@
 
-import { Brain, Clock, MapPin, Route, Star } from "lucide-react";
+import { Brain, Clock, MapPin, Route, Star, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Trip } from "@/types/aiSmartRoute";
+import { Trip } from "@/types";
 import { calculateDestinationDays, getSavedPlacesByDestination } from "@/utils/aiSmartRoute";
 
 interface InitialViewProps {
   trip: Trip;
   isGenerating: boolean;
   onGenerateRoute: () => void;
+  onStartRecommendations?: () => void;
 }
 
-const InitialView = ({ trip, isGenerating, onGenerateRoute }: InitialViewProps) => {
+const InitialView = ({ trip, isGenerating, onGenerateRoute, onStartRecommendations }: InitialViewProps) => {
   const savedPlacesByDestination = getSavedPlacesByDestination(trip);
   const totalSavedPlaces = Object.values(savedPlacesByDestination).reduce((total, places) => total + places.length, 0);
   const destinationDays = calculateDestinationDays(trip.dates, trip.coordinates.length, trip);
@@ -50,8 +51,22 @@ const InitialView = ({ trip, isGenerating, onGenerateRoute }: InitialViewProps) 
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
           <MapPin className="mx-auto mb-2 text-orange-600" size={32} />
           <h4 className="font-medium text-orange-800 mb-2">No Saved Places Found</h4>
-          <p className="text-sm text-orange-600">
-            Please save some places in your trip details first to generate an AI route.
+          <p className="text-sm text-orange-600 mb-4">
+            Get AI-powered place recommendations for your destinations to create an optimized route.
+          </p>
+          
+          {onStartRecommendations && (
+            <Button
+              onClick={onStartRecommendations}
+              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 mb-3"
+            >
+              <Lightbulb className="mr-2" size={16} />
+              Get Place Recommendations
+            </Button>
+          )}
+          
+          <p className="text-xs text-orange-500">
+            Or add places manually in your trip details first
           </p>
         </div>
       ) : (
@@ -93,7 +108,7 @@ const InitialView = ({ trip, isGenerating, onGenerateRoute }: InitialViewProps) 
               <>
                 <Brain className="mr-2" size={20} />
                 Generate AI Smart Route
-              </>
+              </Button>
             )}
           </Button>
         </>
