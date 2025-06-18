@@ -1,4 +1,3 @@
-
 // Enhanced function to extract exact date ranges for each destination from the itinerary display
 export const getDestinationDateRanges = (tripDates: string, totalDestinations: number) => {
   const destinationRanges: Array<{ startDate: Date; endDate: Date; days: number; dateString: string }> = [];
@@ -119,8 +118,58 @@ export const calculateDestinationDays = (tripDates: string, totalDestinations: n
   return ranges.map(range => range.days);
 };
 
-export const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number, allocatedDays: number, trip: any) => {
-  const ranges = getDestinationDateRanges(tripDates, totalDestinations);
-  const range = ranges[destinationIndex];
-  return range ? range.dateString : `Day ${destinationIndex + 1}`;
+export const getDestinationDates = (
+  tripDates: string, 
+  coordinates: Array<{ name: string; lat: number; lng: number }>, 
+  destinationDays: number[]
+): string[][] => {
+  try {
+    const dateRange = tripDates.split(' - ');
+    const startDateStr = dateRange[0];
+    const year = tripDates.split(', ')[1] || new Date().getFullYear().toString();
+    
+    const monthMap: { [key: string]: number } = {
+      'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+      'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+    };
+    
+    const month = startDateStr.split(' ')[0];
+    const day = parseInt(startDateStr.split(' ')[1]);
+    const startDate = new Date(parseInt(year), monthMap[month], day);
+    
+    const destinationDates: string[][] = [];
+    let currentDate = new Date(startDate);
+    
+    destinationDays.forEach((days, index) => {
+      const datesForDestination: string[] = [];
+      
+      for (let i = 0; i < days; i++) {
+        const dateStr = currentDate.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric'
+        });
+        datesForDestination.push(dateStr);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      destinationDates.push(datesForDestination);
+    });
+    
+    return destinationDates;
+  } catch (error) {
+    // Fallback to generic day numbering
+    const destinationDates: string[][] = [];
+    let dayCounter = 1;
+    
+    destinationDays.forEach(days => {
+      const datesForDestination: string[] = [];
+      for (let i = 0; i < days; i++) {
+        datesForDestination.push(`Day ${dayCounter}`);
+        dayCounter++;
+      }
+      destinationDates.push(datesForDestination);
+    });
+    
+    return destinationDates;
+  }
 };
