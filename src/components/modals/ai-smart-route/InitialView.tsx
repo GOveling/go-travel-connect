@@ -108,7 +108,7 @@ const InitialView = ({ trip, isGenerating, onGenerateRoute, onStartRecommendatio
               <>
                 <Brain className="mr-2" size={20} />
                 Generate AI Smart Route
-              </Button>
+              </>
             )}
           </Button>
         </>
