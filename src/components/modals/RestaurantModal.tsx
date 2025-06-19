@@ -1,13 +1,18 @@
 
 import { useState } from "react";
-import { Utensils, Calendar, Users, Clock, X, Star } from "lucide-react";
+import { ChefHat, X, MapPin, Users, CalendarIcon, Clock } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { JollyCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface RestaurantModalProps {
   isOpen: boolean;
@@ -15,23 +20,73 @@ interface RestaurantModalProps {
 }
 
 const RestaurantModal = ({ isOpen, onClose }: RestaurantModalProps) => {
+  const [isDateOpen, setIsDateOpen] = useState(false);
   const [formData, setFormData] = useState({
     location: '',
     date: '',
-    time: '19:00',
+    time: '',
     guests: 2,
     cuisine: '',
     occasion: ''
   });
   const { toast } = useToast();
 
+  const handleDateChange = (date: CalendarDate | null) => {
+    if (date) {
+      const selectedDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
+      setFormData(prev => ({
+        ...prev,
+        date: selectedDate
+      }));
+      setIsDateOpen(false);
+    }
+  };
+
+  const getDateValue = () => {
+    if (formData.date) {
+      return parseDate(formData.date);
+    }
+    return null;
+  };
+
+  const formatDate = () => {
+    if (formData.date) {
+      return format(new Date(formData.date), "dd/MM/yyyy");
+    }
+    return "Seleccionar fecha de reserva";
+  };
+
   const handleSearch = () => {
+    if (!formData.location || !formData.date) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in location and date",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Searching Restaurants",
-      description: "Finding available tables for your dining experience...",
+      description: "Finding amazing dining experiences for you...",
     });
     onClose();
   };
+
+  const cuisineTypes = [
+    'Italian', 'French', 'Japanese', 'Chinese', 'Mexican', 
+    'Indian', 'Thai', 'Mediterranean', 'American', 'Local Cuisine'
+  ];
+
+  const occasions = [
+    'Casual Dining', 'Fine Dining', 'Business Lunch', 'Romantic Dinner',
+    'Family Meal', 'Birthday Celebration', 'Anniversary', 'Group Gathering'
+  ];
+
+  const timeSlots = [
+    '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+    '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30'
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -47,10 +102,10 @@ const RestaurantModal = ({ isOpen, onClose }: RestaurantModalProps) => {
             <X size={16} />
           </Button>
           <div className="flex items-center space-x-3 pt-2">
-            <Utensils size={24} />
+            <ChefHat size={24} />
             <div>
-              <h2 className="text-xl font-bold">Restaurant Booking</h2>
-              <p className="text-sm opacity-90">Reserve your perfect table</p>
+              <h2 className="text-xl font-bold">Restaurant Reservations</h2>
+              <p className="text-sm opacity-90">Book your perfect dining experience</p>
             </div>
           </div>
         </div>
@@ -59,11 +114,11 @@ const RestaurantModal = ({ isOpen, onClose }: RestaurantModalProps) => {
           <Card className="border-red-200 bg-red-50">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2 mb-2">
-                <Star size={16} className="text-red-600" />
-                <span className="text-sm font-medium text-red-800">Premium Tables</span>
+                <ChefHat size={16} className="text-red-600" />
+                <span className="text-sm font-medium text-red-800">Premium Dining</span>
               </div>
               <p className="text-xs text-red-700">
-                Access exclusive reservations at top-rated restaurants!
+                Reserve tables at top-rated restaurants and discover local culinary gems
               </p>
             </CardContent>
           </Card>
@@ -71,56 +126,76 @@ const RestaurantModal = ({ isOpen, onClose }: RestaurantModalProps) => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                placeholder="City or neighborhood"
-                value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <div className="relative">
-                  <Calendar size={16} className="absolute left-3 top-3 text-gray-400" />
-                  <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="time">Time</Label>
-                <div className="relative">
-                  <Clock size={16} className="absolute left-3 top-3 text-gray-400" />
-                  <Input
-                    id="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
-                    className="pl-10"
-                  />
-                </div>
+              <div className="relative">
+                <MapPin size={16} className="absolute left-3 top-3 text-gray-400" />
+                <Input
+                  id="location"
+                  placeholder="City or restaurant name"
+                  value={formData.location}
+                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                  className="pl-10"
+                />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guests">Number of Guests</Label>
-              <div className="relative">
-                <Users size={16} className="absolute left-3 top-3 text-gray-400" />
-                <Input
-                  id="guests"
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={formData.guests}
-                  onChange={(e) => setFormData(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
-                  className="pl-10"
-                />
+              <Label>Fecha de Reserva</Label>
+              <Popover open={isDateOpen} onOpenChange={setIsDateOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formatDate()}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <JollyCalendar
+                    value={getDateValue()}
+                    onChange={handleDateChange}
+                    minValue={today(getLocalTimeZone())}
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="time">Time</Label>
+                <div className="relative">
+                  <Clock size={16} className="absolute left-3 top-3 text-gray-400" />
+                  <Select value={formData.time} onValueChange={(value) => setFormData(prev => ({ ...prev, time: value }))}>
+                    <SelectTrigger className="pl-10">
+                      <SelectValue placeholder="Select time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="guests">Guests</Label>
+                <div className="relative">
+                  <Users size={16} className="absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    id="guests"
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={formData.guests}
+                    onChange={(e) => setFormData(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
+                    className="pl-10"
+                  />
+                </div>
               </div>
             </div>
 
@@ -128,34 +203,26 @@ const RestaurantModal = ({ isOpen, onClose }: RestaurantModalProps) => {
               <Label htmlFor="cuisine">Cuisine Type</Label>
               <Select value={formData.cuisine} onValueChange={(value) => setFormData(prev => ({ ...prev, cuisine: value }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select cuisine" />
+                  <SelectValue placeholder="Select cuisine type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="italian">Italian</SelectItem>
-                  <SelectItem value="french">French</SelectItem>
-                  <SelectItem value="japanese">Japanese</SelectItem>
-                  <SelectItem value="chinese">Chinese</SelectItem>
-                  <SelectItem value="mexican">Mexican</SelectItem>
-                  <SelectItem value="indian">Indian</SelectItem>
-                  <SelectItem value="mediterranean">Mediterranean</SelectItem>
-                  <SelectItem value="american">American</SelectItem>
+                  {cuisineTypes.map((cuisine) => (
+                    <SelectItem key={cuisine} value={cuisine.toLowerCase()}>{cuisine}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="occasion">Occasion (Optional)</Label>
+              <Label htmlFor="occasion">Occasion</Label>
               <Select value={formData.occasion} onValueChange={(value) => setFormData(prev => ({ ...prev, occasion: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select occasion" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="birthday">Birthday</SelectItem>
-                  <SelectItem value="anniversary">Anniversary</SelectItem>
-                  <SelectItem value="date">Date Night</SelectItem>
-                  <SelectItem value="business">Business Meeting</SelectItem>
-                  <SelectItem value="celebration">Celebration</SelectItem>
-                  <SelectItem value="casual">Casual Dining</SelectItem>
+                  {occasions.map((occasion) => (
+                    <SelectItem key={occasion} value={occasion.toLowerCase()}>{occasion}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -164,8 +231,8 @@ const RestaurantModal = ({ isOpen, onClose }: RestaurantModalProps) => {
               onClick={handleSearch}
               className="w-full bg-gradient-to-r from-red-500 to-red-600"
             >
-              <Utensils size={16} className="mr-2" />
-              Find Tables
+              <ChefHat size={16} className="mr-2" />
+              Find Restaurants
             </Button>
           </div>
         </div>

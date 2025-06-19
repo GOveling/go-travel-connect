@@ -1,22 +1,18 @@
 
 import { useState } from "react";
-import { X, Smartphone, Globe, Wifi, Check, Star } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Smartphone, X, MapPin, Calendar, Users, CalendarIcon } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { JollyRangeCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface ESIMModalProps {
   isOpen: boolean;
@@ -24,206 +20,205 @@ interface ESIMModalProps {
 }
 
 const ESIMModal = ({ isOpen, onClose }: ESIMModalProps) => {
-  const isMobile = useIsMobile();
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    destination: '',
+    startDate: '',
+    endDate: '',
+    dataAmount: '',
+    deviceType: 'smartphone'
+  });
+  const { toast } = useToast();
 
-  const esimPlans = [
-    {
-      id: "global-1gb",
-      region: "Global",
-      data: "1GB",
-      duration: "7 days",
-      price: "$9.99",
-      countries: "120+ countries",
-      rating: 4.8,
-      popular: true,
-      features: ["Instant activation", "No roaming fees", "24/7 support"]
-    },
-    {
-      id: "europe-3gb",
-      region: "Europe",
-      data: "3GB",
-      duration: "15 days",
-      price: "$19.99",
-      countries: "30+ countries",
-      rating: 4.9,
-      popular: false,
-      features: ["High-speed data", "Voice calls", "SMS included"]
-    },
-    {
-      id: "asia-5gb",
-      region: "Asia Pacific",
-      data: "5GB",
-      duration: "30 days",
-      price: "$29.99",
-      countries: "15+ countries",
-      rating: 4.7,
-      popular: false,
-      features: ["Premium network", "Unlimited social media", "Hotspot enabled"]
-    },
-    {
-      id: "usa-unlimited",
-      region: "USA & Canada",
-      data: "Unlimited",
-      duration: "30 days",
-      price: "$39.99",
-      countries: "2 countries",
-      rating: 4.9,
-      popular: false,
-      features: ["Truly unlimited", "5G network", "No throttling"]
+  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const startDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
+      const endDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      setFormData(prev => ({
+        ...prev,
+        startDate,
+        endDate
+      }));
+      setIsDateRangeOpen(false);
     }
-  ];
-
-  const handleSelectPlan = (planId: string) => {
-    setSelectedPlan(planId);
   };
 
-  const handlePurchase = () => {
-    // Handle purchase logic here
-    console.log("Purchasing plan:", selectedPlan);
+  const getDateRangeValue = () => {
+    if (formData.startDate && formData.endDate) {
+      return {
+        start: parseDate(formData.startDate),
+        end: parseDate(formData.endDate)
+      };
+    }
+    return null;
+  };
+
+  const formatDateRange = () => {
+    if (formData.startDate && formData.endDate) {
+      return `${format(new Date(formData.startDate), "dd/MM/yyyy")} - ${format(new Date(formData.endDate), "dd/MM/yyyy")}`;
+    }
+    return "Seleccionar período de uso";
+  };
+
+  const handleSearch = () => {
+    if (!formData.destination || !formData.startDate || !formData.endDate) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in destination and travel dates",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Searching eSIM Plans",
+      description: "Finding the best data plans for your destination...",
+    });
     onClose();
   };
 
-  const ModalContent = () => (
-    <div className="space-y-4 max-h-[80vh] overflow-y-auto">
-      {/* Header Section */}
-      <div className="text-center space-y-2 pb-4 border-b">
-        <div className="w-16 h-16 mx-auto bg-gradient-to-r from-pink-500 to-pink-600 rounded-full flex items-center justify-center">
-          <Smartphone className="text-white" size={32} />
-        </div>
-        <h3 className="text-xl font-bold">Stay Connected Worldwide</h3>
-        <p className="text-sm text-gray-600">
-          Get instant mobile data with our global eSIM plans
-        </p>
-      </div>
+  const dataPlans = [
+    { value: '1gb', label: '1GB - Light Usage', price: '$9' },
+    { value: '3gb', label: '3GB - Moderate Usage', price: '$19' },
+    { value: '5gb', label: '5GB - Heavy Usage', price: '$29' },
+    { value: '10gb', label: '10GB - Unlimited', price: '$49' },
+    { value: 'unlimited', label: 'Unlimited Data', price: '$79' }
+  ];
 
-      {/* Features */}
-      <div className="grid grid-cols-3 gap-3 py-4">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-2">
-            <Globe size={20} className="text-blue-600" />
-          </div>
-          <p className="text-xs font-medium">Global Coverage</p>
-        </div>
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-2">
-            <Wifi size={20} className="text-green-600" />
-          </div>
-          <p className="text-xs font-medium">Instant Setup</p>
-        </div>
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto bg-purple-100 rounded-full flex items-center justify-center mb-2">
-            <Check size={20} className="text-purple-600" />
-          </div>
-          <p className="text-xs font-medium">No Roaming</p>
-        </div>
-      </div>
-
-      {/* Plans */}
-      <div className="space-y-3">
-        <h4 className="font-semibold text-lg">Choose Your Plan</h4>
-        {esimPlans.map((plan) => (
-          <Card 
-            key={plan.id} 
-            className={`cursor-pointer transition-all ${
-              selectedPlan === plan.id ? 'ring-2 ring-pink-500' : ''
-            } ${plan.popular ? 'border-pink-200 bg-pink-50' : ''}`}
-            onClick={() => handleSelectPlan(plan.id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <h5 className="font-semibold">{plan.region}</h5>
-                  {plan.popular && (
-                    <Badge className="bg-pink-500 text-white text-xs">
-                      Popular
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-pink-600">{plan.price}</p>
-                  <div className="flex items-center space-x-1">
-                    <Star size={12} className="text-yellow-500 fill-current" />
-                    <span className="text-xs text-gray-600">{plan.rating}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
-                <div>📱 {plan.data}</div>
-                <div>⏱️ {plan.duration}</div>
-                <div>🌍 {plan.countries}</div>
-                <div className="flex items-center">
-                  {selectedPlan === plan.id && (
-                    <Check size={16} className="text-pink-500 mr-1" />
-                  )}
-                  {selectedPlan === plan.id ? 'Selected' : 'Available'}
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                {plan.features.map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-2 text-xs text-gray-600">
-                    <Check size={12} className="text-green-500" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Purchase Section */}
-      {selectedPlan && (
-        <div className="pt-4 border-t space-y-3">
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-sm font-medium">How it works:</p>
-            <ol className="text-xs text-gray-600 mt-2 space-y-1">
-              <li>1. Purchase your eSIM plan</li>
-              <li>2. Receive QR code via email</li>
-              <li>3. Scan with your phone to activate</li>
-              <li>4. Enjoy instant connectivity!</li>
-            </ol>
-          </div>
-          
-          <Button 
-            onClick={handlePurchase}
-            className="w-full h-12 bg-gradient-to-r from-pink-500 to-pink-600 text-white font-semibold"
-          >
-            Purchase Selected Plan
-          </Button>
-          
-          <p className="text-xs text-center text-gray-500">
-            Compatible with iPhone XS/XR and newer, Google Pixel 3 and newer
-          </p>
-        </div>
-      )}
-    </div>
-  );
-
-  if (isMobile) {
-    return (
-      <Drawer open={isOpen} onOpenChange={onClose}>
-        <DrawerContent className="max-h-[90vh]">
-          <DrawerHeader className="pb-2">
-            <DrawerTitle className="text-center">eSIM Plans</DrawerTitle>
-          </DrawerHeader>
-          <div className="px-4 pb-6">
-            <ModalContent />
-          </div>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
+  const deviceTypes = [
+    { value: 'smartphone', label: 'Smartphone' },
+    { value: 'tablet', label: 'Tablet' },
+    { value: 'laptop', label: 'Laptop' },
+    { value: 'other', label: 'Other Device' }
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>eSIM Plans</DialogTitle>
-        </DialogHeader>
-        <ModalContent />
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto p-0">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 text-white relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="absolute right-2 top-2 text-white hover:bg-white/20 p-1 h-8 w-8"
+          >
+            <X size={16} />
+          </Button>
+          <div className="flex items-center space-x-3 pt-2">
+            <Smartphone size={24} />
+            <div>
+              <h2 className="text-xl font-bold">eSIM Data Plans</h2>
+              <p className="text-sm opacity-90">Stay connected while traveling</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          <Card className="border-indigo-200 bg-indigo-50">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <Smartphone size={16} className="text-indigo-600" />
+                <span className="text-sm font-medium text-indigo-800">Instant Connectivity</span>
+              </div>
+              <p className="text-xs text-indigo-700">
+                No physical SIM needed - activate instantly and stay connected worldwide
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="destination">Destination</Label>
+              <div className="relative">
+                <MapPin size={16} className="absolute left-3 top-3 text-gray-400" />
+                <Input
+                  id="destination"
+                  placeholder="Country or region"
+                  value={formData.destination}
+                  onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Período de Uso</Label>
+              <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      (!formData.startDate || !formData.endDate) && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formatDateRange()}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <JollyRangeCalendar
+                    value={getDateRangeValue()}
+                    onChange={handleDateRangeChange}
+                    minValue={today(getLocalTimeZone())}
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Data Plan</Label>
+              <div className="grid grid-cols-1 gap-2">
+                {dataPlans.map((plan) => (
+                  <Card
+                    key={plan.value}
+                    className={`cursor-pointer transition-all ${
+                      formData.dataAmount === plan.value 
+                        ? 'border-indigo-500 bg-indigo-50' 
+                        : 'hover:border-gray-300'
+                    }`}
+                    onClick={() => setFormData(prev => ({ ...prev, dataAmount: plan.value }))}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium text-sm">{plan.label}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-indigo-600">{plan.price}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="deviceType">Device Type</Label>
+              <Select value={formData.deviceType} onValueChange={(value) => setFormData(prev => ({ ...prev, deviceType: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select device type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {deviceTypes.map((device) => (
+                    <SelectItem key={device.value} value={device.value}>{device.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button 
+              onClick={handleSearch}
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600"
+            >
+              <Smartphone size={16} className="mr-2" />
+              Find eSIM Plans
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
