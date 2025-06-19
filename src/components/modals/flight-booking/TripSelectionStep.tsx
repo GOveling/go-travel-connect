@@ -1,14 +1,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Users, Plane, Brain } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { extractStartDate, extractEndDate } from "./flightBookingUtils";
-import { getAIFlightTimingRecommendation, adjustFlightDateBasedOnAI } from "./aiFlightTimingUtils";
+import { Plane } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import TripTypeSelector from "./TripTypeSelector";
+import AIRecommendationCard from "./AIRecommendationCard";
+import ActiveTripsSelector from "./ActiveTripsSelector";
+import { processTripSelection } from "./tripSelectionUtils";
 
 interface FormData {
   from: string;
@@ -62,172 +60,48 @@ const TripSelectionStep = ({
     const selectedTripData = activeTrips.find(trip => trip.id === tripId);
     
     if (selectedTripData) {
-      console.log('🤖 AI Flight Protocol - Processing trip:', selectedTripData);
-      
-      // Get trip destinations from coordinates
-      const destinations = selectedTripData.coordinates || [];
-      const tripStartDate = extractStartDate(selectedTripData.dates);
-      const tripEndDate = extractEndDate(selectedTripData.dates);
-      
-      if (destinations.length === 0) {
+      try {
+        const result = processTripSelection(selectedTripData, currentLocation);
+        
+        setTripType(result.tripType);
+        
+        if (result.tripType === 'multi-city') {
+          setMultiCityFlights(result.multiCityFlights!);
+          
+          const returnFlightInfo = selectedTripData.dates && selectedTripData.dates.includes(' - ') ? " + vuelo de retorno" : "";
+          toast({
+            title: "🤖 IA optimizó vuelos multi-destino",
+            description: `${result.optimizedFlights.length} vuelos planificados${returnFlightInfo}. ${result.aiRecommendation.reason}`,
+          });
+
+          console.log('🤖 AI Flight Optimization Applied:', {
+            originalDate: selectedTripData.dates,
+            totalFlights: result.optimizedFlights.length,
+            hasReturnFlight: returnFlightInfo ? true : false,
+            recommendation: result.aiRecommendation
+          });
+        } else {
+          setFormData(result.formData!);
+          
+          toast({
+            title: "🤖 IA optimizó fechas de vuelo",
+            description: `${result.aiRecommendation.reason} Distancia: ${result.aiRecommendation.distance}km`,
+          });
+
+          console.log('🤖 AI Flight Optimization Applied:', {
+            originalDate: selectedTripData.dates,
+            totalFlights: 1,
+            hasReturnFlight: result.formData!.returnDate ? true : false,
+            recommendation: result.aiRecommendation
+          });
+        }
+        
+        setShowAIRecommendation(true);
+      } catch (error) {
+        console.error('Error processing trip selection:', error);
         toast({
           title: "⚠️ No se encontraron destinos",
           description: "El viaje seleccionado no tiene destinos configurados.",
-        });
-        return;
-      }
-
-      const firstDestination = destinations[0].name;
-      
-      // 🤖 AI Protocol: Get flight timing recommendation
-      const aiRecommendation = getAIFlightTimingRecommendation(
-        currentLocation,
-        firstDestination,
-        tripStartDate
-      );
-
-      // Calculate optimal departure date
-      const optimizedDepartDate = adjustFlightDateBasedOnAI(tripStartDate, aiRecommendation);
-      
-      if (destinations.length > 1) {
-        // Multi-city trip with return flight
-        setTripType('multi-city');
-        
-        // Create multi-city flights with AI optimization
-        const optimizedFlights: MultiCityFlight[] = [];
-        
-        // First flight: current location to first destination
-        optimizedFlights.push({
-          from: currentLocation,
-          to: firstDestination,
-          departDate: optimizedDepartDate,
-          passengers: selectedTripData.travelers || 1,
-          class: 'economy'
-        });
-
-        // Calculate days per destination (distribute total days among destinations)
-        const totalDays = tripEndDate ? 
-          Math.ceil((new Date(tripEndDate).getTime() - new Date(tripStartDate).getTime()) / (1000 * 60 * 60 * 24)) : 
-          destinations.length * 3; // fallback to 3 days per destination
-        
-        const daysPerDestination = Math.max(2, Math.floor(totalDays / destinations.length));
-
-        // Intermediate flights between destinations
-        for (let i = 1; i < destinations.length; i++) {
-          const fromDest = destinations[i - 1].name;
-          const toDest = destinations[i].name;
-          
-          // Calculate intermediate date based on days per destination
-          const intermediateDate = new Date(tripStartDate);
-          intermediateDate.setDate(intermediateDate.getDate() + (i * daysPerDestination));
-          
-          // Get AI recommendation for this segment
-          const segmentRecommendation = getAIFlightTimingRecommendation(
-            fromDest,
-            toDest,
-            intermediateDate.toISOString().split('T')[0]
-          );
-          
-          const optimizedSegmentDate = adjustFlightDateBasedOnAI(
-            intermediateDate.toISOString().split('T')[0], 
-            segmentRecommendation
-          );
-          
-          optimizedFlights.push({
-            from: fromDest,
-            to: toDest,
-            departDate: optimizedSegmentDate,
-            passengers: selectedTripData.travelers || 1,
-            class: 'economy'
-          });
-        }
-
-        // 🛬 RETURN FLIGHT: Add flight from last destination back to origin
-        if (tripEndDate) {
-          const lastDestination = destinations[destinations.length - 1].name;
-          
-          // Get AI recommendation for return flight
-          const returnRecommendation = getAIFlightTimingRecommendation(
-            lastDestination,
-            currentLocation,
-            tripEndDate
-          );
-          
-          const optimizedReturnDate = adjustFlightDateBasedOnAI(tripEndDate, returnRecommendation);
-          
-          optimizedFlights.push({
-            from: lastDestination,
-            to: currentLocation,
-            departDate: optimizedReturnDate,
-            passengers: selectedTripData.travelers || 1,
-            class: 'economy'
-          });
-
-          console.log('🛬 Return flight added:', {
-            from: lastDestination,
-            to: currentLocation,
-            date: optimizedReturnDate,
-            recommendation: returnRecommendation
-          });
-        }
-
-        setMultiCityFlights(optimizedFlights);
-        setShowAIRecommendation(true);
-
-        // Show AI automation toast with return flight info
-        const returnFlightInfo = tripEndDate ? " + vuelo de retorno" : "";
-        toast({
-          title: "🤖 IA optimizó vuelos multi-destino",
-          description: `${optimizedFlights.length} vuelos planificados${returnFlightInfo}. ${aiRecommendation.reason}`,
-        });
-
-        console.log('🤖 AI Flight Optimization Applied:', {
-          originalDate: tripStartDate,
-          optimizedDate: optimizedDepartDate,
-          totalFlights: optimizedFlights.length,
-          hasReturnFlight: tripEndDate ? true : false,
-          recommendation: aiRecommendation
-        });
-
-      } else {
-        // Single destination trip
-        const endDate = extractEndDate(selectedTripData.dates);
-        
-        if (endDate) {
-          setTripType('round-trip');
-          setFormData(prev => ({
-            ...prev,
-            from: currentLocation,
-            to: firstDestination,
-            departDate: optimizedDepartDate,
-            returnDate: endDate,
-            passengers: selectedTripData.travelers || 1
-          }));
-        } else {
-          setTripType('one-way');
-          setFormData(prev => ({
-            ...prev,
-            from: currentLocation,
-            to: firstDestination,
-            departDate: optimizedDepartDate,
-            passengers: selectedTripData.travelers || 1
-          }));
-        }
-
-        setShowAIRecommendation(true);
-
-        // Show AI automation toast
-        toast({
-          title: "🤖 IA optimizó fechas de vuelo",
-          description: `${aiRecommendation.reason} Distancia: ${aiRecommendation.distance}km`,
-        });
-
-        console.log('🤖 AI Flight Optimization Applied:', {
-          originalDate: tripStartDate,
-          optimizedDate: optimizedDepartDate,
-          totalFlights: 1,
-          hasReturnFlight: endDate ? true : false,
-          recommendation: aiRecommendation
         });
       }
     }
@@ -245,102 +119,17 @@ const TripSelectionStep = ({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold mb-3">Select Trip Type</h3>
-        <RadioGroup value={tripType} onValueChange={(value) => setTripType(value as 'round-trip' | 'one-way' | 'multi-city')}>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="round-trip" id="round-trip" />
-            <Label htmlFor="round-trip">Round Trip</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="one-way" id="one-way" />
-            <Label htmlFor="one-way">One Way</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="multi-city" id="multi-city" />
-            <Label htmlFor="multi-city">Multi-city</Label>
-          </div>
-        </RadioGroup>
-      </div>
+      <TripTypeSelector tripType={tripType} setTripType={setTripType} />
 
-      {/* AI Recommendation Display */}
       {showAIRecommendation && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <Brain className="h-4 w-4 text-blue-600" />
-              <span className="font-medium text-blue-800">IA Optimizó tu Vuelo</span>
-            </div>
-            <p className="text-sm text-blue-700">
-              Las fechas de vuelo han sido optimizadas automáticamente basándose en la distancia 
-              y logística de viaje para maximizar tu experiencia.
-              {tripType === 'multi-city' && multiCityFlights.length > 2 && (
-                <span className="block mt-1 font-medium">
-                  ✈️ Incluye vuelo de retorno al origen
-                </span>
-              )}
-            </p>
-          </CardContent>
-        </Card>
+        <AIRecommendationCard tripType={tripType} multiCityFlights={multiCityFlights} />
       )}
 
-      <div>
-        <h3 className="text-lg font-semibold mb-3">Select from Your Active Trips</h3>
-        <div className="space-y-2">
-          {activeTrips.length === 0 ? (
-            <Card>
-              <CardContent className="p-4 text-center text-gray-500">
-                <MapPin size={32} className="mx-auto mb-2 opacity-50" />
-                <p>No active trips found</p>
-                <p className="text-sm">Create a trip first to use auto-fill</p>
-              </CardContent>
-            </Card>
-          ) : (
-            activeTrips.map((trip) => (
-              <Card 
-                key={trip.id} 
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedTrip === trip.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
-                }`}
-                onClick={() => handleTripSelection(trip.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="font-medium">{trip.name}</h4>
-                    <Badge variant="secondary" className="ml-2">
-                      {trip.status || 'Active'}
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center space-x-2">
-                      <MapPin size={14} />
-                      <span>{trip.destination}</span>
-                      {trip.coordinates && trip.coordinates.length > 1 && (
-                        <Badge variant="outline" className="text-xs">
-                          {trip.coordinates.length} destinos
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Calendar size={14} />
-                      <span>{trip.dates}</span>
-                    </div>
-                    
-                    {trip.travelers && (
-                      <div className="flex items-center space-x-2">
-                        <Users size={14} />
-                        <span>{trip.travelers} travelers</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
+      <ActiveTripsSelector 
+        activeTrips={activeTrips}
+        selectedTrip={selectedTrip}
+        onTripSelect={handleTripSelection}
+      />
 
       <Button 
         onClick={onContinue}
