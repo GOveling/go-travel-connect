@@ -18,7 +18,7 @@ interface FormData {
 }
 
 interface DateSelectionFormProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   isDateRangeOpen: boolean;
@@ -117,6 +117,70 @@ const DateSelectionForm = ({
             />
           </PopoverContent>
         </Popover>
+      </div>
+    );
+  } else if (tripType === 'manual') {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label>Fecha de Salida</Label>
+          <Popover open={isDepartDateOpen} onOpenChange={setIsDepartDateOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !formData.departDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formatDepartDate()}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <JollyCalendar
+                value={getDepartDateValue()}
+                onChange={handleDepartDateChange}
+                minValue={today(getLocalTimeZone())}
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+        <div className="space-y-2">
+          <Label>Fecha de Retorno (Opcional)</Label>
+          <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !formData.returnDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formData.returnDate ? format(new Date(formData.returnDate), "dd/MM/yyyy") : "Seleccionar fecha de retorno"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <JollyCalendar
+                value={formData.returnDate ? parseDate(formData.returnDate) : null}
+                onChange={(date) => {
+                  if (date) {
+                    const returnDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
+                    setFormData(prev => ({ ...prev, returnDate }));
+                  } else {
+                    setFormData(prev => ({ ...prev, returnDate: '' }));
+                  }
+                  setIsDateRangeOpen(false);
+                }}
+                minValue={formData.departDate ? parseDate(formData.departDate) : today(getLocalTimeZone())}
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
     );
   } else {

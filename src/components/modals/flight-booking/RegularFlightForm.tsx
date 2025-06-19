@@ -14,7 +14,7 @@ interface FormData {
 }
 
 interface RegularFlightFormProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   isDateRangeOpen: boolean;

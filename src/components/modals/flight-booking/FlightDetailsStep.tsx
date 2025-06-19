@@ -21,7 +21,7 @@ interface MultiCityFlight {
 }
 
 interface FlightDetailsStepProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
@@ -55,7 +55,7 @@ const FlightDetailsStep = ({
       return multiCityFlights.length >= 2 && 
              multiCityFlights.every(flight => flight.from && flight.to && flight.departDate);
     }
-    return formData.from && formData.to && formData.departDate && (tripType === 'one-way' || formData.returnDate);
+    return formData.from && formData.to && formData.departDate && (tripType === 'one-way' || tripType === 'manual' || formData.returnDate);
   };
 
   return (

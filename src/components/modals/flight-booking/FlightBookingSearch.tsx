@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import FlightBookingSteps from "./FlightBookingSteps";
 import TripSelectionStep from "./TripSelectionStep";
@@ -25,8 +26,8 @@ interface MultiCityFlight {
 interface FlightBookingSearchProps {
   currentStep: number;
   setCurrentStep: (step: number) => void;
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
-  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city') => void;
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];

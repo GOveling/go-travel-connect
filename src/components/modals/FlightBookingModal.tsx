@@ -33,7 +33,7 @@ interface MultiCityFlight {
 const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   const [activeTab, setActiveTab] = useState("search");
   const [currentStep, setCurrentStep] = useState(1);
-  const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city'>('round-trip');
+  const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city' | 'manual'>('round-trip');
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isDepartDateOpen, setIsDepartDateOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({

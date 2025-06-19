@@ -26,8 +26,8 @@ interface MultiCityFlight {
 }
 
 interface TripSelectionStepProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
-  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city') => void;
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
   selectedTrip: number | null;
   currentLocation: string;
   activeTrips: any[];
@@ -108,6 +108,10 @@ const TripSelectionStep = ({
   };
 
   const canContinue = () => {
+    if (tripType === 'manual') {
+      return true; // Allow continue for manual flight selection
+    }
+    
     if (selectedTrip === null) return false;
     
     if (tripType === 'multi-city') {
@@ -121,15 +125,17 @@ const TripSelectionStep = ({
     <div className="space-y-4">
       <TripTypeSelector tripType={tripType} setTripType={setTripType} />
 
-      {showAIRecommendation && (
+      {showAIRecommendation && tripType !== 'manual' && (
         <AIRecommendationCard tripType={tripType} multiCityFlights={multiCityFlights} />
       )}
 
-      <ActiveTripsSelector 
-        activeTrips={activeTrips}
-        selectedTrip={selectedTrip}
-        onTripSelect={handleTripSelection}
-      />
+      {tripType !== 'manual' && (
+        <ActiveTripsSelector 
+          activeTrips={activeTrips}
+          selectedTrip={selectedTrip}
+          onTripSelect={handleTripSelection}
+        />
+      )}
 
       <Button 
         onClick={onContinue}
