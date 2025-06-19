@@ -94,10 +94,10 @@ const TripSelectionStep = ({
         setTripType('multi-city');
         
         // Create multi-city flights with AI optimization
-        const aiOptimizedFlights: MultiCityFlight[] = [];
+        const optimizedFlights: MultiCityFlight[] = [];
         
         // First flight: current location to first destination
-        aiOptimizedFlights.push({
+        optimizedFlights.push({
           from: currentLocation,
           to: firstDestination,
           departDate: optimizedDepartDate,
@@ -133,7 +133,7 @@ const TripSelectionStep = ({
             segmentRecommendation
           );
           
-          aiOptimizedFlights.push({
+          optimizedFlights.push({
             from: fromDest,
             to: toDest,
             departDate: optimizedSegmentDate,
@@ -155,7 +155,7 @@ const TripSelectionStep = ({
           
           const optimizedReturnDate = adjustFlightDateBasedOnAI(tripEndDate, returnRecommendation);
           
-          aiOptimizedFlights.push({
+          optimizedFlights.push({
             from: lastDestination,
             to: currentLocation,
             departDate: optimizedReturnDate,
@@ -171,14 +171,22 @@ const TripSelectionStep = ({
           });
         }
 
-        setMultiCityFlights(aiOptimizedFlights);
+        setMultiCityFlights(optimizedFlights);
         setShowAIRecommendation(true);
 
         // Show AI automation toast with return flight info
         const returnFlightInfo = tripEndDate ? " + vuelo de retorno" : "";
         toast({
           title: "🤖 IA optimizó vuelos multi-destino",
-          description: `${aiOptimizedFlights.length} vuelos planificados${returnFlightInfo}. ${aiRecommendation.reason}`,
+          description: `${optimizedFlights.length} vuelos planificados${returnFlightInfo}. ${aiRecommendation.reason}`,
+        });
+
+        console.log('🤖 AI Flight Optimization Applied:', {
+          originalDate: tripStartDate,
+          optimizedDate: optimizedDepartDate,
+          totalFlights: optimizedFlights.length,
+          hasReturnFlight: tripEndDate ? true : false,
+          recommendation: aiRecommendation
         });
 
       } else {
@@ -213,15 +221,15 @@ const TripSelectionStep = ({
           title: "🤖 IA optimizó fechas de vuelo",
           description: `${aiRecommendation.reason} Distancia: ${aiRecommendation.distance}km`,
         });
-      }
 
-      console.log('🤖 AI Flight Optimization Applied:', {
-        originalDate: tripStartDate,
-        optimizedDate: optimizedDepartDate,
-        totalFlights: destinations.length > 1 ? aiOptimizedFlights.length : 1,
-        hasReturnFlight: destinations.length > 1 && tripEndDate ? true : false,
-        recommendation: aiRecommendation
-      });
+        console.log('🤖 AI Flight Optimization Applied:', {
+          originalDate: tripStartDate,
+          optimizedDate: optimizedDepartDate,
+          totalFlights: 1,
+          hasReturnFlight: endDate ? true : false,
+          recommendation: aiRecommendation
+        });
+      }
     }
   };
 
