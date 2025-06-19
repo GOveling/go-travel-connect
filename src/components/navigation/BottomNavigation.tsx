@@ -1,6 +1,7 @@
 
 import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { InteractiveMenu } from "@/components/ui/modern-mobile-menu";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -21,25 +22,12 @@ const BottomNavigation = ({ activeTab, setActiveTab }: BottomNavigationProps) =>
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200 px-4 py-2 z-50">
       <div className="flex justify-around items-center max-w-md mx-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center p-2 rounded-xl transition-all duration-300 ${
-                isActive
-                  ? "bg-gradient-to-r from-purple-600 to-orange-500 text-white scale-105"
-                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-              }`}
-            >
-              <Icon size={22} className="mb-1" />
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          );
-        })}
+        <InteractiveMenu 
+          items={navItems}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          accentColor="rgb(147 51 234)"
+        />
       </div>
     </div>
   );
