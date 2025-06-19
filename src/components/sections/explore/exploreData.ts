@@ -34,7 +34,7 @@ export const places = [
     location: "Cusco, Peru",
     rating: 4.9,
     image: "🏔️",
-    category: "Tourist Attractions",
+    category: "Landmark",
     description: "Ancient Incan citadel set high in the Andes Mountains.",
     hours: "6:00 AM - 5:30 PM",
     website: "www.machupicchu.gob.pe",
@@ -43,18 +43,18 @@ export const places = [
     lng: -72.5450
   },
   {
-    id: "tokyo-station",
-    name: "Tokyo Station",
-    location: "Tokyo, Japan",
-    rating: 4.5,
-    image: "🚉",
-    category: "Transportation",
-    description: "Historic railway station and transportation hub in the heart of Tokyo.",
+    id: "bondi-beach",
+    name: "Bondi Beach",
+    location: "Sydney, Australia",
+    rating: 4.7,
+    image: "🏖️",
+    category: "Beaches",
+    description: "Famous beach with golden sand and excellent surfing conditions.",
     hours: "24/7",
-    website: "www.tokyostation.com",
-    phone: "+81 3-3212-2111",
-    lat: 35.6812,
-    lng: 139.7671
+    website: "www.bondibeach.com",
+    phone: "+61 2 9130 3000",
+    lat: -33.8915,
+    lng: 151.2767
   },
   {
     id: "cafe-central-vienna",
@@ -99,18 +99,18 @@ export const places = [
     lng: -73.9654
   },
   {
-    id: "northern-lights-lodge-tromso",
-    name: "Northern Lights Lodge",
-    location: "Tromsø, Norway",
+    id: "lake-bled",
+    name: "Lake Bled",
+    location: "Bled, Slovenia",
     rating: 4.8,
-    image: "🌌",
-    category: "Hotels",
-    description: "Experience the magical Aurora Borealis from cozy glass igloos.",
-    hours: "Check-in: 3:00 PM",
-    website: "www.northernlightslodge.no",
-    phone: "+47 77 75 50 00",
-    lat: 69.6496,
-    lng: 18.9560
+    image: "🏞️",
+    category: "Lakes",
+    description: "Picturesque alpine lake with a church on an island.",
+    hours: "Open 24/7",
+    website: "www.bled.si",
+    phone: "+386 4 578 05 00",
+    lat: 46.3683,
+    lng: 14.1118
   },
   {
     id: "louvre-museum",
@@ -132,13 +132,55 @@ export const places = [
     location: "Sydney, Australia",
     rating: 4.9,
     image: "🎭",
-    category: "Tourist Attractions",
+    category: "Theatres",
     description: "Iconic performing arts venue with distinctive architecture.",
     hours: "Various show times",
     website: "www.sydneyoperahouse.com",
     phone: "+61 2 9250 7111",
     lat: -33.8568,
     lng: 151.2153
+  },
+  {
+    id: "ibiza-nightclub",
+    name: "Pacha Ibiza",
+    location: "Ibiza, Spain",
+    rating: 4.5,
+    image: "🎵",
+    category: "Night Life",
+    description: "World-famous nightclub with top international DJs.",
+    hours: "11:00 PM - 6:00 AM",
+    website: "www.pacha.com",
+    phone: "+34 971 31 36 12",
+    lat: 38.9072,
+    lng: 1.4208
+  },
+  {
+    id: "disneyland-paris",
+    name: "Disneyland Paris",
+    location: "Paris, France",
+    rating: 4.6,
+    image: "🎠",
+    category: "For Kids",
+    description: "Magical theme park perfect for families and children.",
+    hours: "10:00 AM - 10:00 PM",
+    website: "www.disneylandparis.com",
+    phone: "+33 1 60 30 60 53",
+    lat: 48.8723,
+    lng: 2.7756
+  },
+  {
+    id: "madison-square-garden",
+    name: "Madison Square Garden",
+    location: "New York, USA",
+    rating: 4.4,
+    image: "🎤",
+    category: "Next Concerts",
+    description: "Iconic venue hosting major concerts and sporting events.",
+    hours: "Event dependent",
+    website: "www.msg.com",
+    phone: "+1 212-465-6741",
+    lat: 40.7505,
+    lng: -73.9934
   }
 ];
 
@@ -147,7 +189,12 @@ export const categories = [
   "Tourist Attractions",
   "Parks",
   "Cafes",
-  "Hotels",
   "Museums",
-  "Transportation"
+  "Landmark",
+  "Beaches",
+  "Lakes",
+  "Next Concerts",
+  "Night Life",
+  "Theatres",
+  "For Kids"
 ];
