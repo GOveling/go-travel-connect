@@ -1,8 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Plane, Calendar, Users, MapPin } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plane, Calendar, Users, MapPin } from "lucide-react";
 
 interface FormData {
   from: string;
@@ -22,104 +21,119 @@ interface MultiCityFlight {
 }
 
 interface ConfirmationStepProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
   formData: FormData;
   multiCityFlights: MultiCityFlight[];
   onBack: () => void;
   onComplete: () => void;
 }
 
-const ConfirmationStep = ({
-  tripType,
-  formData,
-  multiCityFlights,
-  onBack,
-  onComplete
-}: ConfirmationStepProps) => {
+const ConfirmationStep = ({ tripType, formData, multiCityFlights, onBack, onComplete }: ConfirmationStepProps) => {
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString();
   };
 
+  const renderFlightSummary = () => {
+    if (tripType === 'multi-city') {
+      return (
+        <div className="space-y-3">
+          {multiCityFlights.map((flight, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  {index + 1}
+                </div>
+                <div>
+                  <div className="font-medium">{flight.from} → {flight.to}</div>
+                  <div className="text-sm text-gray-600">{formatDate(flight.departDate)}</div>
+                </div>
+              </div>
+              <div className="text-right text-sm text-gray-600">
+                <div>{flight.passengers} passenger{flight.passengers > 1 ? 's' : ''}</div>
+                <div className="capitalize">{flight.class}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <MapPin size={20} className="text-blue-500" />
+            <span className="font-medium">Route</span>
+          </div>
+          <span>{formData.from} → {formData.to}</span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Calendar size={20} className="text-blue-500" />
+            <span className="font-medium">Departure</span>
+          </div>
+          <span>{formatDate(formData.departDate)}</span>
+        </div>
+        
+        {(tripType === 'round-trip' || (tripType === 'manual' && formData.returnDate)) && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Calendar size={20} className="text-blue-500" />
+              <span className="font-medium">Return</span>
+            </div>
+            <span>{formatDate(formData.returnDate)}</span>
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Users size={20} className="text-blue-500" />
+            <span className="font-medium">Passengers</span>
+          </div>
+          <span>{formData.passengers} passenger{formData.passengers > 1 ? 's' : ''}</span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Plane size={20} className="text-blue-500" />
+            <span className="font-medium">Class</span>
+          </div>
+          <span className="capitalize">{formData.class}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
-      <div className="text-center space-y-2">
-        <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
-        <h3 className="text-lg font-semibold">Review Your Flight Details</h3>
-        <p className="text-sm text-gray-600">Please confirm the details below</p>
-      </div>
-
+      <h3 className="text-lg font-semibold">Flight Summary</h3>
+      
       <Card>
-        <CardContent className="p-4 space-y-4">
-          <div className="flex items-center space-x-2 text-blue-600">
-            <Plane size={16} />
-            <span className="font-medium">Flight Information</span>
-          </div>
-
-          {tripType === 'multi-city' ? (
-            <div className="space-y-3">
-              {multiCityFlights.map((flight, index) => (
-                <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium text-sm">Flight {index + 1}</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm mt-2">
-                    <div>
-                      <span className="text-gray-600">From:</span>
-                      <p className="font-medium">{flight.from || 'Not specified'}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">To:</span>
-                      <p className="font-medium">{flight.to || 'Not specified'}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Date:</span>
-                      <p className="font-medium">{formatDate(flight.departDate)}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Class:</span>
-                      <p className="font-medium capitalize">{flight.class}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-600">From:</span>
-                <p className="font-medium">{formData.from || 'Not specified'}</p>
-              </div>
-              <div>
-                <span className="text-gray-600">To:</span>
-                <p className="font-medium">{formData.to || 'Not specified'}</p>
-              </div>
-              <div>
-                <span className="text-gray-600">Departure:</span>
-                <p className="font-medium">{formatDate(formData.departDate)}</p>
-              </div>
-              {tripType === 'round-trip' && (
-                <div>
-                  <span className="text-gray-600">Return:</span>
-                  <p className="font-medium">{formatDate(formData.returnDate)}</p>
-                </div>
-              )}
-              <div>
-                <span className="text-gray-600">Passengers:</span>
-                <p className="font-medium">{formData.passengers}</p>
-              </div>
-              <div>
-                <span className="text-gray-600">Class:</span>
-                <p className="font-medium capitalize">{formData.class}</p>
-              </div>
-            </div>
-          )}
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Plane size={20} />
+            <span className="capitalize">{tripType.replace('-', ' ')} Flight</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {renderFlightSummary()}
         </CardContent>
       </Card>
 
       <div className="flex space-x-2">
-        <Button variant="outline" onClick={onBack} className="flex-1">
+        <Button 
+          variant="outline" 
+          onClick={onBack}
+          className="flex-1 h-12"
+        >
           Back
         </Button>
-        <Button onClick={onComplete} className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600">
+        <Button 
+          onClick={onComplete}
+          className="flex-1 h-12 bg-gradient-to-r from-green-500 to-green-600"
+        >
           Search Flights
         </Button>
       </div>
