@@ -367,6 +367,40 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     return trip.travelers;
   };
 
+  // New handler functions for the modals
+  const handleFlightSearch = (locationIndex: number) => {
+    if (trip && trip.coordinates[locationIndex]) {
+      setSelectedLocationForModal(trip.coordinates[locationIndex]);
+      setSelectedLocationIndex(locationIndex);
+      setShowFlightSearchModal(true);
+    }
+  };
+
+  const handleHotelSearch = (locationIndex: number) => {
+    if (trip && trip.coordinates[locationIndex]) {
+      setSelectedLocationForModal(trip.coordinates[locationIndex]);
+      setSelectedLocationIndex(locationIndex);
+      setShowHotelSearchModal(true);
+    }
+  };
+
+  const handleToursSearch = (locationIndex: number) => {
+    if (trip && trip.coordinates[locationIndex]) {
+      setSelectedLocationForModal(trip.coordinates[locationIndex]);
+      setSelectedLocationIndex(locationIndex);
+      setShowToursModal(true);
+    }
+  };
+
+  const handleTransferSearch = (locationIndex: number, type: 'arrival' | 'departure' | 'between') => {
+    if (trip && trip.coordinates[locationIndex]) {
+      setSelectedLocationForModal(trip.coordinates[locationIndex]);
+      setSelectedLocationIndex(locationIndex);
+      setTransferType(type);
+      setShowTransferModal(true);
+    }
+  };
+
   if (!trip) return null;
 
   const getStatusColor = (status: string) => {
