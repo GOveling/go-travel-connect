@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Brain } from "lucide-react";
 
 interface AIRecommendationCardProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city';
+  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
   multiCityFlights: any[];
 }
 
