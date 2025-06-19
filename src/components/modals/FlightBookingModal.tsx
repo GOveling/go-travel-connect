@@ -60,9 +60,16 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
     { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
     { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
   ]);
-  const [selectedTripId, setSelectedTripId] = useState<string>('');
+  const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
   const { trips } = useHomeState();
   const { toast } = useToast();
+
+  // Define the booking steps
+  const bookingSteps = [
+    { number: 1, title: "Select Trip", icon: MapPin },
+    { number: 2, title: "Flight Details", icon: Plane },
+    { number: 3, title: "Confirmation", icon: Calendar }
+  ];
 
   const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
     if (range?.start && range?.end) {
@@ -119,8 +126,8 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
     return "Seleccionar fecha de salida";
   };
 
-  const handleTripSelection = (tripId: string) => {
-    setSelectedTripId(tripId);
+  const handleTripSelection = (tripId: number) => {
+    setSelectedTrip(tripId);
   };
 
   const renderDateSelection = () => {
@@ -188,9 +195,16 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
       case 1:
         return (
           <TripSelectionStep 
-            selectedTripId={selectedTripId}
-            setSelectedTripId={setSelectedTripId}
-            trips={trips}
+            tripType={tripType}
+            setTripType={setTripType}
+            selectedTrip={selectedTrip}
+            currentLocation="New York, NY"
+            activeTrips={trips}
+            formData={formData}
+            setFormData={setFormData}
+            multiCityFlights={multiCityFlights}
+            setMultiCityFlights={setMultiCityFlights}
+            onTripSelect={handleTripSelection}
             onContinue={() => setCurrentStep(2)}
           />
         );
@@ -213,7 +227,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             formData={formData}
             multiCityFlights={multiCityFlights}
             onBack={() => setCurrentStep(2)}
-            onConfirm={() => {
+            onComplete={() => {
               toast({
                 title: "Flight Search Started",
                 description: "Finding the best flights for your trip...",
@@ -257,7 +271,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             </TabsList>
             
             <TabsContent value="search" className="space-y-4 mt-4">
-              <FlightBookingSteps currentStep={currentStep} />
+              <FlightBookingSteps steps={bookingSteps} activeStep={currentStep} />
               
               {currentStep === 2 && (
                 <div className="space-y-4">
@@ -296,7 +310,10 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
             </TabsContent>
             
             <TabsContent value="my-flights" className="mt-4">
-              <MyFlightsView />
+              <MyFlightsView 
+                onBackToOptions={() => setActiveTab("search")}
+                onAddFlight={() => setActiveTab("search")}
+              />
             </TabsContent>
           </Tabs>
         </div>
