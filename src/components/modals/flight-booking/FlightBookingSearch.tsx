@@ -91,6 +91,10 @@ const FlightBookingSearch = ({
             setFormData={setFormData}
             multiCityFlights={multiCityFlights}
             setMultiCityFlights={setMultiCityFlights}
+            isDateRangeOpen={isDateRangeOpen}
+            setIsDateRangeOpen={setIsDateRangeOpen}
+            isDepartDateOpen={isDepartDateOpen}
+            setIsDepartDateOpen={setIsDepartDateOpen}
             onBack={() => setCurrentStep(1)}
             onContinue={() => setCurrentStep(3)}
           />

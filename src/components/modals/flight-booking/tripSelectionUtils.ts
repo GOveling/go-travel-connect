@@ -104,6 +104,7 @@ const processMultiCityTrip = ({
   currentLocation: string;
   tripStartDate: string;
   tripEndDate: string | null;
+  optimizedDepartDate: string;
   travelers: number;
 }): MultiCityFlight[] => {
   const optimizedFlights: MultiCityFlight[] = [];
