@@ -2,6 +2,7 @@
 import { Star, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface Place {
   name: string;
@@ -24,6 +25,12 @@ interface ExplorePlacesGridProps {
 }
 
 const ExplorePlacesGrid = ({ places, selectedCategory, onPlaceClick }: ExplorePlacesGridProps) => {
+  const [showAll, setShowAll] = useState(false);
+  
+  // Show only first 4 places unless "Show All" is clicked
+  const displayedPlaces = showAll ? places : places.slice(0, 4);
+  const hasMorePlaces = places.length > 4;
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -35,7 +42,7 @@ const ExplorePlacesGrid = ({ places, selectedCategory, onPlaceClick }: ExplorePl
         </Button>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        {places.map((place, index) => (
+        {displayedPlaces.map((place, index) => (
           <Card 
             key={index} 
             className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
@@ -65,6 +72,18 @@ const ExplorePlacesGrid = ({ places, selectedCategory, onPlaceClick }: ExplorePl
           </Card>
         ))}
       </div>
+      
+      {hasMorePlaces && (
+        <div className="mt-4 text-center">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAll(!showAll)}
+            className="text-purple-600 border-purple-600 hover:bg-purple-50"
+          >
+            {showAll ? "Mostrar Menos" : "Mostrar Más"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
