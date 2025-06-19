@@ -50,55 +50,67 @@ const HomeSection = () => {
   };
 
   return (
-    <div className="min-h-screen p-4 space-y-4">
-      {/* Minimized Location, Date & Weather Widget */}
-      <div className="pt-2">
-        <LocationWeatherWidget />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50">
+      <div className="p-4 space-y-6">
+        {/* Minimized Location, Date & Weather Widget */}
+        <div className="pt-2">
+          <LocationWeatherWidget />
+        </div>
+
+        {/* Header with Logo and Notification Bell */}
+        <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-2xl p-6 text-white shadow-lg">
+          <HomeHeader
+            notificationCount={homeState.notificationCount}
+            onNotificationClick={handlers.handleNotificationClick}
+          />
+        </div>
+
+        {/* Quick Stats */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+          <QuickStats />
+        </div>
+
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+          <CurrentTrip 
+            currentTrip={homeState.currentTrip}
+            travelingTrip={homeState.travelingTrip}
+            nearestUpcomingTrip={homeState.nearestUpcomingTrip}
+            onViewDetail={handlers.handleViewCurrentTripDetail}
+            onPlanNewTrip={handlers.handlePlanNewTrip}
+            onNavigateToTrips={handlers.handleNavigateToTrips}
+          />
+        </div>
+
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+          <QuickActions onNearbyAlertsClick={handleNearbyAlertsClick} />
+        </div>
+
+        {/* Popular Place Globally */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
+          <HomePopularPlace onPlaceClick={handlePlaceClick} />
+        </div>
+
+        {/* Render all modals */}
+        <HomeModals homeState={homeState} handlers={handlers} />
+
+        {/* Place Detail Modal */}
+        <PlaceDetailModal 
+          place={selectedPlace}
+          isOpen={isPlaceModalOpen}
+          onClose={handleClosePlaceModal}
+          onAddToTrip={() => {
+            // Handle add to trip functionality here if needed
+            setIsPlaceModalOpen(false);
+          }}
+        />
+
+        {/* Nearby Places Modal */}
+        <NearbyPlacesModal
+          isOpen={isNearbyPlacesModalOpen}
+          onClose={handleCloseNearbyPlacesModal}
+          onPlaceClick={handlePlaceClick}
+        />
       </div>
-
-      {/* Header with Logo and Notification Bell */}
-      <HomeHeader
-        notificationCount={homeState.notificationCount}
-        onNotificationClick={handlers.handleNotificationClick}
-      />
-
-      {/* Quick Stats */}
-      <QuickStats />
-
-      <CurrentTrip 
-        currentTrip={homeState.currentTrip}
-        travelingTrip={homeState.travelingTrip}
-        nearestUpcomingTrip={homeState.nearestUpcomingTrip}
-        onViewDetail={handlers.handleViewCurrentTripDetail}
-        onPlanNewTrip={handlers.handlePlanNewTrip}
-        onNavigateToTrips={handlers.handleNavigateToTrips}
-      />
-
-      <QuickActions onNearbyAlertsClick={handleNearbyAlertsClick} />
-
-      {/* Popular Place Globally */}
-      <HomePopularPlace onPlaceClick={handlePlaceClick} />
-
-      {/* Render all modals */}
-      <HomeModals homeState={homeState} handlers={handlers} />
-
-      {/* Place Detail Modal */}
-      <PlaceDetailModal 
-        place={selectedPlace}
-        isOpen={isPlaceModalOpen}
-        onClose={handleClosePlaceModal}
-        onAddToTrip={() => {
-          // Handle add to trip functionality here if needed
-          setIsPlaceModalOpen(false);
-        }}
-      />
-
-      {/* Nearby Places Modal */}
-      <NearbyPlacesModal
-        isOpen={isNearbyPlacesModalOpen}
-        onClose={handleCloseNearbyPlacesModal}
-        onPlaceClick={handlePlaceClick}
-      />
     </div>
   );
 };
