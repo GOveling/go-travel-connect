@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { X, MapPin, Calendar, Users, Plane, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { JollyRangeCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
 
 interface NewTripModalProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ interface NewTripModalProps {
 
 const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const { toast } = useToast();
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     destination: "",
@@ -39,6 +42,58 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const startDate = new Date(range.start.year, range.start.month - 1, range.start.day);
+      const endDate = new Date(range.end.year, range.end.month - 1, range.end.day);
+      setFormData(prev => ({
+        ...prev,
+        startDate,
+        endDate,
+        datesNotSet: false
+      }));
+      setIsDateRangeOpen(false);
+    } else if (range?.start) {
+      const startDate = new Date(range.start.year, range.start.month - 1, range.start.day);
+      setFormData(prev => ({
+        ...prev,
+        startDate,
+        endDate: undefined,
+        datesNotSet: false
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        startDate: undefined,
+        endDate: undefined
+      }));
+    }
+  };
+
+  const getDateRangeValue = () => {
+    if (formData.startDate && formData.endDate) {
+      return {
+        start: parseDate(format(formData.startDate, "yyyy-MM-dd")),
+        end: parseDate(format(formData.endDate, "yyyy-MM-dd"))
+      };
+    } else if (formData.startDate) {
+      return {
+        start: parseDate(format(formData.startDate, "yyyy-MM-dd")),
+        end: null
+      };
+    }
+    return null;
+  };
+
+  const formatDateRange = () => {
+    if (formData.startDate && formData.endDate) {
+      return `${format(formData.startDate, "dd/MM/yyyy")} - ${format(formData.endDate, "dd/MM/yyyy")}`;
+    } else if (formData.startDate) {
+      return `${format(formData.startDate, "dd/MM/yyyy")} - Seleccionar fin`;
+    }
+    return "Seleccionar fechas del viaje";
   };
 
   const handleNotSureYet = () => {
@@ -195,65 +250,30 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="startDate" className="text-sm font-medium">
-                        Start Date
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal mt-1",
-                              !formData.startDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.startDate ? format(formData.startDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={formData.startDate}
-                            onSelect={(date) => handleInputChange("startDate", date)}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div>
-                      <Label htmlFor="endDate" className="text-sm font-medium">
-                        End Date
-                      </Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal mt-1",
-                              !formData.endDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.endDate ? format(formData.endDate, "PPP") : <span>Pick a date</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <CalendarComponent
-                            mode="single"
-                            selected={formData.endDate}
-                            onSelect={(date) => handleInputChange("endDate", date)}
-                            disabled={(date) => formData.startDate ? date < formData.startDate : false}
-                            initialFocus
-                            className="p-3 pointer-events-auto"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
+                  <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          (!formData.startDate || !formData.endDate) && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formatDateRange()}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <JollyRangeCalendar
+                        value={getDateRangeValue()}
+                        onChange={handleDateRangeChange}
+                        minValue={today(getLocalTimeZone())}
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  
                   <Button
                     type="button"
                     variant="outline"
