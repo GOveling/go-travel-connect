@@ -86,7 +86,6 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
     >
       {finalItems.map((item, index) => {
         const isActive = index === activeIndex;
-        const isTextActive = isActive;
 
         const IconComponent = item.icon;
 
@@ -102,7 +101,7 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
               <IconComponent className="icon" />
             </div>
             <strong
-              className={`menu__text ${isTextActive ? 'active' : ''}`}
+              className={`menu__text ${isActive ? 'active' : 'hidden'}`}
               ref={(el) => (textRefs.current[index] = el)}
             >
               {item.label}
