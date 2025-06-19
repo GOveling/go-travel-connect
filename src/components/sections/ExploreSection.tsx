@@ -109,49 +109,40 @@ const ExploreSection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-orange-50">
-      <div className="p-4 space-y-6">
-        <div className="bg-gradient-to-r from-purple-600 to-orange-500 rounded-2xl text-white shadow-lg">
-          <ExploreHeader />
-        </div>
-        
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100 p-4">
-          <ExploreSearchBar onFilterClick={handleFilterClick} />
-        </div>
-        
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100">
-          <ExploreTabsContent 
-            categories={categories}
-            selectedCategory={selectedCategory}
-            filteredPlaces={filteredPlaces}
-            onCategoryClick={handleCategoryClick}
-            onPlaceClick={handlePlaceClick}
-          />
-        </div>
+    <div className="min-h-screen p-4 space-y-6">
+      <ExploreHeader />
+      <ExploreSearchBar onFilterClick={handleFilterClick} />
+      
+      <ExploreTabsContent 
+        categories={categories}
+        selectedCategory={selectedCategory}
+        filteredPlaces={filteredPlaces}
+        onCategoryClick={handleCategoryClick}
+        onPlaceClick={handlePlaceClick}
+      />
 
-        <PlaceDetailModal 
-          place={selectedPlace}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onAddToTrip={handleAddToTrip}
-        />
+      <PlaceDetailModal 
+        place={selectedPlace}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onAddToTrip={handleAddToTrip}
+      />
 
-        <ExploreAddToTripModal
-          isOpen={isAddToTripModalOpen}
-          onClose={() => setIsAddToTripModalOpen(false)}
-          selectedPlace={selectedPlace}
-          existingTrips={trips.filter(trip => trip.status !== 'completed')}
-          onAddToExistingTrip={handleAddToExistingTrip}
-          onCreateNewTrip={handleCreateNewTrip}
-        />
+      <ExploreAddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => setIsAddToTripModalOpen(false)}
+        selectedPlace={selectedPlace}
+        existingTrips={trips.filter(trip => trip.status !== 'completed')}
+        onAddToExistingTrip={handleAddToExistingTrip}
+        onCreateNewTrip={handleCreateNewTrip}
+      />
 
-        <ExploreFilterModal
-          isOpen={isFilterModalOpen}
-          onClose={() => setIsFilterModalOpen(false)}
-          onApplyFilters={handleApplyFilters}
-          currentFilters={activeFilters}
-        />
-      </div>
+      <ExploreFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        currentFilters={activeFilters}
+      />
     </div>
   );
 };

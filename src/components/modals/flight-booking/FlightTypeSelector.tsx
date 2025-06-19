@@ -15,7 +15,7 @@ const FlightTypeSelector = ({ tripType, onTypeChange }: FlightTypeSelectorProps)
       title: 'Autofill',
       description: 'Desde mis viajes',
       icon: Route,
-      color: 'bg-purple-50 border-purple-200 text-purple-700'
+      color: 'bg-blue-50 border-blue-200 text-blue-700'
     },
     {
       id: 'manual',
@@ -27,9 +27,9 @@ const FlightTypeSelector = ({ tripType, onTypeChange }: FlightTypeSelectorProps)
   ];
 
   return (
-    <div className="space-y-4">
-      <h3 className="font-semibold text-gray-900 text-lg">Tipo de Vuelo</h3>
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-3">
+      <h3 className="font-medium text-gray-900">Tipo de Vuelo</h3>
+      <div className="grid grid-cols-2 gap-3">
         {options.map((option) => {
           const Icon = option.icon;
           const isSelected = (option.id === 'autofill' && tripType !== 'manual') || tripType === option.id;
@@ -37,27 +37,27 @@ const FlightTypeSelector = ({ tripType, onTypeChange }: FlightTypeSelectorProps)
           return (
             <Card
               key={option.id}
-              className={`p-4 cursor-pointer transition-all border-2 ${
+              className={`p-3 cursor-pointer transition-all border-2 ${
                 isSelected 
-                  ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-orange-50 shadow-lg scale-105' 
-                  : 'border-gray-200 hover:border-purple-300 hover:shadow-md hover:scale-102'
+                  ? 'border-blue-500 bg-blue-50 shadow-md' 
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
               }`}
               onClick={() => onTypeChange(option.id === 'autofill' ? 'round-trip' : option.id as any)}
             >
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  isSelected ? 'bg-gradient-to-r from-purple-500 to-orange-500 text-white' : option.color
+              <div className="flex flex-col items-center text-center space-y-2">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  isSelected ? 'bg-blue-500 text-white' : option.color
                 }`}>
-                  <Icon size={20} />
+                  <Icon size={18} />
                 </div>
                 <div>
-                  <div className={`font-semibold text-sm ${
-                    isSelected ? 'text-purple-700' : 'text-gray-900'
+                  <div className={`font-medium text-sm ${
+                    isSelected ? 'text-blue-700' : 'text-gray-900'
                   }`}>
                     {option.title}
                   </div>
                   <div className={`text-xs ${
-                    isSelected ? 'text-purple-600' : 'text-gray-500'
+                    isSelected ? 'text-blue-600' : 'text-gray-500'
                   }`}>
                     {option.description}
                   </div>
