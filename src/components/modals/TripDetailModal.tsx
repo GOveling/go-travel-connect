@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -10,6 +9,10 @@ import SavedPlacesRouteMap from "./SavedPlacesRouteMap";
 import InviteFriendsModal from "./InviteFriendsModal";
 import EditTripModal from "./EditTripModal";
 import PlaceDetailModal from "./PlaceDetailModal";
+import FlightSearchModal from "./itinerary/FlightSearchModal";
+import HotelSearchModal from "./itinerary/HotelSearchModal";
+import ToursModal from "./itinerary/ToursModal";
+import TransferModal from "./itinerary/TransferModal";
 
 interface Collaborator {
   id: string;
@@ -84,6 +87,15 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(null);
+
+  // New modal states
+  const [showFlightSearchModal, setShowFlightSearchModal] = useState(false);
+  const [showHotelSearchModal, setShowHotelSearchModal] = useState(false);
+  const [showToursModal, setShowToursModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [selectedLocationForModal, setSelectedLocationForModal] = useState<TripCoordinate | null>(null);
+  const [selectedLocationIndex, setSelectedLocationIndex] = useState<number>(0);
+  const [transferType, setTransferType] = useState<'arrival' | 'departure' | 'between'>('arrival');
 
   // Listen for the custom event to open saved-places tab
   useEffect(() => {
@@ -496,7 +508,10 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                           From your location to {trip.coordinates[0]?.name}
                         </p>
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                          <Button className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none">
+                          <Button 
+                            className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none"
+                            onClick={() => handleFlightSearch(0)}
+                          >
                             Search Flights
                           </Button>
                           <Button variant="outline" className="border-purple-300 text-purple-600 flex-1 sm:flex-none">
@@ -529,9 +544,9 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                               </div>
                             </div>
 
-                            {/* Booking Options - Reordered */}
+                            {/* Booking Options - Updated with modal handlers */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              {/* Local Transport (for destinations after the first) - FIRST POSITION */}
+                              {/* Local Transport */}
                               {index > 0 && (
                                 <div className="bg-orange-50 p-3 rounded-lg">
                                   <div className="flex items-center space-x-2 mb-2">
@@ -541,13 +556,17 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                   <p className="text-xs text-orange-600 mb-2">
                                     From {trip.coordinates[index - 1]?.name}
                                   </p>
-                                  <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-xs w-full sm:w-auto">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-orange-600 hover:bg-orange-700 text-xs w-full sm:w-auto"
+                                    onClick={() => handleTransferSearch(index, 'between')}
+                                  >
                                     Book Transport
                                   </Button>
                                 </div>
                               )}
 
-                              {/* Hotel Booking - SECOND POSITION */}
+                              {/* Hotel Booking */}
                               <div className="bg-green-50 p-3 rounded-lg">
                                 <div className="flex items-center space-x-2 mb-2">
                                   <Building className="text-green-600" size={16} />
@@ -557,7 +576,11 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                   Best rates in {location.name}
                                 </p>
                                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-xs flex-1">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-green-600 hover:bg-green-700 text-xs flex-1"
+                                    onClick={() => handleHotelSearch(index)}
+                                  >
                                     Search Hotels
                                   </Button>
                                   <Button size="sm" variant="outline" className="border-green-300 text-green-600 text-xs flex-1">
@@ -566,7 +589,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                 </div>
                               </div>
 
-                              {/* Activities - THIRD POSITION */}
+                              {/* Activities */}
                               <div className="bg-purple-50 p-3 rounded-lg">
                                 <div className="flex items-center space-x-2 mb-2">
                                   <MapPin className="text-purple-600" size={16} />
@@ -575,12 +598,16 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                 <p className="text-xs text-purple-600 mb-2">
                                   Explore {location.name}
                                 </p>
-                                <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-xs w-full sm:w-auto">
+                                <Button 
+                                  size="sm" 
+                                  className="bg-purple-600 hover:bg-purple-700 text-xs w-full sm:w-auto"
+                                  onClick={() => handleToursSearch(index)}
+                                >
                                   Find Tours
                                 </Button>
                               </div>
 
-                              {/* Airport Transfer (only for first destination) - FOURTH POSITION */}
+                              {/* Airport Transfer */}
                               {index === 0 && (
                                 <div className="bg-blue-50 p-3 rounded-lg">
                                   <div className="flex items-center space-x-2 mb-2">
@@ -590,13 +617,17 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                   <p className="text-xs text-blue-600 mb-2">
                                     From airport to accommodation
                                   </p>
-                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto"
+                                    onClick={() => handleTransferSearch(index, 'arrival')}
+                                  >
                                     Book Transfer
                                   </Button>
                                 </div>
                               )}
 
-                              {/* Airport Transfer (for last destination) - FOURTH POSITION */}
+                              {/* Airport Transfer for last destination */}
                               {index === trip.coordinates.length - 1 && (
                                 <div className="bg-blue-50 p-3 rounded-lg">
                                   <div className="flex items-center space-x-2 mb-2">
@@ -606,7 +637,11 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                   <p className="text-xs text-blue-600 mb-2">
                                     From accommodation to airport
                                   </p>
-                                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto"
+                                    onClick={() => handleTransferSearch(index, 'departure')}
+                                  >
                                     Book Transfer
                                   </Button>
                                 </div>
@@ -855,6 +890,42 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
           setSelectedPlace(null);
         }}
         isFromSavedPlaces={true}
+      />
+
+      {/* New Itinerary Modals */}
+      <FlightSearchModal
+        isOpen={showFlightSearchModal}
+        onClose={() => setShowFlightSearchModal(false)}
+        fromDestination=""
+        toDestination={selectedLocationForModal?.name || ""}
+        tripDates={trip?.dates || ""}
+        travelers={getTotalTravelers()}
+      />
+
+      <HotelSearchModal
+        isOpen={showHotelSearchModal}
+        onClose={() => setShowHotelSearchModal(false)}
+        destination={selectedLocationForModal?.name || ""}
+        dates={trip ? getDestinationDates(trip.dates, selectedLocationIndex, trip.coordinates.length) : ""}
+        travelers={getTotalTravelers()}
+      />
+
+      <ToursModal
+        isOpen={showToursModal}
+        onClose={() => setShowToursModal(false)}
+        destination={selectedLocationForModal?.name || ""}
+        dates={trip ? getDestinationDates(trip.dates, selectedLocationIndex, trip.coordinates.length) : ""}
+        travelers={getTotalTravelers()}
+      />
+
+      <TransferModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        destination={selectedLocationForModal?.name || ""}
+        transferType={transferType}
+        fromLocation={transferType === 'between' && selectedLocationIndex > 0 ? trip?.coordinates[selectedLocationIndex - 1]?.name : undefined}
+        toLocation={selectedLocationForModal?.name}
+        travelers={getTotalTravelers()}
       />
     </>
   );
