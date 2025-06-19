@@ -9,15 +9,23 @@ import HomePopularPlace from "@/components/home/HomePopularPlace";
 import HomeModals from "@/components/home/HomeModals";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
+import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { useToast } from "@/hooks/use-toast";
 
 const HomeSection = () => {
   const homeState = useHomeState();
   const handlers = useHomeHandlers(homeState);
+  const { toast } = useToast();
+  
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
   const [isNearbyPlacesModalOpen, setIsNearbyPlacesModalOpen] = useState(false);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+
+  // Get trips and trip management functions from homeState
+  const { trips, addPlaceToTrip, setTrips } = homeState;
 
   // Listen for navigation to trips section
   useEffect(() => {
@@ -47,6 +55,35 @@ const HomeSection = () => {
 
   const handleCloseNearbyPlacesModal = () => {
     setIsNearbyPlacesModalOpen(false);
+  };
+
+  const handleAddToTrip = () => {
+    setIsPlaceModalOpen(false);
+    setIsAddToTripModalOpen(true);
+  };
+
+  const handleAddToExistingTrip = (tripId: number, place: any) => {
+    addPlaceToTrip(tripId, place);
+    const selectedTrip = trips.find(trip => trip.id === tripId);
+    
+    toast({
+      title: "Added to Trip",
+      description: `${place.name} has been saved to ${selectedTrip?.name}`,
+    });
+    
+    setIsAddToTripModalOpen(false);
+    setSelectedPlace(null);
+  };
+
+  const handleCreateNewTrip = (tripData: any) => {
+    setTrips(prev => [...prev, tripData]);
+    setIsAddToTripModalOpen(false);
+    setSelectedPlace(null);
+    
+    toast({
+      title: "Trip Created!",
+      description: `${tripData.name} has been created with ${selectedPlace?.name}`,
+    });
   };
 
   return (
@@ -87,10 +124,7 @@ const HomeSection = () => {
         place={selectedPlace}
         isOpen={isPlaceModalOpen}
         onClose={handleClosePlaceModal}
-        onAddToTrip={() => {
-          // Handle add to trip functionality here if needed
-          setIsPlaceModalOpen(false);
-        }}
+        onAddToTrip={handleAddToTrip}
       />
 
       {/* Nearby Places Modal */}
@@ -98,6 +132,16 @@ const HomeSection = () => {
         isOpen={isNearbyPlacesModalOpen}
         onClose={handleCloseNearbyPlacesModal}
         onPlaceClick={handlePlaceClick}
+      />
+
+      {/* Add to Trip Modal */}
+      <ExploreAddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => setIsAddToTripModalOpen(false)}
+        selectedPlace={selectedPlace}
+        existingTrips={trips.filter(trip => trip.status !== 'completed')}
+        onAddToExistingTrip={handleAddToExistingTrip}
+        onCreateNewTrip={handleCreateNewTrip}
       />
     </div>
   );
