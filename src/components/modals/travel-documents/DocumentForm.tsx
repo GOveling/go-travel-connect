@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { JollyRangeCalendar, JollyCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
 import PhotoUpload from "./PhotoUpload";
 
 interface TravelDocument {
@@ -26,6 +33,9 @@ interface DocumentFormProps {
 }
 
 const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditing }: DocumentFormProps) => {
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const [isIssueDateOpen, setIsIssueDateOpen] = useState(false);
+
   const documentTypes = [
     'Passport',
     'Visa',
@@ -37,6 +47,61 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
     'Travel Permit',
     'Other'
   ];
+
+  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const issueDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
+      const expiryDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      onDocumentChange({
+        ...document,
+        issueDate,
+        expiryDate
+      });
+      setIsDateRangeOpen(false);
+    }
+  };
+
+  const handleIssueDateChange = (date: CalendarDate | null) => {
+    if (date) {
+      const issueDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
+      onDocumentChange({
+        ...document,
+        issueDate
+      });
+      setIsIssueDateOpen(false);
+    }
+  };
+
+  const getDateRangeValue = () => {
+    if (document.issueDate && document.expiryDate) {
+      return {
+        start: parseDate(document.issueDate),
+        end: parseDate(document.expiryDate)
+      };
+    }
+    return null;
+  };
+
+  const getIssueDateValue = () => {
+    if (document.issueDate) {
+      return parseDate(document.issueDate);
+    }
+    return null;
+  };
+
+  const formatDateRange = () => {
+    if (document.issueDate && document.expiryDate) {
+      return `${format(new Date(document.issueDate), "dd/MM/yyyy")} - ${format(new Date(document.expiryDate), "dd/MM/yyyy")}`;
+    }
+    return "Seleccionar período de validez";
+  };
+
+  const formatIssueDate = () => {
+    if (document.issueDate) {
+      return format(new Date(document.issueDate), "dd/MM/yyyy");
+    }
+    return "Seleccionar fecha de emisión";
+  };
 
   return (
     <Card className="mb-4">
@@ -73,25 +138,55 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
-            <Label htmlFor="issueDate">Issue Date</Label>
-            <Input
-              id="issueDate"
-              type="date"
-              value={document.issueDate}
-              onChange={(e) => onDocumentChange({...document, issueDate: e.target.value})}
-            />
+            <Label>Fecha de Emisión</Label>
+            <Popover open={isIssueDateOpen} onOpenChange={setIsIssueDateOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !document.issueDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formatIssueDate()}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <JollyCalendar
+                  value={getIssueDateValue()}
+                  onChange={handleIssueDateChange}
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
-          
+
           <div>
-            <Label htmlFor="expiryDate">Expiry Date</Label>
-            <Input
-              id="expiryDate"
-              type="date"
-              value={document.expiryDate}
-              onChange={(e) => onDocumentChange({...document, expiryDate: e.target.value})}
-            />
+            <Label>Período de Validez (Emisión - Vencimiento)</Label>
+            <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    (!document.issueDate || !document.expiryDate) && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formatDateRange()}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <JollyRangeCalendar
+                  value={getDateRangeValue()}
+                  onChange={handleDateRangeChange}
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 

@@ -1,13 +1,18 @@
 
 import { useState } from "react";
-import { Car, Train, Plane, MapPin, Calendar, Clock, X, Users } from "lucide-react";
+import { Car, Train, Plane, MapPin, Users, X, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { JollyRangeCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface TransportationModalProps {
   isOpen: boolean;
@@ -16,14 +21,13 @@ interface TransportationModalProps {
 
 const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
   const [selectedTransport, setSelectedTransport] = useState('');
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [formData, setFormData] = useState({
     from: '',
     to: '',
-    date: '',
-    time: '10:00',
-    passengers: 1,
-    returnDate: '',
-    returnTime: '10:00'
+    startDate: '',
+    endDate: '',
+    passengers: 1
   });
   const { toast } = useToast();
 
@@ -79,6 +83,36 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
   ];
 
   const selectedOption = transportationOptions.find(option => option.id === selectedTransport);
+
+  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const startDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
+      const endDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      setFormData(prev => ({
+        ...prev,
+        startDate,
+        endDate
+      }));
+      setIsDateRangeOpen(false);
+    }
+  };
+
+  const getDateRangeValue = () => {
+    if (formData.startDate && formData.endDate) {
+      return {
+        start: parseDate(formData.startDate),
+        end: parseDate(formData.endDate)
+      };
+    }
+    return null;
+  };
+
+  const formatDateRange = () => {
+    if (formData.startDate && formData.endDate) {
+      return `${format(new Date(formData.startDate), "dd/MM/yyyy")} - ${format(new Date(formData.endDate), "dd/MM/yyyy")}`;
+    }
+    return "Seleccionar fechas de viaje";
+  };
 
   const handleSearch = () => {
     if (!selectedTransport) {
@@ -159,59 +193,31 @@ const TransportationModal = ({ isOpen, onClose }: TransportationModalProps) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor="date">Departure Date</Label>
-            <div className="relative">
-              <Calendar size={16} className="absolute left-3 top-3 text-gray-400" />
-              <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                className="pl-10"
+        <div className="space-y-2">
+          <Label>Fechas de Viaje</Label>
+          <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  (!formData.startDate || !formData.endDate) && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {formatDateRange()}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <JollyRangeCalendar
+                value={getDateRangeValue()}
+                onChange={handleDateRangeChange}
+                minValue={today(getLocalTimeZone())}
+                className="p-3 pointer-events-auto"
               />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="time">Time</Label>
-            <div className="relative">
-              <Clock size={16} className="absolute left-3 top-3 text-gray-400" />
-              <Input
-                id="time"
-                type="time"
-                value={formData.time}
-                onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
-                className="pl-10"
-              />
-            </div>
-          </div>
+            </PopoverContent>
+          </Popover>
         </div>
-
-        {(selectedTransport === 'car-rental' || selectedTransport === 'taxi' || selectedTransport === 'uber') && (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="returnDate">Return Date</Label>
-                <Input
-                  id="returnDate"
-                  type="date"
-                  value={formData.returnDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, returnDate: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="returnTime">Return Time</Label>
-                <Input
-                  id="returnTime"
-                  type="time"
-                  value={formData.returnTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, returnTime: e.target.value }))}
-                />
-              </div>
-            </div>
-          </>
-        )}
 
         <div className="space-y-2">
           <Label htmlFor="passengers">Passengers</Label>

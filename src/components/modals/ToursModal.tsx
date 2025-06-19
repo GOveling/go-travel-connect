@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { MapPin, Calendar, Users, Clock, X, Camera } from "lucide-react";
+import { MapPin, Users, X, Camera, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
@@ -13,6 +14,10 @@ import TripSelectorWithAI from "./tours/TripSelectorWithAI";
 import MultiDestinationTourBooking from "./tours/MultiDestinationTourBooking";
 import AITourPlan from "./tours/AITourPlan";
 import { getAITourBookingPlan, AITourBookingPlan } from "./tours/aiTourDateUtils";
+import { JollyRangeCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface ToursModalProps {
   isOpen: boolean;
@@ -21,16 +26,19 @@ interface ToursModalProps {
 
 interface DestinationTourBooking {
   destination: string;
-  date: string;
+  startDate: string;
+  endDate: string;
   duration: string;
   tourType: string;
   participants: number;
 }
 
 const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [formData, setFormData] = useState({
     destination: '',
-    date: '',
+    startDate: '',
+    endDate: '',
     participants: 2,
     tourType: '',
     duration: ''
@@ -49,7 +57,8 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
       // Reset form when manual entry is selected
       setFormData({
         destination: '',
-        date: '',
+        startDate: '',
+        endDate: '',
         participants: 2,
         tourType: '',
         duration: ''
@@ -76,7 +85,8 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
         // Handle multi-destination trip with AI recommendations
         const bookings: DestinationTourBooking[] = aiPlan.recommendations.map((rec) => ({
           destination: rec.destination,
-          date: rec.date,
+          startDate: rec.date,
+          endDate: rec.date, // Single day by default
           duration: rec.duration,
           tourType: rec.tourType,
           participants: rec.participants
@@ -87,7 +97,8 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
         // Clear single destination form
         setFormData({
           destination: '',
-          date: '',
+          startDate: '',
+          endDate: '',
           participants: 2,
           tourType: '',
           duration: ''
@@ -105,7 +116,8 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
         setFormData(prev => ({
           ...prev,
           destination: rec.destination,
-          date: rec.date,
+          startDate: rec.date,
+          endDate: rec.date, // Single day by default
           participants: rec.participants,
           tourType: rec.tourType,
           duration: rec.duration
@@ -128,6 +140,36 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
         i === index ? { ...booking, [field]: value } : booking
       )
     );
+  };
+
+  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const startDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
+      const endDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      setFormData(prev => ({
+        ...prev,
+        startDate,
+        endDate
+      }));
+      setIsDateRangeOpen(false);
+    }
+  };
+
+  const getDateRangeValue = () => {
+    if (formData.startDate && formData.endDate) {
+      return {
+        start: parseDate(formData.startDate),
+        end: parseDate(formData.endDate)
+      };
+    }
+    return null;
+  };
+
+  const formatDateRange = () => {
+    if (formData.startDate && formData.endDate) {
+      return `${format(new Date(formData.startDate), "dd/MM/yyyy")} - ${format(new Date(formData.endDate), "dd/MM/yyyy")}`;
+    }
+    return "Seleccionar fechas del tour";
   };
 
   const handleSearch = () => {
@@ -218,17 +260,29 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="date">Tour Date</Label>
-                  <div className="relative">
-                    <Calendar size={16} className="absolute left-3 top-3 text-gray-400" />
-                    <Input
-                      id="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                      className="pl-10"
-                    />
-                  </div>
+                  <Label>Fechas del Tour</Label>
+                  <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          (!formData.startDate || !formData.endDate) && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formatDateRange()}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <JollyRangeCalendar
+                        value={getDateRangeValue()}
+                        onChange={handleDateRangeChange}
+                        minValue={today(getLocalTimeZone())}
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="space-y-2">
@@ -240,7 +294,7 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                       type="number"
                       min="1"
                       max="20"
-                      value={formData.participants}
+                      value={form.participants}
                       onChange={(e) => setFormData(prev => ({ ...prev, participants: parseInt(e.target.value) }))}
                       className="pl-10"
                     />

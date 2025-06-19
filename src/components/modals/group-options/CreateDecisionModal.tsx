@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Vote, X, Plus, Users } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Vote, X, Plus, Users, CalendarIcon } from "lucide-react";
+import { JollyRangeCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface Collaborator {
   id: number;
@@ -22,6 +28,7 @@ interface CreateDecisionModalProps {
     title: string;
     description: string;
     options: string[];
+    startDate: string;
     endDate: string;
     selectedParticipants: string[];
   };
@@ -41,6 +48,8 @@ const CreateDecisionModal = ({
   onCreateDecision,
   onUpdateDecision
 }: CreateDecisionModalProps) => {
+  const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+
   const handleParticipantChange = (participantName: string, checked: boolean) => {
     if (checked) {
       setNewDecision(prev => ({
@@ -68,6 +77,36 @@ const CreateDecisionModal = ({
       ...prev,
       selectedParticipants: []
     }));
+  };
+
+  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const startDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
+      const endDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      setNewDecision(prev => ({
+        ...prev,
+        startDate,
+        endDate
+      }));
+      setIsDateRangeOpen(false);
+    }
+  };
+
+  const getDateRangeValue = () => {
+    if (newDecision.startDate && newDecision.endDate) {
+      return {
+        start: parseDate(newDecision.startDate),
+        end: parseDate(newDecision.endDate)
+      };
+    }
+    return null;
+  };
+
+  const formatDateRange = () => {
+    if (newDecision.startDate && newDecision.endDate) {
+      return `${format(new Date(newDecision.startDate), "dd/MM/yyyy")} - ${format(new Date(newDecision.endDate), "dd/MM/yyyy")}`;
+    }
+    return "Seleccionar período de votación";
   };
 
   return (
@@ -138,19 +177,29 @@ const CreateDecisionModal = ({
             </div>
             
             <div>
-              <Label htmlFor="endDate" className="text-sm font-medium">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={newDecision.endDate}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  setNewDecision(prev => ({...prev, endDate: e.target.value}));
-                }}
-                onFocus={(e) => e.stopPropagation()}
-                className="mt-1 h-12 text-base"
-                min={new Date().toISOString().split('T')[0]}
-              />
+              <Label className="text-sm font-medium">Período de Votación</Label>
+              <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-1 h-12 text-base",
+                      (!newDecision.startDate || !newDecision.endDate) && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formatDateRange()}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <JollyRangeCalendar
+                    value={getDateRangeValue()}
+                    onChange={handleDateRangeChange}
+                    minValue={today(getLocalTimeZone())}
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           
@@ -279,7 +328,9 @@ const CreateDecisionModal = ({
               }}
               disabled={!newDecision.title || 
                        newDecision.options.filter(opt => opt.trim()).length < 2 ||
-                       newDecision.selectedParticipants.length === 0}
+                       newDecision.selectedParticipants.length === 0 ||
+                       !newDecision.startDate ||
+                       !newDecision.endDate}
               className="w-full h-12 text-base"
             >
               {editingDecisionId ? "Update Decision" : "Create Decision"}

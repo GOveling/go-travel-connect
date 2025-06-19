@@ -1,13 +1,21 @@
 
-import { Camera } from "lucide-react";
+import { Camera, CalendarIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { JollyRangeCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface DestinationTourBooking {
   destination: string;
-  date: string;
+  startDate: string;
+  endDate: string;
   duration: string;
   tourType: string;
   participants: number;
@@ -19,6 +27,39 @@ interface MultiDestinationTourBookingProps {
 }
 
 const MultiDestinationTourBooking = ({ bookings, onUpdateBooking }: MultiDestinationTourBookingProps) => {
+  const [openPopovers, setOpenPopovers] = useState<{[key: number]: boolean}>({});
+
+  const handleDateRangeChange = (index: number, range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+    if (range?.start && range?.end) {
+      const startDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
+      const endDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      onUpdateBooking(index, 'startDate', startDate);
+      onUpdateBooking(index, 'endDate', endDate);
+      setOpenPopovers(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const getDateRangeValue = (booking: DestinationTourBooking) => {
+    if (booking.startDate && booking.endDate) {
+      return {
+        start: parseDate(booking.startDate),
+        end: parseDate(booking.endDate)
+      };
+    }
+    return null;
+  };
+
+  const formatDateRange = (booking: DestinationTourBooking) => {
+    if (booking.startDate && booking.endDate) {
+      return `${format(new Date(booking.startDate), "dd/MM/yyyy")} - ${format(new Date(booking.endDate), "dd/MM/yyyy")}`;
+    }
+    return "Seleccionar fechas del tour";
+  };
+
+  const togglePopover = (index: number, isOpen: boolean) => {
+    setOpenPopovers(prev => ({ ...prev, [index]: isOpen }));
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
@@ -33,17 +74,37 @@ const MultiDestinationTourBooking = ({ bookings, onUpdateBooking }: MultiDestina
               {booking.destination} - Tour {index + 1}
             </h4>
             
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Fecha del Tour</Label>
-                <Input
-                  type="date"
-                  value={booking.date}
-                  onChange={(e) => onUpdateBooking(index, 'date', e.target.value)}
-                  className="text-sm"
-                />
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs">Fechas del Tour</Label>
+                <Popover 
+                  open={openPopovers[index] || false} 
+                  onOpenChange={(isOpen) => togglePopover(index, isOpen)}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal text-sm",
+                        (!booking.startDate || !booking.endDate) && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formatDateRange(booking)}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <JollyRangeCalendar
+                      value={getDateRangeValue(booking)}
+                      onChange={(range) => handleDateRangeChange(index, range)}
+                      minValue={today(getLocalTimeZone())}
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
-              <div className="space-y-1">
+
+              <div>
                 <Label className="text-xs">Participantes</Label>
                 <Input
                   type="number"
