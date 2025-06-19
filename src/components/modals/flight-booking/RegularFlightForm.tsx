@@ -1,8 +1,7 @@
 
-import { Calendar, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FormData {
   from: string;
@@ -14,94 +13,65 @@ interface FormData {
 }
 
 interface RegularFlightFormProps {
-  tripType: 'round-trip' | 'one-way';
+  tripType: 'round-trip' | 'one-way' | 'multi-city';
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
 }
 
-const flightClasses = [
-  { value: 'economy', label: 'Economy', price: '$299' },
-  { value: 'premium', label: 'Premium Economy', price: '$599' },
-  { value: 'business', label: 'Business', price: '$1,299' },
-  { value: 'first', label: 'First Class', price: '$2,499' }
-];
-
 const RegularFlightForm = ({ tripType, formData, setFormData }: RegularFlightFormProps) => {
+  const updateFormData = (field: keyof FormData, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="departDate" className="text-sm">Departure</Label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-3 text-gray-400" size={16} />
-            <Input
-              id="departDate"
-              type="date"
-              value={formData.departDate}
-              onChange={(e) => setFormData(prev => ({ ...prev, departDate: e.target.value }))}
-              className="pl-10 h-12"
-            />
-          </div>
-        </div>
-
-        {tripType === 'round-trip' && (
-          <div>
-            <Label htmlFor="returnDate" className="text-sm">Return</Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 text-gray-400" size={16} />
-              <Input
-                id="returnDate"
-                type="date"
-                value={formData.returnDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, returnDate: e.target.value }))}
-                className="pl-10 h-12"
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor="passengers" className="text-sm">Passengers</Label>
-        <div className="relative">
-          <Users className="absolute left-3 top-3 text-gray-400" size={16} />
+          <Label htmlFor="from">From</Label>
           <Input
-            id="passengers"
-            type="number"
-            min="1"
-            max="9"
-            value={formData.passengers}
-            onChange={(e) => setFormData(prev => ({ ...prev, passengers: parseInt(e.target.value) }))}
-            className="pl-10 h-12"
+            id="from"
+            value={formData.from}
+            onChange={(e) => updateFormData('from', e.target.value)}
+            placeholder="Departure city"
+          />
+        </div>
+        <div>
+          <Label htmlFor="to">To</Label>
+          <Input
+            id="to"
+            value={formData.to}
+            onChange={(e) => updateFormData('to', e.target.value)}
+            placeholder="Destination city"
           />
         </div>
       </div>
 
-      <div>
-        <Label className="text-sm">Class</Label>
-        <div className="grid grid-cols-1 gap-2 mt-2">
-          {flightClasses.map((flightClass) => (
-            <Card
-              key={flightClass.value}
-              className={`cursor-pointer transition-all ${
-                formData.class === flightClass.value 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'hover:border-gray-300'
-              }`}
-              onClick={() => setFormData(prev => ({ ...prev, class: flightClass.value }))}
-            >
-              <CardContent className="p-3">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium text-sm">{flightClass.label}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-blue-600">{flightClass.price}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="passengers">Passengers</Label>
+          <Select value={formData.passengers.toString()} onValueChange={(value) => updateFormData('passengers', parseInt(value))}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                <SelectItem key={num} value={num.toString()}>{num} passenger{num > 1 ? 's' : ''}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="class">Class</Label>
+          <Select value={formData.class} onValueChange={(value) => updateFormData('class', value)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="economy">Economy</SelectItem>
+              <SelectItem value="business">Business</SelectItem>
+              <SelectItem value="first">First Class</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

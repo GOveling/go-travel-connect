@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import MultiCityFlightForm from "./MultiCityFlightForm";
 import RegularFlightForm from "./RegularFlightForm";
+import DateSelectionForm from "./DateSelectionForm";
 
 interface FormData {
   from: string;
@@ -39,32 +40,44 @@ const FlightDetailsStep = ({
   onBack,
   onContinue
 }: FlightDetailsStepProps) => {
-  // Debug log to see the current state
   console.log('FlightDetailsStep - multiCityFlights:', multiCityFlights);
   console.log('FlightDetailsStep - tripType:', tripType);
 
   const canContinue = () => {
     if (tripType === 'multi-city') {
       return multiCityFlights.length >= 2 && 
-             multiCityFlights[0]?.departDate && 
-             multiCityFlights[1]?.departDate;
+             multiCityFlights.every(flight => flight.from && flight.to && flight.departDate);
     }
-    return formData.departDate && (tripType === 'one-way' || formData.returnDate);
+    return formData.from && formData.to && formData.departDate && (tripType === 'one-way' || formData.returnDate);
   };
 
   return (
     <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Flight Details</h3>
+      
       {tripType === 'multi-city' ? (
         <MultiCityFlightForm
           multiCityFlights={multiCityFlights}
           setMultiCityFlights={setMultiCityFlights}
         />
       ) : (
-        <RegularFlightForm
-          tripType={tripType}
-          formData={formData}
-          setFormData={setFormData}
-        />
+        <div className="space-y-4">
+          <RegularFlightForm
+            tripType={tripType}
+            formData={formData}
+            setFormData={setFormData}
+          />
+          
+          <DateSelectionForm
+            tripType={tripType}
+            formData={formData}
+            setFormData={setFormData}
+            isDateRangeOpen={false}
+            setIsDateRangeOpen={() => {}}
+            isDepartDateOpen={false}
+            setIsDepartDateOpen={() => {}}
+          />
+        </div>
       )}
 
       <div className="flex space-x-2">

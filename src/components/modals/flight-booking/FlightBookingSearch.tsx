@@ -1,10 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import FlightBookingSteps from "./FlightBookingSteps";
 import TripSelectionStep from "./TripSelectionStep";
 import FlightDetailsStep from "./FlightDetailsStep";
 import ConfirmationStep from "./ConfirmationStep";
-import DateSelectionForm from "./DateSelectionForm";
 import { MapPin, Plane, Calendar } from "lucide-react";
 
 interface FormData {
@@ -115,48 +113,6 @@ const FlightBookingSearch = ({
   return (
     <div className="space-y-4">
       <FlightBookingSteps steps={bookingSteps} activeStep={currentStep} />
-      
-      {currentStep === 2 && (
-        <div className="space-y-4">
-          <div className="flex space-x-2">
-            <Button
-              variant={tripType === 'round-trip' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTripType('round-trip')}
-              className="flex-1"
-            >
-              Round Trip
-            </Button>
-            <Button
-              variant={tripType === 'one-way' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTripType('one-way')}
-              className="flex-1"
-            >
-              One Way
-            </Button>
-            <Button
-              variant={tripType === 'multi-city' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTripType('multi-city')}
-              className="flex-1"
-            >
-              Multi-city
-            </Button>
-          </div>
-          
-          <DateSelectionForm
-            tripType={tripType}
-            formData={formData}
-            setFormData={setFormData}
-            isDateRangeOpen={isDateRangeOpen}
-            setIsDateRangeOpen={setIsDateRangeOpen}
-            isDepartDateOpen={isDepartDateOpen}
-            setIsDepartDateOpen={setIsDepartDateOpen}
-          />
-        </div>
-      )}
-      
       {renderStepContent()}
     </div>
   );

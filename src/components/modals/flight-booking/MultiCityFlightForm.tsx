@@ -1,8 +1,9 @@
 
-import { Calendar, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Trash2, Plus, ArrowRight } from "lucide-react";
 
 interface MultiCityFlight {
   from: string;
@@ -17,169 +18,133 @@ interface MultiCityFlightFormProps {
   setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
 }
 
-const flightClasses = [
-  { value: 'economy', label: 'Economy', price: '$299' },
-  { value: 'premium', label: 'Premium Economy', price: '$599' },
-  { value: 'business', label: 'Business', price: '$1,299' },
-  { value: 'first', label: 'First Class', price: '$2,499' }
-];
-
 const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCityFlightFormProps) => {
-  const updateMultiCityFlight = (index: number, field: keyof MultiCityFlight, value: any) => {
-    setMultiCityFlights(prev => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      console.log(`Updated flight ${index + 1} ${field}:`, value);
-      console.log('Updated multiCityFlights:', updated);
-      return updated;
-    });
+  const updateFlight = (index: number, field: keyof MultiCityFlight, value: string | number) => {
+    setMultiCityFlights(prev => prev.map((flight, i) => 
+      i === index ? { ...flight, [field]: value } : flight
+    ));
+  };
+
+  const addFlight = () => {
+    setMultiCityFlights(prev => [...prev, {
+      from: '',
+      to: '',
+      departDate: '',
+      passengers: 1,
+      class: 'economy'
+    }]);
+  };
+
+  const removeFlight = (index: number) => {
+    if (multiCityFlights.length > 2) {
+      setMultiCityFlights(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const formatFlightLabel = (index: number) => {
+    const totalFlights = multiCityFlights.length;
+    const isLastFlight = index === totalFlights - 1;
+    
+    // Check if last flight is a return flight (destination matches first flight's origin)
+    const isReturnFlight = isLastFlight && 
+      multiCityFlights[0]?.from && 
+      multiCityFlights[index]?.to === multiCityFlights[0].from;
+    
+    if (isReturnFlight) {
+      return `Vuelo ${index + 1} - Retorno al origen`;
+    }
+    
+    return `Vuelo ${index + 1}`;
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold">Multi-City Flight Details</h3>
-      
-      {/* Flight 1 Details - Outbound */}
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-4">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold text-blue-800">
-            Flight 1 - Outbound Journey
-          </Label>
-          <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
-            {multiCityFlights[0]?.from} → {multiCityFlights[0]?.to}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-xs font-medium">Departure Date</Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 text-gray-400" size={16} />
-              <Input
-                type="date"
-                value={multiCityFlights[0]?.departDate || ''}
-                onChange={(e) => updateMultiCityFlight(0, 'departDate', e.target.value)}
-                className="pl-10 h-12"
-              />
-            </div>
-            {multiCityFlights[0]?.departDate && (
-              <p className="text-xs text-blue-600 mt-1">
-                🤖 Auto-filled with trip start date ({multiCityFlights[0]?.departDate})
-              </p>
-            )}
-          </div>
-          
-          <div>
-            <Label className="text-xs font-medium">Passengers</Label>
-            <div className="relative">
-              <Users className="absolute left-3 top-3 text-gray-400" size={16} />
-              <Input
-                type="number"
-                min="1"
-                max="9"
-                value={multiCityFlights[0]?.passengers || 1}
-                onChange={(e) => updateMultiCityFlight(0, 'passengers', parseInt(e.target.value))}
-                className="pl-10 h-12"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-xs font-medium">Travel Class</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            {flightClasses.map((flightClass) => (
-              <Card
-                key={`flight1-${flightClass.value}`}
-                className={`cursor-pointer transition-all ${
-                  multiCityFlights[0]?.class === flightClass.value 
-                    ? 'border-blue-500 bg-blue-100' 
-                    : 'hover:border-gray-300'
-                }`}
-                onClick={() => updateMultiCityFlight(0, 'class', flightClass.value)}
-              >
-                <CardContent className="p-2">
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs font-medium">{flightClass.label}</p>
-                    <p className="text-xs font-semibold text-blue-600">{flightClass.price}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium">Multi-City Flights</h4>
+        <span className="text-sm text-gray-500">{multiCityFlights.length} vuelos planificados</span>
       </div>
 
-      {/* Flight 2 Details - Return */}
-      <div className="p-4 bg-green-50 border border-green-200 rounded-lg space-y-4">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold text-green-800">
-            Flight 2 - Return Journey
-          </Label>
-          <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-            {multiCityFlights[1]?.from} → {multiCityFlights[1]?.to}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-xs font-medium">Departure Date</Label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 text-gray-400" size={16} />
-              <Input
-                type="date"
-                value={multiCityFlights[1]?.departDate || ''}
-                onChange={(e) => updateMultiCityFlight(1, 'departDate', e.target.value)}
-                className="pl-10 h-12"
-              />
-            </div>
-            {multiCityFlights[1]?.departDate && (
-              <p className="text-xs text-green-600 mt-1">
-                🤖 Auto-filled with trip end date ({multiCityFlights[1]?.departDate})
-              </p>
+      {multiCityFlights.map((flight, index) => (
+        <div key={index} className="border rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h5 className="font-medium text-sm">{formatFlightLabel(index)}</h5>
+            {multiCityFlights.length > 2 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeFlight(index)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 size={16} />
+              </Button>
             )}
           </div>
-          
-          <div>
-            <Label className="text-xs font-medium">Passengers</Label>
-            <div className="relative">
-              <Users className="absolute left-3 top-3 text-gray-400" size={16} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor={`from-${index}`} className="text-sm">From</Label>
               <Input
-                type="number"
-                min="1"
-                max="9"
-                value={multiCityFlights[1]?.passengers || 1}
-                onChange={(e) => updateMultiCityFlight(1, 'passengers', parseInt(e.target.value))}
-                className="pl-10 h-12"
+                id={`from-${index}`}
+                value={flight.from}
+                onChange={(e) => updateFlight(index, 'from', e.target.value)}
+                placeholder="Departure city"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor={`to-${index}`} className="text-sm">To</Label>
+              <Input
+                id={`to-${index}`}
+                value={flight.to}
+                onChange={(e) => updateFlight(index, 'to', e.target.value)}
+                placeholder="Destination city"
+                className="mt-1"
               />
             </div>
           </div>
-        </div>
 
-        <div>
-          <Label className="text-xs font-medium">Travel Class</Label>
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            {flightClasses.map((flightClass) => (
-              <Card
-                key={`flight2-${flightClass.value}`}
-                className={`cursor-pointer transition-all ${
-                  multiCityFlights[1]?.class === flightClass.value 
-                    ? 'border-green-500 bg-green-100' 
-                    : 'hover:border-gray-300'
-                }`}
-                onClick={() => updateMultiCityFlight(1, 'class', flightClass.value)}
-              >
-                <CardContent className="p-2">
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs font-medium">{flightClass.label}</p>
-                    <p className="text-xs font-semibold text-green-600">{flightClass.price}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor={`date-${index}`} className="text-sm">Departure Date</Label>
+              <Input
+                id={`date-${index}`}
+                type="date"
+                value={flight.departDate}
+                onChange={(e) => updateFlight(index, 'departDate', e.target.value)}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor={`class-${index}`} className="text-sm">Class</Label>
+              <Select value={flight.class} onValueChange={(value) => updateFlight(index, 'class', value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="economy">Economy</SelectItem>
+                  <SelectItem value="business">Business</SelectItem>
+                  <SelectItem value="first">First Class</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {index < multiCityFlights.length - 1 && (
+            <div className="flex justify-center pt-2">
+              <ArrowRight size={16} className="text-gray-400" />
+            </div>
+          )}
         </div>
-      </div>
+      ))}
+
+      <Button
+        variant="outline"
+        onClick={addFlight}
+        className="w-full"
+      >
+        <Plus size={16} className="mr-2" />
+        Add Another Flight
+      </Button>
     </div>
   );
 };
