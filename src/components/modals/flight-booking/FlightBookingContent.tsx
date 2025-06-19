@@ -10,6 +10,7 @@ import TripSelector from "./TripSelector";
 import FlightForm from "./FlightForm";
 import AIRecommendationBanner from "./AIRecommendationBanner";
 import FlightSummary from "./FlightSummary";
+import ManualFlightModal from "../ManualFlightModal";
 import { processTripSelection } from "./tripSelectionUtils";
 
 interface FormData {
@@ -71,13 +72,16 @@ const FlightBookingContent = ({
   onReset
 }: FlightBookingContentProps) => {
   const [currentStep, setCurrentStep] = useState<'type' | 'details' | 'summary'>('type');
+  const [isManualFlightModalOpen, setIsManualFlightModalOpen] = useState(false);
   const { toast } = useToast();
 
   const handleTripTypeChange = (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => {
     setTripType(type);
     setShowAIRecommendation(false);
     if (type === 'manual') {
-      setCurrentStep('details');
+      setIsManualFlightModalOpen(true);
+    } else {
+      setCurrentStep('type');
     }
   };
 
@@ -210,14 +214,16 @@ const FlightBookingContent = ({
               />
             )}
             
-            <Button 
-              onClick={() => setCurrentStep('details')}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
-              disabled={!canProceedToDetails()}
-            >
-              <Plane size={16} className="mr-2" />
-              Continuar
-            </Button>
+            {tripType !== 'manual' && (
+              <Button 
+                onClick={() => setCurrentStep('details')}
+                className="w-full h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                disabled={!canProceedToDetails()}
+              >
+                <Plane size={16} className="mr-2" />
+                Continuar
+              </Button>
+            )}
           </div>
         );
         
@@ -280,13 +286,23 @@ const FlightBookingContent = ({
   };
 
   return (
-    <div className="h-full max-h-[95vh] flex flex-col">
-      {renderHeader()}
-      {renderProgress()}
-      <div className="flex-1 overflow-y-auto">
-        {renderContent()}
+    <>
+      <div className="h-full max-h-[95vh] flex flex-col">
+        {renderHeader()}
+        {renderProgress()}
+        <div className="flex-1 overflow-y-auto">
+          {renderContent()}
+        </div>
       </div>
-    </div>
+      
+      <ManualFlightModal
+        isOpen={isManualFlightModalOpen}
+        onClose={() => {
+          setIsManualFlightModalOpen(false);
+          setTripType('round-trip'); // Reset to default when closing manual modal
+        }}
+      />
+    </>
   );
 };
 

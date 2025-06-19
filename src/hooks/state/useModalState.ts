@@ -11,6 +11,8 @@ export const useModalState = () => {
   const [isTripDetailModalOpen, setIsTripDetailModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [isFlightBookingModalOpen, setIsFlightBookingModalOpen] = useState(false);
+  const [isManualFlightModalOpen, setIsManualFlightModalOpen] = useState(false);
 
   return {
     isNotificationModalOpen,
@@ -31,5 +33,9 @@ export const useModalState = () => {
     setIsLoginModalOpen,
     isSignUpModalOpen,
     setIsSignUpModalOpen,
+    isFlightBookingModalOpen,
+    setIsFlightBookingModalOpen,
+    isManualFlightModalOpen,
+    setIsManualFlightModalOpen,
   };
 };
