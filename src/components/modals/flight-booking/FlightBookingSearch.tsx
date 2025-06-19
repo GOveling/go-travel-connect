@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { TabsContent } from "@/components/ui/tabs";
 import FlightBookingSteps from "./FlightBookingSteps";
 import TripSelectionStep from "./TripSelectionStep";
 import FlightDetailsStep from "./FlightDetailsStep";
@@ -114,7 +113,7 @@ const FlightBookingSearch = ({
   };
 
   return (
-    <TabsContent value="search" className="space-y-4 mt-4">
+    <div className="space-y-4">
       <FlightBookingSteps steps={bookingSteps} activeStep={currentStep} />
       
       {currentStep === 2 && (
@@ -159,7 +158,7 @@ const FlightBookingSearch = ({
       )}
       
       {renderStepContent()}
-    </TabsContent>
+    </div>
   );
 };
 

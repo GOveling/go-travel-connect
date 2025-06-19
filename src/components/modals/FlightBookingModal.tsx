@@ -1,11 +1,10 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
 import FlightBookingHeader from "./flight-booking/FlightBookingHeader";
-import FlightBookingTabs from "./flight-booking/FlightBookingTabs";
 import FlightBookingSearch from "./flight-booking/FlightBookingSearch";
 import MyFlightsView from "./flight-booking/MyFlightsView";
 
@@ -71,33 +70,40 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
         <FlightBookingHeader onClose={onClose} />
 
         <div className="p-4">
-          <FlightBookingTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          
-          <FlightBookingSearch
-            currentStep={currentStep}
-            setCurrentStep={setCurrentStep}
-            tripType={tripType}
-            setTripType={setTripType}
-            formData={formData}
-            setFormData={setFormData}
-            multiCityFlights={multiCityFlights}
-            setMultiCityFlights={setMultiCityFlights}
-            selectedTrip={selectedTrip}
-            handleTripSelection={handleTripSelection}
-            trips={trips}
-            isDateRangeOpen={isDateRangeOpen}
-            setIsDateRangeOpen={setIsDateRangeOpen}
-            isDepartDateOpen={isDepartDateOpen}
-            setIsDepartDateOpen={setIsDepartDateOpen}
-            onComplete={handleComplete}
-          />
-          
-          <TabsContent value="my-flights" className="mt-4">
-            <MyFlightsView 
-              onBackToOptions={() => setActiveTab("search")}
-              onAddFlight={() => setActiveTab("search")}
-            />
-          </TabsContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="search">Search Flights</TabsTrigger>
+              <TabsTrigger value="my-flights">My Flights</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="search" className="space-y-4 mt-4">
+              <FlightBookingSearch
+                currentStep={currentStep}
+                setCurrentStep={setCurrentStep}
+                tripType={tripType}
+                setTripType={setTripType}
+                formData={formData}
+                setFormData={setFormData}
+                multiCityFlights={multiCityFlights}
+                setMultiCityFlights={setMultiCityFlights}
+                selectedTrip={selectedTrip}
+                handleTripSelection={handleTripSelection}
+                trips={trips}
+                isDateRangeOpen={isDateRangeOpen}
+                setIsDateRangeOpen={setIsDateRangeOpen}
+                isDepartDateOpen={isDepartDateOpen}
+                setIsDepartDateOpen={setIsDepartDateOpen}
+                onComplete={handleComplete}
+              />
+            </TabsContent>
+            
+            <TabsContent value="my-flights" className="mt-4">
+              <MyFlightsView 
+                onBackToOptions={() => setActiveTab("search")}
+                onAddFlight={() => setActiveTab("search")}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </DialogContent>
     </Dialog>
