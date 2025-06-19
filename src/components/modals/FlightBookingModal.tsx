@@ -1,12 +1,9 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
-import FlightBookingHeader from "./flight-booking/FlightBookingHeader";
-import FlightBookingSearch from "./flight-booking/FlightBookingSearch";
-import MyFlightsView from "./flight-booking/MyFlightsView";
+import FlightBookingContent from "./flight-booking/FlightBookingContent";
 
 interface FlightBookingModalProps {
   isOpen: boolean;
@@ -31,8 +28,6 @@ interface MultiCityFlight {
 }
 
 const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
-  const [activeTab, setActiveTab] = useState("search");
-  const [currentStep, setCurrentStep] = useState(1);
   const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city' | 'manual'>('round-trip');
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isDepartDateOpen, setIsDepartDateOpen] = useState(false);
@@ -49,6 +44,7 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
     { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
   ]);
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
+  const [showAIRecommendation, setShowAIRecommendation] = useState(false);
   const { trips } = useHomeState();
   const { toast } = useToast();
 
@@ -58,53 +54,53 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
 
   const handleComplete = () => {
     toast({
-      title: "Flight Search Started",
-      description: "Finding the best flights for your trip...",
+      title: "Búsqueda de vuelos iniciada",
+      description: "Buscando los mejores vuelos para tu viaje...",
     });
     onClose();
   };
 
+  const resetForm = () => {
+    setTripType('round-trip');
+    setFormData({
+      from: '',
+      to: '',
+      departDate: '',
+      returnDate: '',
+      passengers: 1,
+      class: 'economy'
+    });
+    setMultiCityFlights([
+      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
+      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
+    ]);
+    setSelectedTrip(null);
+    setShowAIRecommendation(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto p-0">
-        <FlightBookingHeader onClose={onClose} />
-
-        <div className="p-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="search">Search Flights</TabsTrigger>
-              <TabsTrigger value="my-flights">My Flights</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="search" className="space-y-4 mt-4">
-              <FlightBookingSearch
-                currentStep={currentStep}
-                setCurrentStep={setCurrentStep}
-                tripType={tripType}
-                setTripType={setTripType}
-                formData={formData}
-                setFormData={setFormData}
-                multiCityFlights={multiCityFlights}
-                setMultiCityFlights={setMultiCityFlights}
-                selectedTrip={selectedTrip}
-                handleTripSelection={handleTripSelection}
-                trips={trips}
-                isDateRangeOpen={isDateRangeOpen}
-                setIsDateRangeOpen={setIsDateRangeOpen}
-                isDepartDateOpen={isDepartDateOpen}
-                setIsDepartDateOpen={setIsDepartDateOpen}
-                onComplete={handleComplete}
-              />
-            </TabsContent>
-            
-            <TabsContent value="my-flights" className="mt-4">
-              <MyFlightsView 
-                onBackToOptions={() => setActiveTab("search")}
-                onAddFlight={() => setActiveTab("search")}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
+      <DialogContent className="w-[95vw] max-w-lg mx-auto max-h-[95vh] overflow-hidden p-0 rounded-xl">
+        <FlightBookingContent
+          tripType={tripType}
+          setTripType={setTripType}
+          formData={formData}
+          setFormData={setFormData}
+          multiCityFlights={multiCityFlights}
+          setMultiCityFlights={setMultiCityFlights}
+          selectedTrip={selectedTrip}
+          handleTripSelection={handleTripSelection}
+          trips={trips}
+          isDateRangeOpen={isDateRangeOpen}
+          setIsDateRangeOpen={setIsDateRangeOpen}
+          isDepartDateOpen={isDepartDateOpen}
+          setIsDepartDateOpen={setIsDepartDateOpen}
+          showAIRecommendation={showAIRecommendation}
+          setShowAIRecommendation={setShowAIRecommendation}
+          onComplete={handleComplete}
+          onClose={onClose}
+          onReset={resetForm}
+        />
       </DialogContent>
     </Dialog>
   );
