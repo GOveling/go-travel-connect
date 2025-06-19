@@ -155,6 +155,13 @@ const AnimatedSignIn: React.FC<AnimatedSignInProps> = ({
       <div className="login-card">
         <div className="login-card-inner">
           <div className="login-header">
+            <div className="logo-container">
+              <img 
+                src="/lovable-uploads/b26fd867-08f5-43b3-bcec-76fdeb849754.png" 
+                alt="Logo" 
+                className="auth-logo"
+              />
+            </div>
             <h1>{isSignUp ? "Create Account" : "Welcome"}</h1>
             <p>{isSignUp ? "Please sign up to get started" : "Please sign in to continue"}</p>
           </div>
