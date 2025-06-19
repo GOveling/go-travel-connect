@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import MultiCityFlightForm from "./MultiCityFlightForm";
 import RegularFlightForm from "./RegularFlightForm";
-import DateSelectionForm from "./DateSelectionForm";
 
 interface FormData {
   from: string;
@@ -27,6 +26,10 @@ interface FlightDetailsStepProps {
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
   setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  isDateRangeOpen: boolean;
+  setIsDateRangeOpen: (open: boolean) => void;
+  isDepartDateOpen: boolean;
+  setIsDepartDateOpen: (open: boolean) => void;
   onBack: () => void;
   onContinue: () => void;
 }
@@ -37,6 +40,10 @@ const FlightDetailsStep = ({
   setFormData,
   multiCityFlights,
   setMultiCityFlights,
+  isDateRangeOpen,
+  setIsDateRangeOpen,
+  isDepartDateOpen,
+  setIsDepartDateOpen,
   onBack,
   onContinue
 }: FlightDetailsStepProps) => {
@@ -61,23 +68,15 @@ const FlightDetailsStep = ({
           setMultiCityFlights={setMultiCityFlights}
         />
       ) : (
-        <div className="space-y-4">
-          <RegularFlightForm
-            tripType={tripType}
-            formData={formData}
-            setFormData={setFormData}
-          />
-          
-          <DateSelectionForm
-            tripType={tripType}
-            formData={formData}
-            setFormData={setFormData}
-            isDateRangeOpen={false}
-            setIsDateRangeOpen={() => {}}
-            isDepartDateOpen={false}
-            setIsDepartDateOpen={() => {}}
-          />
-        </div>
+        <RegularFlightForm
+          tripType={tripType}
+          formData={formData}
+          setFormData={setFormData}
+          isDateRangeOpen={isDateRangeOpen}
+          setIsDateRangeOpen={setIsDateRangeOpen}
+          isDepartDateOpen={isDepartDateOpen}
+          setIsDepartDateOpen={setIsDepartDateOpen}
+        />
       )}
 
       <div className="flex space-x-2">

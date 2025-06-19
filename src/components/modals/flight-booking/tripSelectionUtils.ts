@@ -104,7 +104,6 @@ const processMultiCityTrip = ({
   currentLocation: string;
   tripStartDate: string;
   tripEndDate: string | null;
-  optimizedDepartDate: string;
   travelers: number;
 }): MultiCityFlight[] => {
   const optimizedFlights: MultiCityFlight[] = [];
@@ -153,31 +152,23 @@ const processMultiCityTrip = ({
     });
   }
 
-  // Add return flight if trip has end date
+  // Add return flight if trip has end date - ALWAYS use the exact end date without AI optimization
   if (tripEndDate) {
     const lastDestination = destinations[destinations.length - 1].name;
-    
-    const returnRecommendation = getAIFlightTimingRecommendation(
-      lastDestination,
-      currentLocation,
-      tripEndDate
-    );
-    
-    const optimizedReturnDate = adjustFlightDateBasedOnAI(tripEndDate, returnRecommendation);
     
     optimizedFlights.push({
       from: lastDestination,
       to: currentLocation,
-      departDate: optimizedReturnDate,
+      departDate: tripEndDate, // Use exact end date without AI optimization
       passengers: travelers,
       class: 'economy'
     });
 
-    console.log('🛬 Return flight added:', {
+    console.log('🛬 Return flight added with exact end date:', {
       from: lastDestination,
       to: currentLocation,
-      date: optimizedReturnDate,
-      recommendation: returnRecommendation
+      date: tripEndDate,
+      note: 'Using exact itinerary end date without AI optimization'
     });
   }
 

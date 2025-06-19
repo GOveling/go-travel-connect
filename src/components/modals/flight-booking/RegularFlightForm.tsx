@@ -2,6 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import DateSelectionForm from "./DateSelectionForm";
 
 interface FormData {
   from: string;
@@ -16,9 +17,21 @@ interface RegularFlightFormProps {
   tripType: 'round-trip' | 'one-way' | 'multi-city';
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
+  isDateRangeOpen: boolean;
+  setIsDateRangeOpen: (open: boolean) => void;
+  isDepartDateOpen: boolean;
+  setIsDepartDateOpen: (open: boolean) => void;
 }
 
-const RegularFlightForm = ({ tripType, formData, setFormData }: RegularFlightFormProps) => {
+const RegularFlightForm = ({ 
+  tripType, 
+  formData, 
+  setFormData,
+  isDateRangeOpen,
+  setIsDateRangeOpen,
+  isDepartDateOpen,
+  setIsDepartDateOpen
+}: RegularFlightFormProps) => {
   const updateFormData = (field: keyof FormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -45,6 +58,16 @@ const RegularFlightForm = ({ tripType, formData, setFormData }: RegularFlightFor
           />
         </div>
       </div>
+
+      <DateSelectionForm
+        tripType={tripType}
+        formData={formData}
+        setFormData={setFormData}
+        isDateRangeOpen={isDateRangeOpen}
+        setIsDateRangeOpen={setIsDateRangeOpen}
+        isDepartDateOpen={isDepartDateOpen}
+        setIsDepartDateOpen={setIsDepartDateOpen}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <div>
