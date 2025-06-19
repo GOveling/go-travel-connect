@@ -1,19 +1,14 @@
 
-import { MapPin, ArrowUpDown, MapPinIcon } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-interface Trip {
-  id: number;
-  name: string;
-  destination: string;
-  dates: string;
-  image: string;
-  coordinates?: Array<{ name: string; lat: number; lng: number }>;
-}
+import { MapPin, Calendar, Users, Plane, Brain } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { extractStartDate, extractEndDate } from "./flightBookingUtils";
+import { getAIFlightTimingRecommendation, adjustFlightDateBasedOnAI } from "./aiFlightTimingUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   from: string;
@@ -37,7 +32,7 @@ interface TripSelectionStepProps {
   setTripType: (type: 'round-trip' | 'one-way' | 'multi-city') => void;
   selectedTrip: number | null;
   currentLocation: string;
-  activeTrips: Trip[];
+  activeTrips: any[];
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
@@ -59,206 +54,236 @@ const TripSelectionStep = ({
   onTripSelect,
   onContinue
 }: TripSelectionStepProps) => {
-  const canContinue = () => {
-    if (tripType === 'multi-city') {
-      return multiCityFlights.every(flight => flight.from && flight.to);
+  const [showAIRecommendation, setShowAIRecommendation] = useState(false);
+  const { toast } = useToast();
+
+  const handleTripSelection = (tripId: number) => {
+    onTripSelect(tripId);
+    const selectedTripData = activeTrips.find(trip => trip.id === tripId);
+    
+    if (selectedTripData) {
+      console.log('🤖 AI Flight Protocol - Processing trip:', selectedTripData);
+      
+      // Get trip destinations from coordinates
+      const destinations = selectedTripData.coordinates || [];
+      const tripStartDate = extractStartDate(selectedTripData.dates);
+      
+      if (destinations.length === 0) {
+        toast({
+          title: "⚠️ No se encontraron destinos",
+          description: "El viaje seleccionado no tiene destinos configurados.",
+        });
+        return;
+      }
+
+      const firstDestination = destinations[0].name;
+      
+      // 🤖 AI Protocol: Get flight timing recommendation
+      const aiRecommendation = getAIFlightTimingRecommendation(
+        currentLocation,
+        firstDestination,
+        tripStartDate
+      );
+
+      // Calculate optimal departure date
+      const optimizedDepartDate = adjustFlightDateBasedOnAI(tripStartDate, aiRecommendation);
+      
+      if (destinations.length > 1) {
+        // Multi-city trip
+        setTripType('multi-city');
+        
+        // Create multi-city flights with AI optimization
+        const aiOptimizedFlights: MultiCityFlight[] = [];
+        
+        // First flight: current location to first destination
+        aiOptimizedFlights.push({
+          from: currentLocation,
+          to: firstDestination,
+          departDate: optimizedDepartDate,
+          passengers: selectedTripData.travelers || 1,
+          class: 'economy'
+        });
+
+        // Intermediate flights between destinations
+        for (let i = 1; i < destinations.length; i++) {
+          const fromDest = destinations[i - 1].name;
+          const toDest = destinations[i].name;
+          
+          // Calculate intermediate date (simplified - could be enhanced with more AI logic)
+          const intermediateDate = new Date(tripStartDate);
+          intermediateDate.setDate(intermediateDate.getDate() + (i * 3)); // 3 days per destination
+          
+          aiOptimizedFlights.push({
+            from: fromDest,
+            to: toDest,
+            departDate: intermediateDate.toISOString().split('T')[0],
+            passengers: selectedTripData.travelers || 1,
+            class: 'economy'
+          });
+        }
+
+        setMultiCityFlights(aiOptimizedFlights);
+        setShowAIRecommendation(true);
+
+        // Show AI automation toast
+        toast({
+          title: "🤖 IA optimizó vuelos multi-destino",
+          description: `${aiOptimizedFlights.length} vuelos planificados. ${aiRecommendation.reason}`,
+        });
+
+      } else {
+        // Single destination trip
+        const endDate = extractEndDate(selectedTripData.dates);
+        
+        if (endDate) {
+          setTripType('round-trip');
+          setFormData(prev => ({
+            ...prev,
+            from: currentLocation,
+            to: firstDestination,
+            departDate: optimizedDepartDate,
+            returnDate: endDate,
+            passengers: selectedTripData.travelers || 1
+          }));
+        } else {
+          setTripType('one-way');
+          setFormData(prev => ({
+            ...prev,
+            from: currentLocation,
+            to: firstDestination,
+            departDate: optimizedDepartDate,
+            passengers: selectedTripData.travelers || 1
+          }));
+        }
+
+        setShowAIRecommendation(true);
+
+        // Show AI automation toast
+        toast({
+          title: "🤖 IA optimizó fechas de vuelo",
+          description: `${aiRecommendation.reason} Distancia: ${aiRecommendation.distance}km`,
+        });
+      }
+
+      console.log('🤖 AI Flight Optimization Applied:', {
+        originalDate: tripStartDate,
+        optimizedDate: optimizedDepartDate,
+        recommendation: aiRecommendation
+      });
     }
-    return formData.from && formData.to;
+  };
+
+  const canContinue = () => {
+    if (selectedTrip === null) return false;
+    
+    if (tripType === 'multi-city') {
+      return multiCityFlights.length >= 2;
+    }
+    
+    return formData.from && formData.to && formData.departDate;
   };
 
   return (
     <div className="space-y-4">
       <div>
-        {/* Current Location Display */}
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center space-x-2 text-blue-800">
-            <MapPinIcon size={16} />
-            <span className="text-sm font-medium">Current Location</span>
+        <h3 className="text-lg font-semibold mb-3">Select Trip Type</h3>
+        <RadioGroup value={tripType} onValueChange={(value) => setTripType(value as 'round-trip' | 'one-way' | 'multi-city')}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="round-trip" id="round-trip" />
+            <Label htmlFor="round-trip">Round Trip</Label>
           </div>
-          <p className="text-sm text-blue-700 mt-1">{currentLocation}</p>
-        </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="one-way" id="one-way" />
+            <Label htmlFor="one-way">One Way</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="multi-city" id="multi-city" />
+            <Label htmlFor="multi-city">Multi-city</Label>
+          </div>
+        </RadioGroup>
+      </div>
 
-        <h3 className="font-semibold mb-3">Select Trip or Create New</h3>
-        
-        {activeTrips.length > 0 && (
-          <div className="space-y-2 mb-4">
-            <Label className="text-sm text-gray-600">Your Active Trips (AI Auto-fill)</Label>
-            {activeTrips.map((trip) => (
+      {/* AI Recommendation Display */}
+      {showAIRecommendation && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Brain className="h-4 w-4 text-blue-600" />
+              <span className="font-medium text-blue-800">IA Optimizó tu Vuelo</span>
+            </div>
+            <p className="text-sm text-blue-700">
+              Las fechas de vuelo han sido optimizadas automáticamente basándose en la distancia 
+              y logística de viaje para maximizar tu experiencia.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      <div>
+        <h3 className="text-lg font-semibold mb-3">Select from Your Active Trips</h3>
+        <div className="space-y-2">
+          {activeTrips.length === 0 ? (
+            <Card>
+              <CardContent className="p-4 text-center text-gray-500">
+                <MapPin size={32} className="mx-auto mb-2 opacity-50" />
+                <p>No active trips found</p>
+                <p className="text-sm">Create a trip first to use auto-fill</p>
+              </CardContent>
+            </Card>
+          ) : (
+            activeTrips.map((trip) => (
               <Card 
-                key={trip.id}
-                className={`cursor-pointer transition-all ${
-                  selectedTrip === trip.id 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'hover:border-gray-300'
+                key={trip.id} 
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  selectedTrip === trip.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                 }`}
-                onClick={() => onTripSelect(trip.id)}
+                onClick={() => handleTripSelection(trip.id)}
               >
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="text-xl">{trip.image}</div>
-                      <div>
-                        <p className="font-medium text-sm">{trip.name}</p>
-                        <p className="text-xs text-gray-600">{trip.destination}</p>
-                        <p className="text-xs text-gray-500">{trip.dates}</p>
-                        {trip.coordinates && trip.coordinates.length > 0 && (
-                          <div className="text-xs text-blue-600 mt-1">
-                            <p>🤖 {trip.coordinates.length > 1 ? 'Multi-city:' : 'Route:'} {currentLocation} → {trip.coordinates[0].name}</p>
-                            {trip.coordinates.length > 1 && (
-                              <p>🤖 → {trip.coordinates[trip.coordinates.length - 1].name} → {currentLocation}</p>
-                            )}
-                            <p className="text-blue-500 font-medium">🧠 IA optimizará fechas de vuelo según distancia</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <Badge variant={selectedTrip === trip.id ? "default" : "outline"}>
-                      {selectedTrip === trip.id ? 'Selected' : 'Auto-fill'}
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium">{trip.name}</h4>
+                    <Badge variant="secondary" className="ml-2">
+                      {trip.status || 'Active'}
                     </Badge>
+                  </div>
+                  
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2">
+                      <MapPin size={14} />
+                      <span>{trip.destination}</span>
+                      {trip.coordinates && trip.coordinates.length > 1 && (
+                        <Badge variant="outline" className="text-xs">
+                          {trip.coordinates.length} destinos
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Calendar size={14} />
+                      <span>{trip.dates}</span>
+                    </div>
+                    
+                    {trip.travelers && (
+                      <div className="flex items-center space-x-2">
+                        <Users size={14} />
+                        <span>{trip.travelers} travelers</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <Label className="text-sm text-gray-600">Or Book Independently</Label>
-          
-          {/* Trip Type Selection */}
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant={tripType === 'round-trip' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTripType('round-trip')}
-              className="h-10"
-            >
-              Round Trip
-            </Button>
-            <Button
-              variant={tripType === 'one-way' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTripType('one-way')}
-              className="h-10"
-            >
-              One Way
-            </Button>
-          </div>
-
-          {/* Flight Details based on trip type */}
-          {tripType === 'multi-city' ? (
-            <div className="space-y-4">
-              <Label className="text-sm text-blue-600 font-medium">Multi-City Flights (Auto-filled)</Label>
-              
-              {/* Flight 1: Current → First Destination */}
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-                <Label className="text-sm font-medium text-blue-800">Flight 1: Outbound</Label>
-                <div className="space-y-2">
-                  <div>
-                    <Label className="text-xs">From</Label>
-                    <Input
-                      value={multiCityFlights[0]?.from || ''}
-                      onChange={(e) => setMultiCityFlights(prev => [
-                        { ...prev[0], from: e.target.value },
-                        prev[1]
-                      ])}
-                      className="h-10 text-sm"
-                      placeholder="Departure city"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">To</Label>
-                    <Input
-                      value={multiCityFlights[0]?.to || ''}
-                      onChange={(e) => setMultiCityFlights(prev => [
-                        { ...prev[0], to: e.target.value },
-                        prev[1]
-                      ])}
-                      className="h-10 text-sm"
-                      placeholder="Destination city"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Flight 2: Last Destination → Current */}
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg space-y-3">
-                <Label className="text-sm font-medium text-green-800">Flight 2: Return</Label>
-                <div className="space-y-2">
-                  <div>
-                    <Label className="text-xs">From</Label>
-                    <Input
-                      value={multiCityFlights[1]?.from || ''}
-                      onChange={(e) => setMultiCityFlights(prev => [
-                        prev[0],
-                        { ...prev[1], from: e.target.value }
-                      ])}
-                      className="h-10 text-sm"
-                      placeholder="Departure city"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">To</Label>
-                    <Input
-                      value={multiCityFlights[1]?.to || ''}
-                      onChange={(e) => setMultiCityFlights(prev => [
-                        prev[0],
-                        { ...prev[1], to: e.target.value }
-                      ])}
-                      className="h-10 text-sm"
-                      placeholder="Destination city"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* Regular From/To Inputs for round-trip and one-way */
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="from" className="text-sm">From</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
-                  <Input
-                    id="from"
-                    placeholder="Departure city"
-                    value={formData.from}
-                    onChange={(e) => setFormData(prev => ({ ...prev, from: e.target.value }))}
-                    className="pl-10 h-12"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <Button variant="ghost" size="sm" className="p-2 rounded-full bg-gray-100">
-                  <ArrowUpDown size={16} />
-                </Button>
-              </div>
-
-              <div>
-                <Label htmlFor="to" className="text-sm">To</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
-                  <Input
-                    id="to"
-                    placeholder="Destination city"
-                    value={formData.to}
-                    onChange={(e) => setFormData(prev => ({ ...prev, to: e.target.value }))}
-                    className="pl-10 h-12"
-                  />
-                </div>
-              </div>
-            </div>
+            ))
           )}
         </div>
       </div>
 
       <Button 
         onClick={onContinue}
-        className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600"
+        className="w-full"
         disabled={!canContinue()}
       >
-        Continue
+        <Plane size={16} className="mr-2" />
+        Continue to Flight Details
       </Button>
     </div>
   );
