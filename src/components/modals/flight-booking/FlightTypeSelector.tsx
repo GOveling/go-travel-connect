@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plane, ArrowRightLeft, Route, Edit3 } from "lucide-react";
+import { Edit3, Route } from "lucide-react";
 
 interface FlightTypeSelectorProps {
   tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
@@ -11,25 +11,11 @@ interface FlightTypeSelectorProps {
 const FlightTypeSelector = ({ tripType, onTypeChange }: FlightTypeSelectorProps) => {
   const options = [
     {
-      id: 'round-trip',
-      title: 'Ida y Vuelta',
-      description: 'Viaje redondo',
-      icon: ArrowRightLeft,
-      color: 'bg-blue-50 border-blue-200 text-blue-700'
-    },
-    {
-      id: 'one-way',
-      title: 'Solo Ida',
-      description: 'Un solo trayecto',
-      icon: Plane,
-      color: 'bg-green-50 border-green-200 text-green-700'
-    },
-    {
-      id: 'multi-city',
-      title: 'Multi-destino',
-      description: 'Múltiples ciudades',
+      id: 'autofill',
+      title: 'Autofill',
+      description: 'Desde mis viajes',
       icon: Route,
-      color: 'bg-purple-50 border-purple-200 text-purple-700'
+      color: 'bg-blue-50 border-blue-200 text-blue-700'
     },
     {
       id: 'manual',
@@ -46,7 +32,7 @@ const FlightTypeSelector = ({ tripType, onTypeChange }: FlightTypeSelectorProps)
       <div className="grid grid-cols-2 gap-3">
         {options.map((option) => {
           const Icon = option.icon;
-          const isSelected = tripType === option.id;
+          const isSelected = (option.id === 'autofill' && tripType !== 'manual') || tripType === option.id;
           
           return (
             <Card
@@ -56,7 +42,7 @@ const FlightTypeSelector = ({ tripType, onTypeChange }: FlightTypeSelectorProps)
                   ? 'border-blue-500 bg-blue-50 shadow-md' 
                   : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
               }`}
-              onClick={() => onTypeChange(option.id as any)}
+              onClick={() => onTypeChange(option.id === 'autofill' ? 'round-trip' : option.id as any)}
             >
               <div className="flex flex-col items-center text-center space-y-2">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
