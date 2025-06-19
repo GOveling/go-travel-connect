@@ -294,7 +294,7 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                       type="number"
                       min="1"
                       max="20"
-                      value={form.participants}
+                      value={formData.participants}
                       onChange={(e) => setFormData(prev => ({ ...prev, participants: parseInt(e.target.value) }))}
                       className="pl-10"
                     />

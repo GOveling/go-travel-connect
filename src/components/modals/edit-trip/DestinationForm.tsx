@@ -5,7 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Plus, X, Calendar } from "lucide-react";
 import { addDays, format } from "date-fns";
-import DestinationDatePicker from "./DestinationDatePicker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { JollyCalendar } from "@/components/ui/range-calendar";
+import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
 
 interface Destination {
   name: string;
@@ -20,6 +25,8 @@ interface DestinationFormProps {
 }
 
 const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }: DestinationFormProps) => {
+  const [openPopovers, setOpenPopovers] = useState<{[key: string]: boolean}>({});
+
   const addDestination = () => {
     const newDestination: Destination = { name: "", startDate: undefined, endDate: undefined };
     
@@ -92,6 +99,32 @@ const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }
     }
   };
 
+  const handleDateChange = (index: number, field: 'startDate' | 'endDate', date: CalendarDate | null) => {
+    if (date) {
+      const jsDate = new Date(date.year, date.month - 1, date.day);
+      updateDestination(index, field, jsDate);
+    }
+    setOpenPopovers(prev => ({ ...prev, [`${index}-${field}`]: false }));
+  };
+
+  const getDateValue = (date: Date | undefined) => {
+    if (date) {
+      return parseDate(format(date, "yyyy-MM-dd"));
+    }
+    return null;
+  };
+
+  const formatDate = (date: Date | undefined, placeholder: string) => {
+    if (date) {
+      return format(date, "dd/MM/yyyy");
+    }
+    return placeholder;
+  };
+
+  const togglePopover = (key: string, isOpen: boolean) => {
+    setOpenPopovers(prev => ({ ...prev, [key]: isOpen }));
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -132,17 +165,57 @@ const DestinationForm = ({ destinations, onDestinationsChange, calculatedDates }
                 className="text-sm"
               />
               <div className="grid grid-cols-2 gap-2">
-                <DestinationDatePicker
-                  date={destination.startDate}
-                  onDateChange={(date) => updateDestination(index, 'startDate', date)}
-                  placeholder="Start"
-                />
-                <DestinationDatePicker
-                  date={destination.endDate}
-                  onDateChange={(date) => updateDestination(index, 'endDate', date)}
-                  placeholder="End"
-                  disabled={(date) => destination.startDate ? date <= destination.startDate : false}
-                />
+                <Popover 
+                  open={openPopovers[`${index}-startDate`] || false} 
+                  onOpenChange={(isOpen) => togglePopover(`${index}-startDate`, isOpen)}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal text-xs h-8",
+                        !destination.startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      <span>{formatDate(destination.startDate, "Start")}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <JollyCalendar
+                      value={getDateValue(destination.startDate)}
+                      onChange={(date) => handleDateChange(index, 'startDate', date)}
+                      minValue={today(getLocalTimeZone())}
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Popover 
+                  open={openPopovers[`${index}-endDate`] || false} 
+                  onOpenChange={(isOpen) => togglePopover(`${index}-endDate`, isOpen)}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal text-xs h-8",
+                        !destination.endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      <span>{formatDate(destination.endDate, "End")}</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <JollyCalendar
+                      value={getDateValue(destination.endDate)}
+                      onChange={(date) => handleDateChange(index, 'endDate', date)}
+                      minValue={destination.startDate ? parseDate(format(addDays(destination.startDate, 1), "yyyy-MM-dd")) : today(getLocalTimeZone())}
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>

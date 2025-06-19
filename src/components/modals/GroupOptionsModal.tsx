@@ -31,6 +31,7 @@ interface Decision {
   votes: Record<string, number>;
   votersPerOption: Record<string, string[]>;
   status: string;
+  startDate: string;
   endDate: string;
   createdBy: string;
 }
@@ -116,6 +117,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               "Per Se": [] 
             },
             status: "active",
+            startDate: "2024-12-20",
             endDate: "2024-12-20",
             createdBy: "Alice Johnson"
           },
@@ -131,6 +133,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               "Walking Tours": ["Bob Smith"] 
             },
             status: "active",
+            startDate: "2024-12-21",
             endDate: "2024-12-21",
             createdBy: "Bob Smith"
           }
@@ -149,6 +152,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               "Cooking Class": [] 
             },
             status: "active",
+            startDate: "2024-11-25",
             endDate: "2024-11-25",
             createdBy: "Emma Wilson"
           }
@@ -172,6 +176,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     title: "",
     description: "",
     options: ["", ""],
+    startDate: "",
     endDate: "",
     selectedParticipants: [] as string[]
   });
@@ -283,11 +288,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         votes: initialVotes,
         votersPerOption: initialVotersPerOption,
         status: "active",
+        startDate: newDecision.startDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         endDate: newDecision.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         createdBy: "You"
       };
       setDecisions([...decisions, decision]);
-      setNewDecision({ title: "", description: "", options: ["", ""], endDate: "", selectedParticipants: [] });
+      setNewDecision({ title: "", description: "", options: ["", ""], startDate: "", endDate: "", selectedParticipants: [] });
       setShowCreateDecisionModal(false);
     }
   };
@@ -297,6 +303,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       title: decision.title,
       description: decision.description || "",
       options: decision.options,
+      startDate: decision.startDate,
       endDate: decision.endDate,
       selectedParticipants: allParticipants.map(p => p.name) // Default to all participants for existing decisions
     });
@@ -318,11 +325,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
               title: newDecision.title,
               description: newDecision.description,
               options: validOptions,
+              startDate: newDecision.startDate,
               endDate: newDecision.endDate
             }
           : decision
       ));
-      setNewDecision({ title: "", description: "", options: ["", ""], endDate: "", selectedParticipants: [] });
+      setNewDecision({ title: "", description: "", options: ["", ""], startDate: "", endDate: "", selectedParticipants: [] });
       setEditingDecisionId(null);
       setShowCreateDecisionModal(false);
     }
@@ -366,7 +374,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   };
 
   const resetCreateDecisionForm = () => {
-    setNewDecision({ title: "", description: "", options: ["", ""], endDate: "", selectedParticipants: [] });
+    setNewDecision({ title: "", description: "", options: ["", ""], startDate: "", endDate: "", selectedParticipants: [] });
     setEditingDecisionId(null);
   };
 
