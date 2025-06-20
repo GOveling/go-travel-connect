@@ -1,26 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { MapPin, Cloud, Sun, CloudRain, Thermometer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface WeatherData {
-  temperature: number;
-  condition: string;
-  icon: string;
-  humidity: number;
-  windSpeed: number;
-}
-
-interface LocationData {
-  city: string;
-  country: string;
-  region: string;
-}
+import { useWeatherData } from "@/hooks/useWeatherData";
+import { useReduxAuth } from "@/hooks/useReduxAuth";
 
 const LocationWeatherWidget = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [location, setLocation] = useState<LocationData>({ city: "Loading...", country: "", region: "" });
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { weatherData, isLoading, fetchWeatherByLocation, isDataStale } = useWeatherData();
+  const { isAuthenticated } = useReduxAuth();
 
   useEffect(() => {
     // Update date every minute
@@ -28,77 +16,15 @@ const LocationWeatherWidget = () => {
       setCurrentDate(new Date());
     }, 60000);
 
-    // Get user location and weather
-    const fetchLocationAndWeather = async () => {
-      try {
-        // Get user's location using geolocation API
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (position) => {
-              const { latitude, longitude } = position.coords;
-              
-              // Mock location data (in a real app, you'd use a reverse geocoding API)
-              setLocation({
-                city: "Paris",
-                country: "France",
-                region: "Île-de-France"
-              });
-
-              // Mock weather data (in a real app, you'd use a weather API)
-              setWeather({
-                temperature: 18,
-                condition: "Partly Cloudy",
-                icon: "partly-cloudy",
-                humidity: 65,
-                windSpeed: 12
-              });
-
-              setIsLoading(false);
-            },
-            (error) => {
-              console.log("Geolocation error:", error);
-              // Fallback to default location
-              setLocation({
-                city: "Paris",
-                country: "France",
-                region: "Île-de-France"
-              });
-              setWeather({
-                temperature: 18,
-                condition: "Partly Cloudy",
-                icon: "partly-cloudy",
-                humidity: 65,
-                windSpeed: 12
-              });
-              setIsLoading(false);
-            }
-          );
-        } else {
-          // Fallback if geolocation is not supported
-          setLocation({
-            city: "Paris",
-            country: "France",
-            region: "Île-de-France"
-          });
-          setWeather({
-            temperature: 18,
-            condition: "Partly Cloudy",
-            icon: "partly-cloudy",
-            humidity: 65,
-            windSpeed: 12
-          });
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching location/weather:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchLocationAndWeather();
-
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Fetch weather data when component mounts or when data is stale
+    if (isAuthenticated && (!weatherData || isDataStale())) {
+      fetchWeatherByLocation();
+    }
+  }, [isAuthenticated, weatherData, isDataStale, fetchWeatherByLocation]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
@@ -131,7 +57,7 @@ const LocationWeatherWidget = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !weatherData) {
     return (
       <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
         <CardContent className="p-2">
@@ -152,22 +78,20 @@ const LocationWeatherWidget = () => {
           {/* Date and Location */}
           <div className="flex items-center space-x-2">
             <MapPin size={12} />
-            <span className="font-medium">{location.city}</span>
+            <span className="font-medium">{weatherData.location.city}</span>
             <span className="opacity-80">•</span>
             <span>{formatDate(currentDate)}</span>
             <span>{formatTime(currentDate)}</span>
           </div>
 
           {/* Weather */}
-          {weather && (
-            <div className="flex items-center space-x-2">
-              {getWeatherIcon(weather.condition)}
-              <div className="flex items-center">
-                <Thermometer size={12} className="mr-1" />
-                <span className="font-bold">{weather.temperature}°C</span>
-              </div>
+          <div className="flex items-center space-x-2">
+            {getWeatherIcon(weatherData.condition)}
+            <div className="flex items-center">
+              <Thermometer size={12} className="mr-1" />
+              <span className="font-bold">{weatherData.temperature}°C</span>
             </div>
-          )}
+          </div>
         </div>
       </CardContent>
     </Card>

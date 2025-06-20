@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import AuthGate from "./components/auth/AuthGate";
 import { useAuth } from "./hooks/useAuth";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { ReduxProvider } from "./providers/ReduxProvider";
 
 const queryClient = new QueryClient();
 
@@ -17,47 +18,53 @@ const App = () => {
 
   if (loading) {
     return (
-      <LanguageProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-orange-500 flex items-center justify-center">
-              <div className="text-white text-lg">Loading...</div>
-            </div>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </LanguageProvider>
+      <ReduxProvider>
+        <LanguageProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-orange-500 flex items-center justify-center">
+                <div className="text-white text-lg">Loading...</div>
+              </div>
+            </TooltipProvider>
+          </QueryClientProvider>
+        </LanguageProvider>
+      </ReduxProvider>
     );
   }
 
   if (!user) {
     return (
+      <ReduxProvider>
+        <LanguageProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <AuthGate onAuthSuccess={() => {}} />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </LanguageProvider>
+      </ReduxProvider>
+    );
+  }
+
+  return (
+    <ReduxProvider>
       <LanguageProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <AuthGate onAuthSuccess={() => {}} />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index onSignOut={signOut} />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
           </TooltipProvider>
         </QueryClientProvider>
       </LanguageProvider>
-    );
-  }
-
-  return (
-    <LanguageProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index onSignOut={signOut} />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </LanguageProvider>
+    </ReduxProvider>
   );
 };
 

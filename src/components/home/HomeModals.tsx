@@ -6,6 +6,8 @@ import LoginModal from "@/components/modals/LoginModal";
 import SignUpModal from "@/components/modals/SignUpModal";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { useAuth } from "@/hooks/useAuth";
+import { useReduxAuth } from "@/hooks/useReduxAuth";
 
 interface HomeModalsProps {
   homeState: ReturnType<typeof useHomeState>;
@@ -13,6 +15,9 @@ interface HomeModalsProps {
 }
 
 const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { isAuthenticated } = useReduxAuth();
+
   const handleSwitchToSignUp = () => {
     homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
     homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(true);
@@ -21,6 +26,34 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
   const handleSwitchToLogin = () => {
     homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
     homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(true);
+  };
+
+  const handleEmailLogin = async (email: string, password: string) => {
+    try {
+      await signIn(email, password);
+      homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
+    } catch (error) {
+      console.error("Login error:", error);
+    }
+  };
+
+  const handleEmailSignUp = async (name: string, email: string, password: string) => {
+    try {
+      await signUp(email, password, name);
+      homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
+    } catch (error) {
+      console.error("Sign up error:", error);
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    try {
+      await signInWithGoogle();
+      homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
+      homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
+    } catch (error) {
+      console.error("Google auth error:", error);
+    }
   };
 
   return (
@@ -48,14 +81,8 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       <LoginModal
         isOpen={homeState.isLoginModalOpen || false}
         onClose={() => homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false)}
-        onLogin={(email, password) => {
-          console.log("Email login:", email);
-          // Handle email/password login here
-        }}
-        onGoogleLogin={() => {
-          console.log("Google login");
-          // Handle Google login here
-        }}
+        onLogin={handleEmailLogin}
+        onGoogleLogin={handleGoogleAuth}
         onSwitchToSignUp={handleSwitchToSignUp}
       />
 
@@ -63,14 +90,8 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       <SignUpModal
         isOpen={homeState.isSignUpModalOpen || false}
         onClose={() => homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false)}
-        onSignUp={(name, email, password) => {
-          console.log("Email sign up:", name, email);
-          // Handle email/password sign up here
-        }}
-        onGoogleSignUp={() => {
-          console.log("Google sign up");
-          // Handle Google sign up here
-        }}
+        onSignUp={handleEmailSignUp}
+        onGoogleSignUp={handleGoogleAuth}
         onSwitchToLogin={handleSwitchToLogin}
       />
     </>
