@@ -1,6 +1,5 @@
 
 import { Plus, Map } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import TripMap from "@/components/maps/TripMap";
 import TripDetailModal from "@/components/modals/TripDetailModal";
@@ -14,12 +13,14 @@ import CityBreakModal from "@/components/modals/CityBreakModal";
 import BackpackingModal from "@/components/modals/BackpackingModal";
 import EditTripModal from "@/components/modals/EditTripModal";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
-import TripCard from "@/components/trips/TripCard";
-import QuickStats from "@/components/trips/QuickStats";
-import TripTemplates from "@/components/trips/TripTemplates";
 import ShareSection from "@/components/trips/ShareSection";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { IOSNavigationBar } from "@/components/ui/ios-navigation-bar";
+import { IOSButton } from "@/components/ui/ios-button";
+import IOSTripCard from "@/components/trips/IOSTripCard";
+import IOSQuickStats from "@/components/trips/IOSQuickStats";
+import IOSTripTemplates from "@/components/trips/IOSTripTemplates";
 
 const TripsSection = () => {
   const { t } = useLanguage();
@@ -36,10 +37,8 @@ const TripsSection = () => {
   const [showBackpackingModal, setShowBackpackingModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   
-  // Use shared state instead of local state
   const { trips, setTrips } = useHomeState();
 
-  // Calculate automatic status for each trip
   const tripsWithAutoStatus = trips.map(trip => ({
     ...trip,
     status: calculateTripStatus(trip.dates)
@@ -78,7 +77,6 @@ const TripsSection = () => {
   };
 
   const handleAISmartRoute = (trip: any) => {
-    console.log('AI Smart Route button clicked for trip:', trip); // Debug log
     setSelectedTrip(trip);
     setShowAISmartRouteModal(true);
   };
@@ -86,7 +84,6 @@ const TripsSection = () => {
   const handleViewSavedPlaces = (trip: any) => {
     setSelectedTrip(trip);
     setShowTripDetail(true);
-    // We'll use a custom event to tell the TripDetailModal to show the saved-places tab
     setTimeout(() => {
       const event = new CustomEvent('openSavedPlacesTab');
       window.dispatchEvent(event);
@@ -95,88 +92,82 @@ const TripsSection = () => {
 
   if (showMap) {
     return (
-      <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.mapView")}</h2>
-              <p className="text-gray-600 text-sm sm:text-base">View all your trip destinations</p>
-            </div>
-            <Button 
-              variant="outline"
-              onClick={() => setShowMap(false)}
-              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
-            >
-              {t("trips.backToList")}
-            </Button>
-          </div>
+      <div className="min-h-screen bg-gray-50">
+        <IOSNavigationBar
+          title="Trip Map"
+          leftAction={{
+            label: "Back",
+            onClick: () => setShowMap(false)
+          }}
+        />
+        <div className="p-4">
+          <TripMap trips={tripsWithAutoStatus} />
         </div>
-
-        {/* Map Component */}
-        <TripMap trips={tripsWithAutoStatus} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.title")}</h2>
-            <p className="text-gray-600 text-sm sm:text-base">{t("trips.subtitle")}</p>
-          </div>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-            <Button 
-              variant="outline"
-              onClick={() => setShowMap(true)}
-              className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
-            >
-              <Map size={20} className="mr-2" />
-              {t("trips.mapView")}
-            </Button>
-            <Button 
-              className="bg-gradient-to-r from-blue-500 to-orange-500 border-0 w-full sm:w-auto"
-              onClick={() => setShowNewTripModal(true)}
-            >
-              <Plus size={20} className="mr-2" />
-              {t("trips.newTrip")}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <QuickStats trips={tripsWithAutoStatus} />
-
-      {/* Trips List */}
-      <div className="space-y-4">
-        {tripsWithAutoStatus.map((trip) => (
-          <TripCard
-            key={trip.id}
-            trip={trip}
-            onViewDetails={handleViewDetails}
-            onEditTrip={handleEditTrip}
-            onInviteFriends={handleInviteFriends}
-            onGroupOptions={handleGroupOptions}
-            onAISmartRoute={handleAISmartRoute}
-            onViewSavedPlaces={handleViewSavedPlaces}
-          />
-        ))}
-      </div>
-
-      {/* Trip Templates */}
-      <TripTemplates
-        onBeachVacation={() => setShowBeachVacationModal(true)}
-        onMountainTrip={() => setShowMountainTripModal(true)}
-        onCityBreak={() => setShowCityBreakModal(true)}
-        onBackpacking={() => setShowBackpackingModal(true)}
+    <div className="min-h-screen bg-gray-50">
+      {/* iOS Navigation Bar */}
+      <IOSNavigationBar
+        title="My Trips"
+        rightAction={{
+          icon: <Plus size={20} />,
+          onClick: () => setShowNewTripModal(true)
+        }}
       />
 
-      {/* Share App with Travelers Friends */}
-      <ShareSection />
+      {/* Main Content */}
+      <div className="px-4 py-6 space-y-6">
+        {/* Quick Actions */}
+        <div className="flex space-x-3">
+          <IOSButton
+            variant="secondary"
+            size="sm"
+            className="flex-1 flex items-center justify-center space-x-2"
+            onClick={() => setShowMap(true)}
+          >
+            <Map size={16} />
+            <span>Map View</span>
+          </IOSButton>
+          <IOSButton
+            variant="primary"
+            size="sm"
+            className="flex-1 flex items-center justify-center space-x-2"
+            onClick={() => setShowNewTripModal(true)}
+          >
+            <Plus size={16} />
+            <span>New Trip</span>
+          </IOSButton>
+        </div>
+
+        {/* Quick Stats */}
+        <IOSQuickStats trips={tripsWithAutoStatus} />
+
+        {/* Trips List */}
+        <div className="space-y-3">
+          <h2 className="text-xl font-semibold text-gray-900 px-1">Your Trips</h2>
+          {tripsWithAutoStatus.map((trip) => (
+            <IOSTripCard
+              key={trip.id}
+              trip={trip}
+              onViewDetails={handleViewDetails}
+            />
+          ))}
+        </div>
+
+        {/* Trip Templates */}
+        <IOSTripTemplates
+          onBeachVacation={() => setShowBeachVacationModal(true)}
+          onMountainTrip={() => setShowMountainTripModal(true)}
+          onCityBreak={() => setShowCityBreakModal(true)}
+          onBackpacking={() => setShowBackpackingModal(true)}
+        />
+
+        {/* Share Section */}
+        <ShareSection />
+      </div>
 
       {/* All Modals */}
       <NewTripModal 
