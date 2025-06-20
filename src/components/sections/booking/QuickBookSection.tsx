@@ -1,7 +1,7 @@
 
 import { Plane, Building } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import GradientButton from "@/components/ui/gradient-button";
+import { Button } from "@/components/ui/button";
 
 interface QuickBookSectionProps {
   onFlightClick: () => void;
@@ -10,13 +10,13 @@ interface QuickBookSectionProps {
 
 const QuickBookSection = ({ onFlightClick, onHotelClick }: QuickBookSectionProps) => {
   return (
-    <Card className="bg-transparent border-0">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg text-white">Quick Book</CardTitle>
+        <CardTitle className="text-lg">Quick Book</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <GradientButton 
-          className="w-full h-14 text-left justify-start"
+        <Button 
+          className="w-full h-14 bg-gradient-to-r from-blue-500 to-blue-600 text-left justify-start"
           onClick={onFlightClick}
         >
           <Plane className="mr-3" size={20} />
@@ -24,18 +24,18 @@ const QuickBookSection = ({ onFlightClick, onHotelClick }: QuickBookSectionProps
             <p className="font-medium">Round-trip Flight</p>
             <p className="text-xs opacity-90">From $299</p>
           </div>
-        </GradientButton>
-        <GradientButton 
-          variant="secondary" 
+        </Button>
+        <Button 
+          variant="outline" 
           className="w-full h-14 text-left justify-start border-2"
           onClick={onHotelClick}
         >
           <Building className="mr-3" size={20} />
           <div>
             <p className="font-medium">Hotel + Flight Package</p>
-            <p className="text-xs opacity-90">Save up to 40%</p>
+            <p className="text-xs text-gray-600">Save up to 40%</p>
           </div>
-        </GradientButton>
+        </Button>
       </CardContent>
     </Card>
   );

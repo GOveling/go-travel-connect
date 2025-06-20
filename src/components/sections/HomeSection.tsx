@@ -10,8 +10,6 @@ import HomeModals from "@/components/home/HomeModals";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
-import GlassCard from "@/components/ui/glass-card";
-import AnimatedContainer from "@/components/ui/animated-container";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 import { useToast } from "@/hooks/use-toast";
@@ -89,46 +87,34 @@ const HomeSection = () => {
   };
 
   return (
-    <AnimatedContainer className="min-h-screen p-4 space-y-4" animation="fade-in">
+    <div className="min-h-screen p-4 space-y-4">
       {/* Minimized Location, Date & Weather Widget */}
       <div className="pt-2">
-        <GlassCard className="p-4">
-          <LocationWeatherWidget />
-        </GlassCard>
+        <LocationWeatherWidget />
       </div>
 
       {/* Header with Logo and Notification Bell */}
-      <GlassCard>
-        <HomeHeader
-          notificationCount={homeState.notificationCount}
-          onNotificationClick={handlers.handleNotificationClick}
-        />
-      </GlassCard>
+      <HomeHeader
+        notificationCount={homeState.notificationCount}
+        onNotificationClick={handlers.handleNotificationClick}
+      />
 
       {/* Quick Stats */}
-      <GlassCard>
-        <QuickStats />
-      </GlassCard>
+      <QuickStats />
 
-      <GlassCard>
-        <CurrentTrip 
-          currentTrip={homeState.currentTrip}
-          travelingTrip={homeState.travelingTrip}
-          nearestUpcomingTrip={homeState.nearestUpcomingTrip}
-          onViewDetail={handlers.handleViewCurrentTripDetail}
-          onPlanNewTrip={handlers.handlePlanNewTrip}
-          onNavigateToTrips={handlers.handleNavigateToTrips}
-        />
-      </GlassCard>
+      <CurrentTrip 
+        currentTrip={homeState.currentTrip}
+        travelingTrip={homeState.travelingTrip}
+        nearestUpcomingTrip={homeState.nearestUpcomingTrip}
+        onViewDetail={handlers.handleViewCurrentTripDetail}
+        onPlanNewTrip={handlers.handlePlanNewTrip}
+        onNavigateToTrips={handlers.handleNavigateToTrips}
+      />
 
-      <GlassCard>
-        <QuickActions onNearbyAlertsClick={handleNearbyAlertsClick} />
-      </GlassCard>
+      <QuickActions onNearbyAlertsClick={handleNearbyAlertsClick} />
 
       {/* Popular Place Globally */}
-      <GlassCard>
-        <HomePopularPlace onPlaceClick={handlePlaceClick} />
-      </GlassCard>
+      <HomePopularPlace onPlaceClick={handlePlaceClick} />
 
       {/* Render all modals */}
       <HomeModals homeState={homeState} handlers={handlers} />
@@ -157,7 +143,7 @@ const HomeSection = () => {
         onAddToExistingTrip={handleAddToExistingTrip}
         onCreateNewTrip={handleCreateNewTrip}
       />
-    </AnimatedContainer>
+    </div>
   );
 };
 
