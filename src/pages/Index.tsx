@@ -7,6 +7,7 @@ import ExploreSection from "@/components/sections/ExploreSection";
 import BookingSection from "@/components/sections/BookingSection";
 import TravelersSection from "@/components/sections/TravelersSection";
 import ProfileSection from "@/components/sections/ProfileSection";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 interface IndexProps {
   onSignOut?: () => void;
@@ -43,7 +44,8 @@ const Index = ({ onSignOut }: IndexProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="app-background pb-20">
+      <ThemeToggle />
       {renderContent()}
       <BottomNavigation 
         activeTab={activeSection} 

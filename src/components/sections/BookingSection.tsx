@@ -12,6 +12,8 @@ import SpecialOfferCard from "./booking/SpecialOfferCard";
 import BookingCategoriesGrid from "./booking/BookingCategoriesGrid";
 import QuickBookSection from "./booking/QuickBookSection";
 import RecentBookingsSection from "./booking/RecentBookingsSection";
+import GlassCard from "@/components/ui/glass-card";
+import AnimatedContainer from "@/components/ui/animated-container";
 
 const BookingSection = () => {
   const { t } = useLanguage();
@@ -23,26 +25,34 @@ const BookingSection = () => {
   const [isESIMModalOpen, setIsESIMModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
-      <BookingHeader />
+    <AnimatedContainer className="min-h-screen p-4 space-y-6" animation="fade-in">
+      <GlassCard>
+        <BookingHeader />
+      </GlassCard>
       
       <SpecialOfferCard />
 
-      <BookingCategoriesGrid
-        onFlightClick={() => setIsFlightModalOpen(true)}
-        onHotelClick={() => setIsHotelModalOpen(true)}
-        onCarRentalClick={() => setIsTransportationModalOpen(true)}
-        onToursClick={() => setIsToursModalOpen(true)}
-        onESIMClick={() => setIsESIMModalOpen(true)}
-        onRestaurantClick={() => setIsRestaurantModalOpen(true)}
-      />
+      <GlassCard>
+        <BookingCategoriesGrid
+          onFlightClick={() => setIsFlightModalOpen(true)}
+          onHotelClick={() => setIsHotelModalOpen(true)}
+          onCarRentalClick={() => setIsTransportationModalOpen(true)}
+          onToursClick={() => setIsToursModalOpen(true)}
+          onESIMClick={() => setIsESIMModalOpen(true)}
+          onRestaurantClick={() => setIsRestaurantModalOpen(true)}
+        />
+      </GlassCard>
 
-      <QuickBookSection
-        onFlightClick={() => setIsFlightModalOpen(true)}
-        onHotelClick={() => setIsHotelModalOpen(true)}
-      />
+      <GlassCard>
+        <QuickBookSection
+          onFlightClick={() => setIsFlightModalOpen(true)}
+          onHotelClick={() => setIsHotelModalOpen(true)}
+        />
+      </GlassCard>
 
-      <RecentBookingsSection />
+      <GlassCard>
+        <RecentBookingsSection />
+      </GlassCard>
 
       {/* All Modals */}
       <FlightBookingModal
@@ -74,7 +84,7 @@ const BookingSection = () => {
         isOpen={isESIMModalOpen}
         onClose={() => setIsESIMModalOpen(false)}
       />
-    </div>
+    </AnimatedContainer>
   );
 };
 
