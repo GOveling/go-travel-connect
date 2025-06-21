@@ -1,40 +1,21 @@
 
-import { useModalState } from "./state/useModalState";
-import { useHomeData } from "./state/useHomeData";
-import { useNotifications } from "./state/useNotifications";
-import { useSelectedItems } from "./state/useSelectedItems";
-import { useTripCalculations } from "./state/useTripCalculations";
-import { addPlaceToTripUtil } from "./utils/tripUtils";
+import { useSupabaseTrips } from './useSupabaseTrips';
 
 export const useHomeState = () => {
-  const modalState = useModalState();
-  const homeData = useHomeData();
-  const notifications = useNotifications();
-  const selectedItems = useSelectedItems();
-  const tripCalculations = useTripCalculations(homeData.trips);
+  const { trips, loading, createTrip, updateTrip, deleteTrip, refetchTrips } = useSupabaseTrips();
 
-  // Function to add a place to a trip
-  const addPlaceToTrip = (tripId: number, place: any) => {
-    homeData.setTrips(prev => addPlaceToTripUtil(prev, tripId, place));
+  const setTrips = async (newTripsOrUpdater: any) => {
+    // This function is kept for compatibility but now we use specific CRUD operations
+    console.warn('setTrips is deprecated, use createTrip, updateTrip, or deleteTrip instead');
   };
 
   return {
-    // Modal states
-    ...modalState,
-    
-    // Data states
-    ...homeData,
-    
-    // Notifications
-    ...notifications,
-    
-    // Selected items
-    ...selectedItems,
-    
-    // Trip calculations
-    ...tripCalculations,
-    
-    // Actions
-    addPlaceToTrip
+    trips,
+    loading,
+    setTrips,
+    createTrip,
+    updateTrip,
+    deleteTrip,
+    refetchTrips
   };
 };
