@@ -19,35 +19,39 @@ export const useAuth = () => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 useAuth: Auth state changed:', event, session?.user?.email || 'no user');
+        console.log('🔔 useAuth: Auth state changed:', { event, userEmail: session?.user?.email || 'no user', hasSession: !!session });
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN') {
           console.log('✅ useAuth: User signed in successfully:', session?.user?.email);
-          setLoading(false);
+          toast({
+            title: "¡Bienvenido!",
+            description: "Has iniciado sesión exitosamente.",
+          });
         } else if (event === 'SIGNED_OUT') {
           console.log('👋 useAuth: User signed out');
-          setLoading(false);
         } else if (event === 'TOKEN_REFRESHED') {
           console.log('🔄 useAuth: Token refreshed for:', session?.user?.email);
-        } else if (event === 'USER_UPDATED') {
-          console.log('👤 useAuth: User updated:', session?.user?.email);
-        } else {
-          setLoading(false);
         }
+        
+        setLoading(false);
       }
     );
 
     // THEN check for existing session
     const initializeAuth = async () => {
       try {
+        console.log('🔍 useAuth: Checking for existing session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
           console.error('❌ useAuth: Error getting initial session:', error);
         } else {
-          console.log('🔍 useAuth: Initial session check:', session?.user?.email || 'no session');
+          console.log('🔍 useAuth: Initial session check:', { 
+            hasSession: !!session,
+            userEmail: session?.user?.email || 'no session'
+          });
           setSession(session);
           setUser(session?.user ?? null);
         }
@@ -109,7 +113,11 @@ export const useAuth = () => {
         return { error };
       }
 
-      console.log('✅ useAuth: Sign up successful:', data);
+      console.log('✅ useAuth: Sign up successful:', { 
+        hasUser: !!data.user, 
+        hasSession: !!data.session,
+        userEmail: data.user?.email 
+      });
 
       if (data.user && !data.session) {
         toast({
@@ -165,11 +173,10 @@ export const useAuth = () => {
         return { error };
       }
 
-      console.log('✅ useAuth: Sign in successful:', data);
-
-      toast({
-        title: "¡Bienvenido de vuelta!",
-        description: "Has iniciado sesión exitosamente.",
+      console.log('✅ useAuth: Sign in successful:', { 
+        hasUser: !!data.user, 
+        hasSession: !!data.session,
+        userEmail: data.user?.email 
       });
 
       return { error: null };
@@ -223,7 +230,7 @@ export const useAuth = () => {
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           }
         }
       });
@@ -241,7 +248,6 @@ export const useAuth = () => {
       }
 
       console.log('✅ useAuth: Google sign in initiated:', data);
-      // No mostramos toast aquí porque el redirect manejará el flujo
       return { error: null };
     } catch (error: any) {
       console.error('❌ useAuth: Google sign in exception:', error);

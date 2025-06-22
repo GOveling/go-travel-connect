@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AnimatedSignIn from "@/components/ui/animated-sign-in";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -11,8 +11,16 @@ interface AuthGateProps {
 const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user, loading } = useAuth();
   const { toast } = useToast();
+
+  // Auto-call onAuthSuccess when user is authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      console.log('✅ AuthGate: User authenticated, calling onAuthSuccess');
+      onAuthSuccess();
+    }
+  }, [user, loading, onAuthSuccess]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,9 +72,11 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
     try {
       console.log('🔑 AuthGate: Attempting login for:', email);
       const { error } = await signIn(email, password);
-      if (!error) {
-        console.log('✅ AuthGate: Login successful, calling onAuthSuccess');
-        onAuthSuccess();
+      
+      if (error) {
+        console.error('❌ AuthGate: Login error:', error);
+      } else {
+        console.log('✅ AuthGate: Login successful');
       }
     } catch (error) {
       console.error("❌ AuthGate: Login exception:", error);
@@ -76,7 +86,7 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleSignUp = async (name: string, email: string, password: string) => {
-    console.log('📝 AuthGate: handleSignUp called for:', email);
+    console.log('📝 AuthGate: handleSignUp called for:', email, 'name:', name);
     
     // Validación de campos vacíos
     if (!name?.trim() || !email?.trim() || !password?.trim()) {
@@ -120,11 +130,13 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
 
     setIsLoading(true);
     try {
-      console.log('📝 AuthGate: Attempting sign up for:', email);
+      console.log('📝 AuthGate: Attempting sign up for:', email, 'with name:', name);
       const { error } = await signUp(email, password, name.trim());
-      if (!error) {
+      
+      if (error) {
+        console.error('❌ AuthGate: Sign up error:', error);
+      } else {
         console.log('✅ AuthGate: Sign up successful');
-        // Para sign up, no llamamos onAuthSuccess inmediatamente ya que puede requerir confirmación por email
       }
     } catch (error) {
       console.error("❌ AuthGate: Sign up exception:", error);
@@ -140,9 +152,11 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
     try {
       console.log('🔍 AuthGate: Attempting Google login');
       const { error } = await signInWithGoogle();
-      if (!error) {
+      
+      if (error) {
+        console.error('❌ AuthGate: Google login error:', error);
+      } else {
         console.log('✅ AuthGate: Google login initiated successfully');
-        // No llamamos onAuthSuccess aquí porque el redirect manejará el cambio de estado
       }
     } catch (error) {
       console.error("❌ AuthGate: Google login exception:", error);
@@ -155,6 +169,18 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
     console.log('🔄 AuthGate: Switching mode from', isSignUp ? 'signup' : 'login', 'to', isSignUp ? 'login' : 'signup');
     setIsSignUp(!isSignUp);
   };
+
+  // Show loading while auth is initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Inicializando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AnimatedSignIn
