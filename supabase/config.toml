@@ -12,7 +12,16 @@ max_rows = 1000
 enabled = true
 port = 54322
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000", "https://go-travel-connect.vercel.app", "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com"]
+additional_redirect_urls = [
+  "http://localhost:3000", 
+  "https://go-travel-connect.vercel.app", 
+  "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com",
+  "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/",
+  "http://localhost:3000/",
+  "https://go-travel-connect.vercel.app/",
+  "https://*.lovableproject.com",
+  "https://*.vercel.app"
+]
 jwt_expiry = 3600
 enable_signup = true
 enable_anonymous_sign_ins = false

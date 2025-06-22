@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getRedirectUrl, getEnvironmentConfig } from '@/utils/environment';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,6 +13,8 @@ export const useAuth = () => {
 
   useEffect(() => {
     console.log('🔄 useAuth: Initializing auth state...');
+    const config = getEnvironmentConfig();
+    console.log('🔧 useAuth: Environment config:', config);
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -67,11 +70,14 @@ export const useAuth = () => {
     try {
       console.log('📝 useAuth: Attempting sign up for:', email);
       
+      const redirectUrl = getRedirectUrl('/');
+      console.log('🔗 useAuth: Using redirect URL:', redirectUrl);
+      
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName.trim(),
           }
@@ -208,10 +214,13 @@ export const useAuth = () => {
     try {
       console.log('🔍 useAuth: Attempting Google sign in');
       
+      const redirectUrl = getRedirectUrl('/');
+      console.log('🔗 useAuth: Using Google redirect URL:', redirectUrl);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
