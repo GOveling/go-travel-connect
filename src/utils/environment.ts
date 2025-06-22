@@ -21,18 +21,7 @@ export const detectEnvironment = (): Environment => {
 };
 
 export const getBaseUrl = (): string => {
-  const env = detectEnvironment();
-  
-  switch (env) {
-    case 'development':
-      return 'http://localhost:3000';
-    case 'lovable':
-      return window.location.origin;
-    case 'production':
-      return window.location.origin;
-    default:
-      return window.location.origin;
-  }
+  return window.location.origin;
 };
 
 export const getRedirectUrl = (path: string = ''): string => {
