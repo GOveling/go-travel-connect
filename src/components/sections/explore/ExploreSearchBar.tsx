@@ -1,36 +1,22 @@
 
-import { Filter } from "lucide-react";
+import { Search, Filter } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import PlacesAutocompleteInput from "@/components/ui/places-autocomplete-input";
-import { PlacePrediction } from "@/hooks/useGooglePlaces";
 
 interface ExploreSearchBarProps {
   onFilterClick: () => void;
-  onPlaceSelect?: (place: PlacePrediction) => void;
-  onSearchChange?: (value: string) => void;
 }
 
-const ExploreSearchBar = ({ onFilterClick, onPlaceSelect, onSearchChange }: ExploreSearchBarProps) => {
+const ExploreSearchBar = ({ onFilterClick }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   
-  const handlePlaceSelect = (place: PlacePrediction) => {
-    console.log('Selected place:', place);
-    onPlaceSelect?.(place);
-  };
-
-  const handleSearchChange = (value: string) => {
-    console.log('Search changed:', value);
-    onSearchChange?.(value);
-  };
-
   return (
     <div className="relative">
-      <PlacesAutocompleteInput
+      <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+      <Input
         placeholder={t("explore.searchPlaceholder")}
-        onPlaceSelect={handlePlaceSelect}
-        onInputChange={handleSearchChange}
-        className="pr-16"
+        className="pl-10 h-12 border-2 border-gray-200 focus:border-purple-500"
       />
       <Button 
         size="sm" 

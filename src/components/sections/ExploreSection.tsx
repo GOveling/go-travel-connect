@@ -6,7 +6,6 @@ import ExploreFilterModal, { FilterOptions } from "@/components/modals/ExploreFi
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PlacePrediction } from "@/hooks/useGooglePlaces";
 import ExploreHeader from "./explore/ExploreHeader";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreTabsContent from "./explore/ExploreTabsContent";
@@ -19,7 +18,6 @@ const ExploreSection = () => {
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<FilterOptions>({
     categories: ["All"],
     rating: null,
@@ -32,21 +30,11 @@ const ExploreSection = () => {
   const { trips, addPlaceToTrip, setTrips } = useHomeState();
   const { toast } = useToast();
 
-  // Filter places based on selected category, active filters, and search query
+  // Filter places based on selected category and active filters
   const getFilteredPlaces = () => {
     let filtered = selectedCategory === "All" 
       ? places.slice(0, 4) 
       : places.filter(place => place.category === selectedCategory);
-
-    // Apply search query filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(place => 
-        place.name.toLowerCase().includes(query) ||
-        place.location.toLowerCase().includes(query) ||
-        place.description.toLowerCase().includes(query)
-      );
-    }
 
     // Apply additional filters if not using "All" categories
     if (!activeFilters.categories.includes("All") && activeFilters.categories.length > 0) {
@@ -120,45 +108,10 @@ const ExploreSection = () => {
     });
   };
 
-  const handlePlaceSelect = (place: PlacePrediction) => {
-    console.log('Google Places selection:', place);
-    
-    // Create a place object compatible with our existing structure
-    const selectedPlace = {
-      name: place.structured_formatting.main_text,
-      location: place.structured_formatting.secondary_text,
-      description: place.description,
-      rating: 4.5, // Default rating for Google Places results
-      image: "📍",
-      category: "attraction",
-      hours: "Hours vary",
-      website: "",
-      phone: "",
-      lat: 0, // Would need Place Details API to get coordinates
-      lng: 0
-    };
-
-    setSelectedPlace(selectedPlace);
-    setIsModalOpen(true);
-
-    toast({
-      title: "Place Selected",
-      description: `Selected ${place.structured_formatting.main_text}`,
-    });
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-  };
-
   return (
     <div className="min-h-screen p-4 space-y-6">
       <ExploreHeader />
-      <ExploreSearchBar 
-        onFilterClick={handleFilterClick}
-        onPlaceSelect={handlePlaceSelect}
-        onSearchChange={handleSearchChange}
-      />
+      <ExploreSearchBar onFilterClick={handleFilterClick} />
       
       <ExploreTabsContent 
         categories={categories}

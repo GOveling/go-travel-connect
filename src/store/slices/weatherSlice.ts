@@ -36,7 +36,6 @@ const weatherSlice = createSlice({
       state.isLoading = action.payload;
     },
     setWeatherData: (state, action: PayloadAction<WeatherData>) => {
-      console.log("✅ Dispatched setWeatherData:", action.payload);
       state.data = action.payload;
       state.isLoading = false;
       state.error = null;
