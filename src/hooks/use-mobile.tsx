@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
@@ -15,5 +16,11 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange)
   }, [])
 
-  return !!isMobile
+  // Para Capacitor, detectamos si estamos en una app nativa
+  const isCapacitor = React.useMemo(() => {
+    return typeof window !== 'undefined' && 
+           (window as any).Capacitor !== undefined
+  }, [])
+
+  return !!isMobile || isCapacitor
 }
