@@ -9,11 +9,8 @@ class ApiService {
   private baseURL: string;
 
   constructor() {
-    // Replace with your Nest.js backend URL
-    this.baseURL = process.env.NODE_ENV === 'production' 
-      ? 'https://your-nestjs-backend.com/api' 
-      : 'http://localhost:3001/api';
-    
+    this.baseURL = 'https://goveling-api.onrender.com';
+
     this.api = axios.create({
       baseURL: this.baseURL,
       timeout: 10000,
@@ -95,9 +92,8 @@ class ApiService {
     return response.data;
   }
 
-  // Weather specific methods
   async getWeatherByCoordinates(lat: number, lng: number) {
-    return this.get(`/weather/coordinates?lat=${lat}&lng=${lng}`);
+    return this.post('/weather', { lat, lng });
   }
 
   async getWeatherByCity(city: string) {

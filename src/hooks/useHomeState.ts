@@ -1,40 +1,43 @@
 
-import { useModalState } from "./state/useModalState";
-import { useHomeData } from "./state/useHomeData";
-import { useNotifications } from "./state/useNotifications";
-import { useSelectedItems } from "./state/useSelectedItems";
-import { useTripCalculations } from "./state/useTripCalculations";
-import { addPlaceToTripUtil } from "./utils/tripUtils";
+import { useSupabaseTrips } from './useSupabaseTrips';
+import { useModalState } from './state/useModalState';
+import { useNotifications } from './state/useNotifications';
+import { useTripCalculations } from './state/useTripCalculations';
 
 export const useHomeState = () => {
+  const { trips, loading, createTrip, updateTrip, deleteTrip, refetchTrips } = useSupabaseTrips();
   const modalState = useModalState();
-  const homeData = useHomeData();
   const notifications = useNotifications();
-  const selectedItems = useSelectedItems();
-  const tripCalculations = useTripCalculations(homeData.trips);
+  
+  // Calculate trip states (current, traveling, upcoming)
+  const { currentTrip, travelingTrip, nearestUpcomingTrip } = useTripCalculations(trips);
 
-  // Function to add a place to a trip
-  const addPlaceToTrip = (tripId: number, place: any) => {
-    homeData.setTrips(prev => addPlaceToTripUtil(prev, tripId, place));
+  const setTrips = async (newTripsOrUpdater: any) => {
+    // This function is kept for compatibility but now we use specific CRUD operations
+    console.warn('setTrips is deprecated, use createTrip, updateTrip, or deleteTrip instead');
+  };
+
+  // Add place to trip function - now using Supabase
+  const addPlaceToTrip = async (tripId: number, place: any) => {
+    // This function would need to be implemented to save places to Supabase
+    // For now, just log the action
+    console.log('Adding place to trip:', { tripId, place });
+    // TODO: Implement Supabase saved_places insertion
   };
 
   return {
-    // Modal states
+    trips,
+    loading,
+    setTrips,
+    createTrip,
+    updateTrip,
+    deleteTrip,
+    refetchTrips,
+    currentTrip,
+    travelingTrip,
+    nearestUpcomingTrip,
+    addPlaceToTrip,
     ...modalState,
-    
-    // Data states
-    ...homeData,
-    
-    // Notifications
-    ...notifications,
-    
-    // Selected items
-    ...selectedItems,
-    
-    // Trip calculations
-    ...tripCalculations,
-    
-    // Actions
-    addPlaceToTrip
+    ...notifications
   };
 };
