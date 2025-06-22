@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MapPin, Cloud, Sun, CloudRain, Thermometer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,7 +10,6 @@ const LocationWeatherWidget = () => {
   const { isAuthenticated } = useReduxAuth();
 
   useEffect(() => {
-    // Update date every minute
     const interval = setInterval(() => {
       setCurrentDate(new Date());
     }, 60000);
@@ -20,11 +18,10 @@ const LocationWeatherWidget = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch weather data when component mounts or when data is stale
-    if (isAuthenticated && (!weatherData || isDataStale())) {
+    if (!isLoading && isAuthenticated && (!weatherData || isDataStale())) {
       fetchWeatherByLocation();
     }
-  }, [isAuthenticated, weatherData, isDataStale, fetchWeatherByLocation]);
+  }, [isAuthenticated, isLoading, weatherData, isDataStale, fetchWeatherByLocation]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
@@ -73,9 +70,7 @@ const LocationWeatherWidget = () => {
   return (
     <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
       <CardContent className="p-2">
-        {/* Compact layout with everything in one row */}
         <div className="flex items-center justify-between text-xs">
-          {/* Date and Location */}
           <div className="flex items-center space-x-2">
             <MapPin size={12} />
             <span className="font-medium">{weatherData.location.city}</span>
@@ -84,7 +79,6 @@ const LocationWeatherWidget = () => {
             <span>{formatTime(currentDate)}</span>
           </div>
 
-          {/* Weather */}
           <div className="flex items-center space-x-2">
             {getWeatherIcon(weatherData.condition)}
             <div className="flex items-center">
