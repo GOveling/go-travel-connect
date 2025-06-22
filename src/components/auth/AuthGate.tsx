@@ -15,45 +15,69 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const { toast } = useToast();
 
   const handleLogin = async (email: string, password: string) => {
+    if (!email || !password) {
+      toast({
+        title: "Validation error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      console.log('AuthGate: Attempting login');
       const { error } = await signIn(email, password);
       if (!error) {
+        console.log('AuthGate: Login successful, calling onAuthSuccess');
         onAuthSuccess();
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("AuthGate: Login error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSignUp = async (name: string, email: string, password: string) => {
+    if (!name || !email || !password) {
+      toast({
+        title: "Validation error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      console.log('AuthGate: Attempting sign up');
       const { error } = await signUp(email, password, name);
       if (!error) {
         toast({
           title: "Account created!",
           description: "Please check your email to verify your account.",
         });
+        // Don't call onAuthSuccess here since email confirmation might be required
       }
     } catch (error) {
-      console.error("Sign up error:", error);
+      console.error("AuthGate: Sign up error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleLogin = async ()=> {
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      console.log('AuthGate: Attempting Google login');
       const { error } = await signInWithGoogle();
       if (!error) {
-        onAuthSuccess();
+        console.log('AuthGate: Google login initiated');
+        // Don't call onAuthSuccess here as the redirect will handle the auth state change
       }
     } catch (error) {
-      console.error("Google login error:", error);
+      console.error("AuthGate: Google login error:", error);
     } finally {
       setIsLoading(false);
     }
