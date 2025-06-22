@@ -14,11 +14,40 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 6;
+  };
+
   const handleLogin = async (email: string, password: string) => {
-    if (!email || !password) {
+    console.log('AuthGate: handleLogin called with:', email);
+    
+    if (!email?.trim() || !password?.trim()) {
       toast({
         title: "Validation error",
         description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast({
+        title: "Invalid password",
+        description: "Password must be at least 6 characters long",
         variant: "destructive",
       });
       return;
@@ -40,7 +69,9 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleSignUp = async (name: string, email: string, password: string) => {
-    if (!name || !email || !password) {
+    console.log('AuthGate: handleSignUp called with:', email);
+    
+    if (!name?.trim() || !email?.trim() || !password?.trim()) {
       toast({
         title: "Validation error",
         description: "Please fill in all fields",
@@ -49,16 +80,40 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
       return;
     }
 
+    if (name.trim().length < 2) {
+      toast({
+        title: "Invalid name",
+        description: "Name must be at least 2 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      toast({
+        title: "Invalid password",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       console.log('AuthGate: Attempting sign up');
-      const { error } = await signUp(email, password, name);
+      const { error } = await signUp(email, password, name.trim());
       if (!error) {
-        toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
-        });
-        // Don't call onAuthSuccess here since email confirmation might be required
+        console.log('AuthGate: Sign up successful');
+        // Don't call onAuthSuccess immediately for sign up as it might require email confirmation
       }
     } catch (error) {
       console.error("AuthGate: Sign up error:", error);
@@ -68,12 +123,14 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleGoogleLogin = async () => {
+    console.log('AuthGate: handleGoogleLogin called');
+    
     setIsLoading(true);
     try {
       console.log('AuthGate: Attempting Google login');
       const { error } = await signInWithGoogle();
       if (!error) {
-        console.log('AuthGate: Google login initiated');
+        console.log('AuthGate: Google login initiated successfully');
         // Don't call onAuthSuccess here as the redirect will handle the auth state change
       }
     } catch (error) {

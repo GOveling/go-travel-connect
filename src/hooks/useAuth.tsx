@@ -11,37 +11,59 @@ export const useAuth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('Setting up auth state listener...');
+    console.log('useAuth: Setting up auth state listener...');
     
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+        console.log('useAuth: Auth state changed:', event, session?.user?.email || 'no user');
+        
+        if (event === 'SIGNED_IN') {
+          console.log('useAuth: User signed in successfully');
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        } else if (event === 'SIGNED_OUT') {
+          console.log('useAuth: User signed out');
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('useAuth: Token refreshed');
+          setSession(session);
+          setUser(session?.user ?? null);
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('useAuth: Error getting session:', error);
+      } else {
+        console.log('useAuth: Initial session check:', session?.user?.email || 'no session');
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
       setLoading(false);
     });
 
     return () => {
-      console.log('Cleaning up auth subscription');
+      console.log('useAuth: Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      console.log('Attempting sign up for:', email);
+      console.log('useAuth: Attempting sign up for:', email);
       
       const redirectUrl = `${window.location.origin}/`;
+      console.log('useAuth: Using redirect URL:', redirectUrl);
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -55,23 +77,48 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error('Sign up error:', error);
-        throw error;
+        console.error('useAuth: Sign up error:', error);
+        
+        let errorMessage = 'An error occurred during sign up';
+        if (error.message.includes('already registered')) {
+          errorMessage = 'This email is already registered. Please sign in instead.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Please enter a valid email address.';
+        } else if (error.message.includes('Password')) {
+          errorMessage = 'Password must be at least 6 characters long.';
+        } else {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: "Sign up failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        
+        return { error };
       }
 
-      console.log('Sign up successful:', data);
+      console.log('useAuth: Sign up successful:', data);
 
-      toast({
-        title: "Account created successfully!",
-        description: "Please check your email to verify your account.",
-      });
+      if (data.user && !data.session) {
+        toast({
+          title: "Check your email",
+          description: "We sent you a confirmation link to complete your registration.",
+        });
+      } else {
+        toast({
+          title: "Account created successfully!",
+          description: "Welcome to the platform!",
+        });
+      }
 
       return { error: null };
     } catch (error: any) {
-      console.error('Sign up failed:', error);
+      console.error('useAuth: Sign up failed:', error);
       toast({
         title: "Sign up failed",
-        description: error.message || "An error occurred during sign up",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -80,7 +127,7 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting sign in for:', email);
+      console.log('useAuth: Attempting sign in for:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -88,11 +135,27 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error('Sign in error:', error);
-        throw error;
+        console.error('useAuth: Sign in error:', error);
+        
+        let errorMessage = 'Sign in failed';
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and click the confirmation link before signing in.';
+        } else {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: "Sign in failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        
+        return { error };
       }
 
-      console.log('Sign in successful:', data);
+      console.log('useAuth: Sign in successful:', data);
 
       toast({
         title: "Welcome back!",
@@ -101,10 +164,10 @@ export const useAuth = () => {
 
       return { error: null };
     } catch (error: any) {
-      console.error('Sign in failed:', error);
+      console.error('useAuth: Sign in failed:', error);
       toast({
         title: "Sign in failed",
-        description: error.message || "An error occurred during sign in",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
@@ -113,22 +176,22 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      console.log('Attempting sign out');
+      console.log('useAuth: Attempting sign out');
       
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Sign out error:', error);
+        console.error('useAuth: Sign out error:', error);
         throw error;
       }
 
-      console.log('Sign out successful');
+      console.log('useAuth: Sign out successful');
 
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
       });
     } catch (error: any) {
-      console.error('Sign out failed:', error);
+      console.error('useAuth: Sign out failed:', error);
       toast({
         title: "Sign out failed",
         description: error.message || "An error occurred during sign out",
@@ -139,30 +202,42 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     try {
-      console.log('Attempting Google sign in');
+      console.log('useAuth: Attempting Google sign in');
       
       const redirectUrl = `${window.location.origin}/`;
+      console.log('useAuth: Using redirect URL for Google:', redirectUrl);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
 
       if (error) {
-        console.error('Google sign in error:', error);
-        throw error;
+        console.error('useAuth: Google sign in error:', error);
+        
+        toast({
+          title: "Google sign in failed",
+          description: error.message || "Failed to initiate Google sign in",
+          variant: "destructive",
+        });
+        
+        return { error };
       }
 
-      console.log('Google sign in initiated:', data);
-
+      console.log('useAuth: Google sign in initiated:', data);
+      // Don't show success toast here as the redirect will handle the flow
       return { error: null };
     } catch (error: any) {
-      console.error('Google sign in failed:', error);
+      console.error('useAuth: Google sign in failed:', error);
       toast({
         title: "Google sign in failed",
-        description: error.message || "An error occurred during Google sign in",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
       return { error };
