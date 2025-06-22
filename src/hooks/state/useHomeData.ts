@@ -1,21 +1,13 @@
 
-import { useSupabaseTrips } from "../useSupabaseTrips";
+import { useState, useEffect } from "react";
+import { Trip } from "@/types";
+import { initialTripsData } from "../data/mockTripsData";
 
 export const useHomeData = () => {
-  const { trips, loading, createTrip, updateTrip, deleteTrip, refetchTrips } = useSupabaseTrips();
-
-  const setTrips = async (newTripsOrUpdater: any) => {
-    // This function is kept for compatibility but now we use specific CRUD operations
-    console.warn('setTrips is deprecated, use createTrip, updateTrip, or deleteTrip instead');
-  };
+  const [trips, setTrips] = useState<Trip[]>(initialTripsData);
 
   return {
     trips,
-    loading,
     setTrips,
-    createTrip,
-    updateTrip,
-    deleteTrip,
-    refetchTrips
   };
 };

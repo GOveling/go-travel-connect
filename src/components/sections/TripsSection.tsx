@@ -1,3 +1,4 @@
+
 import { Plus, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -35,8 +36,8 @@ const TripsSection = () => {
   const [showBackpackingModal, setShowBackpackingModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   
-  // Use Supabase trips instead of local state
-  const { trips, loading, createTrip, updateTrip, deleteTrip } = useHomeState();
+  // Use shared state instead of local state
+  const { trips, setTrips } = useHomeState();
 
   // Calculate automatic status for each trip
   const tripsWithAutoStatus = trips.map(trip => ({
@@ -49,16 +50,16 @@ const TripsSection = () => {
     setShowTripDetail(true);
   };
 
-  const handleCreateTrip = async (tripData: any) => {
-    await createTrip(tripData);
+  const handleCreateTrip = (tripData: any) => {
+    setTrips(prev => [...prev, tripData]);
   };
 
-  const handleUpdateTrip = async (updatedTrip: any) => {
-    await updateTrip(updatedTrip.id, updatedTrip);
+  const handleUpdateTrip = (updatedTrip: any) => {
+    setTrips(prev => prev.map(trip => trip.id === updatedTrip.id ? updatedTrip : trip));
   };
 
-  const handleDeleteTrip = async (tripId: number) => {
-    await deleteTrip(tripId);
+  const handleDeleteTrip = (tripId: number) => {
+    setTrips(prev => prev.filter(trip => trip.id !== tripId));
   };
 
   const handleEditTrip = (trip: any) => {
@@ -91,25 +92,6 @@ const TripsSection = () => {
       window.dispatchEvent(event);
     }, 100);
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen p-2 sm:p-4 space-y-4 sm:space-y-6">
-        <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.title")}</h2>
-              <p className="text-gray-600 text-sm sm:text-base">{t("trips.subtitle")}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      </div>
-    );
-  }
 
   if (showMap) {
     return (
@@ -171,33 +153,18 @@ const TripsSection = () => {
 
       {/* Trips List */}
       <div className="space-y-4">
-        {tripsWithAutoStatus.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">✈️</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">No trips yet</h3>
-            <p className="text-gray-600 mb-6">Create your first trip to get started!</p>
-            <Button 
-              className="bg-gradient-to-r from-blue-500 to-orange-500"
-              onClick={() => setShowNewTripModal(true)}
-            >
-              <Plus size={20} className="mr-2" />
-              Create Your First Trip
-            </Button>
-          </div>
-        ) : (
-          tripsWithAutoStatus.map((trip) => (
-            <TripCard
-              key={trip.id}
-              trip={trip}
-              onViewDetails={handleViewDetails}
-              onEditTrip={handleEditTrip}
-              onInviteFriends={handleInviteFriends}
-              onGroupOptions={handleGroupOptions}
-              onAISmartRoute={handleAISmartRoute}
-              onViewSavedPlaces={handleViewSavedPlaces}
-            />
-          ))
-        )}
+        {tripsWithAutoStatus.map((trip) => (
+          <TripCard
+            key={trip.id}
+            trip={trip}
+            onViewDetails={handleViewDetails}
+            onEditTrip={handleEditTrip}
+            onInviteFriends={handleInviteFriends}
+            onGroupOptions={handleGroupOptions}
+            onAISmartRoute={handleAISmartRoute}
+            onViewSavedPlaces={handleViewSavedPlaces}
+          />
+        ))}
       </div>
 
       {/* Trip Templates */}

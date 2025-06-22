@@ -1,9 +1,10 @@
-
-import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal } from "lucide-react";
+import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal, ImageIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useTripImageGeneration } from "@/hooks/useTripImageGeneration";
+import { useEffect, useState } from "react";
 import type { Trip, TripCardProps } from '@/types';
 
 const TripCard = ({
@@ -15,6 +16,24 @@ const TripCard = ({
   onAISmartRoute,
   onViewSavedPlaces
 }: TripCardProps) => {
+  const { generateTripImage, getTripImage, isGenerating } = useTripImageGeneration();
+  const [tripImage, setTripImage] = useState<string | null>(null);
+
+  // Generate or get cached trip image
+  useEffect(() => {
+    const cachedImage = getTripImage(trip.destination, trip.name);
+    if (cachedImage) {
+      setTripImage(cachedImage);
+    } else {
+      // Generate image asynchronously
+      generateTripImage(trip.destination, trip.name).then(imageUrl => {
+        if (imageUrl) {
+          setTripImage(imageUrl);
+        }
+      });
+    }
+  }, [trip.destination, trip.name, generateTripImage, getTripImage]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -44,9 +63,32 @@ const TripCard = ({
     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white overflow-hidden">
       <CardContent className="p-0">
         <div className="flex flex-col md:flex-row">
-          {/* Trip Image/Icon */}
-          <div className="w-full md:w-32 h-32 md:h-auto bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center">
-            <span className="text-4xl md:text-5xl">{trip.image}</span>
+          {/* Trip Image/Icon - Now with AI-generated images */}
+          <div className="w-full md:w-32 h-32 md:h-auto relative overflow-hidden">
+            {tripImage ? (
+              <img 
+                src={tripImage} 
+                alt={`${trip.destination} - ${trip.name}`}
+                className="w-full h-full object-cover"
+                onError={() => {
+                  // Fallback to emoji if image fails to load
+                  setTripImage(null);
+                }}
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center relative">
+                {isGenerating(trip.destination, trip.name) ? (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <span className="text-4xl md:text-5xl">{trip.image}</span>
+                    <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 rounded-full p-1">
+                      <ImageIcon size={12} className="text-white" />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Trip Content */}
