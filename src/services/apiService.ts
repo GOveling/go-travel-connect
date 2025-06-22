@@ -9,7 +9,6 @@ class ApiService {
   private baseURL: string;
 
   constructor() {
-    // Replace with your Nest.js backend URL
     this.baseURL = 'https://goveling-api.onrender.com';
 
     this.api = axios.create({
