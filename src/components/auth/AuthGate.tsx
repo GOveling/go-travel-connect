@@ -86,7 +86,7 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleSignUp = async (name: string, email: string, password: string) => {
-    console.log('📝 AuthGate: handleSignUp called for:', email, 'name:', name);
+    console.log('📝 AuthGate: handleSignUp called for:', email,  'name:', name);
     
     // Validación de campos vacíos
     if (!name?.trim() || !email?.trim() || !password?.trim()) {

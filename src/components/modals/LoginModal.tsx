@@ -7,6 +7,7 @@ import ModalHeader from "./login/ModalHeader";
 import GoogleLoginButton from "./login/GoogleLoginButton";
 import LoginForm from "./login/LoginForm";
 import FormDivider from "./shared/FormDivider";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface LoginModalProps {
 
 const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onForgotPassword, onSwitchToSignUp }: LoginModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const handleLogin = async (email: string, password: string) => {
@@ -49,7 +51,11 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onForgotPassword,
     }
   };
 
-  const handleForgotPassword = async (email: string) => {
+  const handleForgotPasswordClick = () => {
+    setIsForgotPasswordModalOpen(true);
+  };
+
+  const handleForgotPasswordSubmit = async (email: string) => {
     if (onForgotPassword) {
       setIsLoading(true);
       try {
@@ -63,36 +69,45 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onForgotPassword,
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
-        <ModalHeader onClose={onClose} />
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
+          <ModalHeader onClose={onClose} />
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          <GoogleLoginButton onClick={handleGoogleLogin} isLoading={isLoading} />
+          {/* Content */}
+          <div className="p-6 space-y-6">
+            <GoogleLoginButton onClick={handleGoogleLogin} isLoading={isLoading} />
 
-          <FormDivider text="Or sign in with email" />
+            <FormDivider text="Or sign in with email" />
 
-          <LoginForm 
-            onSubmit={handleLogin} 
-            onForgotPassword={handleForgotPassword}
-            isLoading={isLoading} 
-          />
+            <LoginForm 
+              onSubmit={handleLogin} 
+              onForgotPassword={handleForgotPasswordClick}
+              isLoading={isLoading} 
+            />
 
-          {/* Sign Up Link */}
-          <div className="text-center text-sm text-gray-600">
-            Don't have an account?{" "}
-            <Button
-              variant="link"
-              onClick={onSwitchToSignUp}
-              className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
-            >
-              Sign up
-            </Button>
+            {/* Sign Up Link */}
+            <div className="text-center text-sm text-gray-600">
+              Don't have an account?{" "}
+              <Button
+                variant="link"
+                onClick={onSwitchToSignUp}
+                className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
+              >
+                Sign up
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordModalOpen}
+        onClose={() => setIsForgotPasswordModalOpen(false)}
+        onResetPassword={handleForgotPasswordSubmit}
+        isLoading={isLoading}
+      />
+    </>
   );
 };
 

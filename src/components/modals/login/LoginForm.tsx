@@ -7,7 +7,7 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
-  onForgotPassword: (email: string) => Promise<void>;
+  onForgotPassword: () => void;
   isLoading: boolean;
 }
 
@@ -24,13 +24,6 @@ const LoginForm = ({ onSubmit, onForgotPassword, isLoading }: LoginFormProps) =>
       setEmail("");
       setPassword("");
     }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      return;
-    }
-    await onForgotPassword(email);
   };
 
   return (
@@ -87,8 +80,8 @@ const LoginForm = ({ onSubmit, onForgotPassword, isLoading }: LoginFormProps) =>
         <Button
           type="button"
           variant="link"
-          onClick={handleForgotPassword}
-          disabled={!email || isLoading}
+          onClick={onForgotPassword}
+          disabled={isLoading}
           className="text-sm text-purple-600 hover:text-purple-700 p-0 h-auto"
         >
           Forgot password?
