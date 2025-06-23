@@ -13,10 +13,11 @@ interface LoginModalProps {
   onClose: () => void;
   onLogin?: (email: string, password: string) => void;
   onGoogleLogin?: () => void;
+  onForgotPassword?: (email: string) => void;
   onSwitchToSignUp?: () => void;
 }
 
-const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp }: LoginModalProps) => {
+const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onForgotPassword, onSwitchToSignUp }: LoginModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const isMobile = useIsMobile();
 
@@ -48,6 +49,19 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
     }
   };
 
+  const handleForgotPassword = async (email: string) => {
+    if (onForgotPassword) {
+      setIsLoading(true);
+      try {
+        await onForgotPassword(email);
+      } catch (error) {
+        console.error("Forgot password error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
@@ -59,7 +73,11 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onSwitchToSignUp 
 
           <FormDivider text="Or sign in with email" />
 
-          <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+          <LoginForm 
+            onSubmit={handleLogin} 
+            onForgotPassword={handleForgotPassword}
+            isLoading={isLoading} 
+          />
 
           {/* Sign Up Link */}
           <div className="text-center text-sm text-gray-600">

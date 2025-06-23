@@ -11,7 +11,7 @@ interface AuthGateProps {
 const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle, user, loading } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword, user, loading } = useAuth();
   const { toast } = useToast();
 
   // Auto-call onAuthSuccess when user is authenticated
@@ -165,6 +165,45 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
     }
   };
 
+  const handleForgotPassword = async (email: string) => {
+    console.log('🔐 AuthGate: handleForgotPassword called for:', email);
+    
+    // Validación de email
+    if (!email?.trim()) {
+      toast({
+        title: "Email requerido",
+        description: "Por favor ingresa tu email para recuperar la contraseña",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast({
+        title: "Email inválido",
+        description: "Por favor ingresa un email válido",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('🔐 AuthGate: Attempting password reset for:', email);
+      const { error } = await resetPassword(email);
+      
+      if (error) {
+        console.error('❌ AuthGate: Password reset error:', error);
+      } else {
+        console.log('✅ AuthGate: Password reset email sent successfully');
+      }
+    } catch (error) {
+      console.error("❌ AuthGate: Password reset exception:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSwitchMode = () => {
     console.log('🔄 AuthGate: Switching mode from', isSignUp ? 'signup' : 'login', 'to', isSignUp ? 'login' : 'signup');
     setIsSignUp(!isSignUp);
@@ -187,6 +226,7 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
       onLogin={handleLogin}
       onSignUp={handleSignUp}
       onGoogleLogin={handleGoogleLogin}
+      onForgotPassword={handleForgotPassword}
       onSwitchMode={handleSwitchMode}
       isSignUp={isSignUp}
       isLoading={isLoading}

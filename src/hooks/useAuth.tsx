@@ -260,6 +260,57 @@ export const useAuth = () => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      console.log('🔐 useAuth: Attempting password reset for:', email);
+      
+      const redirectUrl = getRedirectUrl('/');
+      console.log('🔗 useAuth: Using reset redirect URL:', redirectUrl);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: redirectUrl
+      });
+
+      if (error) {
+        console.error('❌ useAuth: Password reset error:', error);
+        
+        let errorMessage = 'Error al enviar email de recuperación';
+        if (error.message.includes('Email rate limit exceeded')) {
+          errorMessage = 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Por favor ingresa un email válido.';
+        } else {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: "Error al recuperar contraseña",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        
+        return { error };
+      }
+
+      console.log('✅ useAuth: Password reset email sent successfully');
+      
+      toast({
+        title: "Email enviado",
+        description: "Te enviamos un enlace para recuperar tu contraseña. Revisa tu email.",
+      });
+
+      return { error: null };
+    } catch (error: any) {
+      console.error('❌ useAuth: Password reset exception:', error);
+      toast({
+        title: "Error al recuperar contraseña",
+        description: error.message || "Ocurrió un error inesperado",
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
   return {
     user,
     session,
@@ -268,5 +319,6 @@ export const useAuth = () => {
     signIn,
     signOut,
     signInWithGoogle,
+    resetPassword,
   };
 };

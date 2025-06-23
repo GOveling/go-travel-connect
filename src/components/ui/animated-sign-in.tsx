@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -7,6 +8,7 @@ interface AnimatedSignInProps {
   onLogin?: (email: string, password: string) => Promise<void>;
   onSignUp?: (name: string, email: string, password: string) => Promise<void>;
   onGoogleLogin?: () => Promise<void>;
+  onForgotPassword?: (email: string) => Promise<void>;
   onSwitchMode?: () => void;
   isSignUp?: boolean;
   isLoading?: boolean;
@@ -16,6 +18,7 @@ const AnimatedSignIn: React.FC<AnimatedSignInProps> = ({
   onLogin,
   onSignUp,
   onGoogleLogin,
+  onForgotPassword,
   onSwitchMode,
   isSignUp = false,
   isLoading = false
@@ -80,6 +83,15 @@ const AnimatedSignIn: React.FC<AnimatedSignInProps> = ({
       } else {
         console.warn('🔑 AnimatedSignIn: Login validation failed');
       }
+    }
+  };
+
+  // Handle forgot password
+  const handleForgotPassword = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (email && validateEmail(email) && onForgotPassword) {
+      console.log('🔐 AnimatedSignIn: Calling onForgotPassword with:', { email });
+      await onForgotPassword(email);
     }
   };
 
@@ -282,9 +294,14 @@ const AnimatedSignIn: React.FC<AnimatedSignInProps> = ({
                   Remember me
                 </label>
 
-                <a href="#" className="forgot-password">
+                <button
+                  type="button"
+                  className="forgot-password"
+                  onClick={handleForgotPassword}
+                  disabled={!email || !validateEmail(email) || isLoading}
+                >
                   Forgot Password?
-                </a>
+                </button>
               </div>
             )}
 
