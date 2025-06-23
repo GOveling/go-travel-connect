@@ -1,15 +1,14 @@
 
 import { useRef } from "react";
-import { Camera, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ImageUploadProps {
   onFileSelect: (file: File) => void;
-  onCameraStart: () => void;
   isUploading: boolean;
 }
 
-const ImageUpload = ({ onFileSelect, onCameraStart, isUploading }: ImageUploadProps) => {
+const ImageUpload = ({ onFileSelect, isUploading }: ImageUploadProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,17 +19,7 @@ const ImageUpload = ({ onFileSelect, onCameraStart, isUploading }: ImageUploadPr
   };
 
   return (
-    <div className="flex space-x-3">
-      <Button
-        onClick={onCameraStart}
-        variant="outline"
-        className="flex items-center space-x-2 border-2 border-blue-200 hover:bg-blue-50 text-blue-700"
-        disabled={isUploading}
-      >
-        <Camera size={16} />
-        <span>Cámara</span>
-      </Button>
-      
+    <div className="flex justify-center">
       <Button
         onClick={() => fileInputRef.current?.click()}
         variant="outline"
