@@ -2,7 +2,6 @@
 import React from "react";
 import AvatarDisplay from "./AvatarDisplay";
 import ImageUpload from "./ImageUpload";
-import CameraCapture from "./CameraCapture";
 import { useImageUpload } from "./useImageUpload";
 
 interface ImageUploadSectionProps {
@@ -14,23 +13,8 @@ interface ImageUploadSectionProps {
 const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: ImageUploadSectionProps) => {
   const {
     isUploading,
-    isUsingCamera,
-    videoRef,
-    handleFileSelect,
-    startCamera,
-    handleCameraCapture,
-    stopCamera
+    handleFileSelect
   } = useImageUpload(onImageChange);
-
-  if (isUsingCamera) {
-    return (
-      <CameraCapture
-        onCapture={handleCameraCapture}
-        onCancel={stopCamera}
-        isUploading={isUploading}
-      />
-    );
-  }
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -41,12 +25,11 @@ const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: Image
       
       <ImageUpload
         onFileSelect={handleFileSelect}
-        onCameraStart={startCamera}
         isUploading={isUploading}
       />
       
       <p className="text-sm text-gray-500 text-center">
-        Toma una foto o selecciona desde tu dispositivo
+        Selecciona una imagen desde tu dispositivo
       </p>
     </div>
   );

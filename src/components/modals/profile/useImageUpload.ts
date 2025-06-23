@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,9 +8,6 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
-  const [isUsingCamera, setIsUsingCamera] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
   const uploadImageToSupabase = async (file: File): Promise<string | null> => {
     if (!user) {
@@ -97,73 +94,8 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
     }
   };
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setIsUsingCamera(true);
-      }
-    } catch (error) {
-      console.error('Camera error:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo acceder a la cámara",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleCameraCapture = async (file: File) => {
-    setIsUploading(true);
-    try {
-      const imageUrl = await uploadImageToSupabase(file);
-      
-      if (imageUrl) {
-        onImageChange(imageUrl);
-        toast({
-          title: "Éxito",
-          description: "Foto capturada y guardada correctamente",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "No se pudo guardar la foto",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error in handleCameraCapture:', error);
-      toast({
-        title: "Error",
-        description: "Error al procesar la foto",
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploading(false);
-      stopCamera();
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setIsUsingCamera(false);
-  };
-
   return {
     isUploading,
-    isUsingCamera,
-    videoRef,
-    handleFileSelect,
-    startCamera,
-    handleCameraCapture,
-    stopCamera
+    handleFileSelect
   };
 };
