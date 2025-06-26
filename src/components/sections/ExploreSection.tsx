@@ -6,7 +6,7 @@ import ExploreFilterModal, { FilterOptions } from "@/components/modals/ExploreFi
 import { useHomeState } from "@/hooks/useHomeState";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PlacePrediction } from "@/hooks/useGooglePlaces";
+import { PlacePrediction } from "@/hooks/useSemanticPlaces";
 import ExploreHeader from "./explore/ExploreHeader";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreTabsContent from "./explore/ExploreTabsContent";
@@ -121,21 +121,21 @@ const ExploreSection = () => {
   };
 
   const handlePlaceSelect = (place: PlacePrediction) => {
-    console.log('Google Places selection:', place);
+    console.log('Semantic Places selection:', place);
     
     // Create a place object compatible with our existing structure
     const selectedPlace = {
-      name: place.structured_formatting.main_text,
-      location: place.structured_formatting.secondary_text,
-      description: place.description,
-      rating: 4.5, // Default rating for Google Places results
+      name: place.name,
+      location: `${place.latitude}, ${place.longitude}`,
+      description: place.name,
+      rating: 4.5, // Default rating for semantic places results
       image: "📍",
       category: "attraction",
       hours: "Hours vary",
       website: "",
       phone: "",
-      lat: 0, // Would need Place Details API to get coordinates
-      lng: 0
+      lat: parseFloat(place.latitude),
+      lng: parseFloat(place.longitude)
     };
 
     setSelectedPlace(selectedPlace);
@@ -143,7 +143,7 @@ const ExploreSection = () => {
 
     toast({
       title: "Place Selected",
-      description: `Selected ${place.structured_formatting.main_text}`,
+      description: `Selected ${place.name}`,
     });
   };
 

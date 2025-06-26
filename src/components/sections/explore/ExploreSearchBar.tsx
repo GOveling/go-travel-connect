@@ -3,7 +3,7 @@ import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PlacesAutocompleteInput from "@/components/ui/places-autocomplete-input";
-import { PlacePrediction } from "@/hooks/useGooglePlaces";
+import { PlacePrediction } from "@/hooks/useSemanticPlaces";
 
 interface ExploreSearchBarProps {
   onFilterClick: () => void;
