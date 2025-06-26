@@ -25,13 +25,27 @@ export const useTravelStats = () => {
 
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        
+        // First try to get existing stats
+        let { data, error } = await supabase
           .from('user_stats')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
         
         if (error) throw error;
+        
+        // If no stats exist, create initial stats record
+        if (!data) {
+          const { data: newStats, error: insertError } = await supabase
+            .from('user_stats')
+            .insert({ user_id: user.id })
+            .select()
+            .single();
+          
+          if (insertError) throw insertError;
+          data = newStats;
+        }
         
         if (data) {
           setStats({

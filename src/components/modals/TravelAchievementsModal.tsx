@@ -1,13 +1,13 @@
 
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useGamification } from "@/hooks/useGamification";
+import { useSupabaseGamification } from "@/hooks/useSupabaseGamification";
 import LevelProgressCard from "@/components/gamification/LevelProgressCard";
 import CategoryTabs from "@/components/gamification/CategoryTabs";
 import AchievementBadgeCard from "@/components/gamification/AchievementBadgeCard";
 import AchievementDetailModal from "@/components/gamification/AchievementDetailModal";
 import { AchievementBadge } from "@/types/gamification";
-import { Award } from "lucide-react";
+import { Award, Loader2 } from "lucide-react";
 
 interface TravelAchievementsModalProps {
   isOpen: boolean;
@@ -21,8 +21,10 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
     getRarityColor,
     getRarityBorder,
     currentLevel,
-    totalPoints
-  } = useGamification();
+    totalPoints,
+    loading,
+    error
+  } = useSupabaseGamification();
 
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedAchievement, setSelectedAchievement] = useState<AchievementBadge | null>(null);
@@ -41,6 +43,32 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
     setIsDetailModalOpen(false);
     setSelectedAchievement(null);
   };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="animate-spin" size={32} />
+            <span className="ml-2">Loading achievements...</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="text-center py-8">
+            <div className="text-4xl mb-4">⚠️</div>
+            <p className="text-red-500">Error loading achievements: {error}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <>

@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string
+          created_at: string
+          criteria: string
+          description: string
+          icon: string
+          id: string
+          points: number
+          rarity: string
+          title: string
+          total_required: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          criteria: string
+          description: string
+          icon: string
+          id: string
+          points?: number
+          rarity?: string
+          title: string
+          total_required?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          criteria?: string
+          description?: string
+          icon?: string
+          id?: string
+          points?: number
+          rarity?: string
+          title?: string
+          total_required?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null
@@ -264,6 +306,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievement_progress: {
+        Row: {
+          achievement_id: string
+          completed_at: string | null
+          created_at: string
+          current_progress: number
+          id: string
+          is_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          completed_at?: string | null
+          created_at?: string
+          current_progress?: number
+          id?: string
+          is_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          completed_at?: string | null
+          created_at?: string
+          current_progress?: number
+          id?: string
+          is_completed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievement_progress_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_achievements: {
         Row: {
           achievement_id: string
@@ -353,7 +436,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_achievements_with_progress: {
+        Args: { p_user_id: string }
+        Returns: {
+          achievement_id: string
+          title: string
+          description: string
+          category: string
+          icon: string
+          points: number
+          total_required: number
+          criteria: string
+          rarity: string
+          current_progress: number
+          is_completed: boolean
+          completed_at: string
+          progress_percentage: number
+        }[]
+      }
+      update_achievement_progress: {
+        Args: {
+          p_user_id: string
+          p_achievement_id: string
+          p_progress_increment?: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
