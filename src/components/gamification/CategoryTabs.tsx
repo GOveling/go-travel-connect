@@ -12,7 +12,7 @@ const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) =
     { id: 'global-exploration', label: 'Global', icon: '🌍' },
     { id: 'local-discoveries', label: 'Culture', icon: '🏛️' },
     { id: 'food-nightlife', label: 'Food', icon: '🍽️' },
-    { id: 'family-experience', label: 'Nature', icon: '🏖️' },
+    { id: 'family-experience', label: 'Nature', icon: '🌲' },
     { id: 'contributions', label: 'Reviews', icon: '⭐' },
     { id: 'special', label: 'Special', icon: '🌟' }
   ];
