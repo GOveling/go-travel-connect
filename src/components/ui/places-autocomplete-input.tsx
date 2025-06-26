@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useGooglePlaces, PlacePrediction } from "@/hooks/useGooglePlaces";
+import { useSemanticPlaces, PlacePrediction } from "@/hooks/useSemanticPlaces";
 import { cn } from "@/lib/utils";
 
 interface PlacesAutocompleteInputProps {
@@ -23,7 +23,7 @@ const PlacesAutocompleteInput = ({
   const [inputValue, setInputValue] = useState(controlledValue || "");
   const [showResults, setShowResults] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const { predictions, loading, searchPlaces, clearResults } = useGooglePlaces();
+  const { predictions, loading, searchPlaces, clearResults } = useSemanticPlaces();
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +57,7 @@ const PlacesAutocompleteInput = ({
   };
 
   const handlePlaceSelect = (place: PlacePrediction) => {
-    setInputValue(place.description);
+    setInputValue(place.name);
     setShowResults(false);
     clearResults();
     onPlaceSelect?.(place);
@@ -123,13 +123,13 @@ const PlacesAutocompleteInput = ({
       </div>
 
       {showResults && predictions.length > 0 && (
-        <div 
+        <div
           ref={resultsRef}
           className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
         >
           {predictions.map((place, index) => (
             <div
-              key={place.place_id}
+              key={`${place.name}-${place.latitude}-${place.longitude}`}
               className={cn(
                 "flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0",
                 selectedIndex === index && "bg-purple-50"
@@ -139,10 +139,10 @@ const PlacesAutocompleteInput = ({
               <MapPin size={16} className="text-gray-400 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-gray-900 truncate">
-                  {place.structured_formatting.main_text}
+                  {place.name}
                 </div>
                 <div className="text-sm text-gray-500 truncate">
-                  {place.structured_formatting.secondary_text}
+                  Lat: {place.latitude}, Lng: {place.longitude}
                 </div>
               </div>
             </div>
