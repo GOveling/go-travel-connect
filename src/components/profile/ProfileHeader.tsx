@@ -2,7 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Edit } from "lucide-react";
-import { useGamification } from "@/hooks/useGamification";
+import { useSupabaseGamification } from "@/hooks/useSupabaseGamification";
 
 interface ProfileHeaderProps {
   displayName: string;
@@ -14,7 +14,7 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ displayName, initials, loading, onEditClick, avatarUrl, description }: ProfileHeaderProps) => {
-  const { currentLevel } = useGamification();
+  const { currentLevel } = useSupabaseGamification();
 
   if (loading) {
     return (
