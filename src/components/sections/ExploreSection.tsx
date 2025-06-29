@@ -1,140 +1,112 @@
 
 import { useState } from "react";
-import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
-import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
-import ExploreFilterModal, { FilterOptions } from "@/components/modals/ExploreFilterModal";
-import { useHomeState } from "@/hooks/useHomeState";
-import { useToast } from "@/hooks/use-toast";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { PlacePrediction } from "@/hooks/useGooglePlaces";
-import ExploreHeader from "./explore/ExploreHeader";
+import { useToast } from "@/hooks/use-toast";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import ExploreFilters from "./explore/ExploreFilters";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
-import ExploreTabsContent from "./explore/ExploreTabsContent";
-import { places, categories } from "./explore/exploreData";
+import ExploreResults from "./explore/ExploreResults";
+
+interface Place {
+  id: string;
+  name: string;
+  address: string;
+  coordinates: { lat: number; lng: number };
+  rating?: number;
+  category: string;
+  image?: string;
+  description?: string;
+  hours?: string;
+  phone?: string;
+  website?: string;
+  priceLevel?: number;
+}
 
 const ExploreSection = () => {
-  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<FilterOptions>({
-    categories: ["All"],
-    rating: null,
-    priceRange: [],
-    location: [],
-    openNow: false
-  });
 
-  // Get actual trips from shared state
-  const { trips, addPlaceToTrip, setTrips } = useHomeState();
-  const { toast } = useToast();
-
-  // Filter places based on selected category, active filters, and search query
-  const getFilteredPlaces = () => {
-    let filtered = selectedCategory === "All" 
-      ? places.slice(0, 4) 
-      : places.filter(place => place.category === selectedCategory);
-
-    // Apply search query filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(place => 
-        place.name.toLowerCase().includes(query) ||
-        place.location.toLowerCase().includes(query) ||
-        place.description.toLowerCase().includes(query)
-      );
-    }
-
-    // Apply additional filters if not using "All" categories
-    if (!activeFilters.categories.includes("All") && activeFilters.categories.length > 0) {
-      filtered = filtered.filter(place => activeFilters.categories.includes(place.category));
-    }
-
-    if (activeFilters.rating) {
-      filtered = filtered.filter(place => place.rating >= activeFilters.rating!);
-    }
-
-    return filtered;
+  const handleCategoryToggle = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
   };
 
-  const filteredPlaces = getFilteredPlaces();
-
-  const handlePlaceClick = (place: any) => {
-    setSelectedPlace(place);
-    setIsModalOpen(true);
+  const handleClearFilters = () => {
+    setSelectedCategories([]);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedPlace(null);
-  };
-
-  const handleAddToTrip = () => {
-    setIsModalOpen(false);
-    setIsAddToTripModalOpen(true);
-  };
-
-  const handleAddToExistingTrip = (tripId: number, place: any) => {
-    addPlaceToTrip(tripId, place);
-    const selectedTrip = trips.find(trip => trip.id === tripId);
+  const handleSearchSubmit = async (query: string) => {
+    setSearchQuery(query);
+    setLoading(true);
     
-    toast({
-      title: t("explore.addToTrip"),
-      description: `${place.name} has been saved to ${selectedTrip?.name}`,
-    });
-    
-    setIsAddToTripModalOpen(false);
-    setSelectedPlace(null);
-  };
+    try {
+      // Simulate API call - In real implementation, this would call Google Places API
+      // with the selected categories as filters
+      const mockResults: Place[] = [
+        {
+          id: '1',
+          name: `${query} - Central Plaza`,
+          address: `123 Main Street, ${query}`,
+          coordinates: { lat: 40.7128, lng: -74.0060 },
+          rating: 4.5,
+          category: selectedCategories[0] || 'attraction',
+          description: `Beautiful central plaza in ${query}`,
+          hours: "Open 24 hours",
+          priceLevel: 2
+        },
+        {
+          id: '2',
+          name: `${query} - Historic District`,
+          address: `456 Historic Ave, ${query}`,
+          coordinates: { lat: 40.7589, lng: -73.9851 },
+          rating: 4.2,
+          category: selectedCategories[0] || 'attraction',
+          description: `Historic area with amazing architecture`,
+          hours: "9:00 AM - 6:00 PM",
+          priceLevel: 1
+        }
+      ];
 
-  const handleCreateNewTrip = (tripData: any) => {
-    setTrips(prev => [...prev, tripData]);
-    setIsAddToTripModalOpen(false);
-    setSelectedPlace(null);
-  };
+      // Filter by selected categories if any
+      const filteredResults = selectedCategories.length > 0 
+        ? mockResults.filter(place => selectedCategories.includes(place.category))
+        : mockResults;
 
-  const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
-  };
-
-  const handleFilterClick = () => {
-    setIsFilterModalOpen(true);
-  };
-
-  const handleApplyFilters = (filters: FilterOptions) => {
-    setActiveFilters(filters);
-    
-    // Update category if filters specify specific categories
-    if (!filters.categories.includes("All") && filters.categories.length > 0) {
-      setSelectedCategory(filters.categories[0]);
-    } else {
-      setSelectedCategory("All");
+      setSearchResults(filteredResults);
+    } catch (error) {
+      toast({
+        title: "Search Error",
+        description: "Failed to search places. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-
-    toast({
-      title: t("filters.apply"),
-      description: "Search results updated based on your preferences",
-    });
   };
 
   const handlePlaceSelect = (place: PlacePrediction) => {
     console.log('Google Places selection:', place);
     
-    // Create a place object compatible with our existing structure
+    // Convert Google Places result to our Place format
     const selectedPlace = {
       name: place.structured_formatting.main_text,
       location: place.structured_formatting.secondary_text,
       description: place.description,
-      rating: 4.5, // Default rating for Google Places results
+      rating: 4.5,
       image: "📍",
       category: "attraction",
       hours: "Hours vary",
       website: "",
       phone: "",
-      lat: 0, // Would need Place Details API to get coordinates
+      lat: 0,
       lng: 0
     };
 
@@ -147,48 +119,70 @@ const ExploreSection = () => {
     });
   };
 
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+  const handlePlaceClick = (place: Place) => {
+    // Convert to legacy format for modal compatibility
+    const legacyPlace = {
+      name: place.name,
+      location: place.address,
+      description: place.description || `${place.category} in ${place.address}`,
+      rating: place.rating || 4.0,
+      image: place.image || "📍",
+      category: place.category,
+      hours: place.hours || "Hours vary",
+      website: place.website || "",
+      phone: place.phone || "",
+      lat: place.coordinates.lat,
+      lng: place.coordinates.lng
+    };
+
+    setSelectedPlace(legacyPlace);
+    setIsModalOpen(true);
   };
 
   return (
-    <div className="min-h-screen p-4 space-y-6">
-      <ExploreHeader />
-      <ExploreSearchBar 
-        onFilterClick={handleFilterClick}
-        onPlaceSelect={handlePlaceSelect}
-        onSearchChange={handleSearchChange}
-      />
-      
-      <ExploreTabsContent 
-        categories={categories}
-        selectedCategory={selectedCategory}
-        filteredPlaces={filteredPlaces}
-        onCategoryClick={handleCategoryClick}
-        onPlaceClick={handlePlaceClick}
-      />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
+        <div className="p-4">
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Explore Places</h1>
+            <p className="text-sm text-gray-600">Discover amazing places around the world</p>
+          </div>
 
+          {/* Filters */}
+          <div className="mb-4">
+            <ExploreFilters
+              selectedCategories={selectedCategories}
+              onCategoryToggle={handleCategoryToggle}
+              onClearFilters={handleClearFilters}
+            />
+          </div>
+
+          {/* Search Bar */}
+          <ExploreSearchBar
+            selectedCategories={selectedCategories}
+            onSearchSubmit={handleSearchSubmit}
+            onPlaceSelect={handlePlaceSelect}
+          />
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="p-4">
+        <ExploreResults
+          places={searchResults}
+          loading={loading}
+          onPlaceClick={handlePlaceClick}
+          searchQuery={searchQuery}
+        />
+      </div>
+
+      {/* Place Detail Modal */}
       <PlaceDetailModal 
         place={selectedPlace}
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onAddToTrip={handleAddToTrip}
-      />
-
-      <ExploreAddToTripModal
-        isOpen={isAddToTripModalOpen}
-        onClose={() => setIsAddToTripModalOpen(false)}
-        selectedPlace={selectedPlace}
-        existingTrips={trips.filter(trip => trip.status !== 'completed')}
-        onAddToExistingTrip={handleAddToExistingTrip}
-        onCreateNewTrip={handleCreateNewTrip}
-      />
-
-      <ExploreFilterModal
-        isOpen={isFilterModalOpen}
-        onClose={() => setIsFilterModalOpen(false)}
-        onApplyFilters={handleApplyFilters}
-        currentFilters={activeFilters}
+        onClose={() => setIsModalOpen(false)}
+        onAddToTrip={() => {}}
       />
     </div>
   );
