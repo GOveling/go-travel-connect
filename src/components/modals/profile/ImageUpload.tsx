@@ -27,7 +27,7 @@ const ImageUpload = ({ onFileSelect, isUploading }: ImageUploadProps) => {
         disabled={isUploading}
       >
         <Upload size={16} />
-        <span>{isUploading ? "Subiendo..." : "Dispositivo"}</span>
+        <span>{isUploading ? "Subiendo..." : "Tu Fotografía"}</span>
       </Button>
       
       <input
