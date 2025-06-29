@@ -166,9 +166,6 @@ const FlightBookingContent = ({
           </div>
         </div>
       </div>
-      <Button variant="ghost" size="sm" onClick={onClose}>
-        <X size={16} />
-      </Button>
     </div>
   );
 
