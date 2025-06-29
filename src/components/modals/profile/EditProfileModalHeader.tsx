@@ -1,7 +1,5 @@
 
-import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface EditProfileModalHeaderProps {
@@ -18,14 +16,6 @@ const EditProfileModalHeader = ({ onClose }: EditProfileModalHeaderProps) => {
           {t("profile.editProfile")}
         </DialogTitle>
       </DialogHeader>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onClose}
-        className="absolute top-4 right-4 text-white hover:bg-white/20"
-      >
-        <X size={20} />
-      </Button>
     </div>
   );
 };
