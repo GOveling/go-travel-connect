@@ -9,10 +9,11 @@ import { useGooglePlaces, PlacePrediction } from "@/hooks/useGooglePlaces";
 interface ExploreSearchBarProps {
   onPlaceSelect?: (place: PlacePrediction) => void;
   onSearchSubmit?: (query: string) => void;
+  onShowRelatedPlaces?: (place: PlacePrediction) => void;
   selectedCategories: string[];
 }
 
-const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, selectedCategories }: ExploreSearchBarProps) => {
+const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, onShowRelatedPlaces, selectedCategories }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
@@ -48,7 +49,9 @@ const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, selectedCategories }:
     setSearchQuery(place.description);
     setShowResults(false);
     clearResults();
-    onPlaceSelect?.(place);
+    
+    // En lugar de abrir el modal, mostramos lugares relacionados
+    onShowRelatedPlaces?.(place);
   };
 
   const getCategoryHint = () => {
@@ -122,7 +125,7 @@ const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, selectedCategories }:
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Navigation size={12} />
-                      <span>Get directions</span>
+                      <span>Show related places</span>
                     </div>
                     {place.types.length > 0 && (
                       <div className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">

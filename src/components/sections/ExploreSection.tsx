@@ -92,31 +92,69 @@ const ExploreSection = () => {
     }
   };
 
-  const handlePlaceSelect = (place: PlacePrediction) => {
-    console.log('Google Places selection:', place);
+  const handleShowRelatedPlaces = async (place: PlacePrediction) => {
+    console.log('Showing related places for:', place);
+    setLoading(true);
     
-    // Convert Google Places result to our Place format
-    const selectedPlace = {
-      name: place.structured_formatting.main_text,
-      location: place.structured_formatting.secondary_text,
-      description: place.description,
-      rating: 4.5,
-      image: "📍",
-      category: "attraction",
-      hours: "Hours vary",
-      website: "",
-      phone: "",
-      lat: 0,
-      lng: 0
-    };
+    try {
+      // Simulate API call to get related places
+      const relatedPlaces: Place[] = [
+        {
+          id: 'related-1',
+          name: `Near ${place.structured_formatting.main_text} - Restaurant`,
+          address: `Close to ${place.structured_formatting.secondary_text}`,
+          coordinates: { lat: 40.7128, lng: -74.0060 },
+          rating: 4.3,
+          category: 'restaurant',
+          description: `Popular restaurant near ${place.structured_formatting.main_text}`,
+          hours: "11:00 AM - 10:00 PM",
+          priceLevel: 3
+        },
+        {
+          id: 'related-2',
+          name: `Near ${place.structured_formatting.main_text} - Hotel`,
+          address: `Walking distance from ${place.structured_formatting.secondary_text}`,
+          coordinates: { lat: 40.7589, lng: -73.9851 },
+          rating: 4.7,
+          category: 'hotel',
+          description: `Comfortable hotel with great views`,
+          hours: "24/7",
+          priceLevel: 4
+        },
+        {
+          id: 'related-3',
+          name: `Near ${place.structured_formatting.main_text} - Attraction`,
+          address: `Adjacent to ${place.structured_formatting.secondary_text}`,
+          coordinates: { lat: 40.7300, lng: -74.0100 },
+          rating: 4.1,
+          category: 'attraction',
+          description: `Must-see attraction in the area`,
+          hours: "9:00 AM - 6:00 PM",
+          priceLevel: 2
+        }
+      ];
 
-    setSelectedPlace(selectedPlace);
-    setIsModalOpen(true);
+      // Filter by selected categories if any
+      const filteredResults = selectedCategories.length > 0 
+        ? relatedPlaces.filter(relatedPlace => selectedCategories.includes(relatedPlace.category))
+        : relatedPlaces;
 
-    toast({
-      title: "Place Selected",
-      description: `Selected ${place.structured_formatting.main_text}`,
-    });
+      setSearchResults(filteredResults);
+      setSearchQuery(`Related places near ${place.structured_formatting.main_text}`);
+
+      toast({
+        title: "Related Places Found",
+        description: `Found ${filteredResults.length} places near ${place.structured_formatting.main_text}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Search Error",
+        description: "Failed to find related places. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePlaceClick = (place: Place) => {
@@ -162,7 +200,7 @@ const ExploreSection = () => {
           <ExploreSearchBar
             selectedCategories={selectedCategories}
             onSearchSubmit={handleSearchSubmit}
-            onPlaceSelect={handlePlaceSelect}
+            onShowRelatedPlaces={handleShowRelatedPlaces}
           />
         </div>
       </div>
