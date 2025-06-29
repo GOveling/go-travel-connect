@@ -138,6 +138,11 @@ const FlightBookingContent = ({
     }
   };
 
+  const handleManualFlightModalClose = () => {
+    setIsManualFlightModalOpen(false);
+    setTripType('round-trip');
+  };
+
   return (
     <>
       <div className="h-full max-h-[95vh] flex flex-col">
@@ -153,10 +158,7 @@ const FlightBookingContent = ({
       
       <ManualFlightModal
         isOpen={isManualFlightModalOpen}
-        onClose={() => {
-          setIsManualFlightModalOpen(false);
-          setTripType('round-trip');
-        }}
+        onClose={handleManualFlightModalClose}
       />
     </>
   );
