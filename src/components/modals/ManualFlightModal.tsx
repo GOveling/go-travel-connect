@@ -200,13 +200,6 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
                 <Search size={16} className="mr-2" />
                 Buscar Vuelos
               </Button>
-              <Button 
-                variant="outline"
-                onClick={handleReset}
-                className="w-full"
-              >
-                Nueva Configuración
-              </Button>
             </div>
           </div>
         );
