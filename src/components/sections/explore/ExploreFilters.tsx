@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Filter, X } from "lucide-react";
-import { Landmark, Museum, TreePine, Waves, Mountain } from "lucide-react";
+import { Landmark, Building2, TreePine, Waves, Mountain } from "lucide-react";
 
 interface ExploreFiltersProps {
   selectedCategories: string[];
@@ -23,7 +22,7 @@ const mainCategories = [
 
 const specificCategories = [
   { id: 'landmark', label: 'Landmarks', icon: <Landmark size={18} />, color: 'bg-amber-100 text-amber-800' },
-  { id: 'museum', label: 'Museums', icon: <Museum size={18} />, color: 'bg-slate-100 text-slate-800' },
+  { id: 'museum', label: 'Museums', icon: <Building2 size={18} />, color: 'bg-slate-100 text-slate-800' },
   { id: 'park', label: 'Parks', icon: <TreePine size={18} />, color: 'bg-emerald-100 text-emerald-800' },
   { id: 'beach', label: 'Beaches', icon: <Waves size={18} />, color: 'bg-sky-100 text-sky-800' },
   { id: 'lake', label: 'Lakes', icon: <Mountain size={18} />, color: 'bg-teal-100 text-teal-800' }
