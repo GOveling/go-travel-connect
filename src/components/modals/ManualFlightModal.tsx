@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import ManualFlightTypeSelector from "./manual-flight/ManualFlightTypeSelector";
 import ManualFlightForm from "./manual-flight/ManualFlightForm";
 import ManualFlightSummary from "./manual-flight/ManualFlightSummary";
@@ -116,9 +115,6 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
           </p>
         </div>
       </div>
-      <Button variant="ghost" size="sm" onClick={handleClose}>
-        <X size={16} />
-      </Button>
     </div>
   );
 
