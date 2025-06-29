@@ -95,12 +95,12 @@ const FlightBookingContent = ({
           <FlightBookingTypeStep
             tripType={tripType}
             onTypeChange={handleTripTypeChange}
-            showAIRecommendation={showAIRecommendation}
+            showAIRecommendation={Boolean(showAIRecommendation)}
             multiCityFlights={multiCityFlights}
             trips={trips}
             selectedTrip={selectedTrip}
             onTripSelect={handleTripSelect}
-            canProceed={canProceedToDetails()}
+            canProceed={Boolean(canProceedToDetails())}
             onContinue={() => setCurrentStep('details')}
           />
         );
@@ -113,11 +113,11 @@ const FlightBookingContent = ({
             setFormData={setFormData}
             multiCityFlights={multiCityFlights}
             setMultiCityFlights={setMultiCityFlights}
-            isDateRangeOpen={isDateRangeOpen}
+            isDateRangeOpen={Boolean(isDateRangeOpen)}
             setIsDateRangeOpen={setIsDateRangeOpen}
-            isDepartDateOpen={isDepartDateOpen}
+            isDepartDateOpen={Boolean(isDepartDateOpen)}
             setIsDepartDateOpen={setIsDepartDateOpen}
-            canProceed={canProceedToSummary()}
+            canProceed={Boolean(canProceedToSummary())}
             onContinue={() => setCurrentStep('summary')}
           />
         );
@@ -157,7 +157,7 @@ const FlightBookingContent = ({
       </div>
       
       <ManualFlightModal
-        isOpen={isManualFlightModalOpen}
+        isOpen={Boolean(isManualFlightModalOpen)}
         onClose={handleManualFlightModalClose}
       />
     </>
