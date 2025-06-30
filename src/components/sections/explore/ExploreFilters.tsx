@@ -44,14 +44,14 @@ const ExploreFilters = ({ selectedCategories, onCategoryToggle, onClearFilters }
         <Button
           variant="ghost"
           onClick={toggleExpanded}
-          className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg flex-1 justify-start"
+          className="flex items-center gap-2 p-3 border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 rounded-lg flex-1 justify-start transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          <Filter size={20} className="text-gray-600" />
+          <Filter size={20} className="text-purple-600" />
           <h3 className="font-semibold text-gray-800">Search Categories</h3>
           {isExpanded ? (
-            <ChevronUp size={20} className="text-gray-600 ml-auto" />
+            <ChevronUp size={20} className="text-purple-600 ml-auto" />
           ) : (
-            <ChevronDown size={20} className="text-gray-600 ml-auto" />
+            <ChevronDown size={20} className="text-purple-600 ml-auto" />
           )}
           {selectedCategories.length > 0 && (
             <Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-800">
