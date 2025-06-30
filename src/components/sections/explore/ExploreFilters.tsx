@@ -1,6 +1,8 @@
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Filter, X } from "lucide-react";
+import { Filter, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Landmark, Building2, TreePine, Waves, Mountain } from "lucide-react";
 
 interface ExploreFiltersProps {
@@ -29,83 +31,109 @@ const specificCategories = [
 ];
 
 const ExploreFilters = ({ selectedCategories, onCategoryToggle, onClearFilters }: ExploreFiltersProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpanded = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <div className="space-y-4">
-      {/* Filter Header */}
+      {/* Collapsible Filter Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          onClick={toggleExpanded}
+          className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg flex-1 justify-start"
+        >
           <Filter size={20} className="text-gray-600" />
           <h3 className="font-semibold text-gray-800">Search Categories</h3>
-        </div>
+          {isExpanded ? (
+            <ChevronUp size={20} className="text-gray-600 ml-auto" />
+          ) : (
+            <ChevronDown size={20} className="text-gray-600 ml-auto" />
+          )}
+          {selectedCategories.length > 0 && (
+            <Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-800">
+              {selectedCategories.length}
+            </Badge>
+          )}
+        </Button>
+        
         {selectedCategories.length > 0 && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onClearFilters}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 ml-2"
           >
             <X size={16} className="mr-1" />
-            Clear All
+            <span className="hidden sm:inline">Clear All</span>
           </Button>
         )}
       </div>
 
-      {/* Categories Grid - Two Columns */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Main Categories Column */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-600 mb-2">General</h4>
-          <div className="grid grid-cols-1 gap-2">
-            {mainCategories.map((category) => {
-              const isSelected = selectedCategories.includes(category.id);
-              return (
-                <Button
-                  key={category.id}
-                  variant={isSelected ? "default" : "outline"}
-                  onClick={() => onCategoryToggle(category.id)}
-                  className={`h-12 flex items-center justify-start gap-2 transition-all duration-200 ${
-                    isSelected 
-                      ? 'bg-gradient-to-r from-purple-600 to-orange-500 border-0 shadow-lg' 
-                      : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
-                  }`}
-                >
-                  <span className="text-base">{category.icon}</span>
-                  <span className="text-xs font-medium">{category.label}</span>
-                </Button>
-              );
-            })}
+      {/* Collapsible Content */}
+      {isExpanded && (
+        <div className="space-y-4 animate-fade-in">
+          {/* Categories Grid - Responsive */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Main Categories Column */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">General</h4>
+              <div className="grid grid-cols-1 gap-2">
+                {mainCategories.map((category) => {
+                  const isSelected = selectedCategories.includes(category.id);
+                  return (
+                    <Button
+                      key={category.id}
+                      variant={isSelected ? "default" : "outline"}
+                      onClick={() => onCategoryToggle(category.id)}
+                      className={`h-12 flex items-center justify-start gap-2 transition-all duration-200 ${
+                        isSelected 
+                          ? 'bg-gradient-to-r from-purple-600 to-orange-500 border-0 shadow-lg' 
+                          : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                      }`}
+                    >
+                      <span className="text-base">{category.icon}</span>
+                      <span className="text-xs font-medium">{category.label}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Specific Categories Column */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-gray-600 mb-2">Specific Places</h4>
+              <div className="grid grid-cols-1 gap-2">
+                {specificCategories.map((category) => {
+                  const isSelected = selectedCategories.includes(category.id);
+                  return (
+                    <Button
+                      key={category.id}
+                      variant={isSelected ? "default" : "outline"}
+                      onClick={() => onCategoryToggle(category.id)}
+                      className={`h-12 flex items-center justify-start gap-2 transition-all duration-200 ${
+                        isSelected 
+                          ? 'bg-gradient-to-r from-purple-600 to-orange-500 border-0 shadow-lg text-white' 
+                          : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                      }`}
+                    >
+                      <span className={isSelected ? 'text-white' : 'text-gray-600'}>
+                        {category.icon}
+                      </span>
+                      <span className="text-xs font-medium">{category.label}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Specific Categories Column */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-600 mb-2">Specific Places</h4>
-          <div className="grid grid-cols-1 gap-2">
-            {specificCategories.map((category) => {
-              const isSelected = selectedCategories.includes(category.id);
-              return (
-                <Button
-                  key={category.id}
-                  variant={isSelected ? "default" : "outline"}
-                  onClick={() => onCategoryToggle(category.id)}
-                  className={`h-12 flex items-center justify-start gap-2 transition-all duration-200 ${
-                    isSelected 
-                      ? 'bg-gradient-to-r from-purple-600 to-orange-500 border-0 shadow-lg text-white' 
-                      : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
-                  }`}
-                >
-                  <span className={isSelected ? 'text-white' : 'text-gray-600'}>
-                    {category.icon}
-                  </span>
-                  <span className="text-xs font-medium">{category.label}</span>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Selected Categories Summary */}
+      {/* Selected Categories Summary - Always visible when there are selections */}
       {selectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedCategories.map((categoryId) => {
