@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Clock, Phone, Globe, Navigation, Heart } from "lucide-react";
+import ExploreSearchLoader from "./ExploreSearchLoader";
 
 interface Place {
   id: string;
@@ -89,32 +89,15 @@ const ExploreResults = ({
   };
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        {[...Array(5)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-4">
-              <div className="flex gap-4">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-full"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+    return <ExploreSearchLoader />;
   }
 
   if (places.length === 0 && searchQuery) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🔍</div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">No places found</h3>
-        <p className="text-gray-600">Try adjusting your search or categories</p>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">No se encontraron lugares</h3>
+        <p className="text-gray-600">Intenta ajustar tu búsqueda o categorías</p>
       </div>
     );
   }
@@ -123,9 +106,9 @@ const ExploreResults = ({
     <div className="space-y-4">
       {searchQuery && (
         <div className="text-sm text-gray-600 mb-4">
-          Found {places.length} places for "{searchQuery}"
+          Se encontraron {places.length} lugares para "{searchQuery}"
           {selectedPlaceId && (
-            <span className="text-sky-600 ml-2">• Selected place highlighted</span>
+            <span className="text-sky-600 ml-2">• Lugar seleccionado resaltado</span>
           )}
         </div>
       )}
@@ -164,7 +147,7 @@ const ExploreResults = ({
                     {place.name}
                     {isSelectedPlace(place.id) && (
                       <Badge className="ml-2 text-xs bg-sky-600 text-white">
-                        Selected
+                        Seleccionado
                       </Badge>
                     )}
                   </h3>
@@ -189,7 +172,7 @@ const ExploreResults = ({
                 <div className="text-xs text-gray-400 mb-2 font-mono">
                   {place.coordinates.lat.toFixed(6)}, {place.coordinates.lng.toFixed(6)}
                   {place.geocoded === false && (
-                    <span className="text-yellow-600 ml-2">(No coordinates)</span>
+                    <span className="text-yellow-600 ml-2">(Sin coordenadas)</span>
                   )}
                 </div>
 

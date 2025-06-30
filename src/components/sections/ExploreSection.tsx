@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { GeminiPlacePrediction } from "@/hooks/useGeminiPlaces";
 import { useToast } from "@/hooks/use-toast";
@@ -55,41 +54,19 @@ const ExploreSection = () => {
   };
 
   const handleShowRelatedPlaces = async (place: GeminiPlacePrediction) => {
-    console.log('Showing places based on Gemini results for:', place);
+    console.log('Mostrando lugares basados en resultados de Gemini para:', place);
     setLoading(true);
     setSelectedPlaceId(place.place_id);
     
     try {
-      // Convert ALL Gemini predictions to Place format
-      // This should be called with all the predictions from the search
-      // For now, we'll create a placeholder that should be replaced with actual Gemini search results
-      const convertedPlace: Place = {
-        id: place.place_id,
-        name: place.structured_formatting.main_text,
-        address: place.full_address,
-        coordinates: place.coordinates,
-        rating: place.confidence_score >= 90 ? 4.5 : 4.0,
-        category: place.types[0]?.replace(/_/g, ' ') || 'attraction',
-        description: place.place_description || `${place.structured_formatting.main_text} in ${place.structured_formatting.secondary_text}`,
-        hours: "Hours vary",
-        phone: place.phone,
-        priceLevel: 2,
-        confidence_score: place.confidence_score,
-        geocoded: place.geocoded
-      };
-
-      // Set the selected place first, others will come from the actual search results
-      setSearchResults([convertedPlace]);
-      setSearchQuery(`Places related to ${place.structured_formatting.main_text}`);
-
       toast({
-        title: "Place Selected",
-        description: `Showing details for ${place.structured_formatting.main_text}`,
+        title: "Lugar Seleccionado",
+        description: `Mostrando detalles para ${place.structured_formatting.main_text}`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to show place details. Please try again.",
+        description: "Error al mostrar detalles del lugar. Inténtalo de nuevo.",
         variant: "destructive"
       });
     } finally {
@@ -117,15 +94,17 @@ const ExploreSection = () => {
     setIsModalOpen(true);
   };
 
-  // Function to handle results from the search bar
+  // Function to handle results from the search bar - ALWAYS render ALL results
   const handleSearchResults = (results: Place[], selectedId?: string) => {
+    // ALWAYS show ALL results, just reorder if there's a selected place
     if (selectedId) {
-      // Reorder results to put selected place first
+      // Reorder results to put selected place first, but keep ALL results
       const selectedPlace = results.find(place => place.id === selectedId);
       const otherPlaces = results.filter(place => place.id !== selectedId);
       setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : results);
       setSelectedPlaceId(selectedId);
     } else {
+      // Show all results without any filtering
       setSearchResults(results);
       setSelectedPlaceId(null);
     }
@@ -137,8 +116,8 @@ const ExploreSection = () => {
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Explore Places</h1>
-            <p className="text-sm text-gray-600">Discover amazing places around the world with AI-powered search</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Explorar Lugares</h1>
+            <p className="text-sm text-gray-600">Descubre lugares increíbles alrededor del mundo con búsqueda potenciada por IA</p>
           </div>
 
           {/* Filters */}
