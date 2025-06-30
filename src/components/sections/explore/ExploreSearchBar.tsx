@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, Loader2, MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ interface ExploreSearchBarProps {
   onSearchSubmit?: (query: string) => void;
   onShowRelatedPlaces?: (place: GeminiPlacePrediction) => void;
   onSearchResults?: (results: Place[], selectedId?: string) => void;
+  onLoadingChange?: (loading: boolean) => void;
   selectedCategories: string[];
 }
 
@@ -37,6 +37,7 @@ const ExploreSearchBar = ({
   onSearchSubmit, 
   onShowRelatedPlaces, 
   onSearchResults,
+  onLoadingChange,
   selectedCategories 
 }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
@@ -88,12 +89,18 @@ const ExploreSearchBar = ({
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
+      // Notify parent component that we're starting a search
+      onLoadingChange?.(true);
       onSearchSubmit?.(searchQuery);
       
       // Convert all current predictions to places and show them
       if (predictions.length > 0) {
         const places = convertGeminiResultsToPlaces(predictions);
         onSearchResults?.(places);
+        onLoadingChange?.(false);
+      } else {
+        // If no predictions yet, start a search
+        searchPlaces(searchQuery, selectedCategories);
       }
       
       setShowResults(false);
@@ -110,12 +117,18 @@ const ExploreSearchBar = ({
     setSearchQuery(place.description);
     setShowResults(false);
     
+    // Notify parent that we're processing selection
+    onLoadingChange?.(true);
+    
     // Convert all predictions to places and highlight the selected one
     const allPlaces = convertGeminiResultsToPlaces(predictions);
     onSearchResults?.(allPlaces, place.place_id);
     
     clearResults();
     onShowRelatedPlaces?.(place);
+    
+    // Loading will be handled by parent when results are processed
+    setTimeout(() => onLoadingChange?.(false), 500);
   };
 
   const getCategoryHint = () => {

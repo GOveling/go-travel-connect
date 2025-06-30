@@ -55,7 +55,6 @@ const ExploreSection = () => {
 
   const handleShowRelatedPlaces = async (place: GeminiPlacePrediction) => {
     console.log('Mostrando lugares basados en resultados de Gemini para:', place);
-    setLoading(true);
     setSelectedPlaceId(place.place_id);
     
     try {
@@ -69,8 +68,6 @@ const ExploreSection = () => {
         description: "Error al mostrar detalles del lugar. Inténtalo de nuevo.",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -110,6 +107,10 @@ const ExploreSection = () => {
     }
   };
 
+  const handleLoadingChange = (isLoading: boolean) => {
+    setLoading(isLoading);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -135,6 +136,7 @@ const ExploreSection = () => {
             onSearchSubmit={handleSearchSubmit}
             onShowRelatedPlaces={handleShowRelatedPlaces}
             onSearchResults={handleSearchResults}
+            onLoadingChange={handleLoadingChange}
           />
         </div>
       </div>
