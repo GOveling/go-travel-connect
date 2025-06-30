@@ -32,6 +32,7 @@ const ExploreSection = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => 
@@ -47,127 +48,48 @@ const ExploreSection = () => {
 
   const handleSearchSubmit = async (query: string) => {
     setSearchQuery(query);
-    setLoading(true);
-    
-    try {
-      // Simulate API call with enhanced mock data
-      const mockResults: Place[] = [
-        {
-          id: '1',
-          name: `${query} - Central Plaza`,
-          address: `123 Main Street, ${query}`,
-          coordinates: { lat: 40.7128, lng: -74.0060 },
-          rating: 4.5,
-          category: selectedCategories[0] || 'attraction',
-          description: `Beautiful central plaza in ${query}`,
-          hours: "Open 24 hours",
-          priceLevel: 2,
-          confidence_score: 92,
-          geocoded: true
-        },
-        {
-          id: '2',
-          name: `${query} - Historic District`,
-          address: `456 Historic Ave, ${query}`,
-          coordinates: { lat: 40.7589, lng: -73.9851 },
-          rating: 4.2,
-          category: selectedCategories[0] || 'attraction',
-          description: `Historic area with amazing architecture`,
-          hours: "9:00 AM - 6:00 PM",
-          priceLevel: 1,
-          confidence_score: 88,
-          geocoded: true
-        }
-      ];
-
-      // Filter by selected categories if any
-      const filteredResults = selectedCategories.length > 0 
-        ? mockResults.filter(place => selectedCategories.includes(place.category))
-        : mockResults;
-
-      setSearchResults(filteredResults);
-    } catch (error) {
-      toast({
-        title: "Search Error",
-        description: "Failed to search places. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+    setSelectedPlaceId(null);
+    // Clear search results when doing a new search
+    setSearchResults([]);
+    // Note: The actual search will be handled by the search bar component
   };
 
   const handleShowRelatedPlaces = async (place: GeminiPlacePrediction) => {
-    console.log('Showing related places for:', place);
+    console.log('Showing places based on Gemini results for:', place);
     setLoading(true);
+    setSelectedPlaceId(place.place_id);
     
     try {
-      // Convert Gemini place to our format and create related places
-      const relatedPlaces: Place[] = [
-        {
-          id: 'gemini-main',
-          name: place.structured_formatting.main_text,
-          address: place.full_address,
-          coordinates: place.coordinates,
-          rating: place.confidence_score >= 90 ? 4.5 : 4.0,
-          category: place.types[0]?.replace(/_/g, ' ') || 'attraction',
-          description: place.place_description || `${place.structured_formatting.main_text} in ${place.structured_formatting.secondary_text}`,
-          hours: "Hours vary",
-          phone: place.phone,
-          priceLevel: 2,
-          confidence_score: place.confidence_score,
-          geocoded: place.geocoded
-        },
-        {
-          id: 'related-1',
-          name: `Near ${place.structured_formatting.main_text} - Restaurant`,
-          address: `Close to ${place.structured_formatting.secondary_text}`,
-          coordinates: { 
-            lat: place.coordinates.lat + 0.001, 
-            lng: place.coordinates.lng + 0.001 
-          },
-          rating: 4.3,
-          category: 'restaurant',
-          description: `Popular restaurant near ${place.structured_formatting.main_text}`,
-          hours: "11:00 AM - 10:00 PM",
-          priceLevel: 3,
-          confidence_score: 85,
-          geocoded: place.geocoded
-        },
-        {
-          id: 'related-2',
-          name: `Near ${place.structured_formatting.main_text} - Hotel`,
-          address: `Walking distance from ${place.structured_formatting.secondary_text}`,
-          coordinates: { 
-            lat: place.coordinates.lat - 0.001, 
-            lng: place.coordinates.lng - 0.001 
-          },
-          rating: 4.7,
-          category: 'hotel',
-          description: `Comfortable hotel with great views`,
-          hours: "24/7",
-          priceLevel: 4,
-          confidence_score: 90,
-          geocoded: place.geocoded
-        }
-      ];
+      // Convert ALL Gemini predictions to Place format
+      // This should be called with all the predictions from the search
+      // For now, we'll create a placeholder that should be replaced with actual Gemini search results
+      const convertedPlace: Place = {
+        id: place.place_id,
+        name: place.structured_formatting.main_text,
+        address: place.full_address,
+        coordinates: place.coordinates,
+        rating: place.confidence_score >= 90 ? 4.5 : 4.0,
+        category: place.types[0]?.replace(/_/g, ' ') || 'attraction',
+        description: place.place_description || `${place.structured_formatting.main_text} in ${place.structured_formatting.secondary_text}`,
+        hours: "Hours vary",
+        phone: place.phone,
+        priceLevel: 2,
+        confidence_score: place.confidence_score,
+        geocoded: place.geocoded
+      };
 
-      // Filter by selected categories if any
-      const filteredResults = selectedCategories.length > 0 
-        ? relatedPlaces.filter(relatedPlace => selectedCategories.includes(relatedPlace.category))
-        : relatedPlaces;
-
-      setSearchResults(filteredResults);
-      setSearchQuery(`Related places near ${place.structured_formatting.main_text}`);
+      // Set the selected place first, others will come from the actual search results
+      setSearchResults([convertedPlace]);
+      setSearchQuery(`Places related to ${place.structured_formatting.main_text}`);
 
       toast({
-        title: "Related Places Found",
-        description: `Found ${filteredResults.length} places near ${place.structured_formatting.main_text}`,
+        title: "Place Selected",
+        description: `Showing details for ${place.structured_formatting.main_text}`,
       });
     } catch (error) {
       toast({
-        title: "Search Error",
-        description: "Failed to find related places. Please try again.",
+        title: "Error",
+        description: "Failed to show place details. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -195,6 +117,20 @@ const ExploreSection = () => {
     setIsModalOpen(true);
   };
 
+  // Function to handle results from the search bar
+  const handleSearchResults = (results: Place[], selectedId?: string) => {
+    if (selectedId) {
+      // Reorder results to put selected place first
+      const selectedPlace = results.find(place => place.id === selectedId);
+      const otherPlaces = results.filter(place => place.id !== selectedId);
+      setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : results);
+      setSelectedPlaceId(selectedId);
+    } else {
+      setSearchResults(results);
+      setSelectedPlaceId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -219,6 +155,7 @@ const ExploreSection = () => {
             selectedCategories={selectedCategories}
             onSearchSubmit={handleSearchSubmit}
             onShowRelatedPlaces={handleShowRelatedPlaces}
+            onSearchResults={handleSearchResults}
           />
         </div>
       </div>
@@ -230,6 +167,7 @@ const ExploreSection = () => {
           loading={loading}
           onPlaceClick={handlePlaceClick}
           searchQuery={searchQuery}
+          selectedPlaceId={selectedPlaceId}
         />
       </div>
 

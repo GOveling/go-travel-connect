@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,16 @@ interface ExploreResultsProps {
   loading: boolean;
   onPlaceClick: (place: Place) => void;
   searchQuery?: string;
+  selectedPlaceId?: string | null;
 }
 
-const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreResultsProps) => {
+const ExploreResults = ({ 
+  places, 
+  loading, 
+  onPlaceClick, 
+  searchQuery, 
+  selectedPlaceId 
+}: ExploreResultsProps) => {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const toggleFavorite = (placeId: string, e: React.MouseEvent) => {
@@ -76,6 +84,10 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
     );
   };
 
+  const isSelectedPlace = (placeId: string) => {
+    return selectedPlaceId === placeId;
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -112,19 +124,30 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
       {searchQuery && (
         <div className="text-sm text-gray-600 mb-4">
           Found {places.length} places for "{searchQuery}"
+          {selectedPlaceId && (
+            <span className="text-sky-600 ml-2">• Selected place highlighted</span>
+          )}
         </div>
       )}
       
       {places.map((place) => (
         <Card 
           key={place.id} 
-          className="hover:shadow-lg transition-all duration-200 cursor-pointer border-0 shadow-sm"
+          className={`hover:shadow-lg transition-all duration-200 cursor-pointer border-0 shadow-sm ${
+            isSelectedPlace(place.id) 
+              ? 'ring-2 ring-sky-500 bg-sky-50 shadow-lg' 
+              : ''
+          }`}
           onClick={() => onPlaceClick(place)}
         >
           <CardContent className="p-4">
             <div className="flex gap-4">
               {/* Place Image/Icon */}
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg flex-shrink-0 flex items-center justify-center">
+              <div className={`w-20 h-20 rounded-lg flex-shrink-0 flex items-center justify-center ${
+                isSelectedPlace(place.id)
+                  ? 'bg-gradient-to-br from-sky-200 to-blue-200'
+                  : 'bg-gradient-to-br from-purple-100 to-orange-100'
+              }`}>
                 {place.image ? (
                   <img src={place.image} alt={place.name} className="w-full h-full object-cover rounded-lg" />
                 ) : (
@@ -135,8 +158,15 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
               {/* Place Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+                  <h3 className={`font-semibold text-sm leading-tight ${
+                    isSelectedPlace(place.id) ? 'text-sky-900' : 'text-gray-900'
+                  }`}>
                     {place.name}
+                    {isSelectedPlace(place.id) && (
+                      <Badge className="ml-2 text-xs bg-sky-600 text-white">
+                        Selected
+                      </Badge>
+                    )}
                   </h3>
                   <Button
                     variant="ghost"
@@ -188,7 +218,11 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-purple-600 hover:text-purple-700 p-1 h-auto"
+                    className={`p-1 h-auto ${
+                      isSelectedPlace(place.id) 
+                        ? 'text-sky-600 hover:text-sky-700' 
+                        : 'text-purple-600 hover:text-purple-700'
+                    }`}
                   >
                     <Navigation size={14} />
                   </Button>

@@ -7,14 +7,38 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeminiPlaces, GeminiPlacePrediction } from "@/hooks/useGeminiPlaces";
 
+interface Place {
+  id: string;
+  name: string;
+  address: string;
+  coordinates: { lat: number; lng: number };
+  rating?: number;
+  category: string;
+  image?: string;
+  description?: string;
+  hours?: string;
+  phone?: string;
+  website?: string;
+  priceLevel?: number;
+  confidence_score?: number;
+  geocoded?: boolean;
+}
+
 interface ExploreSearchBarProps {
   onPlaceSelect?: (place: GeminiPlacePrediction) => void;
   onSearchSubmit?: (query: string) => void;
   onShowRelatedPlaces?: (place: GeminiPlacePrediction) => void;
+  onSearchResults?: (results: Place[], selectedId?: string) => void;
   selectedCategories: string[];
 }
 
-const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, onShowRelatedPlaces, selectedCategories }: ExploreSearchBarProps) => {
+const ExploreSearchBar = ({ 
+  onPlaceSelect, 
+  onSearchSubmit, 
+  onShowRelatedPlaces, 
+  onSearchResults,
+  selectedCategories 
+}: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
@@ -45,9 +69,33 @@ const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, onShowRelatedPlaces, 
     }
   };
 
+  const convertGeminiResultsToPlaces = (predictions: GeminiPlacePrediction[]): Place[] => {
+    return predictions.map(prediction => ({
+      id: prediction.place_id,
+      name: prediction.structured_formatting.main_text,
+      address: prediction.full_address,
+      coordinates: prediction.coordinates,
+      rating: prediction.confidence_score >= 90 ? 4.5 : 4.0,
+      category: prediction.types[0]?.replace(/_/g, ' ') || 'attraction',
+      description: prediction.place_description || `${prediction.structured_formatting.main_text} in ${prediction.structured_formatting.secondary_text}`,
+      hours: "Hours vary",
+      phone: prediction.phone,
+      priceLevel: 2,
+      confidence_score: prediction.confidence_score,
+      geocoded: prediction.geocoded
+    }));
+  };
+
   const handleSearch = () => {
     if (searchQuery.trim()) {
       onSearchSubmit?.(searchQuery);
+      
+      // Convert all current predictions to places and show them
+      if (predictions.length > 0) {
+        const places = convertGeminiResultsToPlaces(predictions);
+        onSearchResults?.(places);
+      }
+      
       setShowResults(false);
     }
   };
@@ -61,8 +109,12 @@ const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, onShowRelatedPlaces, 
   const handlePlaceSelect = (place: GeminiPlacePrediction) => {
     setSearchQuery(place.description);
     setShowResults(false);
-    clearResults();
     
+    // Convert all predictions to places and highlight the selected one
+    const allPlaces = convertGeminiResultsToPlaces(predictions);
+    onSearchResults?.(allPlaces, place.place_id);
+    
+    clearResults();
     onShowRelatedPlaces?.(place);
   };
 
@@ -157,7 +209,7 @@ const ExploreSearchBar = ({ onPlaceSelect, onSearchSubmit, onShowRelatedPlaces, 
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Navigation size={12} />
-                      <span>Show related places</span>
+                      <span>Select place</span>
                     </div>
                     {getConfidenceBadge(place.confidence_score)}
                     {!place.geocoded && (

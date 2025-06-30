@@ -128,9 +128,9 @@ serve(async (req) => {
 
     console.log('Searching places with Gemini for:', input, 'Categories:', selectedCategories);
 
-    // Call Gemini API
+    // Call Gemini API with updated model
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent?key=${geminiApiKey}`,
       {
         method: 'POST',
         headers: {
