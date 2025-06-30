@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { PlacePrediction } from "@/hooks/useGooglePlaces";
+import { GeminiPlacePrediction } from "@/hooks/useGeminiPlaces";
 import { useToast } from "@/hooks/use-toast";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import ExploreFilters from "./explore/ExploreFilters";
@@ -20,6 +20,8 @@ interface Place {
   phone?: string;
   website?: string;
   priceLevel?: number;
+  confidence_score?: number;
+  geocoded?: boolean;
 }
 
 const ExploreSection = () => {
@@ -48,8 +50,7 @@ const ExploreSection = () => {
     setLoading(true);
     
     try {
-      // Simulate API call - In real implementation, this would call Google Places API
-      // with the selected categories as filters
+      // Simulate API call with enhanced mock data
       const mockResults: Place[] = [
         {
           id: '1',
@@ -60,7 +61,9 @@ const ExploreSection = () => {
           category: selectedCategories[0] || 'attraction',
           description: `Beautiful central plaza in ${query}`,
           hours: "Open 24 hours",
-          priceLevel: 2
+          priceLevel: 2,
+          confidence_score: 92,
+          geocoded: true
         },
         {
           id: '2',
@@ -71,7 +74,9 @@ const ExploreSection = () => {
           category: selectedCategories[0] || 'attraction',
           description: `Historic area with amazing architecture`,
           hours: "9:00 AM - 6:00 PM",
-          priceLevel: 1
+          priceLevel: 1,
+          confidence_score: 88,
+          geocoded: true
         }
       ];
 
@@ -92,45 +97,58 @@ const ExploreSection = () => {
     }
   };
 
-  const handleShowRelatedPlaces = async (place: PlacePrediction) => {
+  const handleShowRelatedPlaces = async (place: GeminiPlacePrediction) => {
     console.log('Showing related places for:', place);
     setLoading(true);
     
     try {
-      // Simulate API call to get related places
+      // Convert Gemini place to our format and create related places
       const relatedPlaces: Place[] = [
+        {
+          id: 'gemini-main',
+          name: place.structured_formatting.main_text,
+          address: place.full_address,
+          coordinates: place.coordinates,
+          rating: place.confidence_score >= 90 ? 4.5 : 4.0,
+          category: place.types[0]?.replace(/_/g, ' ') || 'attraction',
+          description: place.place_description || `${place.structured_formatting.main_text} in ${place.structured_formatting.secondary_text}`,
+          hours: "Hours vary",
+          phone: place.phone,
+          priceLevel: 2,
+          confidence_score: place.confidence_score,
+          geocoded: place.geocoded
+        },
         {
           id: 'related-1',
           name: `Near ${place.structured_formatting.main_text} - Restaurant`,
           address: `Close to ${place.structured_formatting.secondary_text}`,
-          coordinates: { lat: 40.7128, lng: -74.0060 },
+          coordinates: { 
+            lat: place.coordinates.lat + 0.001, 
+            lng: place.coordinates.lng + 0.001 
+          },
           rating: 4.3,
           category: 'restaurant',
           description: `Popular restaurant near ${place.structured_formatting.main_text}`,
           hours: "11:00 AM - 10:00 PM",
-          priceLevel: 3
+          priceLevel: 3,
+          confidence_score: 85,
+          geocoded: place.geocoded
         },
         {
           id: 'related-2',
           name: `Near ${place.structured_formatting.main_text} - Hotel`,
           address: `Walking distance from ${place.structured_formatting.secondary_text}`,
-          coordinates: { lat: 40.7589, lng: -73.9851 },
+          coordinates: { 
+            lat: place.coordinates.lat - 0.001, 
+            lng: place.coordinates.lng - 0.001 
+          },
           rating: 4.7,
           category: 'hotel',
           description: `Comfortable hotel with great views`,
           hours: "24/7",
-          priceLevel: 4
-        },
-        {
-          id: 'related-3',
-          name: `Near ${place.structured_formatting.main_text} - Attraction`,
-          address: `Adjacent to ${place.structured_formatting.secondary_text}`,
-          coordinates: { lat: 40.7300, lng: -74.0100 },
-          rating: 4.1,
-          category: 'attraction',
-          description: `Must-see attraction in the area`,
-          hours: "9:00 AM - 6:00 PM",
-          priceLevel: 2
+          priceLevel: 4,
+          confidence_score: 90,
+          geocoded: place.geocoded
         }
       ];
 
@@ -184,7 +202,7 @@ const ExploreSection = () => {
         <div className="p-4">
           <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Explore Places</h1>
-            <p className="text-sm text-gray-600">Discover amazing places around the world</p>
+            <p className="text-sm text-gray-600">Discover amazing places around the world with AI-powered search</p>
           </div>
 
           {/* Filters */}

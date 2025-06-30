@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,8 @@ interface Place {
   phone?: string;
   website?: string;
   priceLevel?: number;
+  geocoded?: boolean;
+  confidence_score?: number;
 }
 
 interface ExploreResultsProps {
@@ -56,6 +57,23 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
       education: 'bg-cyan-100 text-cyan-800'
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getConfidenceBadge = (confidence?: number) => {
+    if (!confidence) return null;
+    
+    if (confidence >= 90) {
+      return (
+        <Badge className="text-xs bg-sky-100 text-sky-800 border-sky-200">
+          High confidence
+        </Badge>
+      );
+    }
+    return (
+      <Badge className="text-xs bg-gray-100 text-gray-600 border-gray-200">
+        Medium confidence
+      </Badge>
+    );
   };
 
   if (loading) {
@@ -140,10 +158,13 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
 
                 <div className="text-xs text-gray-400 mb-2 font-mono">
                   {place.coordinates.lat.toFixed(6)}, {place.coordinates.lng.toFixed(6)}
+                  {place.geocoded === false && (
+                    <span className="text-yellow-600 ml-2">(No coordinates)</span>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {place.rating && (
                       <div className="flex items-center gap-1">
                         <Star size={12} className="text-yellow-500 fill-yellow-500" />
@@ -154,6 +175,8 @@ const ExploreResults = ({ places, loading, onPlaceClick, searchQuery }: ExploreR
                     <Badge className={`text-xs px-2 py-1 ${getCategoryColor(place.category)}`}>
                       {place.category}
                     </Badge>
+
+                    {getConfidenceBadge(place.confidence_score)}
 
                     {place.priceLevel && (
                       <span className="text-xs text-green-600 font-semibold">
