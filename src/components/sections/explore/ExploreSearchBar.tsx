@@ -1,8 +1,8 @@
+
 import { useState } from "react";
-import { Search, Loader2, MapPin, Navigation } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeminiPlaces, GeminiPlacePrediction } from "@/hooks/useGeminiPlaces";
 
@@ -42,32 +42,11 @@ const ExploreSearchBar = ({
 }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
   const { predictions, loading, searchPlaces, clearResults } = useGeminiPlaces();
-
-  // Debounce with 600ms delay
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    
-    // Clear previous timer
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-    
-    if (value.trim().length > 2) {
-      // Set new timer with 600ms delay
-      const newTimer = setTimeout(() => {
-        searchPlaces(value, selectedCategories);
-        setShowResults(true);
-      }, 600);
-      setDebounceTimer(newTimer);
-    } else {
-      clearResults();
-      setShowResults(false);
-    }
   };
 
   const convertGeminiResultsToPlaces = (predictions: GeminiPlacePrediction[]): Place[] => {
@@ -87,48 +66,37 @@ const ExploreSearchBar = ({
     }));
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchQuery.trim()) {
       // Notify parent component that we're starting a search
       onLoadingChange?.(true);
       onSearchSubmit?.(searchQuery);
       
-      // Convert all current predictions to places and show them
-      if (predictions.length > 0) {
-        const places = convertGeminiResultsToPlaces(predictions);
-        onSearchResults?.(places);
+      try {
+        // Start the search with Gemini
+        await searchPlaces(searchQuery, selectedCategories);
+        
+        // The search results will be handled by the useEffect below
+      } catch (error) {
+        console.error('Error during search:', error);
         onLoadingChange?.(false);
-      } else {
-        // If no predictions yet, start a search
-        searchPlaces(searchQuery, selectedCategories);
       }
-      
-      setShowResults(false);
     }
   };
+
+  // Handle search results when predictions change
+  React.useEffect(() => {
+    if (predictions.length > 0) {
+      const places = convertGeminiResultsToPlaces(predictions);
+      onSearchResults?.(places);
+      onLoadingChange?.(false);
+    }
+  }, [predictions, onSearchResults, onLoadingChange]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
-  };
-
-  const handlePlaceSelect = (place: GeminiPlacePrediction) => {
-    setSearchQuery(place.description);
-    setShowResults(false);
-    
-    // Notify parent that we're processing selection
-    onLoadingChange?.(true);
-    
-    // Convert all predictions to places and highlight the selected one
-    const allPlaces = convertGeminiResultsToPlaces(predictions);
-    onSearchResults?.(allPlaces, place.place_id);
-    
-    clearResults();
-    onShowRelatedPlaces?.(place);
-    
-    // Loading will be handled by parent when results are processed
-    setTimeout(() => onLoadingChange?.(false), 500);
   };
 
   const getCategoryHint = () => {
@@ -147,21 +115,6 @@ const ExploreSearchBar = ({
       return `Search ${categoryNames[selectedCategories[0]] || "places"}...`;
     }
     return `Search in ${selectedCategories.length} categories...`;
-  };
-
-  const getConfidenceBadge = (confidence: number) => {
-    if (confidence >= 90) {
-      return (
-        <Badge className="text-xs bg-sky-100 text-sky-800 border-sky-200">
-          High confidence
-        </Badge>
-      );
-    }
-    return (
-      <Badge className="text-xs bg-gray-100 text-gray-600 border-gray-200">
-        Medium confidence
-      </Badge>
-    );
   };
 
   return (
@@ -190,58 +143,6 @@ const ExploreSearchBar = ({
           )}
         </Button>
       </div>
-
-      {/* Search Results Dropdown */}
-      {showResults && predictions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg z-50 mt-2 max-h-80 overflow-y-auto">
-          <div className="p-2">
-            <div className="text-xs text-gray-500 px-3 py-2 border-b border-gray-100">
-              Found {predictions.length} places {loading && "(searching...)"}
-            </div>
-            {predictions.map((place, index) => (
-              <div
-                key={place.place_id}
-                className="flex items-start gap-3 p-3 hover:bg-gray-50 cursor-pointer rounded-lg transition-colors"
-                onClick={() => handlePlaceSelect(place)}
-              >
-                <div className="flex-shrink-0 mt-1">
-                  <MapPin size={16} className="text-purple-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-900 text-sm mb-1 truncate">
-                    {place.structured_formatting.main_text}
-                  </div>
-                  <div className="text-xs text-gray-500 mb-2">
-                    {place.structured_formatting.secondary_text}
-                  </div>
-                  {place.place_description && (
-                    <div className="text-xs text-gray-400 mb-2 line-clamp-2">
-                      {place.place_description}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1 text-xs text-gray-400">
-                      <Navigation size={12} />
-                      <span>Select place</span>
-                    </div>
-                    {getConfidenceBadge(place.confidence_score)}
-                    {!place.geocoded && (
-                      <Badge className="text-xs bg-yellow-100 text-yellow-700 border-yellow-200">
-                        No coordinates
-                      </Badge>
-                    )}
-                    {place.types.length > 0 && (
-                      <Badge className="text-xs bg-gray-100 text-gray-600 border-gray-200">
-                        {place.types[0].replace(/_/g, ' ')}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
