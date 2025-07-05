@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { MapPin, Calendar, Plus, Check, Plane } from "lucide-react";
+import { MapPin, Calendar, Plus, Check, Plane, Search, X, Users, Clock } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Trip } from "@/types/aiSmartRoute";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAddToTrip } from "@/hooks/useAddToTrip";
+import { useSupabaseTrips } from "@/hooks/useSupabaseTrips";
+import NewTripModal from "./NewTripModal";
 
 interface ExploreAddToTripModalProps {
   isOpen: boolean;
@@ -14,349 +15,328 @@ interface ExploreAddToTripModalProps {
   selectedPlace: {
     name: string;
     location: string;
-    rating: number;
-    image: string;
+    rating?: number;
+    image?: string;
     category: string;
     description?: string;
     lat?: number;
     lng?: number;
   } | null;
-  existingTrips: Trip[];
-  onAddToExistingTrip: (tripId: number, place: any) => void;
-  onCreateNewTrip: (tripData: any) => void;
 }
 
 const ExploreAddToTripModal = ({ 
   isOpen, 
   onClose, 
-  selectedPlace,
-  existingTrips, 
-  onAddToExistingTrip, 
-  onCreateNewTrip
+  selectedPlace
 }: ExploreAddToTripModalProps) => {
-  const { toast } = useToast();
+  const { 
+    trips, 
+    loading, 
+    isAddingToTrip, 
+    searchQuery, 
+    setSearchQuery, 
+    categorizeTrips, 
+    addPlaceToTrip 
+  } = useAddToTrip();
+
+  const { createTrip } = useSupabaseTrips();
+  
   const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
-  const [showNewTripForm, setShowNewTripForm] = useState(false);
-  const [newTripData, setNewTripData] = useState({
-    name: "",
-    dates: "",
-    travelers: 1
-  });
+  const [showNewTripModal, setShowNewTripModal] = useState(false);
 
   if (!selectedPlace) return null;
 
-  // Find trips with matching location
-  const tripsWithMatchingLocation = existingTrips.filter(trip => 
-    trip.destination.toLowerCase().includes(selectedPlace.location.toLowerCase()) ||
-    trip.coordinates.some(coord => 
-      coord.name.toLowerCase().includes(selectedPlace.location.toLowerCase())
-    )
-  );
+  const { matching: matchingTrips, other: otherTrips } = categorizeTrips(selectedPlace);
 
-  const handleAddToExistingTrip = () => {
+  const handleAddToExistingTrip = async () => {
     if (selectedTripId && selectedPlace) {
-      onAddToExistingTrip(selectedTripId, selectedPlace);
-      toast({
-        title: "Place Added!",
-        description: `${selectedPlace.name} has been added to your trip.`
-      });
-      onClose();
-      resetForm();
+      const success = await addPlaceToTrip(selectedTripId, selectedPlace);
+      if (success) {
+        onClose();
+        resetForm();
+      }
     }
   };
 
-  const handleCreateNewTrip = () => {
-    if (!newTripData.name.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter a trip name.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const newTrip = {
-      id: Date.now(),
-      name: newTripData.name,
+  const handleCreateNewTrip = async (tripData: any) => {
+    // Add the selected place to the new trip data
+    const newTripWithPlace = {
+      ...tripData,
       destination: selectedPlace.location,
-      dates: newTripData.dates || "Dates TBD",
-      status: "planning",
-      travelers: newTripData.travelers,
-      image: selectedPlace.image,
-      isGroupTrip: false,
       coordinates: [
-        { 
-          name: selectedPlace.location, 
-          lat: selectedPlace.lat || 0, 
-          lng: selectedPlace.lng || 0 
-        }
-      ],
-      savedPlaces: [
         {
-          id: Date.now().toString(),
-          name: selectedPlace.name,
-          category: selectedPlace.category,
-          rating: selectedPlace.rating,
-          image: selectedPlace.image,
-          description: selectedPlace.description || "",
-          estimatedTime: "2-3 hours",
-          priority: "medium" as const,
-          destinationName: selectedPlace.location,
+          name: selectedPlace.location,
           lat: selectedPlace.lat || 0,
           lng: selectedPlace.lng || 0
         }
       ]
     };
 
-    onCreateNewTrip(newTrip);
-    toast({
-      title: "Trip Created!",
-      description: `${newTripData.name} has been created with ${selectedPlace.name}.`
-    });
-    onClose();
-    resetForm();
+    const createdTrip = await createTrip(newTripWithPlace);
+    if (createdTrip) {
+      // Add the place to the created trip
+      await addPlaceToTrip(parseInt(createdTrip.id), selectedPlace);
+      setShowNewTripModal(false);
+      onClose();
+      resetForm();
+    }
   };
 
   const resetForm = () => {
     setSelectedTripId(null);
-    setShowNewTripForm(false);
-    setNewTripData({ name: "", dates: "", travelers: 1 });
+    setSearchQuery('');
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-100 text-emerald-800 border-emerald-200";
       case "planning":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "completed":
-        return "bg-gray-100 text-gray-800";
+        return "bg-slate-100 text-slate-800 border-slate-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-slate-100 text-slate-800 border-slate-200";
     }
   };
 
+  const TripCard = ({ trip, isMatching = false }: { trip: any; isMatching?: boolean }) => (
+    <Card 
+      className={`cursor-pointer transition-all duration-300 hover:shadow-md ${
+        isMatching 
+          ? 'border-emerald-200 hover:border-emerald-300' 
+          : 'border-slate-200 hover:border-slate-300'
+      } ${
+        selectedTripId === trip.id 
+          ? isMatching 
+            ? 'border-emerald-500 bg-emerald-50 shadow-sm' 
+            : 'border-blue-500 bg-blue-50 shadow-sm'
+          : ''
+      }`}
+      onClick={() => setSelectedTripId(trip.id)}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-3">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+            isMatching 
+              ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
+              : 'bg-gradient-to-br from-blue-500 to-purple-500'
+          }`}>
+            <span className="text-lg">{trip.image || "✈️"}</span>
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold text-slate-800 truncate">{trip.name}</h4>
+              <span className={`text-xs px-2 py-1 rounded-full font-medium capitalize border ${getStatusColor(trip.status)}`}>
+                {trip.status}
+              </span>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2 text-xs text-slate-600">
+                <MapPin size={12} />
+                <span className="truncate">{trip.destination}</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 text-xs text-slate-600">
+                  <Calendar size={12} />
+                  <span>{trip.dates}</span>
+                </div>
+                
+                <div className="flex items-center space-x-1 text-xs text-slate-500">
+                  <Users size={10} />
+                  <span>{trip.travelers}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {selectedTripId === trip.id && (
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+              isMatching ? 'bg-emerald-500' : 'bg-blue-500'
+            }`}>
+              <Check size={14} className="text-white" />
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const LoadingSkeleton = () => (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <Card key={i} className="border-slate-200">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3">
+              <Skeleton className="w-12 h-12 rounded-xl" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center text-gray-800">
-            Add to Trip
-          </DialogTitle>
-          <p className="text-sm text-gray-600 text-center flex items-center justify-center gap-1">
-            <MapPin size={14} />
-            {selectedPlace.name} in {selectedPlace.location}
-          </p>
-        </DialogHeader>
-        
-        <div className="space-y-4 px-1">
-          {/* Show matching location trips first */}
-          {tripsWithMatchingLocation.length > 0 && !showNewTripForm && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-green-700 flex items-center gap-1">
-                <Check size={16} />
-                Trips with matching location:
-              </h3>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {tripsWithMatchingLocation.map((trip) => (
-                  <Card 
-                    key={trip.id} 
-                    className={`cursor-pointer transition-all duration-200 border-green-200 ${
-                      selectedTripId === trip.id 
-                        ? 'border-green-500 bg-green-50' 
-                        : 'hover:border-green-300'
-                    }`}
-                    onClick={() => setSelectedTripId(trip.id)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                          <span className="text-lg">{trip.image}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-sm text-gray-800 truncate">{trip.name}</h4>
-                            <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
-                              {trip.status}
-                            </span>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center space-x-1 text-xs text-gray-600">
-                              <MapPin size={10} />
-                              <span className="truncate">{trip.destination}</span>
-                            </div>
-                            <div className="flex items-center space-x-1 text-xs text-gray-600">
-                              <Calendar size={10} />
-                              <span>{trip.dates}</span>
-                            </div>
-                          </div>
-                        </div>
-                        {selectedTripId === trip.id && (
-                          <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                            <Check size={12} className="text-white" />
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-xl font-bold text-center text-slate-800">
+              Add to Trip
+            </DialogTitle>
+            <div className="text-center">
+              <p className="text-sm text-slate-600 flex items-center justify-center gap-2 mb-2">
+                <MapPin size={14} />
+                <span className="font-medium">{selectedPlace.name}</span>
+              </p>
+              <p className="text-xs text-slate-500">in {selectedPlace.location}</p>
             </div>
-          )}
-
-          {/* Other trips */}
-          {existingTrips.filter(trip => !tripsWithMatchingLocation.includes(trip)).length > 0 && !showNewTripForm && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-gray-700">Or add to other trip:</h3>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
-                {existingTrips.filter(trip => !tripsWithMatchingLocation.includes(trip)).map((trip) => (
-                  <Card 
-                    key={trip.id} 
-                    className={`cursor-pointer transition-all duration-200 ${
-                      selectedTripId === trip.id 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedTripId(trip.id)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-lg flex items-center justify-center">
-                          <span className="text-sm">{trip.image}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm text-gray-800 truncate">{trip.name}</h4>
-                          <p className="text-xs text-gray-600 truncate">{trip.destination}</p>
-                        </div>
-                        {selectedTripId === trip.id && (
-                          <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                            <Check size={10} className="text-white" />
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search your trips..."
+                className="pl-10 border-slate-200 focus:border-blue-400"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                >
+                  <X size={12} />
+                </Button>
+              )}
             </div>
-          )}
 
-          {/* Create New Trip Option */}
-          {!showNewTripForm ? (
-            <Card className="border-2 border-dashed border-blue-300 hover:border-blue-400 cursor-pointer transition-colors">
+            {loading ? (
+              <LoadingSkeleton />
+            ) : trips.length === 0 ? (
+              /* No Trips State */
+              <div className="text-center py-8 space-y-4">
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
+                  <Plane size={24} className="text-slate-400" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-slate-800 mb-1">No trips yet</h3>
+                  <p className="text-sm text-slate-600">Create your first trip to add places</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Matching Location Trips */}
+                {matchingTrips.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                      <h3 className="text-sm font-semibold text-emerald-700">
+                        Trips to {selectedPlace.location}
+                      </h3>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {matchingTrips.map((trip) => (
+                        <TripCard key={trip.id} trip={trip} isMatching={true} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Other Trips */}
+                {otherTrips.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
+                      <h3 className="text-sm font-semibold text-slate-700">Other trips</h3>
+                    </div>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {otherTrips.map((trip) => (
+                        <TripCard key={trip.id} trip={trip} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Create New Trip Option */}
+            <Card className="border-2 border-dashed border-blue-300 hover:border-blue-400 cursor-pointer transition-all duration-200 hover:bg-blue-50/30">
               <CardContent className="p-4">
                 <Button
-                  onClick={() => setShowNewTripForm(true)}
+                  onClick={() => setShowNewTripModal(true)}
                   variant="ghost"
-                  className="w-full h-auto p-0 justify-start text-left"
+                  className="w-full h-auto p-0 justify-start text-left hover:bg-transparent"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                       <Plus size={20} className="text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-800">Create New Trip</h3>
-                      <p className="text-sm text-gray-600">Start a new adventure in {selectedPlace.location}</p>
+                      <h3 className="font-semibold text-slate-800">Create New Trip</h3>
+                      <p className="text-sm text-slate-600">Start planning your adventure</p>
                     </div>
                   </div>
                 </Button>
               </CardContent>
             </Card>
-          ) : (
-            /* New Trip Form */
-            <Card className="border-blue-300">
-              <CardContent className="p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-800 flex items-center gap-2">
-                    <Plane size={16} className="text-blue-600" />
-                    Create New Trip
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowNewTripForm(false)}
-                    className="text-gray-500"
-                  >
-                    ✕
-                  </Button>
-                </div>
-                
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="tripName" className="text-sm font-medium">
-                      Trip Name *
-                    </Label>
-                    <Input
-                      id="tripName"
-                      value={newTripData.name}
-                      onChange={(e) => setNewTripData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder={`Adventure in ${selectedPlace.location}`}
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="dates" className="text-sm font-medium">
-                      Dates (optional)
-                    </Label>
-                    <Input
-                      id="dates"
-                      value={newTripData.dates}
-                      onChange={(e) => setNewTripData(prev => ({ ...prev, dates: e.target.value }))}
-                      placeholder="e.g., Dec 15 - Dec 25, 2024"
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="travelers" className="text-sm font-medium">
-                      Travelers
-                    </Label>
-                    <Input
-                      id="travelers"
-                      type="number"
-                      min="1"
-                      value={newTripData.travelers}
-                      onChange={(e) => setNewTripData(prev => ({ ...prev, travelers: parseInt(e.target.value) || 1 }))}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-4 border-t border-slate-100">
             <Button
               variant="outline"
               onClick={() => {
                 onClose();
                 resetForm();
               }}
-              className="flex-1"
+              className="flex-1 border-slate-200"
             >
               Cancel
             </Button>
-            {showNewTripForm ? (
-              <Button
-                onClick={handleCreateNewTrip}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
-              >
-                Create Trip
-              </Button>
-            ) : selectedTripId ? (
+            
+            {selectedTripId && (
               <Button
                 onClick={handleAddToExistingTrip}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
+                disabled={isAddingToTrip}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                Add to Trip
+                {isAddingToTrip ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Adding...
+                  </div>
+                ) : (
+                  <>
+                    <Plus size={16} className="mr-2" />
+                    Add to Trip
+                  </>
+                )}
               </Button>
-            ) : null}
+            )}
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Trip Modal */}
+      <NewTripModal
+        isOpen={showNewTripModal}
+        onClose={() => setShowNewTripModal(false)}
+        onCreateTrip={handleCreateNewTrip}
+      />
+    </>
   );
 };
 

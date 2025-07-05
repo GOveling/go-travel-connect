@@ -209,9 +209,6 @@ const FollowedFriendsPublications = ({
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
         selectedPlace={selectedPlace}
-        existingTrips={trips}
-        onAddToExistingTrip={onAddToExistingTrip}
-        onCreateNewTrip={onCreateNewTrip}
       />
     </>
   );

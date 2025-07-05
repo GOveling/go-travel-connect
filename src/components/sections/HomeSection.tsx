@@ -139,9 +139,6 @@ const HomeSection = () => {
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
         selectedPlace={selectedPlace}
-        existingTrips={trips.filter(trip => trip.status !== 'completed')}
-        onAddToExistingTrip={handleAddToExistingTrip}
-        onCreateNewTrip={handleCreateNewTrip}
       />
     </div>
   );

@@ -1,0 +1,160 @@
+import { useState, useEffect } from 'react';
+import { useSupabaseTrips } from './useSupabaseTrips';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
+import { useToast } from './use-toast';
+import { Trip, SavedPlace } from '@/types';
+
+interface Place {
+  name: string;
+  location: string;
+  rating?: number;
+  image?: string;
+  category: string;
+  description?: string;
+  lat?: number;
+  lng?: number;
+}
+
+export const useAddToTrip = () => {
+  const { trips, loading: tripsLoading, refetchTrips } = useSupabaseTrips();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [isAddingToTrip, setIsAddingToTrip] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter trips based on search query
+  const filteredTrips = trips.filter(trip =>
+    trip.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Categorize trips by relevance to the selected place
+  const categorizeTrips = (place: Place) => {
+    if (!place?.location) return { matching: [], other: filteredTrips };
+
+    const placeLocation = place.location.toLowerCase();
+    
+    const matching = filteredTrips.filter(trip =>
+      trip.destination.toLowerCase().includes(placeLocation) ||
+      trip.coordinates.some(coord =>
+        coord.name.toLowerCase().includes(placeLocation)
+      )
+    );
+
+    const other = filteredTrips.filter(trip => !matching.includes(trip));
+
+    return { matching, other };
+  };
+
+  // Add place to existing trip
+  const addPlaceToTrip = async (tripId: number, place: Place): Promise<boolean> => {
+    if (!user || !place) return false;
+
+    try {
+      setIsAddingToTrip(true);
+
+      // Find the trip to get its UUID
+      const selectedTrip = trips.find(t => t.id === tripId);
+      if (!selectedTrip) {
+        toast({
+          title: "Error",
+          description: "Trip not found",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // Check if place already exists in this trip
+      const existingPlace = selectedTrip.savedPlaces?.find(
+        p => p.name.toLowerCase() === place.name.toLowerCase()
+      );
+
+      if (existingPlace) {
+        toast({
+          title: "Already Added",
+          description: `${place.name} is already in your trip "${selectedTrip.name}"`,
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // Convert trip ID to UUID string for database
+      const tripUUID = selectedTrip.id.toString();
+
+      // Create saved place data
+      const savedPlaceData = {
+        trip_id: tripUUID,
+        name: place.name,
+        category: place.category,
+        rating: place.rating || null,
+        image: place.image || "📍",
+        description: place.description || "",
+        estimated_time: getEstimatedTime(place.category),
+        priority: 'medium',
+        destination_name: place.location,
+        lat: place.lat || null,
+        lng: place.lng || null
+      };
+
+      const { error } = await supabase
+        .from('saved_places')
+        .insert(savedPlaceData);
+
+      if (error) {
+        console.error('Error adding place to trip:', error);
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // Refresh trips data
+      await refetchTrips();
+
+      toast({
+        title: "Added to Trip!",
+        description: `${place.name} has been added to "${selectedTrip.name}"`
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error adding place to trip:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add place to trip",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setIsAddingToTrip(false);
+    }
+  };
+
+  // Get estimated time based on category
+  const getEstimatedTime = (category: string): string => {
+    const cat = category.toLowerCase();
+    if (cat.includes('tourist') || cat.includes('attraction')) return "2-3 hours";
+    if (cat.includes('park')) return "1-2 hours";
+    if (cat.includes('nature')) return "3-4 hours";
+    if (cat.includes('museum')) return "5-6 hours";
+    if (cat.includes('gallery')) return "4-5 hours";
+    if (cat.includes('beach') || cat.includes('lake')) return "4-5 hours";
+    if (cat.includes('cafe') || cat.includes('restaurant')) return "45-90 minutes";
+    if (cat.includes('hotel') || cat.includes('accommodation')) return "Check-in experience";
+    return "1-2 hours";
+  };
+
+  return {
+    trips: filteredTrips,
+    loading: tripsLoading,
+    isAddingToTrip,
+    searchQuery,
+    setSearchQuery,
+    categorizeTrips,
+    addPlaceToTrip
+  };
+};
