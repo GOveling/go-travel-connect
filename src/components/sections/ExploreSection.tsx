@@ -78,13 +78,14 @@ const ExploreSection = () => {
   };
 
   const handlePlaceClick = (place: Place) => {
-    // Convert to legacy format for modal compatibility, including enhanced data
-    const legacyPlace = {
+    // Convert to enhanced format for modal, using official place_id and avoiding artificial ratings
+    const enhancedPlace = {
+      id: place.id, // Use official Google place_id
       name: place.name,
       location: place.address,
       description: place.description || `${place.category} in ${place.address}`,
-      rating: place.rating || 4.0,
-      image: place.image || place.photos?.[0] || "📍",
+      rating: place.rating, // Don't use artificial fallback rating
+      image: place.image,
       category: place.category,
       hours: place.opening_hours?.open_now ? "Open now" : (place.hours || "Hours vary"),
       website: place.website || "",
@@ -93,13 +94,13 @@ const ExploreSection = () => {
       lng: place.coordinates.lng,
       // Enhanced data
       business_status: place.business_status,
-      photos: place.photos,
+      photos: place.photos || [], // Pass all photos array
       reviews_count: place.reviews_count,
       priceLevel: place.priceLevel,
       opening_hours: place.opening_hours
     };
 
-    setSelectedPlace(legacyPlace);
+    setSelectedPlace(enhancedPlace);
     setIsModalOpen(true);
   };
 

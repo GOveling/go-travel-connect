@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X, ChevronDown, ChevronUp, Bot } from "lucide-react";
+import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X, ChevronDown, ChevronUp, Bot, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,19 +8,27 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { usePlaceReviews } from "@/hooks/usePlaceReviews";
 import { useAuth } from "@/hooks/useAuth";
+import useEmblaCarousel from 'embla-carousel-react';
 
 interface PlaceDetailModalProps {
   place: {
+    id?: string; // Official Google place_id
     name: string;
     location: string;
-    rating: number;
-    image: string;
+    rating?: number; // Optional, no artificial fallback
+    image?: string;
     category: string;
     description?: string;
     hours?: string;
     website?: string;
     phone?: string;
-    id?: string; // Add id for database operations
+    photos?: string[]; // Array of photo URLs
+    reviews_count?: number;
+    business_status?: string;
+    opening_hours?: {
+      open_now: boolean;
+      weekday_text: string[];
+    };
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -36,13 +44,23 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   const [isAnonymous, setIsAnonymous] = useState(false);
   const { user } = useAuth();
 
-  // Use the place ID or fallback to a generated ID based on name
+  const [emblaRef, emblaApi] = useEmblaCarousel();
+
+  // Use the official Google place_id
   const placeId = place?.id || place?.name?.toLowerCase().replace(/\s+/g, '-') || '';
   const placeName = place?.name || '';
 
   const { reviews, loading, submitting, submitReview } = usePlaceReviews(placeId, placeName);
 
   if (!place) return null;
+
+  // Get available photos for carousel
+  const availablePhotos = place.photos && place.photos.length > 0 
+    ? place.photos 
+    : place.image ? [place.image] : [];
+
+  const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
+  const scrollNext = () => emblaApi && emblaApi.scrollNext();
 
   // AI-generated recommended time based on place category and type
   const getAIRecommendedTime = () => {
@@ -90,10 +108,15 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
     setShowReviews(!showReviews);
   };
 
-  // Calculate average rating from database reviews
-  const averageRating = reviews.length > 0 
+  // Calculate average rating - avoid artificial fallbacks
+  const hasReviews = reviews.length > 0;
+  const hasOriginalRating = place.rating && place.rating > 0;
+  
+  const displayRating = hasReviews 
     ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-    : place.rating.toString();
+    : hasOriginalRating 
+      ? place.rating.toFixed(1)
+      : null;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -111,23 +134,93 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
         </DialogHeader>
         
         <div className="space-y-4">
-          {/* Place Image */}
-          <div className="aspect-video bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg flex items-center justify-center">
-            <span className="text-6xl">{place.image}</span>
-          </div>
+          {/* Photo Carousel */}
+          {availablePhotos.length > 0 ? (
+            <div className="relative">
+              <div className="overflow-hidden rounded-lg" ref={emblaRef}>
+                <div className="flex">
+                  {availablePhotos.map((photo, index) => (
+                    <div key={index} className="flex-shrink-0 w-full relative">
+                      <div className="aspect-video bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg overflow-hidden">
+                        {typeof photo === 'string' && (photo.startsWith('http') || photo.startsWith('https')) ? (
+                          <img 
+                            src={photo} 
+                            alt={`${place.name} - ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to emoji if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = '<div class="flex items-center justify-center h-full"><span class="text-6xl">📍</span></div>';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <span className="text-6xl">{photo || "📍"}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Carousel Controls */}
+              {availablePhotos.length > 1 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white/90 border-white/50"
+                    onClick={scrollPrev}
+                  >
+                    <ChevronLeft size={16} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white/90 border-white/50"
+                    onClick={scrollNext}
+                  >
+                    <ChevronRight size={16} />
+                  </Button>
+                  
+                  {/* Photo counter */}
+                  <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                    {availablePhotos.length} photos
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="aspect-video bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg flex items-center justify-center">
+              <span className="text-6xl">📍</span>
+            </div>
+          )}
 
           {/* Basic Info */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div 
-                className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
-                onClick={handleRatingClick}
-              >
-                <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                <span className="font-medium">{averageRating}</span>
-                <span className="text-sm text-gray-500">({reviews.length} reviews)</span>
-                {showReviews ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
-              </div>
+              {displayRating ? (
+                <div 
+                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                  onClick={handleRatingClick}
+                >
+                  <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                  <span className="font-medium">{displayRating}</span>
+                  <span className="text-sm text-gray-500">
+                    ({hasReviews ? `${reviews.length} reviews` : 'Google rating'})
+                  </span>
+                  {showReviews ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500 p-2">
+                  No rating available
+                </div>
+              )}
               <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
                 {place.category}
               </span>
