@@ -1,5 +1,5 @@
+
 import { useState } from "react";
-import { GeminiPlacePrediction } from "@/hooks/useGeminiPlaces";
 import { useToast } from "@/hooks/use-toast";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import ExploreFilters from "./explore/ExploreFilters";
@@ -21,6 +21,13 @@ interface Place {
   priceLevel?: number;
   confidence_score?: number;
   geocoded?: boolean;
+  business_status?: string;
+  photos?: string[];
+  reviews_count?: number;
+  opening_hours?: {
+    open_now: boolean;
+    weekday_text: string[];
+  };
 }
 
 const ExploreSection = () => {
@@ -50,17 +57,16 @@ const ExploreSection = () => {
     setSelectedPlaceId(null);
     // Clear search results when doing a new search
     setSearchResults([]);
-    // Note: The actual search will be handled by the search bar component
   };
 
-  const handleShowRelatedPlaces = async (place: GeminiPlacePrediction) => {
-    console.log('Mostrando lugares basados en resultados de Gemini para:', place);
-    setSelectedPlaceId(place.place_id);
+  const handleShowRelatedPlaces = async (place: any) => {
+    console.log('Mostrando lugares basados en resultados para:', place);
+    setSelectedPlaceId(place.place_id || place.id);
     
     try {
       toast({
         title: "Lugar Seleccionado",
-        description: `Mostrando detalles para ${place.structured_formatting.main_text}`,
+        description: `Mostrando detalles para ${place.name}`,
       });
     } catch (error) {
       toast({
@@ -72,26 +78,32 @@ const ExploreSection = () => {
   };
 
   const handlePlaceClick = (place: Place) => {
-    // Convert to legacy format for modal compatibility
+    // Convert to legacy format for modal compatibility, including enhanced data
     const legacyPlace = {
       name: place.name,
       location: place.address,
       description: place.description || `${place.category} in ${place.address}`,
       rating: place.rating || 4.0,
-      image: place.image || "📍",
+      image: place.image || place.photos?.[0] || "📍",
       category: place.category,
-      hours: place.hours || "Hours vary",
+      hours: place.opening_hours?.open_now ? "Open now" : (place.hours || "Hours vary"),
       website: place.website || "",
       phone: place.phone || "",
       lat: place.coordinates.lat,
-      lng: place.coordinates.lng
+      lng: place.coordinates.lng,
+      // Enhanced data
+      business_status: place.business_status,
+      photos: place.photos,
+      reviews_count: place.reviews_count,
+      priceLevel: place.priceLevel,
+      opening_hours: place.opening_hours
     };
 
     setSelectedPlace(legacyPlace);
     setIsModalOpen(true);
   };
 
-  // Function to handle results from the search bar - ALWAYS render ALL results
+  // Function to handle results from the enhanced search bar
   const handleSearchResults = (results: Place[], selectedId?: string) => {
     // ALWAYS show ALL results, just reorder if there's a selected place
     if (selectedId) {
@@ -118,7 +130,9 @@ const ExploreSection = () => {
         <div className="p-4">
           <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Explorar Lugares</h1>
-            <p className="text-sm text-gray-600">Descubre lugares increíbles alrededor del mundo con búsqueda potenciada por IA</p>
+            <p className="text-sm text-gray-600">
+              Descubre lugares increíbles con búsqueda mejorada por Google Places API y georreferenciación precisa
+            </p>
           </div>
 
           {/* Filters */}
@@ -130,7 +144,7 @@ const ExploreSection = () => {
             />
           </div>
 
-          {/* Search Bar */}
+          {/* Enhanced Search Bar */}
           <ExploreSearchBar
             selectedCategories={selectedCategories}
             onSearchSubmit={handleSearchSubmit}

@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Clock, Phone, Globe, Navigation, Heart } from "lucide-react";
+import { Star, MapPin, Clock, Phone, Globe, Navigation, Heart, Camera, Users } from "lucide-react";
 import ExploreSearchLoader from "./ExploreSearchLoader";
 
 interface Place {
@@ -20,6 +21,13 @@ interface Place {
   priceLevel?: number;
   geocoded?: boolean;
   confidence_score?: number;
+  business_status?: string;
+  photos?: string[];
+  reviews_count?: number;
+  opening_hours?: {
+    open_now: boolean;
+    weekday_text: string[];
+  };
 }
 
 interface ExploreResultsProps {
@@ -72,16 +80,34 @@ const ExploreResults = ({
     
     if (confidence >= 90) {
       return (
-        <Badge className="text-xs bg-sky-100 text-sky-800 border-sky-200">
-          High confidence
+        <Badge className="text-xs bg-emerald-100 text-emerald-800 border-emerald-200">
+          Google Verified
         </Badge>
       );
     }
     return (
       <Badge className="text-xs bg-gray-100 text-gray-600 border-gray-200">
-        Medium confidence
+        AI Generated
       </Badge>
     );
+  };
+
+  const getBusinessStatus = (status?: string, openingHours?: any) => {
+    if (status === 'OPERATIONAL' && openingHours?.open_now) {
+      return (
+        <Badge className="text-xs bg-green-100 text-green-800 border-green-200">
+          Open Now
+        </Badge>
+      );
+    }
+    if (status === 'CLOSED_PERMANENTLY') {
+      return (
+        <Badge className="text-xs bg-red-100 text-red-800 border-red-200">
+          Permanently Closed
+        </Badge>
+      );
+    }
+    return null;
   };
 
   const isSelectedPlace = (placeId: string) => {
@@ -126,13 +152,17 @@ const ExploreResults = ({
           <CardContent className="p-4">
             <div className="flex gap-4">
               {/* Place Image/Icon */}
-              <div className={`w-20 h-20 rounded-lg flex-shrink-0 flex items-center justify-center ${
+              <div className={`w-20 h-20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden ${
                 isSelectedPlace(place.id)
                   ? 'bg-gradient-to-br from-sky-200 to-blue-200'
                   : 'bg-gradient-to-br from-purple-100 to-orange-100'
               }`}>
-                {place.image ? (
-                  <img src={place.image} alt={place.name} className="w-full h-full object-cover rounded-lg" />
+                {place.image || (place.photos && place.photos[0]) ? (
+                  <img 
+                    src={place.image || place.photos?.[0]} 
+                    alt={place.name} 
+                    className="w-full h-full object-cover rounded-lg" 
+                  />
                 ) : (
                   <span className="text-2xl">📍</span>
                 )}
@@ -176,12 +206,16 @@ const ExploreResults = ({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
+                {/* Enhanced Info Section */}
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     {place.rating && (
                       <div className="flex items-center gap-1">
                         <Star size={12} className="text-yellow-500 fill-yellow-500" />
                         <span className="text-xs font-medium">{place.rating}</span>
+                        {place.reviews_count && (
+                          <span className="text-xs text-gray-500">({place.reviews_count})</span>
+                        )}
                       </div>
                     )}
                     
@@ -190,11 +224,45 @@ const ExploreResults = ({
                     </Badge>
 
                     {getConfidenceBadge(place.confidence_score)}
+                    {getBusinessStatus(place.business_status, place.opening_hours)}
 
                     {place.priceLevel && (
                       <span className="text-xs text-green-600 font-semibold">
                         {getPriceLevel(place.priceLevel)}
                       </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Additional Info Row */}
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-3">
+                    {place.opening_hours?.open_now && (
+                      <div className="flex items-center gap-1 text-green-600">
+                        <Clock size={10} />
+                        <span>Abierto</span>
+                      </div>
+                    )}
+                    
+                    {place.phone && (
+                      <div className="flex items-center gap-1 text-blue-600">
+                        <Phone size={10} />
+                        <span>Tel</span>
+                      </div>
+                    )}
+                    
+                    {place.website && (
+                      <div className="flex items-center gap-1 text-purple-600">
+                        <Globe size={10} />
+                        <span>Web</span>
+                      </div>
+                    )}
+                    
+                    {place.photos && place.photos.length > 1 && (
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Camera size={10} />
+                        <span>{place.photos.length}</span>
+                      </div>
                     )}
                   </div>
 

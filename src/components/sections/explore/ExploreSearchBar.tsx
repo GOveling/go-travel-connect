@@ -4,7 +4,7 @@ import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useGeminiPlaces, GeminiPlacePrediction } from "@/hooks/useGeminiPlaces";
+import { useGooglePlacesEnhanced, EnhancedPlace } from "@/hooks/useGooglePlacesEnhanced";
 
 interface Place {
   id: string;
@@ -21,12 +21,19 @@ interface Place {
   priceLevel?: number;
   confidence_score?: number;
   geocoded?: boolean;
+  business_status?: string;
+  photos?: string[];
+  reviews_count?: number;
+  opening_hours?: {
+    open_now: boolean;
+    weekday_text: string[];
+  };
 }
 
 interface ExploreSearchBarProps {
-  onPlaceSelect?: (place: GeminiPlacePrediction) => void;
+  onPlaceSelect?: (place: any) => void;
   onSearchSubmit?: (query: string) => void;
-  onShowRelatedPlaces?: (place: GeminiPlacePrediction) => void;
+  onShowRelatedPlaces?: (place: any) => void;
   onSearchResults?: (results: Place[], selectedId?: string) => void;
   onLoadingChange?: (loading: boolean) => void;
   selectedCategories: string[];
@@ -42,27 +49,33 @@ const ExploreSearchBar = ({
 }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-  const { predictions, loading, searchPlaces, clearResults } = useGeminiPlaces();
+  const { predictions, loading, searchPlaces, clearResults } = useGooglePlacesEnhanced();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
   };
 
-  const convertGeminiResultsToPlaces = (predictions: GeminiPlacePrediction[]): Place[] => {
+  const convertEnhancedResultsToPlaces = (predictions: EnhancedPlace[]): Place[] => {
     return predictions.map(prediction => ({
-      id: prediction.place_id,
-      name: prediction.structured_formatting.main_text,
-      address: prediction.full_address,
+      id: prediction.id,
+      name: prediction.name,
+      address: prediction.address,
       coordinates: prediction.coordinates,
-      rating: prediction.confidence_score >= 90 ? 4.5 : 4.0,
-      category: prediction.types[0]?.replace(/_/g, ' ') || 'attraction',
-      description: prediction.place_description || `${prediction.structured_formatting.main_text} in ${prediction.structured_formatting.secondary_text}`,
-      hours: "Hours vary",
+      rating: prediction.rating,
+      category: prediction.category,
+      description: prediction.description,
+      hours: prediction.hours,
       phone: prediction.phone,
-      priceLevel: 2,
+      website: prediction.website,
+      priceLevel: prediction.priceLevel,
       confidence_score: prediction.confidence_score,
-      geocoded: prediction.geocoded
+      geocoded: prediction.geocoded,
+      business_status: prediction.business_status,
+      photos: prediction.photos,
+      reviews_count: prediction.reviews_count,
+      opening_hours: prediction.opening_hours,
+      image: prediction.photos?.[0] // Use first photo as image
     }));
   };
 
@@ -73,12 +86,12 @@ const ExploreSearchBar = ({
       onSearchSubmit?.(searchQuery);
       
       try {
-        // Start the search with Gemini
+        // Start the enhanced search
         await searchPlaces(searchQuery, selectedCategories);
         
         // The search results will be handled by the useEffect below
       } catch (error) {
-        console.error('Error during search:', error);
+        console.error('Error during enhanced search:', error);
         onLoadingChange?.(false);
       }
     }
@@ -87,7 +100,7 @@ const ExploreSearchBar = ({
   // Handle search results when predictions change
   React.useEffect(() => {
     if (predictions.length > 0) {
-      const places = convertGeminiResultsToPlaces(predictions);
+      const places = convertEnhancedResultsToPlaces(predictions);
       onSearchResults?.(places);
       onLoadingChange?.(false);
     }
@@ -100,21 +113,26 @@ const ExploreSearchBar = ({
   };
 
   const getCategoryHint = () => {
-    if (selectedCategories.length === 0) return "Search anywhere...";
+    if (selectedCategories.length === 0) return "Search anywhere with enhanced precision...";
     if (selectedCategories.length === 1) {
       const categoryNames: { [key: string]: string } = {
         restaurant: "restaurants",
-        hotel: "hotels",
+        hotel: "hotels", 
         attraction: "attractions",
         shopping: "shopping centers",
         entertainment: "entertainment venues",
         transport: "transport hubs",
         health: "health facilities",
-        education: "educational institutions"
+        education: "educational institutions",
+        landmark: "landmarks",
+        museum: "museums",
+        park: "parks",
+        beach: "beaches",
+        lake: "lakes"
       };
-      return `Search ${categoryNames[selectedCategories[0]] || "places"}...`;
+      return `Search ${categoryNames[selectedCategories[0]] || "places"} with Google Places...`;
     }
-    return `Search in ${selectedCategories.length} categories...`;
+    return `Search in ${selectedCategories.length} categories with enhanced data...`;
   };
 
   return (
@@ -143,6 +161,13 @@ const ExploreSearchBar = ({
           )}
         </Button>
       </div>
+      
+      {/* Enhanced Search Badge */}
+      {predictions.length > 0 && (
+        <div className="absolute -bottom-6 left-0 text-xs text-green-600 font-medium">
+          ✓ Enhanced with Google Places API
+        </div>
+      )}
     </div>
   );
 };
