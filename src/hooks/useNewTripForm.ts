@@ -17,7 +17,6 @@ export interface NewTripFormData {
 export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: () => void) => {
   const { toast } = useToast();
   const [nameError, setNameError] = useState(false);
-  const [nameTouched, setNameTouched] = useState(false);
   const [formData, setFormData] = useState<NewTripFormData>({
     name: "",
     startDate: undefined,
@@ -42,13 +41,6 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
     
     if (value.trim() && nameError) {
       setNameError(false);
-    }
-  };
-
-  const handleNameBlur = () => {
-    setNameTouched(true);
-    if (!formData.name.trim()) {
-      setNameError(true);
     }
   };
 
@@ -103,12 +95,8 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in the trip name.",
-        variant: "destructive"
-      });
+    if (!formData.name.trim()) {
+      setNameError(true);
       return;
     }
 
@@ -150,7 +138,6 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
 
     // Reset validation states
     setNameError(false);
-    setNameTouched(false);
 
     onClose();
   };
@@ -158,10 +145,8 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
   return {
     formData,
     nameError,
-    nameTouched,
     handleInputChange,
     handleNameChange,
-    handleNameBlur,
     handleDateRangeChange,
     handleNotSureYet,
     handleSubmit

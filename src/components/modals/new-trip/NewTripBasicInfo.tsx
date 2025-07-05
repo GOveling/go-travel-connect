@@ -10,9 +10,7 @@ import { CalendarDate } from "@internationalized/date";
 interface NewTripBasicInfoProps {
   formData: NewTripFormData;
   nameError: boolean;
-  nameTouched: boolean;
   onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onNameBlur: () => void;
   onInputChange: (field: keyof NewTripFormData, value: any) => void;
   onDateRangeChange: (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => void;
   onNotSureYet: () => void;
@@ -21,9 +19,7 @@ interface NewTripBasicInfoProps {
 const NewTripBasicInfo = ({
   formData,
   nameError,
-  nameTouched,
   onNameChange,
-  onNameBlur,
   onInputChange,
   onDateRangeChange,
   onNotSureYet
@@ -44,15 +40,13 @@ const NewTripBasicInfo = ({
           id="tripName"
           value={formData.name}
           onChange={onNameChange}
-          onBlur={onNameBlur}
           placeholder="e.g., European Adventure"
           className={cn(
             "mt-1 transition-all duration-200",
-            nameTouched && nameError && "border-destructive focus-visible:ring-destructive"
+            nameError && "border-destructive focus-visible:ring-destructive"
           )}
-          required
         />
-        {nameTouched && nameError && (
+        {nameError && (
           <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-destructive/10 border border-destructive/20 rounded-md animate-fade-in">
             <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />
             <span className="text-sm font-medium text-destructive">

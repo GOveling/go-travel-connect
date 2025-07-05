@@ -15,10 +15,8 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const {
     formData,
     nameError,
-    nameTouched,
     handleInputChange,
     handleNameChange,
-    handleNameBlur,
     handleDateRangeChange,
     handleNotSureYet,
     handleSubmit
@@ -38,9 +36,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
           <NewTripBasicInfo
             formData={formData}
             nameError={nameError}
-            nameTouched={nameTouched}
             onNameChange={handleNameChange}
-            onNameBlur={handleNameBlur}
             onInputChange={handleInputChange}
             onDateRangeChange={handleDateRangeChange}
             onNotSureYet={handleNotSureYet}
