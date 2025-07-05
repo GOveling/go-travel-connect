@@ -37,6 +37,9 @@ port = 54323
 [functions.google-places]
 verify_jwt = false
 
+[functions.google-places-enhanced]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54324

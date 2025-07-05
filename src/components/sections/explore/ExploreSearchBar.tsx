@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -113,26 +113,26 @@ const ExploreSearchBar = ({
   };
 
   const getCategoryHint = () => {
-    if (selectedCategories.length === 0) return "Search anywhere with enhanced precision...";
+    if (selectedCategories.length === 0) return "Buscar lugares con Google Places API - Datos precisos y verificados...";
     if (selectedCategories.length === 1) {
       const categoryNames: { [key: string]: string } = {
-        restaurant: "restaurants",
-        hotel: "hotels", 
-        attraction: "attractions",
-        shopping: "shopping centers",
-        entertainment: "entertainment venues",
-        transport: "transport hubs",
-        health: "health facilities",
-        education: "educational institutions",
-        landmark: "landmarks",
-        museum: "museums",
-        park: "parks",
-        beach: "beaches",
-        lake: "lakes"
+        restaurant: "restaurantes",
+        hotel: "hoteles", 
+        attraction: "atracciones",
+        shopping: "centros comerciales",
+        entertainment: "lugares de entretenimiento",
+        transport: "estaciones de transporte",
+        health: "centros de salud",
+        education: "instituciones educativas",
+        landmark: "puntos de referencia",
+        museum: "museos",
+        park: "parques",
+        beach: "playas",
+        lake: "lagos"
       };
-      return `Search ${categoryNames[selectedCategories[0]] || "places"} with Google Places...`;
+      return `Buscar ${categoryNames[selectedCategories[0]] || "lugares"} con datos verificados de Google...`;
     }
-    return `Search in ${selectedCategories.length} categories with enhanced data...`;
+    return `Buscar en ${selectedCategories.length} categorías con Google Places API...`;
   };
 
   return (
@@ -162,12 +162,18 @@ const ExploreSearchBar = ({
         </Button>
       </div>
       
-      {/* Enhanced Search Badge */}
-      {predictions.length > 0 && (
-        <div className="absolute -bottom-6 left-0 text-xs text-green-600 font-medium">
-          ✓ Enhanced with Google Places API
+      {/* Enhanced Search Status Badge */}
+      <div className="absolute -bottom-8 left-0 flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-1 text-green-600 font-medium">
+          <CheckCircle size={14} />
+          <span>Google Places API habilitado</span>
         </div>
-      )}
+        {predictions.length > 0 && (
+          <div className="text-blue-600 font-medium">
+            • {predictions.length} resultados con coordenadas precisas
+          </div>
+        )}
+      </div>
     </div>
   );
 };
