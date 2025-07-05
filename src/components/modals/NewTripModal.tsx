@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Plane, CalendarIcon, X } from "lucide-react";
+import { Calendar, Plane, CalendarIcon, X, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,8 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isAccommodationOpen, setIsAccommodationOpen] = useState(false);
   const [isTransportationOpen, setIsTransportationOpen] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const [nameTouched, setNameTouched] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     startDate: undefined as Date | undefined,
@@ -66,6 +68,23 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    handleInputChange("name", value);
+    
+    // Clear error when user starts typing
+    if (value.trim() && nameError) {
+      setNameError(false);
+    }
+  };
+
+  const handleNameBlur = () => {
+    setNameTouched(true);
+    if (!formData.name.trim()) {
+      setNameError(true);
+    }
   };
 
   const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
@@ -221,6 +240,10 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
       datesNotSet: false
     });
 
+    // Reset validation states
+    setNameError(false);
+    setNameTouched(false);
+
     onClose();
   };
 
@@ -246,11 +269,23 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
               <Input
                 id="tripName"
                 value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
+                onChange={handleNameChange}
+                onBlur={handleNameBlur}
                 placeholder="e.g., European Adventure"
-                className="mt-1"
+                className={cn(
+                  "mt-1 transition-all duration-200",
+                  nameTouched && nameError && "border-destructive focus-visible:ring-destructive"
+                )}
                 required
               />
+              {nameTouched && nameError && (
+                <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-destructive/10 border border-destructive/20 rounded-md animate-fade-in">
+                  <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />
+                  <span className="text-sm font-medium text-destructive">
+                    Trip name is required to continue
+                  </span>
+                </div>
+              )}
             </div>
 
             <div>
