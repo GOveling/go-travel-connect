@@ -1,13 +1,13 @@
-
 import { useState } from "react";
-import { X, MapPin, Calendar, Users, Plane, CalendarIcon } from "lucide-react";
+import { Calendar, Plane, CalendarIcon, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -25,17 +25,39 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    destination: "",
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
-    travelers: 1,
-    budget: "",
+    budget: 0,
     description: "",
-    isGroupTrip: false,
-    accommodation: "",
-    transportation: "",
+    accommodation: [] as string[],
+    transportation: [] as string[],
     datesNotSet: false
   });
+
+  const accommodationOptions = [
+    "Hotels",
+    "Hostels", 
+    "Vacation Rentals",
+    "Bed & Breakfast",
+    "Resorts",
+    "Apartments",
+    "Guesthouses",
+    "Camping",
+    "Motels"
+  ];
+
+  const transportationOptions = [
+    "Flights",
+    "Train",
+    "Car Rental",
+    "Bus",
+    "Taxi/Rideshare",
+    "Metro/Subway",
+    "Walking",
+    "Bicycle",
+    "Ferry",
+    "Motorcycle"
+  ];
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -117,22 +139,45 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     return "Dates TBD";
   };
 
+  const handleAccommodationSelect = (value: string) => {
+    if (!formData.accommodation.includes(value)) {
+      setFormData(prev => ({
+        ...prev,
+        accommodation: [...prev.accommodation, value]
+      }));
+    }
+  };
+
+  const handleTransportationSelect = (value: string) => {
+    if (!formData.transportation.includes(value)) {
+      setFormData(prev => ({
+        ...prev,
+        transportation: [...prev.transportation, value]
+      }));
+    }
+  };
+
+  const removeAccommodation = (item: string) => {
+    setFormData(prev => ({
+      ...prev,
+      accommodation: prev.accommodation.filter(a => a !== item)
+    }));
+  };
+
+  const removeTransportation = (item: string) => {
+    setFormData(prev => ({
+      ...prev,
+      transportation: prev.transportation.filter(t => t !== item)
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.destination) {
+    if (!formData.name) {
       toast({
         title: "Missing Information",
-        description: "Please fill in the trip name and destination.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!formData.datesNotSet && (!formData.startDate || !formData.endDate)) {
-      toast({
-        title: "Missing Dates",
-        description: "Please select dates or click 'Not sure yet' to continue without dates.",
+        description: "Please fill in the trip name.",
         variant: "destructive"
       });
       return;
@@ -141,23 +186,18 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     const newTrip = {
       id: Date.now(),
       name: formData.name,
-      destination: formData.destination,
+      destination: "To be defined",
       dates: formatTripDates(),
       status: "planning",
-      travelers: formData.travelers,
+      travelers: 1,
       image: "🌍",
-      isGroupTrip: formData.isGroupTrip,
+      isGroupTrip: false,
       description: formData.description,
-      budget: formData.budget,
-      accommodation: formData.accommodation,
-      transportation: formData.transportation,
+      budget: formData.budget.toString(),
+      accommodation: formData.accommodation.join(", "),
+      transportation: formData.transportation.join(", "),
       coordinates: [],
-      datesNotSet: formData.datesNotSet,
-      ...(formData.isGroupTrip && {
-        collaborators: [
-          { id: "1", name: "You", email: "you@example.com", avatar: "YO", role: "owner" as const }
-        ]
-      })
+      datesNotSet: formData.datesNotSet
     };
 
     onCreateTrip(newTrip);
@@ -170,15 +210,12 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     // Reset form
     setFormData({
       name: "",
-      destination: "",
       startDate: undefined,
       endDate: undefined,
-      travelers: 1,
-      budget: "",
+      budget: 0,
       description: "",
-      isGroupTrip: false,
-      accommodation: "",
-      transportation: "",
+      accommodation: [],
+      transportation: [],
       datesNotSet: false
     });
 
@@ -215,17 +252,15 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
             </div>
 
             <div>
-              <Label htmlFor="destination" className="text-sm font-medium flex items-center gap-1">
-                <MapPin size={16} />
-                Destination *
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description (optional)
               </Label>
-              <Input
-                id="destination"
-                value={formData.destination}
-                onChange={(e) => handleInputChange("destination", e.target.value)}
-                placeholder="e.g., Paris → Rome → Barcelona"
-                className="mt-1"
-                required
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Tell us about your trip plans..."
+                className="mt-1 min-h-[100px]"
               />
             </div>
 
@@ -286,36 +321,6 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
                 </div>
               )}
             </div>
-
-            <div>
-              <Label htmlFor="travelers" className="text-sm font-medium flex items-center gap-1">
-                <Users size={16} />
-                Number of Travelers
-              </Label>
-              <Input
-                id="travelers"
-                type="number"
-                min="1"
-                value={formData.travelers}
-                onChange={(e) => handleInputChange("travelers", parseInt(e.target.value))}
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          {/* Group Trip Toggle */}
-          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-            <div>
-              <Label htmlFor="groupTrip" className="text-sm font-medium">
-                Group Trip
-              </Label>
-              <p className="text-xs text-gray-600">Allow others to collaborate on this trip</p>
-            </div>
-            <Switch
-              id="groupTrip"
-              checked={formData.isGroupTrip}
-              onCheckedChange={(checked) => handleInputChange("isGroupTrip", checked)}
-            />
           </div>
 
           {/* Trip Details */}
@@ -328,50 +333,85 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
               </Label>
               <Input
                 id="budget"
+                type="number"
+                min="0"
                 value={formData.budget}
-                onChange={(e) => handleInputChange("budget", e.target.value)}
-                placeholder="e.g., $3,500 per person"
+                onChange={(e) => handleInputChange("budget", parseFloat(e.target.value) || 0)}
+                placeholder="0"
                 className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="accommodation" className="text-sm font-medium">
+              <Label className="text-sm font-medium">
                 Accommodation Preferences (optional)
               </Label>
-              <Input
-                id="accommodation"
-                value={formData.accommodation}
-                onChange={(e) => handleInputChange("accommodation", e.target.value)}
-                placeholder="e.g., Hotels, Airbnb, Hostels"
-                className="mt-1"
-              />
+              <Select onValueChange={handleAccommodationSelect}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select accommodation types" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accommodationOptions.map((option) => (
+                    <SelectItem 
+                      key={option} 
+                      value={option}
+                      disabled={formData.accommodation.includes(option)}
+                    >
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.accommodation.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.accommodation.map((item) => (
+                    <Badge key={item} variant="secondary" className="flex items-center gap-1">
+                      {item}
+                      <X 
+                        size={14} 
+                        className="cursor-pointer hover:text-red-500" 
+                        onClick={() => removeAccommodation(item)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="transportation" className="text-sm font-medium">
+              <Label className="text-sm font-medium">
                 Transportation (optional)
               </Label>
-              <Input
-                id="transportation"
-                value={formData.transportation}
-                onChange={(e) => handleInputChange("transportation", e.target.value)}
-                placeholder="e.g., Flights, Train, Car rental"
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="description" className="text-sm font-medium">
-                Description (optional)
-              </Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder="Tell us about your trip plans..."
-                className="mt-1 min-h-[100px]"
-              />
+              <Select onValueChange={handleTransportationSelect}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select transportation types" />
+                </SelectTrigger>
+                <SelectContent>
+                  {transportationOptions.map((option) => (
+                    <SelectItem 
+                      key={option} 
+                      value={option}
+                      disabled={formData.transportation.includes(option)}
+                    >
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.transportation.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.transportation.map((item) => (
+                    <Badge key={item} variant="secondary" className="flex items-center gap-1">
+                      {item}
+                      <X 
+                        size={14} 
+                        className="cursor-pointer hover:text-red-500" 
+                        onClick={() => removeTransportation(item)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
