@@ -23,6 +23,8 @@ interface NewTripModalProps {
 const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
   const { toast } = useToast();
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
+  const [isAccommodationOpen, setIsAccommodationOpen] = useState(false);
+  const [isTransportationOpen, setIsTransportationOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     startDate: undefined as Date | undefined,
@@ -346,22 +348,42 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
               <Label className="text-sm font-medium">
                 Accommodation Preferences (optional)
               </Label>
-              <Select onValueChange={handleAccommodationSelect}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select accommodation types" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accommodationOptions.map((option) => (
-                    <SelectItem 
-                      key={option} 
-                      value={option}
-                      disabled={formData.accommodation.includes(option)}
-                    >
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={isAccommodationOpen} onOpenChange={setIsAccommodationOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal mt-1"
+                  >
+                    {formData.accommodation.length > 0
+                      ? `${formData.accommodation.length} selected`
+                      : "Select accommodation types"
+                    }
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0" align="start">
+                  <div className="p-3 space-y-2">
+                    {accommodationOptions.map((option) => (
+                      <Button
+                        key={option}
+                        type="button"
+                        variant={formData.accommodation.includes(option) ? "default" : "ghost"}
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          if (formData.accommodation.includes(option)) {
+                            removeAccommodation(option);
+                          } else {
+                            handleAccommodationSelect(option);
+                          }
+                        }}
+                      >
+                        {option}
+                      </Button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
               {formData.accommodation.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.accommodation.map((item) => (
@@ -382,22 +404,42 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
               <Label className="text-sm font-medium">
                 Transportation (optional)
               </Label>
-              <Select onValueChange={handleTransportationSelect}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select transportation types" />
-                </SelectTrigger>
-                <SelectContent>
-                  {transportationOptions.map((option) => (
-                    <SelectItem 
-                      key={option} 
-                      value={option}
-                      disabled={formData.transportation.includes(option)}
-                    >
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={isTransportationOpen} onOpenChange={setIsTransportationOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal mt-1"
+                  >
+                    {formData.transportation.length > 0
+                      ? `${formData.transportation.length} selected`
+                      : "Select transportation types"
+                    }
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0" align="start">
+                  <div className="p-3 space-y-2">
+                    {transportationOptions.map((option) => (
+                      <Button
+                        key={option}
+                        type="button"
+                        variant={formData.transportation.includes(option) ? "default" : "ghost"}
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          if (formData.transportation.includes(option)) {
+                            removeTransportation(option);
+                          } else {
+                            handleTransportationSelect(option);
+                          }
+                        }}
+                      >
+                        {option}
+                      </Button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
               {formData.transportation.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.transportation.map((item) => (
