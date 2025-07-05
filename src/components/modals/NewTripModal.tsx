@@ -263,7 +263,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Tell us about your trip plans..."
                 className="mt-1 min-h-[100px]"
-                maxLength={250}
+                maxLength={500}
               />
             </div>
 
