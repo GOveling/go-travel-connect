@@ -162,18 +162,12 @@ const ExploreSearchBar = ({
         </Button>
       </div>
       
-      {/* Enhanced Search Status Badge */}
-      <div className="absolute -bottom-8 left-0 flex items-center gap-2 text-xs">
-        <div className="flex items-center gap-1 text-green-600 font-medium">
-          <CheckCircle size={14} />
-          <span>Google Places API habilitado</span>
+      {/* Search Results Counter */}
+      {predictions.length > 0 && (
+        <div className="absolute -bottom-6 left-0 text-xs text-blue-600 font-medium">
+          {predictions.length} resultados con coordenadas precisas
         </div>
-        {predictions.length > 0 && (
-          <div className="text-blue-600 font-medium">
-            • {predictions.length} resultados con coordenadas precisas
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
