@@ -283,12 +283,25 @@ export const useSupabaseTrips = () => {
     if (!user) return false;
 
     try {
-      const tripUUID = trips.find(t => t.id === tripId)?.id?.toString();
-      
+      // Find the trip to delete
+      const tripToDelete = trips.find(t => t.id === tripId);
+      if (!tripToDelete) {
+        toast({
+          title: "Error",
+          description: "Trip not found",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Delete the trip using user_id and trip properties to find the exact match
       const { error } = await supabase
         .from('trips')
         .delete()
-        .eq('id', tripUUID);
+        .eq('user_id', user.id)
+        .eq('name', tripToDelete.name)
+        .eq('destination', tripToDelete.destination)
+        .eq('dates', tripToDelete.dates);
 
       if (error) {
         console.error('Error deleting trip:', error);
