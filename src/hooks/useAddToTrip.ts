@@ -50,13 +50,25 @@ export const useAddToTrip = () => {
 
   // Add place to existing trip
   const addPlaceToTrip = async (tripId: string, place: Place): Promise<boolean> => {
-    if (!user || !place) return false;
+    console.log('=== ADD PLACE TO TRIP DEBUG ===');
+    console.log('User:', user?.id);
+    console.log('TripId:', tripId);
+    console.log('Place:', place);
+    console.log('Available trips:', trips.map(t => ({ id: t.id, name: t.name })));
+    console.log('Filtered trips:', filteredTrips.map(t => ({ id: t.id, name: t.name })));
+    
+    if (!user || !place) {
+      console.log('Missing user or place');
+      return false;
+    }
 
     try {
       setIsAddingToTrip(true);
 
-      // Find the trip to get its UUID
+      // Find the trip from ALL trips, not just filtered ones
       const selectedTrip = trips.find(t => t.id === tripId);
+      console.log('Selected trip found:', selectedTrip);
+      
       if (!selectedTrip) {
         toast({
           title: "Error",
@@ -98,6 +110,8 @@ export const useAddToTrip = () => {
         lng: place.lng || null
       };
 
+      console.log('Attempting to insert saved place data:', savedPlaceData);
+
       const { error } = await supabase
         .from('saved_places')
         .insert(savedPlaceData);
@@ -111,6 +125,8 @@ export const useAddToTrip = () => {
         });
         return false;
       }
+
+      console.log('Place successfully added to trip!');
 
       // Refresh trips data
       await refetchTrips();
