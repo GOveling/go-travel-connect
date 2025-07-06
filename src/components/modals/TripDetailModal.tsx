@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,56 +13,7 @@ import FlightSearchModal from "./itinerary/FlightSearchModal";
 import HotelSearchModal from "./itinerary/HotelSearchModal";
 import ToursModal from "./itinerary/ToursModal";
 import TransferModal from "./itinerary/TransferModal";
-
-interface Collaborator {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: "owner" | "editor" | "viewer";
-}
-
-interface TripCoordinate {
-  name: string;
-  lat: number;
-  lng: number;
-}
-
-interface SavedPlace {
-  id: string;
-  name: string;
-  category: string;
-  rating: number;
-  image: string;
-  description: string;
-  estimatedTime: string;
-  priority: "high" | "medium" | "low";
-}
-
-interface Trip {
-  id: string;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  travelers: number;
-  image: string;
-  isGroupTrip: boolean;
-  collaborators?: Collaborator[];
-  coordinates: TripCoordinate[];
-  description?: string;
-  budget?: string;
-  accommodation?: string;
-  transportation?: string;
-}
-
-interface TripDetailModalProps {
-  trip: Trip | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onUpdateTrip?: (tripData: any) => void;
-  onDeleteTrip?: (tripId: string) => void;
-}
+import { Trip, SavedPlace, Collaborator, TripCoordinate } from "@/types";
 
 // Interface for PlaceDetailModal
 interface PlaceForModal {
@@ -75,6 +26,14 @@ interface PlaceForModal {
   hours?: string;
   website?: string;
   phone?: string;
+}
+
+interface TripDetailModalProps {
+  trip: Trip | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdateTrip?: (tripData: any) => void;
+  onDeleteTrip?: (tripId: string) => void;
 }
 
 const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: TripDetailModalProps) => {
@@ -132,12 +91,12 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     // Convert SavedPlace to the format expected by PlaceDetailModal
     const placeForModal: PlaceForModal = {
       name: place.name,
-      location: "Location details", // You might want to add this to SavedPlace interface
-      rating: place.rating,
-      image: place.image,
-      category: place.category,
-      description: place.description,
-      hours: place.estimatedTime, // Using estimatedTime as hours for now
+      location: place.destinationName || "Location details",
+      rating: place.rating || 0,
+      image: place.image || "📍",
+      category: place.category || "Place",
+      description: place.description || "",
+      hours: place.estimatedTime || "N/A",
       website: undefined,
       phone: undefined
     };
@@ -145,149 +104,19 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     setShowPlaceDetailModal(true);
   };
 
-  // Mock saved places data for each destination
-  const savedPlacesByDestination = {
-    "Paris": [
-      {
-        id: "1",
-        name: "Eiffel Tower",
-        category: "Landmark",
-        rating: 4.8,
-        image: "🗼",
-        description: "Iconic iron tower and symbol of Paris",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const
-      },
-      {
-        id: "2",
-        name: "Louvre Museum",
-        category: "Museum",
-        rating: 4.7,
-        image: "🎨",
-        description: "World's largest art museum",
-        estimatedTime: "4-6 hours",
-        priority: "high" as const
-      },
-      {
-        id: "3",
-        name: "Café de Flore",
-        category: "Restaurant",
-        rating: 4.3,
-        image: "☕",
-        description: "Historic café in Saint-Germain",
-        estimatedTime: "1-2 hours",
-        priority: "medium" as const
+  // Group saved places by destination
+  const savedPlacesByDestination = useMemo(() => {
+    if (!trip?.savedPlaces) return {};
+    
+    return trip.savedPlaces.reduce((acc, place) => {
+      const destination = place.destinationName || 'Other';
+      if (!acc[destination]) {
+        acc[destination] = [];
       }
-    ],
-    "Rome": [
-      {
-        id: "4",
-        name: "Colosseum",
-        category: "Landmark",
-        rating: 4.9,
-        image: "🏛️",
-        description: "Ancient Roman amphitheater",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const
-      },
-      {
-        id: "5",
-        name: "Vatican Museums",
-        category: "Museum",
-        rating: 4.8,
-        image: "🎨",
-        description: "Pope's art collection and Sistine Chapel",
-        estimatedTime: "3-4 hours",
-        priority: "high" as const
-      },
-      {
-        id: "6",
-        name: "Trevi Fountain",
-        category: "Landmark",
-        rating: 4.6,
-        image: "⛲",
-        description: "Famous baroque fountain",
-        estimatedTime: "30 minutes",
-        priority: "medium" as const
-      }
-    ],
-    "Barcelona": [
-      {
-        id: "7",
-        name: "Sagrada Familia",
-        category: "Landmark",
-        rating: 4.9,
-        image: "⛪",
-        description: "Gaudí's masterpiece basilica",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const
-      },
-      {
-        id: "8",
-        name: "Park Güell",
-        category: "Park",
-        rating: 4.7,
-        image: "🌳",
-        description: "Colorful mosaic park by Gaudí",
-        estimatedTime: "2-3 hours",
-        priority: "high" as const
-      },
-      {
-        id: "9",
-        name: "La Boqueria Market",
-        category: "Market",
-        rating: 4.4,
-        image: "🍅",
-        description: "Famous food market on Las Ramblas",
-        estimatedTime: "1-2 hours",
-        priority: "medium" as const
-      }
-    ],
-    "Tokyo": [
-      {
-        id: "10",
-        name: "Senso-ji Temple",
-        category: "Temple",
-        rating: 4.6,
-        image: "⛩️",
-        description: "Tokyo's oldest Buddhist temple",
-        estimatedTime: "1-2 hours",
-        priority: "high" as const
-      },
-      {
-        id: "11",
-        name: "Shibuya Crossing",
-        category: "Landmark",
-        rating: 4.5,
-        image: "🚦",
-        description: "World's busiest pedestrian crossing",
-        estimatedTime: "30 minutes",
-        priority: "medium" as const
-      }
-    ],
-    "Bali": [
-      {
-        id: "12",
-        name: "Tanah Lot Temple",
-        category: "Temple",
-        rating: 4.5,
-        image: "🏛️",
-        description: "Temple on a rock formation in the sea",
-        estimatedTime: "2 hours",
-        priority: "high" as const
-      },
-      {
-        id: "13",
-        name: "Rice Terraces of Jatiluwih",
-        category: "Nature",
-        rating: 4.7,
-        image: "🌾",
-        description: "UNESCO World Heritage rice terraces",
-        estimatedTime: "3-4 hours",
-        priority: "high" as const
-      }
-    ]
-  };
+      acc[destination].push(place);
+      return acc;
+    }, {} as Record<string, SavedPlace[]>);
+  }, [trip?.savedPlaces]);
 
   // Function to parse trip dates and calculate destination dates
   const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
@@ -766,30 +595,30 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                 <CardContent className="p-4">
                                   <div className="space-y-3">
                                     <div className="flex items-start justify-between">
-                                      <div className="flex items-center space-x-3 flex-1">
-                                        <span className="text-2xl">{place.image}</span>
-                                        <div className="flex-1">
-                                          <h6 className="font-medium text-gray-800">{place.name}</h6>
-                                          <p className="text-xs text-gray-600">{place.category}</p>
-                                        </div>
-                                      </div>
-                                      <Badge className={`text-xs px-2 py-1 ${getPriorityColor(place.priority)}`}>
-                                        {place.priority}
-                                      </Badge>
+                                       <div className="flex items-center space-x-3 flex-1">
+                                         <span className="text-2xl">{place.image || '📍'}</span>
+                                         <div className="flex-1">
+                                           <h6 className="font-medium text-gray-800">{place.name}</h6>
+                                           <p className="text-xs text-gray-600">{place.category || 'Place'}</p>
+                                         </div>
+                                       </div>
+                                       <Badge className={`text-xs px-2 py-1 ${getPriorityColor(place.priority || 'medium')}`}>
+                                         {place.priority || 'medium'}
+                                       </Badge>
                                     </div>
 
-                                    <div className="flex items-center space-x-2">
-                                      <div className="flex items-center space-x-1">
-                                        <Star size={12} className="text-yellow-500 fill-current" />
-                                        <span className="text-xs text-gray-600">{place.rating}</span>
-                                      </div>
-                                      <span className="text-xs text-gray-400">•</span>
-                                      <span className="text-xs text-gray-600">{place.estimatedTime}</span>
-                                    </div>
+                                     <div className="flex items-center space-x-2">
+                                       <div className="flex items-center space-x-1">
+                                         <Star size={12} className="text-yellow-500 fill-current" />
+                                         <span className="text-xs text-gray-600">{place.rating || 0}</span>
+                                       </div>
+                                       <span className="text-xs text-gray-400">•</span>
+                                       <span className="text-xs text-gray-600">{place.estimatedTime || 'N/A'}</span>
+                                     </div>
 
-                                    <p className="text-xs text-gray-600 leading-relaxed">
-                                      {place.description}
-                                    </p>
+                                     <p className="text-xs text-gray-600 leading-relaxed">
+                                       {place.description || 'No description available'}
+                                     </p>
 
                                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                                       <Button 
