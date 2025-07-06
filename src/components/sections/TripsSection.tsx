@@ -39,10 +39,10 @@ const TripsSection = () => {
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useHomeState();
 
   // Calculate automatic status for each trip
-  const tripsWithAutoStatus = trips.map(trip => ({
+  const tripsWithAutoStatus = trips?.map(trip => ({
     ...trip,
     status: calculateTripStatus(trip.dates)
-  }));
+  })) || [];
 
   const handleViewDetails = (trip: any) => {
     setSelectedTrip(trip);
