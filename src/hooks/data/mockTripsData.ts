@@ -3,7 +3,7 @@ import { Trip } from "@/types";
 
 export const initialTripsData: Trip[] = [
   {
-    id: 1,
+    id: "1",
     name: "European Adventure",
     destination: "Paris → Rome → Barcelona",
     dates: "Dec 15 - Dec 25, 2024",
@@ -49,7 +49,7 @@ export const initialTripsData: Trip[] = [
     ]
   },
   {
-    id: 2,
+    id: "2",
     name: "Tokyo Discovery",
     destination: "Tokyo, Japan",
     dates: "Jan 8 - Jan 15, 2025",

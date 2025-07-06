@@ -4,7 +4,7 @@ import { calculateTripStatus } from "@/utils/tripStatusUtils";
 
 export const addPlaceToTripUtil = (
   trips: Trip[],
-  tripId: number,
+  tripId: string,
   place: any
 ): Trip[] => {
   const savedPlace: SavedPlace = {
@@ -84,7 +84,7 @@ export const findCurrentTrip = (tripsWithStatus: Trip[]): Trip => {
   });
 
   return travelingTrip || nearestUpcomingTrip || {
-    id: 1,
+    id: "1",
     name: "European Adventure",
     destination: "Paris → Rome → Barcelona",
     dates: "Dec 15 - Dec 25, 2024",

@@ -25,7 +25,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
   // Mock trips data - in a real app this would come from props or context
   const trips: Trip[] = [
     {
-      id: 1,
+      id: "1",
       name: "European Adventure",
       destination: "Paris → Rome → Barcelona",
       dates: "Dec 15 - Dec 25, 2024",
@@ -40,7 +40,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
       ]
     },
     {
-      id: 2,
+      id: "2",
       name: "Tokyo Discovery",
       destination: "Tokyo, Japan",
       dates: "Jan 8 - Jan 15, 2025",
@@ -82,7 +82,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
     setIsAddToTripModalOpen(true);
   };
 
-  const handleAddToExistingTrip = (tripId: number) => {
+  const handleAddToExistingTrip = (tripId: string) => {
     if (selectedImageForTrip) {
       // Update the image to mark it as added to trip
       const trip = trips.find(t => t.id === tripId);

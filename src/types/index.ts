@@ -37,7 +37,7 @@ export interface SavedPlace {
 }
 
 export interface Trip {
-  id: number;
+  id: string;
   name: string;
   destination: string;
   dates: string;
@@ -102,7 +102,7 @@ export interface InstaTripImage {
   addedAt: number;
   text?: string;
   location?: string;
-  tripId?: number;
+  tripId?: string;
 }
 
 export interface ProfilePost {
@@ -111,7 +111,7 @@ export interface ProfilePost {
   text: string;
   createdAt: number;
   location?: string;
-  tripId?: number;
+  tripId?: string;
 }
 
 export interface FriendPublication {
@@ -224,7 +224,7 @@ export interface CurrentTripProps {
 export interface AddMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: number) => void;
+  onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: string) => void;
   onCreatePublication?: () => void;
   onOpenTripPhotobook?: (trip: Trip) => void;
   trips?: Trip[];
@@ -240,7 +240,7 @@ export interface AddToTripModalProps {
   isOpen: boolean;
   onClose: () => void;
   existingTrips: Trip[];
-  onAddToExistingTrip: (tripId: number) => void;
+  onAddToExistingTrip: (tripId: string) => void;
   onCreateNewTrip: () => void;
   postLocation?: string;
 }
@@ -280,6 +280,6 @@ export interface FollowedFriendsPublicationsProps {
   onShare: (id: string) => void;
   formatTimeAgo: (timestamp: number) => string;
   trips?: Trip[];
-  onAddToExistingTrip?: (tripId: number, place: any) => void;
+  onAddToExistingTrip?: (tripId: string, place: any) => void;
   onCreateNewTrip?: (tripData: any) => void;
 }

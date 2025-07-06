@@ -41,7 +41,7 @@ const ExploreAddToTripModal = ({
 
   const { createTrip } = useSupabaseTrips();
   
-  const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [showNewTripModal, setShowNewTripModal] = useState(false);
 
   if (!selectedPlace) return null;
@@ -75,7 +75,7 @@ const ExploreAddToTripModal = ({
     const createdTrip = await createTrip(newTripWithPlace);
     if (createdTrip) {
       // Add the place to the created trip
-      await addPlaceToTrip(parseInt(createdTrip.id), selectedPlace);
+      await addPlaceToTrip(createdTrip.id, selectedPlace);
       setShowNewTripModal(false);
       onClose();
       resetForm();

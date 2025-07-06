@@ -15,7 +15,7 @@ export interface HotelDateRecommendation {
 }
 
 export interface AIHotelBookingPlan {
-  tripId: number;
+  tripId: string;
   tripName: string;
   totalDestinations: number;
   recommendations: HotelDateRecommendation[];

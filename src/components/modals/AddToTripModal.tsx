@@ -15,7 +15,7 @@ const AddToTripModal = ({
   postLocation 
 }: AddToTripModalProps) => {
   const { toast } = useToast();
-  const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
   const handleAddToExistingTrip = () => {
     if (selectedTripId) {

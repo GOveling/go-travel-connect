@@ -9,7 +9,7 @@ import LocationSelector from "./LocationSelector";
 interface InstaTripUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddInstaTripImage: (imageSrc: string, text?: string, location?: string, tripId?: number) => void;
+  onAddInstaTripImage: (imageSrc: string, text?: string, location?: string, tripId?: string) => void;
 }
 
 const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTripUploadModalProps) => {
@@ -17,7 +17,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [text, setText] = useState("");
   const [location, setLocation] = useState("");
-  const [tripId, setTripId] = useState<number | undefined>();
+  const [tripId, setTripId] = useState<string | undefined>();
   const [isUsingCamera, setIsUsingCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -101,7 +101,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
     setText(prev => prev + emoji);
   };
 
-  const handleLocationSelected = (selectedLocation: string, selectedTripId?: number) => {
+  const handleLocationSelected = (selectedLocation: string, selectedTripId?: string) => {
     setLocation(selectedLocation);
     setTripId(selectedTripId);
   };

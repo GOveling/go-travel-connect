@@ -17,7 +17,7 @@ export interface TourDateRecommendation {
 }
 
 export interface AITourBookingPlan {
-  tripId: number;
+  tripId: string;
   tripName: string;
   totalDestinations: number;
   recommendations: TourDateRecommendation[];

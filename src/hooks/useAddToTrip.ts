@@ -49,7 +49,7 @@ export const useAddToTrip = () => {
   };
 
   // Add place to existing trip
-  const addPlaceToTrip = async (tripId: number, place: Place): Promise<boolean> => {
+  const addPlaceToTrip = async (tripId: string, place: Place): Promise<boolean> => {
     if (!user || !place) return false;
 
     try {
@@ -80,8 +80,8 @@ export const useAddToTrip = () => {
         return false;
       }
 
-      // Convert trip ID to UUID string for database
-      const tripUUID = selectedTrip.id.toString();
+      // Use trip ID directly since it's already a string UUID
+      const tripUUID = selectedTrip.id;
 
       // Create saved place data
       const savedPlaceData = {

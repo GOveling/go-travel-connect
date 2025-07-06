@@ -35,7 +35,7 @@ const AddMemoryModal = ({
     onClose();
   };
 
-  const handleInstaTripUpload = (imageSrc: string, text?: string, location?: string, tripId?: number) => {
+  const handleInstaTripUpload = (imageSrc: string, text?: string, location?: string, tripId?: string) => {
     onAddInstaTripImage?.(imageSrc, text, location, tripId);
     setIsInstaTripUploadOpen(false);
     onClose();

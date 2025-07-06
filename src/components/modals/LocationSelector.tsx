@@ -7,19 +7,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface Trip {
-  id: number;
+  id: string;
   name: string;
   destination: string;
 }
 
 interface LocationSelectorProps {
-  onLocationSelected: (location: string, tripId?: number) => void;
+  onLocationSelected: (location: string, tripId?: string) => void;
   trips?: Trip[];
 }
 
 const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorProps) => {
   const [location, setLocation] = useState("");
-  const [selectedTripId, setSelectedTripId] = useState<number | undefined>();
+  const [selectedTripId, setSelectedTripId] = useState<string | undefined>();
   const [showTripSelection, setShowTripSelection] = useState(false);
 
   const handleLocationSubmit = () => {
@@ -32,9 +32,9 @@ const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorPr
   };
 
   const defaultTrips = [
-    { id: 1, name: "European Adventure", destination: "Paris → Rome → Barcelona" },
-    { id: 2, name: "Tokyo Discovery", destination: "Tokyo, Japan" },
-    { id: 3, name: "Bali Retreat", destination: "Bali, Indonesia" }
+    { id: "1", name: "European Adventure", destination: "Paris → Rome → Barcelona" },
+    { id: "2", name: "Tokyo Discovery", destination: "Tokyo, Japan" },
+    { id: "3", name: "Bali Retreat", destination: "Bali, Indonesia" }
   ];
 
   const availableTrips = trips.length > 0 ? trips : defaultTrips;

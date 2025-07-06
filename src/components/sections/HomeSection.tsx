@@ -62,7 +62,7 @@ const HomeSection = () => {
     setIsAddToTripModalOpen(true);
   };
 
-  const handleAddToExistingTrip = (tripId: number, place: any) => {
+  const handleAddToExistingTrip = (tripId: string, place: any) => {
     addPlaceToTrip(tripId, place);
     const selectedTrip = trips.find(trip => trip.id === tripId);
     

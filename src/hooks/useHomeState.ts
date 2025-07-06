@@ -18,7 +18,7 @@ export const useHomeState = () => {
   };
 
   // Add place to trip function - now using Supabase
-  const addPlaceToTrip = async (tripId: number, place: any) => {
+  const addPlaceToTrip = async (tripId: string, place: any) => {
     // This function would need to be implemented to save places to Supabase
     // For now, just log the action
     console.log('Adding place to trip:', { tripId, place });
