@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,6 @@ interface SavedPlace {
   description: string;
   estimatedTime: string;
   priority: "high" | "medium" | "low";
-  destinationName?: string;
 }
 
 interface Trip {
@@ -55,7 +54,6 @@ interface Trip {
   budget?: string;
   accommodation?: string;
   transportation?: string;
-  savedPlaces?: SavedPlace[];
 }
 
 interface TripDetailModalProps {
@@ -147,35 +145,149 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     setShowPlaceDetailModal(true);
   };
 
-  // Organize saved places by destination from real trip data
-  const savedPlacesByDestination = useMemo(() => {
-    if (!trip.savedPlaces || trip.savedPlaces.length === 0) {
-      return {};
-    }
-    
-    const placesByDestination: { [key: string]: SavedPlace[] } = {};
-    
-    // Group saved places by their destination name
-    trip.savedPlaces.forEach(place => {
-      const destinationName = place.destinationName || place.name;
-      
-      // Find the matching coordinate destination
-      const matchingDestination = trip.coordinates.find(coord => 
-        coord.name.toLowerCase().includes(destinationName.toLowerCase()) ||
-        destinationName.toLowerCase().includes(coord.name.toLowerCase())
-      );
-      
-      const key = matchingDestination?.name || destinationName;
-      
-      if (!placesByDestination[key]) {
-        placesByDestination[key] = [];
+  // Mock saved places data for each destination
+  const savedPlacesByDestination = {
+    "Paris": [
+      {
+        id: "1",
+        name: "Eiffel Tower",
+        category: "Landmark",
+        rating: 4.8,
+        image: "🗼",
+        description: "Iconic iron tower and symbol of Paris",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "2",
+        name: "Louvre Museum",
+        category: "Museum",
+        rating: 4.7,
+        image: "🎨",
+        description: "World's largest art museum",
+        estimatedTime: "4-6 hours",
+        priority: "high" as const
+      },
+      {
+        id: "3",
+        name: "Café de Flore",
+        category: "Restaurant",
+        rating: 4.3,
+        image: "☕",
+        description: "Historic café in Saint-Germain",
+        estimatedTime: "1-2 hours",
+        priority: "medium" as const
       }
-      
-      placesByDestination[key].push(place);
-    });
-    
-    return placesByDestination;
-  }, [trip.savedPlaces, trip.coordinates]);
+    ],
+    "Rome": [
+      {
+        id: "4",
+        name: "Colosseum",
+        category: "Landmark",
+        rating: 4.9,
+        image: "🏛️",
+        description: "Ancient Roman amphitheater",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "5",
+        name: "Vatican Museums",
+        category: "Museum",
+        rating: 4.8,
+        image: "🎨",
+        description: "Pope's art collection and Sistine Chapel",
+        estimatedTime: "3-4 hours",
+        priority: "high" as const
+      },
+      {
+        id: "6",
+        name: "Trevi Fountain",
+        category: "Landmark",
+        rating: 4.6,
+        image: "⛲",
+        description: "Famous baroque fountain",
+        estimatedTime: "30 minutes",
+        priority: "medium" as const
+      }
+    ],
+    "Barcelona": [
+      {
+        id: "7",
+        name: "Sagrada Familia",
+        category: "Landmark",
+        rating: 4.9,
+        image: "⛪",
+        description: "Gaudí's masterpiece basilica",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "8",
+        name: "Park Güell",
+        category: "Park",
+        rating: 4.7,
+        image: "🌳",
+        description: "Colorful mosaic park by Gaudí",
+        estimatedTime: "2-3 hours",
+        priority: "high" as const
+      },
+      {
+        id: "9",
+        name: "La Boqueria Market",
+        category: "Market",
+        rating: 4.4,
+        image: "🍅",
+        description: "Famous food market on Las Ramblas",
+        estimatedTime: "1-2 hours",
+        priority: "medium" as const
+      }
+    ],
+    "Tokyo": [
+      {
+        id: "10",
+        name: "Senso-ji Temple",
+        category: "Temple",
+        rating: 4.6,
+        image: "⛩️",
+        description: "Tokyo's oldest Buddhist temple",
+        estimatedTime: "1-2 hours",
+        priority: "high" as const
+      },
+      {
+        id: "11",
+        name: "Shibuya Crossing",
+        category: "Landmark",
+        rating: 4.5,
+        image: "🚦",
+        description: "World's busiest pedestrian crossing",
+        estimatedTime: "30 minutes",
+        priority: "medium" as const
+      }
+    ],
+    "Bali": [
+      {
+        id: "12",
+        name: "Tanah Lot Temple",
+        category: "Temple",
+        rating: 4.5,
+        image: "🏛️",
+        description: "Temple on a rock formation in the sea",
+        estimatedTime: "2 hours",
+        priority: "high" as const
+      },
+      {
+        id: "13",
+        name: "Rice Terraces of Jatiluwih",
+        category: "Nature",
+        rating: 4.7,
+        image: "🌾",
+        description: "UNESCO World Heritage rice terraces",
+        estimatedTime: "3-4 hours",
+        priority: "high" as const
+      }
+    ]
+  };
 
   // Function to parse trip dates and calculate destination dates
   const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
@@ -632,8 +744,8 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                     </Button>
                   </div>
 
-                   {trip.coordinates.map((destination, destIndex) => {
-                     const placesForDestination = savedPlacesByDestination[destination.name] || [];
+                  {trip.coordinates.map((destination, destIndex) => {
+                    const placesForDestination = savedPlacesByDestination[destination.name as keyof typeof savedPlacesByDestination] || [];
                     
                     return (
                       <div key={destIndex} className="space-y-3">
