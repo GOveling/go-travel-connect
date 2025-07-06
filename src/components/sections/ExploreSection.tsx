@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import ExploreFilters from "./explore/ExploreFilters";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreResults from "./explore/ExploreResults";
+import { useCallback } from "react";
 
 interface Place {
   id: string;
@@ -39,6 +41,8 @@ const ExploreSection = () => {
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [placeForTrip, setPlaceForTrip] = useState<any>(null);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => 
@@ -105,7 +109,7 @@ const ExploreSection = () => {
   };
 
   // Function to handle results from the enhanced search bar
-  const handleSearchResults = (results: Place[], selectedId?: string) => {
+  const handleSearchResults = useCallback((results: Place[], selectedId?: string) => {
     // ALWAYS show ALL results, just reorder if there's a selected place
     if (selectedId) {
       // Reorder results to put selected place first, but keep ALL results
@@ -118,11 +122,28 @@ const ExploreSection = () => {
       setSearchResults(results);
       setSelectedPlaceId(null);
     }
-  };
+  }, []);
 
-  const handleLoadingChange = (isLoading: boolean) => {
+  const handleLoadingChange = useCallback((isLoading: boolean) => {
     setLoading(isLoading);
-  };
+  }, []);
+
+  const handleAddToTrip = useCallback(() => {
+    if (selectedPlace) {
+      setPlaceForTrip({
+        name: selectedPlace.name,
+        location: selectedPlace.location,
+        rating: selectedPlace.rating,
+        image: selectedPlace.image,
+        category: selectedPlace.category,
+        description: selectedPlace.description,
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng
+      });
+      setIsAddToTripModalOpen(true);
+      setIsModalOpen(false); // Close the place detail modal
+    }
+  }, [selectedPlace]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -172,7 +193,14 @@ const ExploreSection = () => {
         place={selectedPlace}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAddToTrip={() => {}}
+        onAddToTrip={handleAddToTrip}
+      />
+
+      {/* Add to Trip Modal */}
+      <ExploreAddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => setIsAddToTripModalOpen(false)}
+        selectedPlace={placeForTrip}
       />
     </div>
   );
