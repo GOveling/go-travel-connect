@@ -155,6 +155,7 @@ export const useAddToTrip = () => {
     searchQuery,
     setSearchQuery,
     categorizeTrips,
-    addPlaceToTrip
+    addPlaceToTrip,
+    getEstimatedTime
   };
 };

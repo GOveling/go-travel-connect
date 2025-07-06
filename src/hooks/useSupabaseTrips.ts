@@ -126,7 +126,7 @@ export const useSupabaseTrips = () => {
   };
 
   // Create a new trip
-  const createTrip = async (tripData: Partial<Trip>) => {
+  const createTrip = async (tripData: any) => {
     if (!user) return null;
 
     try {
@@ -176,6 +176,31 @@ export const useSupabaseTrips = () => {
 
         if (coordError) {
           console.error('Error creating coordinates:', coordError);
+        }
+      }
+
+      // Create saved place if provided
+      if (tripData.savedPlace) {
+        const savedPlaceData = {
+          trip_id: trip.id,
+          name: tripData.savedPlace.name,
+          category: tripData.savedPlace.category,
+          rating: tripData.savedPlace.rating,
+          image: tripData.savedPlace.image,
+          description: tripData.savedPlace.description,
+          estimated_time: tripData.savedPlace.estimated_time,
+          priority: tripData.savedPlace.priority,
+          destination_name: tripData.savedPlace.destination_name,
+          lat: tripData.savedPlace.lat,
+          lng: tripData.savedPlace.lng
+        };
+
+        const { error: placeError } = await supabase
+          .from('saved_places')
+          .insert(savedPlaceData);
+
+        if (placeError) {
+          console.error('Error creating saved place:', placeError);
         }
       }
 

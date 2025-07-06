@@ -36,7 +36,8 @@ const ExploreAddToTripModal = ({
     searchQuery, 
     setSearchQuery, 
     categorizeTrips, 
-    addPlaceToTrip 
+    addPlaceToTrip,
+    getEstimatedTime
   } = useAddToTrip();
 
   const { createTrip } = useSupabaseTrips();
@@ -69,13 +70,24 @@ const ExploreAddToTripModal = ({
           lat: selectedPlace.lat || 0,
           lng: selectedPlace.lng || 0
         }
-      ]
+      ],
+      // Add the selected place directly to the trip data
+      savedPlace: {
+        name: selectedPlace.name,
+        category: selectedPlace.category,
+        rating: selectedPlace.rating || null,
+        image: selectedPlace.image || "📍",
+        description: selectedPlace.description || "",
+        estimated_time: getEstimatedTime(selectedPlace.category),
+        priority: 'medium',
+        destination_name: selectedPlace.location,
+        lat: selectedPlace.lat || null,
+        lng: selectedPlace.lng || null
+      }
     };
 
     const createdTrip = await createTrip(newTripWithPlace);
     if (createdTrip) {
-      // Add the place to the created trip
-      await addPlaceToTrip(createdTrip.id, selectedPlace);
       setShowNewTripModal(false);
       onClose();
       resetForm();
