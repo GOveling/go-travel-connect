@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface Trip {
-  id: number;
+  id: string;
   name: string;
   destination: string;
   dates: string;

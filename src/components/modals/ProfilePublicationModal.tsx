@@ -9,7 +9,7 @@ import LocationSelector from "./LocationSelector";
 interface ProfilePublicationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddPublication: (images: string[], text: string, location?: string, tripId?: number) => void;
+  onAddPublication: (images: string[], text: string, location?: string, tripId?: string) => void;
 }
 
 const ProfilePublicationModal = ({ isOpen, onClose, onAddPublication }: ProfilePublicationModalProps) => {
@@ -17,7 +17,7 @@ const ProfilePublicationModal = ({ isOpen, onClose, onAddPublication }: ProfileP
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [text, setText] = useState("");
   const [location, setLocation] = useState("");
-  const [tripId, setTripId] = useState<number | undefined>();
+  const [tripId, setTripId] = useState<string | undefined>();
   const [isUsingCamera, setIsUsingCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -123,7 +123,7 @@ const ProfilePublicationModal = ({ isOpen, onClose, onAddPublication }: ProfileP
     setText(prev => prev + emoji);
   };
 
-  const handleLocationSelected = (selectedLocation: string, selectedTripId?: number) => {
+  const handleLocationSelected = (selectedLocation: string, selectedTripId?: string) => {
     setLocation(selectedLocation);
     setTripId(selectedTripId);
   };

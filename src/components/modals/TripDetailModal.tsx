@@ -40,7 +40,7 @@ interface SavedPlace {
 }
 
 interface Trip {
-  id: number;
+  id: string;
   name: string;
   destination: string;
   dates: string;
@@ -61,7 +61,7 @@ interface TripDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdateTrip?: (tripData: any) => void;
-  onDeleteTrip?: (tripId: number) => void;
+  onDeleteTrip?: (tripId: string) => void;
 }
 
 // Interface for PlaceDetailModal
