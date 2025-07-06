@@ -69,10 +69,10 @@ export const useSupabaseTrips = () => {
         return;
       }
 
-      // Transform Supabase data to Trip format
-      const transformedTrips: Trip[] = tripsData?.map((trip: any) => ({
-        id: parseInt(trip.id), // Convert UUID to number for compatibility
-        name: trip.name,
+  // Transform Supabase data to Trip format
+  const transformedTrips: Trip[] = tripsData?.map((trip: any) => ({
+    id: trip.id, // Keep UUID as string for proper Supabase compatibility
+    name: trip.name,
         destination: trip.destination,
         dates: trip.dates,
         status: trip.status,
@@ -200,12 +200,12 @@ export const useSupabaseTrips = () => {
   };
 
   // Update a trip
-  const updateTrip = async (tripId: number, tripData: Partial<Trip>) => {
+  const updateTrip = async (tripId: string | number, tripData: Partial<Trip>) => {
     if (!user) return false;
 
     try {
-      // Convert numeric ID to string for Supabase UUID
-      const tripUUID = trips.find(t => t.id === tripId)?.id?.toString();
+      // Use tripId directly since it's already the UUID string
+      const tripUUID = typeof tripId === 'string' ? tripId : tripId.toString();
       
       const { error: tripError } = await supabase
         .from('trips')
@@ -279,29 +279,17 @@ export const useSupabaseTrips = () => {
   };
 
   // Delete a trip
-  const deleteTrip = async (tripId: number) => {
+  const deleteTrip = async (tripId: string | number) => {
     if (!user) return false;
 
     try {
-      // Find the trip to delete
-      const tripToDelete = trips.find(t => t.id === tripId);
-      if (!tripToDelete) {
-        toast({
-          title: "Error",
-          description: "Trip not found",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Delete the trip using user_id and trip properties to find the exact match
+      // Use tripId directly as UUID
+      const tripUUID = typeof tripId === 'string' ? tripId : tripId.toString();
+      
       const { error } = await supabase
         .from('trips')
         .delete()
-        .eq('user_id', user.id)
-        .eq('name', tripToDelete.name)
-        .eq('destination', tripToDelete.destination)
-        .eq('dates', tripToDelete.dates);
+        .eq('id', tripUUID);
 
       if (error) {
         console.error('Error deleting trip:', error);

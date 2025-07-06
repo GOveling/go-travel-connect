@@ -57,7 +57,7 @@ const TripsSection = () => {
     await updateTrip(updatedTrip.id, updatedTrip);
   };
 
-  const handleDeleteTrip = async (tripId: number) => {
+  const handleDeleteTrip = async (tripId: string | number) => {
     await deleteTrip(tripId);
   };
 

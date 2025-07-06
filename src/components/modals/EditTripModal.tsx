@@ -15,7 +15,7 @@ interface EditTripModalProps {
   onClose: () => void;
   trip?: any;
   onUpdateTrip?: (tripData: any) => void;
-  onDeleteTrip?: (tripId: number) => void;
+  onDeleteTrip?: (tripId: string | number) => void;
 }
 
 interface Destination {
