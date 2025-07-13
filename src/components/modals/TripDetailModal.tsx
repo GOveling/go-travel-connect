@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,8 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(null);
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
+  const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
 
   // New modal states
   const [showFlightSearchModal, setShowFlightSearchModal] = useState(false);
@@ -142,18 +145,24 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     return trip?.savedPlaces?.length || 0;
   }, [trip?.savedPlaces]);
 
-  // Function to remove a saved place
-  const handleRemovePlace = async (placeId: string) => {
-    if (!trip) return;
+  // Function to show remove confirmation
+  const handleRemovePlace = (place: SavedPlace) => {
+    setPlaceToRemove(place);
+    setShowRemoveConfirmation(true);
+  };
+
+  // Function to confirm and delete the saved place
+  const confirmRemovePlace = async () => {
+    if (!trip || !placeToRemove) return;
     
     try {
-      setIsRemoving(placeId);
+      setIsRemoving(placeToRemove.id);
       
       // Delete from Supabase
       const { error } = await supabase
         .from('saved_places')
         .delete()
-        .eq('id', placeId);
+        .eq('id', placeToRemove.id);
 
       if (error) {
         console.error('Error deleting place:', error);
@@ -167,7 +176,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
 
       // Update the trip state locally by filtering out the deleted place
       if (onUpdateTrip && trip.savedPlaces) {
-        const updatedSavedPlaces = trip.savedPlaces.filter(place => place.id !== placeId);
+        const updatedSavedPlaces = trip.savedPlaces.filter(place => place.id !== placeToRemove.id);
         const updatedTrip = {
           ...trip,
           savedPlaces: updatedSavedPlaces
@@ -180,6 +189,10 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         description: "The place has been successfully removed from your trip.",
       });
 
+      // Close the confirmation modal
+      setShowRemoveConfirmation(false);
+      setPlaceToRemove(null);
+
     } catch (error) {
       console.error('Error removing place:', error);
       toast({
@@ -190,6 +203,12 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     } finally {
       setIsRemoving(null);
     }
+  };
+
+  // Function to cancel remove operation
+  const cancelRemovePlace = () => {
+    setShowRemoveConfirmation(false);
+    setPlaceToRemove(null);
   };
 
   // Function to parse trip dates and calculate destination dates
@@ -714,8 +733,8 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                     size="sm" 
                                     variant="destructive" 
                                     className="flex-1 text-xs"
-                                    onClick={() => handleRemovePlace(place.id)}
-                                    disabled={isRemoving === place.id}
+                                     onClick={() => handleRemovePlace(place)}
+                                     disabled={isRemoving === place.id}
                                   >
                                     <Trash2 size={12} className="mr-1" />
                                     {isRemoving === place.id ? 'Removing...' : 'Remove'}
@@ -878,6 +897,28 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         toLocation={selectedLocationForModal?.name}
         travelers={getTotalTravelers()}
       />
+      
+      {/* Remove Confirmation Dialog */}
+      <AlertDialog open={showRemoveConfirmation} onOpenChange={setShowRemoveConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Place</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove "{placeToRemove?.name}" from your trip? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelRemovePlace}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRemovePlace}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isRemoving === placeToRemove?.id}
+            >
+              {isRemoving === placeToRemove?.id ? 'Removing...' : 'Remove'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
