@@ -205,6 +205,37 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     }
   };
 
+  // Function to render place image - handles both URLs and emoji/icons
+  const renderPlaceImage = (imageUrl: string | null) => {
+    if (!imageUrl) {
+      return <span className="text-2xl">📍</span>;
+    }
+    
+    // Check if it's a URL (contains http/https)
+    if (imageUrl.includes('http://') || imageUrl.includes('https://')) {
+      return (
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+          <img 
+            src={imageUrl} 
+            alt="Place"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback to default icon if image fails to load
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+          <div className="hidden w-full h-full flex items-center justify-center text-2xl">
+            📍
+          </div>
+        </div>
+      );
+    }
+    
+    // It's an emoji or icon, render as text
+    return <span className="text-2xl">{imageUrl}</span>;
+  };
+
   // Function to cancel remove operation
   const cancelRemovePlace = () => {
     setShowRemoveConfirmation(false);
@@ -696,7 +727,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                               <div className="space-y-3">
                                 <div className="flex items-start justify-between">
                                    <div className="flex items-center space-x-3 flex-1">
-                                     <span className="text-2xl">{place.image || '📍'}</span>
+                                     {renderPlaceImage(place.image)}
                                      <div className="flex-1">
                                        <h6 className="font-medium text-gray-800">{place.name}</h6>
                                        <p className="text-xs text-gray-600">{place.category || 'Place'}</p>
