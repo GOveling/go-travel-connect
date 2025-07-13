@@ -121,10 +121,17 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     }, {} as Record<string, SavedPlace[]>);
   }, [trip?.savedPlaces]);
 
-  // Get unique countries from saved places
+  // Get countries from trip destination (now a JSON array)
   const uniqueCountries = useMemo(() => {
-    return Object.keys(savedPlacesByCountry);
-  }, [savedPlacesByCountry]);
+    if (!trip?.destination) return [];
+    try {
+      // Parse the JSON array of countries
+      const countries = Array.isArray(trip.destination) ? trip.destination : JSON.parse(trip.destination as string);
+      return countries.filter(country => country && country !== 'Unknown');
+    } catch {
+      return [];
+    }
+  }, [trip?.destination]);
 
   // Get total saved places count
   const totalSavedPlaces = useMemo(() => {
@@ -312,7 +319,9 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
             <div className="flex-shrink-0 space-y-2 md:space-y-3">
               <div className="flex items-center space-x-2 text-gray-600 text-sm">
                 <MapPin size={14} />
-                <span className="font-medium truncate">{trip.destination}</span>
+                <span className="font-medium truncate">
+                  {uniqueCountries.length > 0 ? uniqueCountries.join(', ') : 'No destinations'}
+                </span>
               </div>
               {/* Countries badges */}
               {uniqueCountries.length > 0 && (

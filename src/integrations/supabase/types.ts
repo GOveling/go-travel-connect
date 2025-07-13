@@ -264,7 +264,7 @@ export type Database = {
           created_at: string
           dates: string
           description: string | null
-          destination: string
+          destination: Json
           id: string
           image: string | null
           is_group_trip: boolean | null
@@ -281,7 +281,7 @@ export type Database = {
           created_at?: string
           dates: string
           description?: string | null
-          destination: string
+          destination: Json
           id?: string
           image?: string | null
           is_group_trip?: boolean | null
@@ -298,7 +298,7 @@ export type Database = {
           created_at?: string
           dates?: string
           description?: string | null
-          destination?: string
+          destination?: Json
           id?: string
           image?: string | null
           is_group_trip?: boolean | null
@@ -441,6 +441,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      extract_country_from_destination: {
+        Args: { destination_name: string }
+        Returns: string
+      }
       get_user_achievements_with_progress: {
         Args: { p_user_id: string }
         Returns: {
