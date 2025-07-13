@@ -317,12 +317,6 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
           <div className="flex-1 overflow-hidden flex flex-col space-y-4 md:space-y-6">
             {/* Trip Info Header */}
             <div className="flex-shrink-0 space-y-2 md:space-y-3">
-              <div className="flex items-center space-x-2 text-gray-600 text-sm">
-                <MapPin size={14} />
-                <span className="font-medium truncate">
-                  {uniqueCountries.length > 0 ? uniqueCountries.join(', ') : 'No destinations'}
-                </span>
-              </div>
               {/* Countries badges */}
               {uniqueCountries.length > 0 && (
                 <div className="flex flex-wrap gap-1">
