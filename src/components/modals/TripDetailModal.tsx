@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import SavedPlacesRouteMap from "./SavedPlacesRouteMap";
 import InviteFriendsModal from "./InviteFriendsModal";
 import EditTripModal from "./EditTripModal";
@@ -37,6 +39,7 @@ interface TripDetailModalProps {
 }
 
 const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: TripDetailModalProps) => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [showRouteMap, setShowRouteMap] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>("");
@@ -46,6 +49,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(null);
+  const [isRemoving, setIsRemoving] = useState<string | null>(null);
 
   // New modal states
   const [showFlightSearchModal, setShowFlightSearchModal] = useState(false);
@@ -139,10 +143,53 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   }, [trip?.savedPlaces]);
 
   // Function to remove a saved place
-  const handleRemovePlace = (placeId: string) => {
-    // This would typically call an API to remove the place
-    console.log('Removing place:', placeId);
-    // Add your removal logic here
+  const handleRemovePlace = async (placeId: string) => {
+    if (!trip) return;
+    
+    try {
+      setIsRemoving(placeId);
+      
+      // Delete from Supabase
+      const { error } = await supabase
+        .from('saved_places')
+        .delete()
+        .eq('id', placeId);
+
+      if (error) {
+        console.error('Error deleting place:', error);
+        toast({
+          title: "Error",
+          description: "Failed to remove place. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update the trip state locally by filtering out the deleted place
+      if (onUpdateTrip && trip.savedPlaces) {
+        const updatedSavedPlaces = trip.savedPlaces.filter(place => place.id !== placeId);
+        const updatedTrip = {
+          ...trip,
+          savedPlaces: updatedSavedPlaces
+        };
+        onUpdateTrip(updatedTrip);
+      }
+
+      toast({
+        title: "Place removed",
+        description: "The place has been successfully removed from your trip.",
+      });
+
+    } catch (error) {
+      console.error('Error removing place:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRemoving(null);
+    }
   };
 
   // Function to parse trip dates and calculate destination dates
@@ -668,9 +715,10 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                     variant="destructive" 
                                     className="flex-1 text-xs"
                                     onClick={() => handleRemovePlace(place.id)}
+                                    disabled={isRemoving === place.id}
                                   >
                                     <Trash2 size={12} className="mr-1" />
-                                    Remove
+                                    {isRemoving === place.id ? 'Removing...' : 'Remove'}
                                   </Button>
                                 </div>
                               </div>
