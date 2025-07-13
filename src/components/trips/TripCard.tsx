@@ -40,10 +40,29 @@ const TripCard = ({
 
   const totalTravelers = getTotalTravelers();
 
-  // Extract country from destination
-  const getCountryFromDestination = (destination: string) => {
-    const parts = destination.split(',').map(part => part.trim());
-    return parts[parts.length - 1]; // Last part is usually the country
+  // Extract countries from destination (now a JSON array)
+  const getCountriesFromDestination = (destination: string | string[]) => {
+    try {
+      if (Array.isArray(destination)) {
+        return destination.filter(country => country && country !== 'Unknown');
+      }
+      if (typeof destination === 'string') {
+        // Try to parse as JSON first
+        try {
+          const parsed = JSON.parse(destination);
+          if (Array.isArray(parsed)) {
+            return parsed.filter(country => country && country !== 'Unknown');
+          }
+        } catch {
+          // Fallback to old string format
+          const parts = destination.split(',').map(part => part.trim());
+          return [parts[parts.length - 1]]; // Last part is usually the country
+        }
+      }
+      return [];
+    } catch {
+      return [];
+    }
   };
 
   // Get country flag emoji
@@ -85,8 +104,9 @@ const TripCard = ({
     return countryFlags[country] || '🌍';
   };
 
-  const country = getCountryFromDestination(trip.destination);
-  const countryFlag = getCountryFlag(country);
+  const countries = getCountriesFromDestination(trip.destination);
+  const firstCountry = countries[0] || 'Unknown';
+  const countryFlag = getCountryFlag(firstCountry);
 
   return (
     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white overflow-hidden">
@@ -123,12 +143,21 @@ const TripCard = ({
                   </div>
                   
                   <div className="space-y-1 text-sm text-gray-600">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-1">
                       <MapPin size={14} />
-                      <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
-                        <span className="mr-1">{countryFlag}</span>
-                        {country}
-                      </Badge>
+                      {countries.length > 0 ? (
+                        countries.map((country, index) => (
+                          <Badge key={index} variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                            <span className="mr-1">{getCountryFlag(country)}</span>
+                            {country}
+                          </Badge>
+                        ))
+                      ) : (
+                        <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                          <span className="mr-1">🌍</span>
+                          No destinations
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar size={14} />
