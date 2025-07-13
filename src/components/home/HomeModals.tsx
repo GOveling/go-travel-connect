@@ -56,6 +56,11 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
     }
   };
 
+  const handleUpdateTrip = async (updatedTrip: any) => {
+    // Use the homeState updateTrip function to update in Supabase and local state
+    await homeState.updateTrip(updatedTrip.id, updatedTrip);
+  };
+
   return (
     <>
       <NotificationAlertsModal
@@ -75,6 +80,7 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
         isOpen={homeState.isTripDetailModalOpen}
         onClose={() => homeState.setIsTripDetailModalOpen(false)}
         trip={homeState.currentTrip}
+        onUpdateTrip={handleUpdateTrip}
       />
 
       {/* Login Modal */}

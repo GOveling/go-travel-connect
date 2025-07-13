@@ -82,6 +82,11 @@ const TripsSection = () => {
     setShowAISmartRouteModal(true);
   };
 
+  const handleUpdateTripData = (updatedTrip: any) => {
+    // Update the selected trip with the new data
+    setSelectedTrip(updatedTrip);
+  };
+
   const handleViewSavedPlaces = (trip: any) => {
     setSelectedTrip(trip);
     setShowTripDetail(true);
@@ -225,6 +230,7 @@ const TripsSection = () => {
           setShowTripDetail(false);
           setSelectedTrip(null);
         }}
+        onUpdateTrip={handleUpdateTripData}
       />
 
       <InviteFriendsModal
