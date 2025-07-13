@@ -40,6 +40,54 @@ const TripCard = ({
 
   const totalTravelers = getTotalTravelers();
 
+  // Extract country from destination
+  const getCountryFromDestination = (destination: string) => {
+    const parts = destination.split(',').map(part => part.trim());
+    return parts[parts.length - 1]; // Last part is usually the country
+  };
+
+  // Get country flag emoji
+  const getCountryFlag = (country: string) => {
+    const countryFlags: { [key: string]: string } = {
+      'Spain': '🇪🇸',
+      'France': '🇫🇷',
+      'Italy': '🇮🇹',
+      'Germany': '🇩🇪',
+      'United Kingdom': '🇬🇧',
+      'United States': '🇺🇸',
+      'Japan': '🇯🇵',
+      'Brazil': '🇧🇷',
+      'Mexico': '🇲🇽',
+      'Canada': '🇨🇦',
+      'Australia': '🇦🇺',
+      'Argentina': '🇦🇷',
+      'Thailand': '🇹🇭',
+      'Greece': '🇬🇷',
+      'Portugal': '🇵🇹',
+      'Netherlands': '🇳🇱',
+      'Switzerland': '🇨🇭',
+      'Austria': '🇦🇹',
+      'Belgium': '🇧🇪',
+      'Norway': '🇳🇴',
+      'Sweden': '🇸🇪',
+      'Denmark': '🇩🇰',
+      'Finland': '🇫🇮',
+      'Poland': '🇵🇱',
+      'Turkey': '🇹🇷',
+      'Egypt': '🇪🇬',
+      'Morocco': '🇲🇦',
+      'South Africa': '🇿🇦',
+      'India': '🇮🇳',
+      'China': '🇨🇳',
+      'South Korea': '🇰🇷',
+      'Russia': '🇷🇺',
+    };
+    return countryFlags[country] || '🌍';
+  };
+
+  const country = getCountryFromDestination(trip.destination);
+  const countryFlag = getCountryFlag(country);
+
   return (
     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white overflow-hidden">
       <CardContent className="p-0">
@@ -77,7 +125,10 @@ const TripCard = ({
                   <div className="space-y-1 text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
                       <MapPin size={14} />
-                      <span className="truncate">{trip.destination}</span>
+                      <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                        <span className="mr-1">{countryFlag}</span>
+                        {country}
+                      </Badge>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar size={14} />
