@@ -7,7 +7,7 @@ import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import ExploreFilters from "./explore/ExploreFilters";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreResults from "./explore/ExploreResults";
-import PlaceLocationModal from "@/components/modals/PlaceLocationModal";
+import PlaceMapModal from "@/components/modals/PlaceMapModal";
 import { useCallback } from "react";
 
 interface Place {
@@ -260,8 +260,8 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
         selectedPlace={placeForTrip}
       />
       
-      {/* Place Location Modal */}
-      <PlaceLocationModal
+      {/* Place Map Modal */}
+      <PlaceMapModal
         place={selectedLocationPlace}
         isOpen={isLocationModalOpen}
         onClose={() => {
