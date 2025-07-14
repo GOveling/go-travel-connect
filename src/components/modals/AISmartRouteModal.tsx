@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Brain } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import type { Trip, DayItinerary, AISmartRouteModalProps, SavedPlace } from '@/types';
 import { getRouteConfigurations } from "@/utils/routeGenerator";
 import { getSavedPlacesByDestination, calculateDestinationDays } from "@/utils/aiSmartRoute";
@@ -22,43 +23,90 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false);
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
+  const [allRoutes, setAllRoutes] = useState<{[key: string]: DayItinerary[]}>({});
   const { toast } = useToast();
 
   // Update currentTrip when trip prop changes
-  useState(() => {
+  useEffect(() => {
     if (trip) {
       setCurrentTrip(trip);
     }
-  });
+  }, [trip]);
 
   // Reset modal state when it opens
-  useState(() => {
+  useEffect(() => {
     if (isOpen && trip) {
       setCurrentTrip(trip);
       setRouteGenerated(false);
       setActiveTab("itinerary");
       setSelectedRouteType("current");
       setOptimizedItinerary([]);
+      setAllRoutes({});
     }
-  });
+  }, [isOpen, trip]);
 
   // Early return if no trip data
   if (!isOpen || !trip) return null;
 
   const workingTrip = currentTrip || trip;
 
-  // Generate AI optimized routes based ONLY on actual saved places from the trip
+  // Generate AI optimized routes using Gemini AI
   const generateAIRoute = async () => {
     setIsGenerating(true);
     
-    // Simulate AI processing time
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    try {
+      // Generate all three route types
+      const routeTypes = ['current', 'speed', 'leisure'];
+      const routes: {[key: string]: DayItinerary[]} = {};
+      
+      for (const routeType of routeTypes) {
+        const { data, error } = await supabase.functions.invoke('ai-route-generator', {
+          body: {
+            tripId: workingTrip.id,
+            tripData: workingTrip,
+            routeType
+          }
+        });
 
-    // Set initial route to current using actual saved places data
-    const routeConfigurations = getRouteConfigurations(workingTrip);
-    setOptimizedItinerary(routeConfigurations.current.itinerary);
-    setRouteGenerated(true);
-    setIsGenerating(false);
+        if (error) {
+          console.error(`Error generating ${routeType} route:`, error);
+          // Fallback to static generation
+          const fallbackRoutes = getRouteConfigurations(workingTrip);
+          routes[routeType] = fallbackRoutes[routeType as keyof typeof fallbackRoutes].itinerary;
+        } else {
+          routes[routeType] = data.itinerary;
+        }
+      }
+
+      setAllRoutes(routes);
+      setOptimizedItinerary(routes.current);
+      setRouteGenerated(true);
+      
+      toast({
+        title: "AI Route Generated!",
+        description: "Your intelligent route has been optimized using AI. Explore different route types.",
+      });
+    } catch (error) {
+      console.error('Error generating AI route:', error);
+      // Fallback to static generation
+      const routeConfigurations = getRouteConfigurations(workingTrip);
+      const fallbackRoutes = {
+        current: routeConfigurations.current.itinerary,
+        speed: routeConfigurations.speed.itinerary,
+        leisure: routeConfigurations.leisure.itinerary
+      };
+      setAllRoutes(fallbackRoutes);
+      setOptimizedItinerary(fallbackRoutes.current);
+      setRouteGenerated(true);
+      
+      toast({
+        title: "Route Generated",
+        description: "Using fallback route generation. AI optimization is temporarily unavailable.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Handle place recommendations
@@ -85,17 +133,45 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   // Handle route type change
   const handleRouteTypeChange = (routeType: string) => {
     setSelectedRouteType(routeType);
-    const routeConfigurations = getRouteConfigurations(workingTrip);
-    const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
-    setOptimizedItinerary(selectedConfig.itinerary);
+    if (allRoutes[routeType]) {
+      setOptimizedItinerary(allRoutes[routeType]);
+    } else {
+      // Fallback to static generation
+      const routeConfigurations = getRouteConfigurations(workingTrip);
+      const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
+      setOptimizedItinerary(selectedConfig.itinerary);
+    }
   };
 
   // Action button handlers
-  const handleSaveToTrip = () => {
-    toast({
-      title: "Route Saved!",
-      description: "Your AI optimized route has been saved to your trip.",
-    });
+  const handleSaveToTrip = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('ai_itineraries')
+        .upsert({
+          trip_id: workingTrip.id,
+          user_id: user.id,
+          route_type: selectedRouteType,
+          itinerary_data: JSON.parse(JSON.stringify({ itinerary: optimizedItinerary }))
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Route Saved!",
+        description: "Your AI optimized route has been saved to your trip.",
+      });
+    } catch (error) {
+      console.error('Error saving route:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save route. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleExportItinerary = () => {
