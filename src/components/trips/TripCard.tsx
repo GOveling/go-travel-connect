@@ -1,5 +1,5 @@
 
-import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal } from "lucide-react";
+import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal, Eye, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,8 @@ const TripCard = ({
   onInviteFriends,
   onGroupOptions,
   onAISmartRoute,
-  onViewSavedPlaces
+  onViewSavedPlaces,
+  onDeleteTrip
 }: TripCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -179,7 +180,7 @@ const TripCard = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem onClick={() => onViewDetails(trip)}>
-                      <Edit3 size={14} className="mr-2" />
+                      <Eye size={14} className="mr-2" />
                       View Details
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEditTrip(trip)}>
@@ -206,6 +207,13 @@ const TripCard = ({
                     <DropdownMenuItem>
                       <Share2 size={14} className="mr-2" />
                       Share Trip
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => onDeleteTrip && onDeleteTrip(trip)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 size={14} className="mr-2" />
+                      Delete Trip
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
