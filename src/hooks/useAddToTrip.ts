@@ -25,10 +25,20 @@ export const useAddToTrip = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter trips based on search query
-  const filteredTrips = trips.filter(trip =>
-    trip.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    trip.destination.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTrips = trips.filter(trip => {
+    const nameMatch = trip.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Handle destination as JSON array of countries
+    let destinationMatch = false;
+    if (Array.isArray(trip.destination)) {
+      destinationMatch = trip.destination.some(country => 
+        country && typeof country === 'string' && 
+        country.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return nameMatch || destinationMatch;
+  });
 
   // Categorize trips by relevance to the selected place
   const categorizeTrips = (place: Place) => {
@@ -36,12 +46,22 @@ export const useAddToTrip = () => {
 
     const placeLocation = place.location.toLowerCase();
     
-    const matching = filteredTrips.filter(trip =>
-      trip.destination.toLowerCase().includes(placeLocation) ||
-      trip.coordinates.some(coord =>
+    const matching = filteredTrips.filter(trip => {
+      // Handle destination as JSON array of countries
+      let destinationMatch = false;
+      if (Array.isArray(trip.destination)) {
+        destinationMatch = trip.destination.some(country => 
+          country && typeof country === 'string' && 
+          country.toLowerCase().includes(placeLocation)
+        );
+      }
+      
+      const coordinatesMatch = trip.coordinates?.some(coord =>
         coord.name.toLowerCase().includes(placeLocation)
-      )
-    );
+      );
+      
+      return destinationMatch || coordinatesMatch;
+    });
 
     const other = filteredTrips.filter(trip => !matching.includes(trip));
 
