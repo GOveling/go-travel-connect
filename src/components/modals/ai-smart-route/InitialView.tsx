@@ -14,8 +14,47 @@ interface InitialViewProps {
 const InitialView = ({ trip, isGenerating, onGenerateRoute, onStartRecommendations }: InitialViewProps) => {
   const savedPlacesByDestination = getSavedPlacesByDestination(trip);
   const totalSavedPlaces = Object.values(savedPlacesByDestination).reduce((total, places) => total + places.length, 0);
-  const destinationDays = calculateDestinationDays(trip.dates, trip.coordinates.length, trip);
-  const totalTripDays = destinationDays.reduce((a, b) => a + b, 0);
+  
+  // Check if dates are defined
+  const hasDatesSet = trip.dates && trip.dates !== "Dates TBD";
+  
+  // Calculate destinations from trip.destination (array of countries) or fallback to coordinates
+  const totalDestinations = Array.isArray(trip.destination) 
+    ? trip.destination.length 
+    : trip.coordinates.length;
+  
+  // Calculate total trip days only if dates are set
+  let totalTripDays = 0;
+  if (hasDatesSet) {
+    try {
+      const dateRange = trip.dates.split(' - ');
+      if (dateRange.length === 2) {
+        const startDateStr = dateRange[0];
+        const endDateStr = dateRange[1];
+        const year = endDateStr.split(', ')[1] || new Date().getFullYear().toString();
+        
+        const monthMap: { [key: string]: number } = {
+          'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+          'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+        };
+        
+        const startMonth = startDateStr.split(' ')[0];
+        const startDay = parseInt(startDateStr.split(' ')[1]);
+        const endMonth = endDateStr.split(' ')[0];
+        const endDay = parseInt(endDateStr.split(' ')[1].split(',')[0]);
+        
+        const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
+        const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
+        
+        totalTripDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      }
+    } catch (error) {
+      console.error('Error calculating trip days:', error);
+      totalTripDays = 0;
+    }
+  }
+  
+  const destinationDays = hasDatesSet ? calculateDestinationDays(trip.dates, totalDestinations, trip) : [];
 
   return (
     <div className="text-center py-12">
@@ -24,28 +63,21 @@ const InitialView = ({ trip, isGenerating, onGenerateRoute, onStartRecommendatio
         AI Route Optimization with Your Saved Places
       </h3>
       <p className="text-gray-600 mb-4 max-w-2xl mx-auto">
-        Our AI will analyze your {totalSavedPlaces} saved places across {trip.coordinates.length} destinations 
-        over {totalTripDays} days, considering the allocated time per destination, opening hours, crowd patterns, 
+        Our AI will analyze your {totalSavedPlaces} saved places across {totalDestinations} destinations 
+        {hasDatesSet ? `over ${totalTripDays} days` : ''}, considering the allocated time per destination, opening hours, crowd patterns, 
         travel distances, and optimal timing to create the perfect itinerary.
       </p>
       
-      {/* Day Allocation Preview */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
-        <h4 className="font-medium text-blue-800 mb-3">Current Day Allocation</h4>
-        <div className="grid grid-cols-1 gap-2">
-          {trip.coordinates.map((destination, index) => (
-            <div key={index} className="flex justify-between items-center text-sm">
-              <span className="text-blue-700">{destination.name}:</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-blue-600 font-medium">{destinationDays[index]} day{destinationDays[index] > 1 ? 's' : ''}</span>
-                <span className="text-blue-500">
-                  ({savedPlacesByDestination[destination.name]?.length || 0} saved places)
-                </span>
-              </div>
-            </div>
-          ))}
+      {/* Date Warning */}
+      {!hasDatesSet && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
+          <Clock className="mx-auto mb-2 text-red-600" size={32} />
+          <h4 className="font-medium text-red-800 mb-2">Trip Dates Required</h4>
+          <p className="text-sm text-red-600 mb-0">
+            Please set your trip dates to enable AI route optimization. The system needs to know your travel timeline to create an optimal itinerary.
+          </p>
         </div>
-      </div>
+      )}
       
       {totalSavedPlaces === 0 ? (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
@@ -96,8 +128,8 @@ const InitialView = ({ trip, isGenerating, onGenerateRoute, onStartRecommendatio
 
           <Button 
             onClick={onGenerateRoute}
-            disabled={isGenerating}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-3"
+            disabled={isGenerating || !hasDatesSet}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <>
