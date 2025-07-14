@@ -19,4 +19,20 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    global: 'globalThis',
+  },
+  optimizeDeps: {
+    include: ['leaflet'],
+  },
+  build: {
+    rollupOptions: {
+      external: [],
+      output: {
+        globals: {
+          leaflet: 'L'
+        }
+      }
+    }
+  }
 }));
