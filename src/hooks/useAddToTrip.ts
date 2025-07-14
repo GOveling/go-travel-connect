@@ -98,10 +98,19 @@ export const useAddToTrip = () => {
         return false;
       }
 
-      // Check if place already exists in this trip
-      const existingPlace = selectedTrip.savedPlaces?.find(
-        p => p.name.toLowerCase() === place.name.toLowerCase()
-      );
+      // Check if place already exists in this trip (based on coordinates, not just name)
+      const existingPlace = selectedTrip.savedPlaces?.find(p => {
+        // If both places have coordinates, use them for comparison
+        if (place.lat && place.lng && p.lat && p.lng) {
+          const latDiff = Math.abs(p.lat - place.lat);
+          const lngDiff = Math.abs(p.lng - place.lng);
+          // Consider same location if within ~10 meters (approximately 0.0001 degrees)
+          return latDiff < 0.0001 && lngDiff < 0.0001;
+        }
+        // Fallback to name + location comparison if no coordinates
+        return p.name.toLowerCase() === place.name.toLowerCase() && 
+               p.destinationName?.toLowerCase() === place.location?.toLowerCase();
+      });
 
       if (existingPlace) {
         toast({
