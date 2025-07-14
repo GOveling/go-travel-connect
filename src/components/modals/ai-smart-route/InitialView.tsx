@@ -68,25 +68,8 @@ const InitialView = ({ trip, isGenerating, onGenerateRoute, onStartRecommendatio
         travel distances, and optimal timing to create the perfect itinerary.
       </p>
       
-      {/* Day Allocation Preview or Date Warning */}
-      {hasDatesSet ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
-          <h4 className="font-medium text-blue-800 mb-3">Current Day Allocation</h4>
-          <div className="grid grid-cols-1 gap-2">
-            {trip.coordinates.map((destination, index) => (
-              <div key={index} className="flex justify-between items-center text-sm">
-                <span className="text-blue-700">{destination.name}:</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-blue-600 font-medium">{destinationDays[index]} day{destinationDays[index] > 1 ? 's' : ''}</span>
-                  <span className="text-blue-500">
-                    ({savedPlacesByDestination[destination.name]?.length || 0} saved places)
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
+      {/* Date Warning */}
+      {!hasDatesSet && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 max-w-md mx-auto">
           <Clock className="mx-auto mb-2 text-red-600" size={32} />
           <h4 className="font-medium text-red-800 mb-2">Trip Dates Required</h4>
