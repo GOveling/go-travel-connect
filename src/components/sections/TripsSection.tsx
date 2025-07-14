@@ -12,6 +12,7 @@ import MountainTripModal from "@/components/modals/MountainTripModal";
 import CityBreakModal from "@/components/modals/CityBreakModal";
 import BackpackingModal from "@/components/modals/BackpackingModal";
 import EditTripModal from "@/components/modals/EditTripModal";
+import DeleteTripConfirmationModal from "@/components/modals/DeleteTripConfirmationModal";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
 import TripCard from "@/components/trips/TripCard";
 import QuickStats from "@/components/trips/QuickStats";
@@ -34,6 +35,8 @@ const TripsSection = () => {
   const [showCityBreakModal, setShowCityBreakModal] = useState(false);
   const [showBackpackingModal, setShowBackpackingModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [tripToDelete, setTripToDelete] = useState(null);
   
   // Use Supabase trips instead of local state
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useHomeState();
@@ -95,6 +98,19 @@ const TripsSection = () => {
       const event = new CustomEvent('openSavedPlacesTab');
       window.dispatchEvent(event);
     }, 100);
+  };
+
+  const handleDeleteTripRequest = (trip: any) => {
+    setTripToDelete(trip);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (tripToDelete) {
+      await deleteTrip(tripToDelete.id);
+      setShowDeleteConfirmModal(false);
+      setTripToDelete(null);
+    }
   };
 
   if (loading) {
@@ -200,6 +216,7 @@ const TripsSection = () => {
               onGroupOptions={handleGroupOptions}
               onAISmartRoute={handleAISmartRoute}
               onViewSavedPlaces={handleViewSavedPlaces}
+              onDeleteTrip={handleDeleteTripRequest}
             />
           ))
         )}
@@ -292,7 +309,17 @@ const TripsSection = () => {
           setSelectedTrip(null);
         }}
         onUpdateTrip={handleUpdateTrip}
-        onDeleteTrip={handleDeleteTrip}
+        onDeleteTrip={handleDeleteTripRequest}
+      />
+
+      <DeleteTripConfirmationModal
+        isOpen={showDeleteConfirmModal}
+        onClose={() => {
+          setShowDeleteConfirmModal(false);
+          setTripToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        tripName={tripToDelete?.name || ""}
       />
     </div>
   );

@@ -130,12 +130,15 @@ const ExploreResults = ({
 
   return (
     <div className="space-y-4">
-      {searchQuery && (
-        <div className="text-sm text-gray-600 mb-4">
-          Se encontraron {places.length} lugares para "{searchQuery}"
-          {selectedPlaceId && (
-            <span className="text-sky-600 ml-2">• Lugar seleccionado resaltado</span>
-          )}
+      {/* Results Counter */}
+      {places.length > 0 && (
+        <div className="flex items-center justify-between py-2 px-1">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <span className="text-sm font-medium text-gray-700">
+              {places.length} resultados encontrados
+            </span>
+          </div>
         </div>
       )}
       

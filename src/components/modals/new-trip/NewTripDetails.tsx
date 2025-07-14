@@ -45,9 +45,12 @@ const NewTripDetails = ({
           id="budget"
           type="number"
           min="0"
-          value={formData.budget}
-          onChange={(e) => onInputChange("budget", parseFloat(e.target.value) || 0)}
-          placeholder="0"
+          value={formData.budget || ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            onInputChange("budget", value === "" ? "" : parseFloat(value) || "");
+          }}
+          placeholder="Enter budget amount"
           className="mt-1"
         />
       </div>

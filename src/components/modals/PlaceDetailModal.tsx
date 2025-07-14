@@ -36,9 +36,10 @@ interface PlaceDetailModalProps {
   onClose: () => void;
   isFromSavedPlaces?: boolean;
   onAddToTrip?: () => void;
+  sourceTrip?: any;
 }
 
-const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, onAddToTrip }: PlaceDetailModalProps) => {
+const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, onAddToTrip, sourceTrip }: PlaceDetailModalProps) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [reviewText, setReviewText] = useState("");
@@ -146,6 +147,18 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
         </DialogHeader>
         
         <div className="space-y-4">
+          {/* Source Trip Banner */}
+          {sourceTrip && (
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span className="text-sm text-purple-700 font-medium">
+                  Agregando a: {sourceTrip.name}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Photo Carousel */}
           {availablePhotos.length > 0 ? (
             <div className="relative">

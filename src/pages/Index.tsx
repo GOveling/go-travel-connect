@@ -18,6 +18,7 @@ interface IndexProps {
 
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState('home');
+  const [sourceTrip, setSourceTrip] = useState<any>(null);
   const isMobile = useIsMobile();
   const envConfig = getEnvironmentConfig();
 
@@ -26,8 +27,15 @@ const Index = ({ onSignOut }: IndexProps) => {
     setActiveSection('trips');
   };
 
-  // Add event listener for navigation
+  const handleNavigateToExplore = (event: any) => {
+    const tripDetail = event.detail?.sourceTrip;
+    setSourceTrip(tripDetail);
+    setActiveSection('explore');
+  };
+
+  // Add event listeners for navigation
   window.addEventListener('navigateToTrips', handleNavigateToTrips);
+  window.addEventListener('navigateToExplore', handleNavigateToExplore);
 
   const getSectionTitle = () => {
     switch (activeSection) {
@@ -48,7 +56,7 @@ const Index = ({ onSignOut }: IndexProps) => {
       case 'trips':
         return <TripsSection />;
       case 'explore':
-        return <ExploreSection />;
+        return <ExploreSection sourceTrip={sourceTrip} onClearSourceTrip={() => setSourceTrip(null)} />;
       case 'booking':
         return <BookingSection />;
       case 'travelers':

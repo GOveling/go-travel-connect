@@ -162,12 +162,6 @@ const ExploreSearchBar = ({
         </Button>
       </div>
       
-      {/* Search Results Counter */}
-      {predictions.length > 0 && (
-        <div className="absolute -bottom-6 left-0 text-xs text-blue-600 font-medium">
-          {predictions.length} resultados con coordenadas precisas
-        </div>
-      )}
     </div>
   );
 };
