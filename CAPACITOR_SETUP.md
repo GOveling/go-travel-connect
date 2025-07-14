@@ -1,8 +1,5 @@
-
 # Configuración de Capacitor para Goveling MVP
-
 ## Pasos para completar la migración móvil
-
 ### 1. Exportar proyecto a GitHub
 1. Haz clic en el botón "Export to Github" en Lovable
 2. Clona el repositorio en tu máquina local
@@ -30,7 +27,7 @@ En el archivo `supabase/config.toml`, ya están configuradas las URLs de redirec
 ```bash
 # Construir la aplicación web
 npm run build
-
+c
 # Sincronizar con plataformas nativas
 npx cap sync
 ```
