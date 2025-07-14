@@ -279,7 +279,10 @@ const ExploreResults = ({
                         ? 'text-sky-600 hover:text-sky-700' 
                         : 'text-purple-600 hover:text-purple-700'
                     }`}
-                    onClick={() => onShowLocation(place)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onShowLocation(place);
+                    }}
                   >
                     <Navigation size={14} />
                   </Button>
