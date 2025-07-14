@@ -105,7 +105,9 @@ export const useMapData = (trips: any[]) => {
       planningTrips: filteredTrips.filter(t => t.status === 'planning').length,
       completedTrips: filteredTrips.filter(t => t.status === 'completed').length,
       groupTrips: filteredTrips.filter(t => t.isGroupTrip).length,
-      totalDestinations: allCoordinates.filter(coord => coord.type === 'destination').length,
+      totalDestinations: [...new Set(filteredTrips.flatMap(trip => 
+        Array.isArray(trip.destination) ? trip.destination : []
+      ))].filter(Boolean).length,
       totalSavedPlaces,
       countries: [...new Set(filteredTrips.flatMap(trip => 
         trip.coordinates?.map((coord: any) => coord.country) || []
