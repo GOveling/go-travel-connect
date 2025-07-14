@@ -308,24 +308,39 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
             </div>
 
             {place.website && (
-              <div className="flex items-center space-x-3">
-                <Globe size={16} className="text-gray-500" />
-                <div>
-                  <span className="font-medium text-sm">Website</span>
-                  <p className="text-blue-600 text-sm hover:underline cursor-pointer">
-                    {place.website}
-                  </p>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <Globe size={16} className="text-gray-500" />
+                  <div className="flex-1">
+                    <span className="font-medium text-sm">Website</span>
+                    <div className="mt-2">
+                      <a 
+                        href={place.website.startsWith('http') ? place.website : `https://${place.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 text-sm hover:underline cursor-pointer block mb-2"
+                      >
+                        Visit Website →
+                      </a>
+                      {/* Website Preview */}
+                      <div className="border rounded-lg overflow-hidden bg-gray-50">
+                        <iframe
+                          src={place.website.startsWith('http') ? place.website : `https://${place.website}`}
+                          className="w-full h-48 border-0"
+                          title={`${place.name} website preview`}
+                          loading="lazy"
+                          sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                          onError={(e) => {
+                            // Hide iframe if it fails to load
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
-
-            <div className="flex items-center space-x-3">
-              <Phone size={16} className="text-gray-500" />
-              <div>
-                <span className="font-medium text-sm">Contact</span>
-                <p className="text-gray-600 text-sm">{place.phone || "+1 (555) 123-4567"}</p>
-              </div>
-            </div>
           </div>
 
           {/* Action Buttons */}
