@@ -1,4 +1,10 @@
 import { useState, useMemo } from 'react';
+import { 
+  createDistanceMatrix, 
+  calculateRouteTravelTime, 
+  optimizeRouteOrder,
+  type PlaceDistance 
+} from '@/utils/distanceCalculator';
 
 interface MapFilter {
   status: string[];
@@ -145,6 +151,49 @@ export const useMapData = (trips: any[]) => {
     setFilters(prev => ({ ...prev, selectedTripId: tripId }));
   };
 
+  // Calculate distance matrix for a specific trip
+  const calculateTripDistances = (trip: any): PlaceDistance[] => {
+    if (!trip || !trip.savedPlaces) return [];
+    
+    const places = trip.savedPlaces
+      .filter((place: any) => place.lat && place.lng && place.lat !== 0 && place.lng !== 0)
+      .map((place: any) => ({
+        id: place.id,
+        name: place.name,
+        lat: parseFloat(place.lat),
+        lng: parseFloat(place.lng)
+      }));
+    
+    return createDistanceMatrix(places);
+  };
+
+  // Calculate travel times and optimize route for a trip
+  const calculateOptimizedRoute = (trip: any) => {
+    if (!trip || !trip.savedPlaces) return null;
+    
+    const places = trip.savedPlaces
+      .filter((place: any) => place.lat && place.lng && place.lat !== 0 && place.lng !== 0)
+      .map((place: any) => ({
+        id: place.id,
+        name: place.name,
+        lat: parseFloat(place.lat),
+        lng: parseFloat(place.lng),
+        priority: place.priority,
+        estimatedTime: place.estimatedTime
+      }));
+    
+    if (places.length === 0) return null;
+    
+    const optimizedOrder = optimizeRouteOrder(places);
+    const travelTimes = calculateRouteTravelTime(optimizedOrder);
+    
+    return {
+      places: optimizedOrder,
+      ...travelTimes,
+      distanceMatrix: createDistanceMatrix(places)
+    };
+  };
+
   return {
     filteredTrips,
     allCoordinates,
@@ -154,6 +203,8 @@ export const useMapData = (trips: any[]) => {
     updateFilters,
     toggleStatusFilter,
     resetFilters,
-    selectTrip
+    selectTrip,
+    calculateTripDistances,
+    calculateOptimizedRoute
   };
 };

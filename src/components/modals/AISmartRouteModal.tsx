@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Trip, DayItinerary, AISmartRouteModalProps, SavedPlace } from '@/types';
 import { getRouteConfigurations } from "@/utils/routeGenerator";
 import { getSavedPlacesByDestination, calculateDestinationDays } from "@/utils/aiSmartRoute";
+import { useMapData } from "@/hooks/useMapData";
 import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";
@@ -19,12 +20,14 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
   const [isGenerating, setIsGenerating] = useState(false);
   const [routeGenerated, setRouteGenerated] = useState(false);
   const [activeTab, setActiveTab] = useState("itinerary");
-  const [selectedRouteType, setSelectedRouteType] = useState("current");
+  const [selectedRouteType, setSelectedRouteType] = useState("balanced");
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>([]);
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false);
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
-  const [allRoutes, setAllRoutes] = useState<{[key: string]: DayItinerary[]}>({});
   const { toast } = useToast();
+  
+  // Use map data hook for distance calculations
+  const { calculateTripDistances, calculateOptimizedRoute } = useMapData([]);
 
   // Update currentTrip when trip prop changes
   useEffect(() => {
@@ -39,9 +42,8 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
       setCurrentTrip(trip);
       setRouteGenerated(false);
       setActiveTab("itinerary");
-      setSelectedRouteType("current");
+      setSelectedRouteType("balanced");
       setOptimizedItinerary([]);
-      setAllRoutes({});
     }
   }, [isOpen, trip]);
 
@@ -50,53 +52,49 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
   const workingTrip = currentTrip || trip;
 
-  // Generate AI optimized routes using Gemini AI
+  // Generate AI optimized route using real distance data
   const generateAIRoute = async () => {
     setIsGenerating(true);
     
     try {
-      // Generate all three route types
-      const routeTypes = ['current', 'speed', 'leisure'];
-      const routes: {[key: string]: DayItinerary[]} = {};
+      // Calculate real distances and optimized route
+      const distanceMatrix = calculateTripDistances(workingTrip);
+      const optimizedRoute = calculateOptimizedRoute(workingTrip);
       
-      for (const routeType of routeTypes) {
-        const { data, error } = await supabase.functions.invoke('ai-route-generator', {
-          body: {
-            tripId: workingTrip.id,
-            tripData: workingTrip,
-            routeType
-          }
-        });
-
-        if (error) {
-          console.error(`Error generating ${routeType} route:`, error);
-          // Fallback to static generation
-          const fallbackRoutes = getRouteConfigurations(workingTrip);
-          routes[routeType] = fallbackRoutes[routeType as keyof typeof fallbackRoutes].itinerary;
-        } else {
-          routes[routeType] = data.itinerary;
+      console.log('Distance matrix:', distanceMatrix);
+      console.log('Optimized route:', optimizedRoute);
+      
+      // Generate single balanced route with real data
+      const { data, error } = await supabase.functions.invoke('ai-route-generator', {
+        body: {
+          tripId: workingTrip.id,
+          tripData: workingTrip,
+          routeType: 'balanced',
+          distanceMatrix,
+          optimizedRoute
         }
+      });
+
+      if (error) {
+        console.error('Error generating AI route:', error);
+        // Fallback to static generation
+        const routeConfigurations = getRouteConfigurations(workingTrip);
+        setOptimizedItinerary(routeConfigurations.current.itinerary);
+      } else {
+        setOptimizedItinerary(data.itinerary);
       }
 
-      setAllRoutes(routes);
-      setOptimizedItinerary(routes.current);
       setRouteGenerated(true);
       
       toast({
-        title: "AI Route Generated!",
-        description: "Your intelligent route has been optimized using AI. Explore different route types.",
+        title: "AI Smart Route Generated!",
+        description: "Your intelligent route has been optimized using real distance data and AI.",
       });
     } catch (error) {
       console.error('Error generating AI route:', error);
       // Fallback to static generation
       const routeConfigurations = getRouteConfigurations(workingTrip);
-      const fallbackRoutes = {
-        current: routeConfigurations.current.itinerary,
-        speed: routeConfigurations.speed.itinerary,
-        leisure: routeConfigurations.leisure.itinerary
-      };
-      setAllRoutes(fallbackRoutes);
-      setOptimizedItinerary(fallbackRoutes.current);
+      setOptimizedItinerary(routeConfigurations.current.itinerary);
       setRouteGenerated(true);
       
       toast({
@@ -130,17 +128,10 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
     });
   };
 
-  // Handle route type change
+  // Since we only have one balanced route, this function is simplified
   const handleRouteTypeChange = (routeType: string) => {
     setSelectedRouteType(routeType);
-    if (allRoutes[routeType]) {
-      setOptimizedItinerary(allRoutes[routeType]);
-    } else {
-      // Fallback to static generation
-      const routeConfigurations = getRouteConfigurations(workingTrip);
-      const selectedConfig = routeConfigurations[routeType as keyof typeof routeConfigurations];
-      setOptimizedItinerary(selectedConfig.itinerary);
-    }
+    // Keep the same optimized itinerary since we only generate one balanced route
   };
 
   // Action button handlers
@@ -154,7 +145,7 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
         .upsert({
           trip_id: workingTrip.id,
           user_id: user.id,
-          route_type: selectedRouteType,
+          route_type: 'balanced',
           itinerary_data: JSON.parse(JSON.stringify({ itinerary: optimizedItinerary }))
         });
 
@@ -255,8 +246,16 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
                 <TabsContent value="itinerary">
                   <ItineraryTab
                     optimizedItinerary={optimizedItinerary}
-                    selectedRouteType={selectedRouteType}
-                    routeConfigurations={routeConfigurations}
+                    selectedRouteType="balanced"
+                    routeConfigurations={{ 
+                      balanced: { 
+                        itinerary: optimizedItinerary,
+                        name: "Balanced Route",
+                        description: "AI-optimized balanced route using real distance data",
+                        duration: `${totalTripDays} days`,
+                        efficiency: "High"
+                      } 
+                    }}
                     totalSavedPlaces={totalSavedPlaces}
                     totalTripDays={totalTripDays}
                     onRouteTypeChange={handleRouteTypeChange}
@@ -273,8 +272,16 @@ const AISmartRouteModal = ({ trip, isOpen, onClose }: AISmartRouteModalProps) =>
 
                 <TabsContent value="analytics">
                   <AnalyticsTab
-                    selectedRouteType={selectedRouteType}
-                    routeConfigurations={routeConfigurations}
+                    selectedRouteType="balanced"
+                    routeConfigurations={{ 
+                      balanced: { 
+                        itinerary: optimizedItinerary,
+                        name: "Balanced Route",
+                        description: "AI-optimized balanced route using real distance data",
+                        duration: `${totalTripDays} days`,
+                        efficiency: "High"
+                      } 
+                    }}
                     totalSavedPlaces={totalSavedPlaces}
                     totalTripDays={totalTripDays}
                     onRouteTypeChange={handleRouteTypeChange}

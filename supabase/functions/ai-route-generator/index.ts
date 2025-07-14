@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { tripId, tripData, routeType = 'current' } = await req.json()
+    const { tripId, tripData, routeType = 'balanced', distanceMatrix, optimizedRoute } = await req.json()
 
     if (!tripId || !tripData) {
       throw new Error('Trip ID and trip data are required')
@@ -41,31 +41,51 @@ serve(async (req) => {
       throw new Error('Gemini API key not configured')
     }
 
-    // Create prompt for Gemini
+    // Create prompt for Gemini with real distance and time data
     const savedPlaces = tripData.savedPlaces || []
     const destinations = tripData.coordinates || []
     const dates = tripData.dates
     
-    const prompt = `You are a professional travel planner. Generate an optimized ${routeType} route for the following trip:
+    // Prepare distance and time information for AI
+    const distanceInfo = distanceMatrix ? 
+      `Real Distance Data Available:
+${distanceMatrix.map(place => 
+  `${place.placeName}: ${place.distancesTo.map(d => 
+    `${d.distance.toFixed(1)}km (${d.travelTime}min by ${d.transportType})`
+  ).join(', ')}`
+).join('\n')}` : 'Distance data not available - use geographical estimates.';
+
+    const optimizedRouteInfo = optimizedRoute ? 
+      `Suggested Optimal Route Order: ${optimizedRoute.places.map(p => p.name).join(' → ')}
+Total Travel Time: ${optimizedRoute.travelTime} minutes
+Total Visit Time: ${optimizedRoute.visitTime} minutes
+Total Route Time: ${optimizedRoute.totalTime} minutes` : '';
+    
+    const prompt = `You are a professional travel planner. Generate a BALANCED travel route for the following trip using REAL distance and time data:
 
 Trip: ${tripData.name}
 Dates: ${dates}
 Destinations: ${destinations.map(d => d.name).join(', ')}
-Saved Places: ${savedPlaces.map(p => `${p.name} (${p.category}, priority: ${p.priority}, estimated time: ${p.estimatedTime})`).join(', ')}
+Saved Places: ${savedPlaces.map(p => `${p.name} (${p.category}, priority: ${p.priority}, time needed: ${p.estimatedTime})`).join(', ')}
 
-Route Type Instructions:
-- Current Route: Balanced distribution, moderate pace, 2-3 places per day
-- Speed Route: Maximum efficiency, fast pace, 4-5 places per day, prioritize high-priority places
-- Leisure Route: Relaxed pace, 1-2 places per day, more free time
+${distanceInfo}
+
+${optimizedRouteInfo}
+
+IMPORTANT INSTRUCTIONS:
+- Use the provided REAL distance and travel times in your calculations
+- Create a BALANCED route with 2-3 places per day
+- Consider opening hours (assume museums 9-17, restaurants 11-22, outdoor places always open)
+- Minimize total travel time by following logical geographical order
+- Account for meal times and rest periods
+- Include realistic buffer time between activities
 
 Please generate a detailed day-by-day itinerary that includes:
-1. Optimal order of places to visit
-2. Time allocations for each place
-3. Walking and transport time estimates
-4. Free time calculations
-5. Best times to visit each place
-
-For destinations without saved places, suggest popular attractions and activities that fit the route type.
+1. Optimal order based on real distances provided
+2. Realistic time allocations considering travel times
+3. Specific opening hours and best visiting times
+4. Walking and transport estimates using real data
+5. Structured daily schedule with breaks
 
 Return the response as a JSON object with this structure:
 {
