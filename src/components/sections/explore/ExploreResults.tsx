@@ -130,14 +130,6 @@ const ExploreResults = ({
 
   return (
     <div className="space-y-4">
-      {searchQuery && (
-        <div className="text-sm text-gray-600 mb-4">
-          Se encontraron {places.length} lugares para "{searchQuery}"
-          {selectedPlaceId && (
-            <span className="text-sky-600 ml-2">• Lugar seleccionado resaltado</span>
-          )}
-        </div>
-      )}
       
       {places.map((place) => (
         <Card 
