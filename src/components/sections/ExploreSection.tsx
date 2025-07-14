@@ -7,6 +7,7 @@ import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import ExploreFilters from "./explore/ExploreFilters";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreResults from "./explore/ExploreResults";
+import PlaceLocationModal from "@/components/modals/PlaceLocationModal";
 import { useCallback } from "react";
 
 interface Place {
@@ -50,6 +51,8 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(null);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
   const [placeForTrip, setPlaceForTrip] = useState<any>(null);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [selectedLocationPlace, setSelectedLocationPlace] = useState<any>(null);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => 
@@ -181,6 +184,17 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
     }
   }, [selectedPlace, sourceTrip, onClearSourceTrip, toast, addPlaceToTrip]);
 
+  const handleShowLocation = (place: Place) => {
+    setSelectedLocationPlace({
+      id: place.id,
+      name: place.name,
+      lat: place.coordinates.lat,
+      lng: place.coordinates.lng,
+      address: place.address
+    });
+    setIsLocationModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -219,6 +233,7 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
           places={searchResults}
           loading={loading}
           onPlaceClick={handlePlaceClick}
+          onShowLocation={handleShowLocation}
           searchQuery={searchQuery}
           selectedPlaceId={selectedPlaceId}
         />
@@ -243,6 +258,16 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
         selectedPlace={placeForTrip}
+      />
+      
+      {/* Place Location Modal */}
+      <PlaceLocationModal
+        place={selectedLocationPlace}
+        isOpen={isLocationModalOpen}
+        onClose={() => {
+          setIsLocationModalOpen(false);
+          setSelectedLocationPlace(null);
+        }}
       />
     </div>
   );

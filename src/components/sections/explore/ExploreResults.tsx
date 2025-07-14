@@ -34,6 +34,7 @@ interface ExploreResultsProps {
   places: Place[];
   loading: boolean;
   onPlaceClick: (place: Place) => void;
+  onShowLocation: (place: Place) => void;
   searchQuery?: string;
   selectedPlaceId?: string | null;
 }
@@ -42,6 +43,7 @@ const ExploreResults = ({
   places, 
   loading, 
   onPlaceClick, 
+  onShowLocation,
   searchQuery, 
   selectedPlaceId 
 }: ExploreResultsProps) => {
@@ -277,6 +279,7 @@ const ExploreResults = ({
                         ? 'text-sky-600 hover:text-sky-700' 
                         : 'text-purple-600 hover:text-purple-700'
                     }`}
+                    onClick={() => onShowLocation(place)}
                   >
                     <Navigation size={14} />
                   </Button>
