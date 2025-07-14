@@ -409,7 +409,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                 className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
               >
                 <Plus size={16} className="mr-2" />
-                {sourceTrip ? `Add to ${sourceTrip.name}` : 'Add to Trip'}
+                Add to Trip
               </Button>
             )}
             <Button 
