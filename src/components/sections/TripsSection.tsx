@@ -1,7 +1,7 @@
 import { Plus, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import TripMapWrapper from "@/components/maps/TripMapWrapper";
+import TripMapInteractive from "@/components/maps/TripMapInteractive";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
@@ -153,7 +153,9 @@ const TripsSection = () => {
         </div>
 
         {/* Map Component */}
-        <TripMapWrapper trips={tripsWithAutoStatus} />
+        {typeof window !== 'undefined' && (
+          <TripMapInteractive trips={tripsWithAutoStatus} />
+        )}
       </div>
     );
   }

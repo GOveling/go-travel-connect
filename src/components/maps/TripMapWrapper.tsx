@@ -1,8 +1,6 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
-import ClientOnly from "@/components/ui/ClientOnly";
-import TripMapFallback from './TripMapFallback';
 
 // Import lazy del componente del mapa para evitar SSR
 const TripMapInteractiveComponent = lazy(() => import('./TripMapInteractive'));
@@ -24,32 +22,10 @@ interface TripMapWrapperProps {
 }
 
 const TripMapWrapper = ({ trips }: TripMapWrapperProps) => {
-  const [mapError, setMapError] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
-
-  // Fallback timer - si el mapa no carga en 15 segundos, mostrar el fallback
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowFallback(true);
-    }, 15000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Si hay error o timeout, mostrar el fallback
-  if (showFallback || mapError) {
-    return <TripMapFallback trips={trips} />;
-  }
-
   return (
-    <ClientOnly fallback={<MapLoadingFallback />}>
-      <Suspense fallback={<MapLoadingFallback />}>
-        <TripMapInteractiveComponent 
-          trips={trips} 
-          onError={() => setMapError(true)}
-        />
-      </Suspense>
-    </ClientOnly>
+    <Suspense fallback={<MapLoadingFallback />}>
+      <TripMapInteractiveComponent trips={trips} />
+    </Suspense>
   );
 };
 

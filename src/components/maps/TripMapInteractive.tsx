@@ -8,7 +8,7 @@ import MapFilters from './MapFilters';
 import TripSelector from './TripSelector';
 import { useMapData } from '@/hooks/useMapData';
 
-// Configuración de iconos de Leaflet para producción
+// Configuración de iconos de Leaflet
 if (typeof window !== 'undefined') {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -20,16 +20,14 @@ if (typeof window !== 'undefined') {
 
 interface TripMapInteractiveProps {
   trips: any[];
-  onError?: () => void;
 }
 
-const TripMapInteractive = ({ trips, onError }: TripMapInteractiveProps) => {
+const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const [mapStyle, setMapStyle] = useState('street');
   const [showRoutes, setShowRoutes] = useState(true);
   const [showSavedPlaces, setShowSavedPlaces] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
-  const [mapError, setMapError] = useState(false);
   
   // Use the custom hook for map data management
   const {
@@ -43,29 +41,6 @@ const TripMapInteractive = ({ trips, onError }: TripMapInteractiveProps) => {
     resetFilters,
     selectTrip
   } = useMapData(trips);
-
-  // Error boundary para el mapa
-  useEffect(() => {
-    if (mapError && onError) {
-      onError();
-    }
-  }, [mapError, onError]);
-
-  // Check if we can render the map
-  useEffect(() => {
-    try {
-      if (typeof window === 'undefined' || !window.L) {
-        setMapError(true);
-      }
-    } catch (error) {
-      console.error('Error initializing map:', error);
-      setMapError(true);
-    }
-  }, []);
-
-  if (mapError) {
-    return null; // Let the wrapper handle the fallback
-  }
 
   // Create custom icons for different trip statuses and types
   const createCustomIcon = (status: string, emoji: string, type: 'destination' | 'savedPlace' = 'destination') => {
@@ -240,20 +215,11 @@ const TripMapInteractive = ({ trips, onError }: TripMapInteractiveProps) => {
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           <div className="h-96 lg:h-[500px] relative">
-            {/* Map Component with Error Boundary */}
             <MapContainer
               center={mapCenter}
               zoom={4}
               style={{ height: '100%', width: '100%' }}
               ref={mapRef}
-              whenReady={() => {
-                if (mapRef.current) {
-                  // Force map to resize after render
-                  setTimeout(() => {
-                    mapRef.current?.invalidateSize();
-                  }, 100);
-                }
-              }}
             >
               <TileLayer
                 url={mapStyles[mapStyle as keyof typeof mapStyles]}
