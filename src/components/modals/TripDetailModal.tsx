@@ -29,6 +29,8 @@ interface PlaceForModal {
   hours?: string;
   website?: string;
   phone?: string;
+  lat?: number;
+  lng?: number;
 }
 
 interface TripDetailModalProps {
@@ -105,7 +107,9 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
       description: place.description || "",
       hours: place.estimatedTime || "N/A",
       website: undefined,
-      phone: undefined
+      phone: undefined,
+      lat: place.lat || undefined,
+      lng: place.lng || undefined
     };
     setSelectedPlace(placeForModal);
     setShowPlaceDetailModal(true);
