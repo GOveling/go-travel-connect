@@ -81,7 +81,9 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Function to navigate to explore section
   const handleNavigateToExplore = () => {
     onClose(); // Close the modal first
-    const event = new CustomEvent('navigateToExplore');
+    const event = new CustomEvent('navigateToExplore', {
+      detail: { sourceTrip: trip }
+    });
     window.dispatchEvent(event);
   };
 

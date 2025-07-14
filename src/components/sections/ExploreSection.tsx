@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAddToTrip } from "@/hooks/useAddToTrip";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import ExploreFilters from "./explore/ExploreFilters";
@@ -32,8 +33,14 @@ interface Place {
   };
 }
 
-const ExploreSection = () => {
+interface ExploreSectionProps {
+  sourceTrip?: any;
+  onClearSourceTrip?: () => void;
+}
+
+const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) => {
   const { toast } = useToast();
+  const { addPlaceToTrip } = useAddToTrip();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);
@@ -128,22 +135,51 @@ const ExploreSection = () => {
     setLoading(isLoading);
   }, []);
 
-  const handleAddToTrip = useCallback(() => {
-    if (selectedPlace) {
-      setPlaceForTrip({
-        name: selectedPlace.name,
-        location: selectedPlace.location,
-        rating: selectedPlace.rating,
-        image: selectedPlace.image,
-        category: selectedPlace.category,
-        description: selectedPlace.description,
-        lat: selectedPlace.lat,
-        lng: selectedPlace.lng
-      });
+  const handleAddToTrip = useCallback(async () => {
+    if (!selectedPlace) return;
+
+    const placeData = {
+      name: selectedPlace.name,
+      location: selectedPlace.location,
+      rating: selectedPlace.rating,
+      image: selectedPlace.image,
+      category: selectedPlace.category,
+      description: selectedPlace.description,
+      lat: selectedPlace.lat,
+      lng: selectedPlace.lng
+    };
+
+    // If we have a source trip, add directly to it
+    if (sourceTrip) {
+      try {
+        const success = await addPlaceToTrip(sourceTrip.id, placeData);
+        
+        if (success) {
+          toast({
+            title: "Lugar agregado",
+            description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
+          });
+          setIsModalOpen(false);
+          onClearSourceTrip?.();
+          
+          // Navigate back to trips section
+          const event = new CustomEvent('navigateToTrips');
+          window.dispatchEvent(event);
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo agregar el lugar al viaje",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Show normal trip selection modal
+      setPlaceForTrip(placeData);
       setIsAddToTripModalOpen(true);
-      setIsModalOpen(false); // Close the place detail modal
+      setIsModalOpen(false);
     }
-  }, [selectedPlace]);
+  }, [selectedPlace, sourceTrip, onClearSourceTrip, toast, addPlaceToTrip]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -192,8 +228,14 @@ const ExploreSection = () => {
       <PlaceDetailModal 
         place={selectedPlace}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          if (sourceTrip && onClearSourceTrip) {
+            onClearSourceTrip();
+          }
+        }}
         onAddToTrip={handleAddToTrip}
+        sourceTrip={sourceTrip}
       />
 
       {/* Add to Trip Modal */}
