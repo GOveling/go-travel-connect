@@ -20,7 +20,7 @@ interface Review {
   } | null;
 }
 
-export const usePlaceReviews = (placeId: string, placeName: string) => {
+export const usePlaceReviews = (placeId: string, placeName: string, lat?: number, lng?: number) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -37,22 +37,48 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
     
     setLoading(true);
     try {
-      // First get total count
-      const { count } = await supabase
+      // Build query based on whether we have coordinates
+      let countQuery = supabase
         .from('place_reviews')
-        .select('*', { count: 'exact', head: true })
-        .eq('place_id', placeId);
+        .select('*', { count: 'exact', head: true });
+      
+      let dataQuery = supabase
+        .from('place_reviews')
+        .select('*');
 
+      // If we have coordinates, filter by exact location
+      if (lat !== undefined && lng !== undefined) {
+        const latDiff = 0.0001; // ~10 meters tolerance
+        const lngDiff = 0.0001;
+        
+        countQuery = countQuery
+          .gte('lat', lat - latDiff)
+          .lte('lat', lat + latDiff)
+          .gte('lng', lng - lngDiff)
+          .lte('lng', lng + lngDiff)
+          .eq('place_name', placeName);
+          
+        dataQuery = dataQuery
+          .gte('lat', lat - latDiff)
+          .lte('lat', lat + latDiff)
+          .gte('lng', lng - lngDiff)
+          .lte('lng', lng + lngDiff)
+          .eq('place_name', placeName);
+      } else {
+        // Fallback to place_id for places without coordinates
+        countQuery = countQuery.eq('place_id', placeId);
+        dataQuery = dataQuery.eq('place_id', placeId);
+      }
+
+      // Get total count
+      const { count } = await countQuery;
       setTotalReviews(count || 0);
 
       // Then fetch paginated reviews
       const from = (page - 1) * reviewsPerPage;
       const to = from + reviewsPerPage - 1;
 
-      const { data: reviewsData, error: reviewsError } = await supabase
-        .from('place_reviews')
-        .select('*')
-        .eq('place_id', placeId)
+      const { data: reviewsData, error: reviewsError } = await dataQuery
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -127,7 +153,9 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
           place_name: placeName,
           rating,
           comment: comment.trim(),
-          anonymous
+          anonymous,
+          lat: lat || null,
+          lng: lng || null
         });
 
       if (error) throw error;

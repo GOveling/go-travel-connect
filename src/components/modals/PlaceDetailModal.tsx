@@ -29,6 +29,8 @@ interface PlaceDetailModalProps {
       open_now: boolean;
       weekday_text: string[];
     };
+    lat?: number; // Add latitude
+    lng?: number; // Add longitude
   } | null;
   isOpen: boolean;
   onClose: () => void;
@@ -60,7 +62,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
     submitReview,
     nextPage,
     prevPage
-  } = usePlaceReviews(placeId, placeName);
+  } = usePlaceReviews(placeId, placeName, place?.lat, place?.lng);
 
   if (!place) return null;
 

@@ -62,6 +62,8 @@ export type Database = {
           comment: string
           created_at: string
           id: string
+          lat: number | null
+          lng: number | null
           place_id: string
           place_name: string
           rating: number
@@ -73,6 +75,8 @@ export type Database = {
           comment: string
           created_at?: string
           id?: string
+          lat?: number | null
+          lng?: number | null
           place_id: string
           place_name: string
           rating: number
@@ -84,6 +88,8 @@ export type Database = {
           comment?: string
           created_at?: string
           id?: string
+          lat?: number | null
+          lng?: number | null
           place_id?: string
           place_name?: string
           rating?: number
