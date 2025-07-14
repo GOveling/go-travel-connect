@@ -24,21 +24,37 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalReviews, setTotalReviews] = useState(0);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  const reviewsPerPage = 5;
 
-  // Fetch reviews for a specific place
-  const fetchReviews = async () => {
+  // Fetch reviews for a specific place with pagination
+  const fetchReviews = async (page = 1) => {
     if (!placeId) return;
     
     setLoading(true);
     try {
-      // First fetch reviews
+      // First get total count
+      const { count } = await supabase
+        .from('place_reviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('place_id', placeId);
+
+      setTotalReviews(count || 0);
+
+      // Then fetch paginated reviews
+      const from = (page - 1) * reviewsPerPage;
+      const to = from + reviewsPerPage - 1;
+
       const { data: reviewsData, error: reviewsError } = await supabase
         .from('place_reviews')
         .select('*')
         .eq('place_id', placeId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (reviewsError) throw reviewsError;
 
@@ -68,6 +84,7 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
       );
 
       setReviews(reviewsWithUserInfo);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching reviews:', error);
       toast({
@@ -121,7 +138,7 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
       });
 
       // Refresh reviews to show the new one
-      await fetchReviews();
+      await fetchReviews(1);
       return true;
     } catch (error) {
       console.error('Error submitting review:', error);
@@ -136,15 +153,39 @@ export const usePlaceReviews = (placeId: string, placeName: string) => {
     }
   };
 
+  // Navigation functions
+  const goToPage = (page: number) => {
+    fetchReviews(page);
+  };
+
+  const nextPage = () => {
+    if (currentPage < Math.ceil(totalReviews / reviewsPerPage)) {
+      goToPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      goToPage(currentPage - 1);
+    }
+  };
+
   useEffect(() => {
-    fetchReviews();
+    fetchReviews(1);
   }, [placeId]);
 
   return {
     reviews,
     loading,
     submitting,
+    currentPage,
+    totalReviews,
+    reviewsPerPage,
+    totalPages: Math.ceil(totalReviews / reviewsPerPage),
     submitReview,
-    refreshReviews: fetchReviews
+    refreshReviews: () => fetchReviews(currentPage),
+    goToPage,
+    nextPage,
+    prevPage
   };
 };

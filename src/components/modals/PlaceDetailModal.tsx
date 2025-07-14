@@ -50,7 +50,17 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   const placeId = place?.id || place?.name?.toLowerCase().replace(/\s+/g, '-') || '';
   const placeName = place?.name || '';
 
-  const { reviews, loading, submitting, submitReview } = usePlaceReviews(placeId, placeName);
+  const { 
+    reviews, 
+    loading, 
+    submitting, 
+    currentPage,
+    totalReviews,
+    totalPages,
+    submitReview,
+    nextPage,
+    prevPage
+  } = usePlaceReviews(placeId, placeName);
 
   if (!place) return null;
 
@@ -247,7 +257,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-gray-800">Global Reviews</h4>
-                  <span className="text-sm text-gray-500">{reviews.length} reviews</span>
+                  <span className="text-sm text-gray-500">{totalReviews} reviews</span>
                 </div>
                 
                 {loading ? (
@@ -255,31 +265,64 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                     <span className="text-sm text-gray-500">Loading reviews...</span>
                   </div>
                 ) : reviews.length > 0 ? (
-                  <div className="space-y-4 max-h-60 overflow-y-auto">
-                    {reviews.map((review) => (
-                      <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
-                        <div className="flex items-start space-x-3">
-                          <span className="text-2xl">{review.user_avatar}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-medium text-sm">{review.user_name}</span>
-                              <span className="text-xs text-gray-500">{formatDate(review.created_at)}</span>
+                  <>
+                    <div className="space-y-4">
+                      {reviews.map((review) => (
+                        <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
+                          <div className="flex items-start space-x-3">
+                            <span className="text-2xl">{review.user_avatar}</span>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="font-medium text-sm">{review.user_name}</span>
+                                <span className="text-xs text-gray-500">{formatDate(review.created_at)}</span>
+                              </div>
+                              <div className="flex items-center space-x-1 mb-2">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i}
+                                    size={12}
+                                    className={i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                                  />
+                                ))}
+                              </div>
+                              <p className="text-sm text-gray-700">{review.comment}</p>
                             </div>
-                            <div className="flex items-center space-x-1 mb-2">
-                              {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i}
-                                  size={12}
-                                  className={i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
-                                />
-                              ))}
-                            </div>
-                            <p className="text-sm text-gray-700">{review.comment}</p>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                    
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={prevPage}
+                          disabled={currentPage === 1}
+                          className="flex items-center gap-1"
+                        >
+                          <ChevronLeft size={14} />
+                          Previous
+                        </Button>
+                        
+                        <span className="text-sm text-gray-500">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={nextPage}
+                          disabled={currentPage === totalPages}
+                          className="flex items-center gap-1"
+                        >
+                          Next
+                          <ChevronRight size={14} />
+                        </Button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-4">
                     <span className="text-sm text-gray-500">No reviews yet. Be the first to review!</span>
