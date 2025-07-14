@@ -1,11 +1,4 @@
 {
-  "functions": {
-    "app/**": {
-      "memory": 512,
-      "maxDuration": 30
-    }
-  },
-  "crons": [],
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
