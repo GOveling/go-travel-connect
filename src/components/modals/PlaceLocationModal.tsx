@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import TripMapWrapper from "@/components/maps/TripMapWrapper";
 
 interface Place {
@@ -48,17 +48,8 @@ const PlaceLocationModal = ({ isOpen, onClose, place }: PlaceLocationModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full h-[80vh]">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">
-            Ubicación: {place.name}
-          </DialogTitle>
-          {place.address && (
-            <p className="text-sm text-muted-foreground">{place.address}</p>
-          )}
-        </DialogHeader>
-        
-        <div className="flex-1 h-full">
+      <DialogContent className="max-w-4xl w-full h-[80vh] p-0">
+        <div className="w-full h-full">
           <TripMapWrapper trips={[mockTrip]} />
         </div>
       </DialogContent>
