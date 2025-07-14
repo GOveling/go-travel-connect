@@ -56,6 +56,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_itineraries: {
+        Row: {
+          generated_at: string
+          id: string
+          itinerary_data: Json
+          route_type: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          generated_at?: string
+          id?: string
+          itinerary_data: Json
+          route_type: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          generated_at?: string
+          id?: string
+          itinerary_data?: Json
+          route_type?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null
