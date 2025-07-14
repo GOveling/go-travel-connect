@@ -23,6 +23,28 @@ const CATEGORY_TO_GOOGLE_TYPES: { [key: string]: string[] } = {
   'lake': ['natural_feature']
 };
 
+// New API Place Result interface
+interface NewApiPlaceResult {
+  id: string;
+  displayName: { text: string; languageCode: string };
+  formattedAddress: string;
+  location: { latitude: number; longitude: number };
+  rating?: number;
+  priceLevel?: string;
+  currentOpeningHours?: {
+    openNow: boolean;
+    weekdayDescriptions: string[];
+  };
+  photos?: Array<{ name: string; widthPx: number; heightPx: number; }>;
+  types: string[];
+  businessStatus?: string;
+  nationalPhoneNumber?: string;
+  websiteUri?: string;
+  editorialSummary?: { text: string; languageCode: string };
+  userRatingCount?: number;
+}
+
+// Legacy interface for backward compatibility
 interface GooglePlaceResult {
   place_id: string;
   name: string;
@@ -79,54 +101,93 @@ async function searchPlacesWithGoogle(
   googleApiKey: string
 ): Promise<EnhancedPlace[]> {
   const results: EnhancedPlace[] = [];
+  const processedPlaceIds = new Set<string>();
   
   try {
-    // If we have specific categories, search with those types
+    // If we have specific categories, search with those types using New API
     if (selectedCategories.length > 0) {
       for (const category of selectedCategories) {
         const googleTypes = CATEGORY_TO_GOOGLE_TYPES[category] || [];
         
-        for (const type of googleTypes) {
-          const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&type=${type}&key=${googleApiKey}`;
-          
-          const response = await fetch(searchUrl);
-          const data = await response.json();
-          
-          if (data.status === 'OK' && data.results) {
-            for (const place of data.results.slice(0, 3)) { // Limit per type
-              // Get detailed information
-              const details = await getPlaceDetails(place.place_id, googleApiKey);
-              const enhancedPlace = convertToEnhancedPlace(place, details, category);
+        if (googleTypes.length > 0) {
+          try {
+            console.log(`Searching for category: ${category} with query: ${query}`);
+            
+            const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': googleApiKey,
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.types,places.priceLevel,places.businessStatus,places.currentOpeningHours,places.photos,places.editorialSummary,places.websiteUri,places.nationalPhoneNumber'
+              },
+              body: JSON.stringify({
+                textQuery: `${query} ${category}`,
+                includedType: googleTypes[0], // Use primary type for category
+                languageCode: 'en',
+                maxResultCount: 5
+              })
+            });
+
+            const data = await response.json();
+
+            if (data.places && data.places.length > 0) {
+              console.log(`Found ${data.places.length} results for category: ${category}`);
               
-              // Avoid duplicates by place_id
-              if (!results.some(r => r.id === enhancedPlace.id)) {
-                results.push(enhancedPlace);
+              for (const place of data.places) {
+                if (!processedPlaceIds.has(place.id)) {
+                  processedPlaceIds.add(place.id);
+                  const enhancedPlace = convertNewApiToEnhancedPlace(place, category);
+                  results.push(enhancedPlace);
+                }
               }
             }
+            
+            // Rate limiting
+            await new Promise(resolve => setTimeout(resolve, 200));
+          } catch (error) {
+            console.error(`Error searching for category ${category}:`, error);
           }
-          
-          // Rate limiting - wait between requests
-          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
     } else {
-      // General text search without specific types
-      const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${googleApiKey}`;
-      
-      const response = await fetch(searchUrl);
-      const data = await response.json();
-      
-      if (data.status === 'OK' && data.results) {
-        for (const place of data.results.slice(0, 10)) {
-          const details = await getPlaceDetails(place.place_id, googleApiKey);
-          const category = inferCategoryFromTypes(place.types);
-          const enhancedPlace = convertToEnhancedPlace(place, details, category);
-          results.push(enhancedPlace);
+      // General text search using New API
+      try {
+        console.log(`General search for: ${query}`);
+        
+        const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': googleApiKey,
+            'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.types,places.priceLevel,places.businessStatus,places.currentOpeningHours,places.photos,places.editorialSummary,places.websiteUri,places.nationalPhoneNumber'
+          },
+          body: JSON.stringify({
+            textQuery: query,
+            languageCode: 'en',
+            maxResultCount: 10
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.places && data.places.length > 0) {
+          console.log(`Found ${data.places.length} general results`);
+          
+          for (const place of data.places) {
+            if (!processedPlaceIds.has(place.id)) {
+              processedPlaceIds.add(place.id);
+              const category = inferCategoryFromTypes(place.types || []);
+              const enhancedPlace = convertNewApiToEnhancedPlace(place, category);
+              results.push(enhancedPlace);
+            }
+          }
         }
+      } catch (error) {
+        console.error(`Error in general search:`, error);
       }
     }
     
-    console.log(`Found ${results.length} places with Google Places API`);
+    console.log(`Found ${results.length} places with Google Places API (New)`);
     return results;
     
   } catch (error) {
@@ -135,22 +196,46 @@ async function searchPlacesWithGoogle(
   }
 }
 
-async function getPlaceDetails(placeId: string, googleApiKey: string): Promise<GooglePlaceResult | null> {
-  try {
-    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry,rating,price_level,opening_hours,photos,types,business_status,formatted_phone_number,website,reviews&key=${googleApiKey}`;
-    
-    const response = await fetch(detailsUrl);
-    const data = await response.json();
-    
-    if (data.status === 'OK' && data.result) {
-      return data.result;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error getting place details:', error);
-    return null;
-  }
+function convertNewApiToEnhancedPlace(
+  place: NewApiPlaceResult,
+  category: string
+): EnhancedPlace {
+  // Convert price level from string to number
+  const priceLevelMap: { [key: string]: number } = {
+    'PRICE_LEVEL_FREE': 0,
+    'PRICE_LEVEL_INEXPENSIVE': 1,
+    'PRICE_LEVEL_MODERATE': 2,
+    'PRICE_LEVEL_EXPENSIVE': 3,
+    'PRICE_LEVEL_VERY_EXPENSIVE': 4
+  };
+  
+  return {
+    id: place.id,
+    name: place.displayName?.text || 'Unknown Place',
+    address: place.formattedAddress || '',
+    coordinates: {
+      lat: place.location?.latitude || 0,
+      lng: place.location?.longitude || 0
+    },
+    rating: place.rating,
+    category: category,
+    description: place.editorialSummary?.text || `${place.displayName?.text} in ${place.formattedAddress}`,
+    hours: place.currentOpeningHours?.openNow ? "Open now" : "Hours vary",
+    phone: place.nationalPhoneNumber,
+    website: place.websiteUri,
+    priceLevel: place.priceLevel ? priceLevelMap[place.priceLevel] : undefined,
+    confidence_score: 95, // Google Places has high confidence
+    geocoded: true,
+    business_status: place.businessStatus,
+    photos: place.photos?.map(photo => 
+      `https://places.googleapis.com/v1/${photo.name}/media?maxWidthPx=400&key=${Deno.env.get('GOOGLE_PLACES_API_KEY')}`
+    ),
+    reviews_count: place.userRatingCount || 0,
+    opening_hours: place.currentOpeningHours ? {
+      open_now: place.currentOpeningHours.openNow,
+      weekday_text: place.currentOpeningHours.weekdayDescriptions
+    } : undefined
+  };
 }
 
 function convertToEnhancedPlace(
