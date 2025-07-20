@@ -45,7 +45,7 @@ export const useFlightBookingLogic = ({
   trips,
   setShowAIRecommendation
 }: UseFlightBookingLogicProps) => {
-  const [currentStep, setCurrentStep] = useState<'type' | 'details' | 'summary'>('type');
+  const [currentStep, setCurrentStep] = useState<'type' | 'details' | 'summary' | 'results'>('type');
   const [isManualFlightModalOpen, setIsManualFlightModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -99,7 +99,8 @@ export const useFlightBookingLogic = ({
   };
 
   const handleStepBack = () => {
-    if (currentStep === 'summary') setCurrentStep('details');
+    if (currentStep === 'results') setCurrentStep('summary');
+    else if (currentStep === 'summary') setCurrentStep('details');
     else if (currentStep === 'details') setCurrentStep('type');
   };
 

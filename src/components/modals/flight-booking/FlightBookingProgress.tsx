@@ -1,10 +1,10 @@
 
 interface FlightBookingProgressProps {
-  currentStep: 'type' | 'details' | 'summary';
+  currentStep: 'type' | 'details' | 'summary' | 'results';
 }
 
 const FlightBookingProgress = ({ currentStep }: FlightBookingProgressProps) => {
-  const steps = ['type', 'details', 'summary'];
+  const steps = ['type', 'details', 'summary', 'results'];
 
   return (
     <div className="px-4 py-2 bg-gray-50">
@@ -15,7 +15,7 @@ const FlightBookingProgress = ({ currentStep }: FlightBookingProgressProps) => {
               currentStep === step ? 'bg-blue-500' : 
               steps.indexOf(currentStep) > index ? 'bg-blue-300' : 'bg-gray-300'
             }`} />
-            {index < 2 && <div className="w-6 h-px bg-gray-300 mx-1" />}
+            {index < 3 && <div className="w-6 h-px bg-gray-300 mx-1" />}
           </div>
         ))}
       </div>

@@ -26,6 +26,7 @@ interface FlightBookingSummaryStepProps {
   multiCityFlights: MultiCityFlight[];
   onComplete: () => void;
   onReset: () => void;
+  isSearching?: boolean;
 }
 
 const FlightBookingSummaryStep = ({
@@ -33,7 +34,8 @@ const FlightBookingSummaryStep = ({
   formData,
   multiCityFlights,
   onComplete,
-  onReset
+  onReset,
+  isSearching = false
 }: FlightBookingSummaryStepProps) => {
   return (
     <div className="p-4 space-y-4">
@@ -47,9 +49,10 @@ const FlightBookingSummaryStep = ({
         <Button 
           onClick={onComplete}
           className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium"
+          disabled={isSearching}
         >
           <Search size={16} className="mr-2" />
-          Buscar Vuelos
+          {isSearching ? "Buscando..." : "Buscar Vuelos"}
         </Button>
         <Button 
           variant="outline"
