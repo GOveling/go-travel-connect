@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import FlightSummary from "./FlightSummary";
+import FlightSearchAnimation from "./FlightSearchAnimation";
 
 interface FormData {
   from: string;
@@ -37,6 +37,19 @@ const FlightBookingSummaryStep = ({
   onReset,
   isSearching = false
 }: FlightBookingSummaryStepProps) => {
+  
+  // Show loading animation when searching
+  if (isSearching) {
+    return (
+      <div className="p-4">
+        <FlightSearchAnimation 
+          origin={formData.from || 'Origen'}
+          destination={formData.to || 'Destino'}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 space-y-4">
       <FlightSummary
@@ -52,7 +65,7 @@ const FlightBookingSummaryStep = ({
           disabled={isSearching}
         >
           <Search size={16} className="mr-2" />
-          {isSearching ? "Buscando..." : "Buscar Vuelos"}
+          Buscar Vuelos
         </Button>
         <Button 
           variant="outline"

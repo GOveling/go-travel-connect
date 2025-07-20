@@ -109,35 +109,48 @@ const FlightBookingContent = ({
   });
 
   const searchFlights = async () => {
+    console.log('🚀 Starting flight search...');
     setIsSearching(true);
     setSearchError("");
     
     try {
       console.log('🔍 Searching flights with:', formData);
       
+      // Extract airport codes from city names (take first part before comma)
+      const originCode = formData.from.split(',')[0].trim().slice(-3); // Get last 3 chars as potential code
+      const destinationCode = formData.to.split(',')[0].trim().slice(-3);
+      
+      console.log('✈️ Origin/Destination codes:', { originCode, destinationCode });
+      
       const searchRequest = {
-        origin: formData.from.split(',')[0].trim(), // Extract city/airport code
-        destination: formData.to.split(',')[0].trim(),
+        method: 'search', // Add method to specify the action
+        origin: originCode || formData.from.split(',')[0].trim(),
+        destination: destinationCode || formData.to.split(',')[0].trim(),
         departure_date: formData.departDate,
         return_date: tripType === 'round-trip' ? formData.returnDate : undefined,
         currency: 'USD',
         limit: 30
       };
 
-      const { data, error } = await supabase.functions.invoke('aviasales-flights/search', {
+      console.log('📋 Search request payload:', searchRequest);
+
+      const { data, error } = await supabase.functions.invoke('aviasales-flights', {
         body: searchRequest
       });
 
+      console.log('📡 Supabase response:', { data, error });
+
       if (error) {
-        console.error('❌ Flight search error:', error);
+        console.error('❌ Supabase function error:', error);
         throw new Error(error.message || 'Failed to search flights');
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Search was not successful');
+      if (!data || !data.success) {
+        console.error('❌ Search was not successful:', data);
+        throw new Error(data?.error || 'Search was not successful');
       }
 
-      console.log('✅ Flight search results:', data);
+      console.log('✅ Flight search successful:', data);
       setFlightResults(data.data || []);
       setResultsCurrency(data.currency || 'USD');
       setCurrentStep('results'); // Move to results step
@@ -151,10 +164,12 @@ const FlightBookingContent = ({
   };
 
   const handleSummaryComplete = () => {
+    console.log('📝 Summary completed, starting search...');
     searchFlights();
   };
 
   const handleNewSearch = () => {
+    console.log('🔄 Starting new search...');
     setCurrentStep('type');
     setFlightResults([]);
     setSearchError("");
