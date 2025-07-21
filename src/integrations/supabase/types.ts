@@ -86,6 +86,42 @@ export type Database = {
         }
         Relationships: []
       }
+      countries: {
+        Row: {
+          created_at: string
+          flag_url: string | null
+          id: string
+          iso_code: string
+          name: string
+          phone_code: string
+          region: string | null
+          subregion: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          flag_url?: string | null
+          id?: string
+          iso_code: string
+          name: string
+          phone_code: string
+          region?: string | null
+          subregion?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          flag_url?: string | null
+          id?: string
+          iso_code?: string
+          name?: string
+          phone_code?: string
+          region?: string | null
+          subregion?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null

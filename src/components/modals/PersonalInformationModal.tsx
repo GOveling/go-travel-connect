@@ -6,11 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, X, RefreshCw, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileData } from "@/types/profile";
+import { useCountries } from "@/hooks/useCountries";
+import { useGooglePlacesEnhanced } from "@/hooks/useGooglePlacesEnhanced";
+import { cn } from "@/lib/utils";
 
 interface PersonalInformationModalProps {
   isOpen: boolean;
@@ -19,38 +22,15 @@ interface PersonalInformationModalProps {
   onProfileUpdate?: () => void;
 }
 
-// Country and city data
-const countries = [
-  { code: 'AR', name: 'Argentina', phone: '+54' },
-  { code: 'BR', name: 'Brasil', phone: '+55' },
-  { code: 'CL', name: 'Chile', phone: '+56' },
-  { code: 'CO', name: 'Colombia', phone: '+57' },
-  { code: 'EC', name: 'Ecuador', phone: '+593' },
-  { code: 'PE', name: 'Perú', phone: '+51' },
-  { code: 'UY', name: 'Uruguay', phone: '+598' },
-  { code: 'VE', name: 'Venezuela', phone: '+58' },
-  { code: 'MX', name: 'México', phone: '+52' },
-  { code: 'ES', name: 'España', phone: '+34' },
-  { code: 'US', name: 'Estados Unidos', phone: '+1' },
-];
-
-const citiesByCountry: Record<string, string[]> = {
-  'AR': ['Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza', 'La Plata', 'San Miguel de Tucumán'],
-  'BR': ['São Paulo', 'Rio de Janeiro', 'Salvador', 'Brasília', 'Fortaleza', 'Belo Horizonte'],
-  'CL': ['Santiago', 'Valparaíso', 'Concepción', 'La Serena', 'Antofagasta', 'Temuco'],
-  'CO': ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena', 'Bucaramanga'],
-  'EC': ['Quito', 'Guayaquil', 'Cuenca', 'Santo Domingo', 'Machala', 'Manta'],
-  'PE': ['Lima', 'Arequipa', 'Trujillo', 'Chiclayo', 'Huancayo', 'Piura'],
-  'UY': ['Montevideo', 'Salto', 'Paysandú', 'Las Piedras', 'Rivera', 'Maldonado'],
-  'VE': ['Caracas', 'Maracaibo', 'Valencia', 'Barquisimeto', 'Maracay', 'Ciudad Guayana'],
-  'MX': ['Ciudad de México', 'Guadalajara', 'Monterrey', 'Puebla', 'Tijuana', 'León'],
-  'ES': ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Zaragoza', 'Málaga'],
-  'US': ['Nueva York', 'Los Ángeles', 'Chicago', 'Houston', 'Phoenix', 'Filadelfia'],
-};
 
 const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }: PersonalInformationModalProps) => {
   const { toast } = useToast();
+  const { countries, loading: countriesLoading, syncCountries } = useCountries();
+  const { predictions: citySuggestions, searchPlaces: fetchCities, loading: citiesLoading } = useGooglePlacesEnhanced();
+  
   const [loading, setLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [cityQuery, setCityQuery] = useState('');
   const [formData, setFormData] = useState({
     full_name: '',
     birth_date: null as Date | null,
@@ -99,12 +79,40 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
   // Update country code when country changes
   useEffect(() => {
     if (formData.country) {
-      const country = countries.find(c => c.name === formData.country);
+      const country = countries.find(c => c.iso_code === formData.country);
       if (country) {
-        setFormData(prev => ({ ...prev, country_code: country.phone }));
+        setFormData(prev => ({ ...prev, country_code: country.phone_code }));
       }
     }
-  }, [formData.country]);
+  }, [formData.country, countries]);
+
+  // Handle city search
+  const handleCitySearch = (value: string) => {
+    setCityQuery(value);
+    if (value.length > 2 && formData.country) {
+      fetchCities(value);
+    }
+  };
+
+  // Handle sync countries
+  const handleSyncCountries = async () => {
+    try {
+      setIsSyncing(true);
+      await syncCountries();
+      toast({
+        title: "Base de datos actualizada",
+        description: "Los países se han sincronizado correctamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo sincronizar la base de datos de países.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,7 +155,7 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
     }
   };
 
-  const availableCities = formData.country ? citiesByCountry[countries.find(c => c.name === formData.country)?.code || ''] || [] : [];
+  
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -229,41 +237,77 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>País</Label>
-              <Select 
-                value={formData.country} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, country: value, city_state: '' }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar país" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.name}>
-                      {country.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select 
+                  value={formData.country} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, country: value, city_state: '' }))}
+                  disabled={countriesLoading}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder={countriesLoading ? "Cargando países..." : "Seleccionar país"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.iso_code} value={country.iso_code}>
+                        <div className="flex items-center gap-2">
+                          {country.flag_url && (
+                            <img src={country.flag_url} alt={`${country.name} flag`} className="w-4 h-3 object-cover" />
+                          )}
+                          {country.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleSyncCountries}
+                  disabled={isSyncing}
+                  title="Sincronizar base de datos de países"
+                >
+                  <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label>Ciudad/Estado</Label>
-              <Select 
-                value={formData.city_state} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, city_state: value }))}
-                disabled={!formData.country}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar ciudad" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Input
+                  value={cityQuery || formData.city_state}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleCitySearch(value);
+                    setFormData(prev => ({ ...prev, city_state: value }));
+                  }}
+                  placeholder={formData.country ? "Buscar ciudad..." : "Selecciona un país primero"}
+                  disabled={!formData.country || citiesLoading}
+                />
+                {citiesLoading && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                )}
+                {citySuggestions.length > 0 && cityQuery && (
+                  <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {citySuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, city_state: suggestion.name }));
+                          setCityQuery('');
+                        }}
+                      >
+                        {suggestion.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
