@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ProfileData } from "@/types/profile";
 import { useCountries } from "@/hooks/useCountries";
-import { useGooglePlacesEnhanced } from "@/hooks/useGooglePlacesEnhanced";
+import { useCitiesByCountry } from "@/hooks/useCitiesByCountry";
 import { cn } from "@/lib/utils";
 
 interface PersonalInformationModalProps {
@@ -22,11 +23,10 @@ interface PersonalInformationModalProps {
   onProfileUpdate?: () => void;
 }
 
-
 const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }: PersonalInformationModalProps) => {
   const { toast } = useToast();
   const { countries, loading: countriesLoading, syncCountries } = useCountries();
-  const { predictions: citySuggestions, searchPlaces: fetchCities, loading: citiesLoading } = useGooglePlacesEnhanced();
+  const { cities, searchCities, loading: citiesLoading, clearResults } = useCitiesByCountry();
   
   const [loading, setLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -86,12 +86,38 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
     }
   }, [formData.country, countries]);
 
-  // Handle city search
+  // Clear city results when country changes
+  useEffect(() => {
+    if (formData.country) {
+      clearResults();
+      setCityQuery('');
+      setFormData(prev => ({ ...prev, city_state: '' }));
+    }
+  }, [formData.country, clearResults]);
+
+  // Handle city search with debounce
+  useEffect(() => {
+    if (cityQuery.length > 2 && formData.country) {
+      const timeoutId = setTimeout(() => {
+        searchCities(cityQuery, formData.country);
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    } else if (cityQuery.length <= 2) {
+      clearResults();
+    }
+  }, [cityQuery, formData.country, searchCities, clearResults]);
+
+  // Handle city search input
   const handleCitySearch = (value: string) => {
     setCityQuery(value);
-    if (value.length > 2 && formData.country) {
-      fetchCities(value);
-    }
+    setFormData(prev => ({ ...prev, city_state: value }));
+  };
+
+  // Handle city selection from dropdown
+  const handleCitySelect = (city: string) => {
+    setFormData(prev => ({ ...prev, city_state: city }));
+    setCityQuery('');
+    clearResults();
   };
 
   // Handle sync countries
@@ -154,8 +180,6 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
       setLoading(false);
     }
   };
-
-  
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -240,7 +264,7 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
               <div className="flex gap-2">
                 <Select 
                   value={formData.country} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, country: value, city_state: '' }))}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, country: value }))}
                   disabled={countriesLoading}
                 >
                   <SelectTrigger className="flex-1">
@@ -277,12 +301,8 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
               <div className="relative">
                 <Input
                   value={cityQuery || formData.city_state}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    handleCitySearch(value);
-                    setFormData(prev => ({ ...prev, city_state: value }));
-                  }}
-                  placeholder={formData.country ? "Buscar ciudad..." : "Selecciona un país primero"}
+                  onChange={(e) => handleCitySearch(e.target.value)}
+                  placeholder={formData.country ? "Buscar ciudad o estado..." : "Selecciona un país primero"}
                   disabled={!formData.country || citiesLoading}
                 />
                 {citiesLoading && (
@@ -290,19 +310,19 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 )}
-                {citySuggestions.length > 0 && cityQuery && (
+                {cities.length > 0 && cityQuery && (
                   <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {citySuggestions.map((suggestion, index) => (
+                    {cities.map((city, index) => (
                       <button
                         key={index}
                         type="button"
                         className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        onClick={() => {
-                          setFormData(prev => ({ ...prev, city_state: suggestion.name }));
-                          setCityQuery('');
-                        }}
+                        onClick={() => handleCitySelect(city.name)}
                       >
-                        {suggestion.name}
+                        <div className="flex flex-col">
+                          <span className="font-medium">{city.name}</span>
+                          <span className="text-sm text-muted-foreground">{city.type === 'locality' ? 'Ciudad' : 'Estado/Provincia'}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
