@@ -130,30 +130,54 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          age: number | null
           avatar_url: string | null
+          birth_date: string | null
+          city_state: string | null
+          country: string | null
+          country_code: string | null
           created_at: string | null
           description: string | null
           email: string | null
           full_name: string | null
+          gender: string | null
           id: string
+          mobile_phone: string | null
           updated_at: string | null
         }
         Insert: {
+          address?: string | null
+          age?: number | null
           avatar_url?: string | null
+          birth_date?: string | null
+          city_state?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id: string
+          mobile_phone?: string | null
           updated_at?: string | null
         }
         Update: {
+          address?: string | null
+          age?: number | null
           avatar_url?: string | null
+          birth_date?: string | null
+          city_state?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          mobile_phone?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -477,6 +501,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_age: {
+        Args: { birth_date: string }
+        Returns: number
+      }
       extract_country_from_destination: {
         Args: { destination_name: string }
         Returns: string

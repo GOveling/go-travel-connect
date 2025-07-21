@@ -6,6 +6,14 @@ export interface ProfileData {
   avatar_url: string | null;
   created_at: string | null;
   updated_at: string | null;
+  birth_date: string | null;
+  age: number | null;
+  address: string | null;
+  country: string | null;
+  city_state: string | null;
+  mobile_phone: string | null;
+  country_code: string | null;
+  gender: 'male' | 'female' | 'prefer_not_to_say' | null;
 }
 
 export interface TravelStats {

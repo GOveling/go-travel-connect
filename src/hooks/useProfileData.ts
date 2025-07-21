@@ -54,9 +54,9 @@ export const useProfileData = () => {
         }
         
         console.log('Profile created:', newProfile);
-        setProfile(newProfile);
+        setProfile(newProfile as ProfileData);
       } else {
-        setProfile(data);
+        setProfile(data as ProfileData);
       }
     } catch (err) {
       console.error('Error fetching profile:', err);

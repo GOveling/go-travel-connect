@@ -1,5 +1,5 @@
 
-import { FileText, Bell, Settings, Award, Share, MessageSquare } from "lucide-react";
+import { FileText, Bell, Settings, Award, Share, MessageSquare, User } from "lucide-react";
 import { MenuItemConfig } from "@/types/profile";
 import { TravelStats } from "@/types/profile";
 import { useGamification } from "@/hooks/useGamification";
@@ -14,6 +14,7 @@ interface ProfileMenuConfigProps {
     setIsShareProfileModalOpen: (open: boolean) => void;
     setIsSettingsModalOpen: (open: boolean) => void;
     setIsMyReviewsModalOpen: (open: boolean) => void;
+    setIsPersonalInformationModalOpen: (open: boolean) => void;
   };
 }
 
@@ -22,6 +23,13 @@ export const useProfileMenuConfig = ({ stats, modalState }: ProfileMenuConfigPro
   const { t } = useLanguage();
 
   return [
+    { 
+      icon: User, 
+      title: "Información Personal", 
+      subtitle: "Administra tus datos personales", 
+      color: "text-emerald-600",
+      onClick: () => modalState.setIsPersonalInformationModalOpen(true)
+    },
     { 
       icon: FileText, 
       title: t("profile.menu.travelDocuments.title"), 

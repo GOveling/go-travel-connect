@@ -9,6 +9,7 @@ export const useProfileModals = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isMyReviewsModalOpen, setIsMyReviewsModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [isPersonalInformationModalOpen, setIsPersonalInformationModalOpen] = useState(false);
 
   return {
     isTravelDocumentsModalOpen,
@@ -25,5 +26,7 @@ export const useProfileModals = () => {
     setIsMyReviewsModalOpen,
     isEditProfileModalOpen,
     setIsEditProfileModalOpen,
+    isPersonalInformationModalOpen,
+    setIsPersonalInformationModalOpen,
   };
 };
