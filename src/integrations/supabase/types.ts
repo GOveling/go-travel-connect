@@ -472,6 +472,45 @@ export type Database = {
         }
         Relationships: []
       }
+      world_cities: {
+        Row: {
+          airport_name: string
+          city_name: string
+          country_code: string
+          country_name: string
+          created_at: string
+          iata_code: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          updated_at: string
+        }
+        Insert: {
+          airport_name: string
+          city_name: string
+          country_code: string
+          country_name: string
+          created_at?: string
+          iata_code: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          updated_at?: string
+        }
+        Update: {
+          airport_name?: string
+          city_name?: string
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          iata_code?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

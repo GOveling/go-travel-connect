@@ -1,10 +1,10 @@
 
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import ManualDateSelection from "./ManualDateSelection";
+import WorldCityAutocomplete from "@/components/ui/world-city-autocomplete";
 
 interface ManualFlightData {
   from: string;
@@ -90,19 +90,19 @@ const ManualFlightForm = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-xs">Origen</Label>
-                <Input
-                  placeholder="Ciudad de origen"
+                <WorldCityAutocomplete
                   value={flight.from}
-                  onChange={(e) => updateMultiCityFlight(index, 'from', e.target.value)}
+                  onChange={(value) => updateMultiCityFlight(index, 'from', value)}
+                  placeholder="Ciudad de origen"
                   className="h-10"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs">Destino</Label>
-                <Input
-                  placeholder="Ciudad de destino"
+                <WorldCityAutocomplete
                   value={flight.to}
-                  onChange={(e) => updateMultiCityFlight(index, 'to', e.target.value)}
+                  onChange={(value) => updateMultiCityFlight(index, 'to', value)}
+                  placeholder="Ciudad de destino"
                   className="h-10"
                 />
               </div>
@@ -186,18 +186,18 @@ const ManualFlightForm = ({
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label>Origen</Label>
-          <Input
-            placeholder="Ciudad de origen"
+          <WorldCityAutocomplete
             value={flightData.from}
-            onChange={(e) => setFlightData(prev => ({ ...prev, from: e.target.value }))}
+            onChange={(value) => setFlightData(prev => ({ ...prev, from: value }))}
+            placeholder="Ciudad de origen"
           />
         </div>
         <div className="space-y-2">
           <Label>Destino</Label>
-          <Input
-            placeholder="Ciudad de destino"
+          <WorldCityAutocomplete
             value={flightData.to}
-            onChange={(e) => setFlightData(prev => ({ ...prev, to: e.target.value }))}
+            onChange={(value) => setFlightData(prev => ({ ...prev, to: value }))}
+            placeholder="Ciudad de destino"
           />
         </div>
       </div>

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import ManualFlightTypeSelector from "./manual-flight/ManualFlightTypeSelector";
 import ManualFlightForm from "./manual-flight/ManualFlightForm";
 import ManualFlightSummary from "./manual-flight/ManualFlightSummary";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ManualFlightData {
   from: string;
@@ -46,6 +47,9 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
   ]);
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isDepartDateOpen, setIsDepartDateOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const { toast } = useToast();
 
   const handleReset = () => {
@@ -63,6 +67,9 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
       { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
       { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
     ]);
+    setSearchResults([]);
+    setShowResults(false);
+    setIsSearching(false);
   };
 
   const handleClose = () => {
@@ -70,12 +77,92 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
     onClose();
   };
 
-  const handleComplete = () => {
-    toast({
-      title: "Búsqueda de vuelos iniciada",
-      description: "Buscando los mejores vuelos para tu configuración manual...",
-    });
-    handleClose();
+  const extractIATACode = (locationString: string): string => {
+    const match = locationString.match(/\(([A-Z]{3})\)/);
+    return match ? match[1] : locationString.slice(-3).toUpperCase();
+  };
+
+  const handleComplete = async () => {
+    setIsSearching(true);
+    try {
+      console.log('🔍 Starting manual flight search...');
+      
+      let searchPayload;
+      
+      if (flightType === 'multi-city') {
+        // Buscar vuelos multi-destino
+        const flights = multiCityFlights.map(flight => ({
+          origin: extractIATACode(flight.from),
+          destination: extractIATACode(flight.to),
+          departure_date: flight.departDate,
+          passengers: flight.passengers,
+          cabin_class: flight.class
+        }));
+        
+        searchPayload = {
+          type: 'multi-city',
+          flights,
+          passengers: multiCityFlights[0]?.passengers || 1,
+          cabin_class: multiCityFlights[0]?.class || 'economy'
+        };
+      } else {
+        // Buscar vuelos simples (ida y vuelta o solo ida)
+        searchPayload = {
+          origin: extractIATACode(flightData.from),
+          destination: extractIATACode(flightData.to),
+          departure_date: flightData.departDate,
+          return_date: flightType === 'round-trip' ? flightData.returnDate : undefined,
+          passengers: flightData.passengers,
+          cabin_class: flightData.class,
+          trip_type: flightType
+        };
+      }
+
+      console.log('📤 Search payload:', searchPayload);
+
+      const { data, error } = await supabase.functions.invoke('aviasales-flights', {
+        body: searchPayload
+      });
+
+      if (error) {
+        console.error('❌ Search error:', error);
+        toast({
+          title: "Error en la búsqueda",
+          description: "No se pudieron buscar vuelos. Intenta nuevamente.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('✅ Search results:', data);
+      
+      if (data && data.results && data.results.length > 0) {
+        setSearchResults(data.results);
+        setShowResults(true);
+        setCurrentStep('results' as any); // Agregar step de resultados
+        
+        toast({
+          title: "¡Vuelos encontrados!",
+          description: `Se encontraron ${data.results.length} opciones de vuelo.`,
+        });
+      } else {
+        toast({
+          title: "Sin resultados",
+          description: "No se encontraron vuelos para esta búsqueda. Intenta con otras fechas o destinos.",
+          variant: "destructive"
+        });
+      }
+
+    } catch (error) {
+      console.error('💥 Unexpected search error:', error);
+      toast({
+        title: "Error inesperado",
+        description: "Ocurrió un error durante la búsqueda. Intenta nuevamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const canProceedToDetails = () => {
@@ -135,6 +222,68 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
   );
 
   const renderContent = () => {
+    if (showResults) {
+      return (
+        <div className="p-4 space-y-4">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Resultados de Búsqueda</h3>
+            <p className="text-sm text-gray-600">
+              Se encontraron {searchResults.length} opciones de vuelo
+            </p>
+          </div>
+          
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {searchResults.map((result, index) => (
+              <div key={index} className="p-3 border rounded-lg bg-gray-50">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {result.origin} → {result.destination}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Salida: {result.departure_at}
+                    </p>
+                    {result.return_at && (
+                      <p className="text-sm text-gray-600">
+                        Regreso: {result.return_at}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-green-600">
+                      ${result.price} {result.currency}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {result.airline}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => {
+                setShowResults(false);
+                setCurrentStep('summary');
+              }}
+              variant="outline"
+              className="flex-1"
+            >
+              Nueva Búsqueda
+            </Button>
+            <Button 
+              onClick={handleClose}
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white"
+            >
+              Seleccionar
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentStep) {
       case 'type':
         return (
@@ -191,10 +340,20 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
             <div className="space-y-2">
               <Button 
                 onClick={handleComplete}
+                disabled={isSearching}
                 className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium"
               >
-                <Search size={16} className="mr-2" />
-                Buscar Vuelos
+                {isSearching ? (
+                  <>
+                    <Loader2 size={16} className="mr-2 animate-spin" />
+                    Buscando...
+                  </>
+                ) : (
+                  <>
+                    <Search size={16} className="mr-2" />
+                    Buscar Vuelos
+                  </>
+                )}
               </Button>
             </div>
           </div>
