@@ -31,10 +31,21 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const url = new URL(req.url);
-    const action = url.searchParams.get('action') || 'search';
-    const query = url.searchParams.get('query') || '';
-    const limit = parseInt(url.searchParams.get('limit') || '10');
+    let action, query, limit;
+    
+    if (req.method === 'POST') {
+      // Datos del body para POST
+      const body = await req.json();
+      action = body.action || 'search';
+      query = body.query || '';
+      limit = parseInt(body.limit || '10');
+    } else {
+      // Parámetros de URL para GET
+      const url = new URL(req.url);
+      action = url.searchParams.get('action') || 'search';
+      query = url.searchParams.get('query') || '';
+      limit = parseInt(url.searchParams.get('limit') || '10');
+    }
 
     console.log(`📍 Action: ${action}, Query: "${query}", Limit: ${limit}`);
 
