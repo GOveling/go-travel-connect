@@ -9,7 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon, ArrowLeftRight, Users, Settings } from "lucide-react";
-import { RangeCalendar } from "@/components/ui/range-calendar";
+
 import { DateRange } from "react-day-picker";
 import AirportAutocomplete from "@/components/ui/airport-autocomplete";
 
@@ -144,14 +144,14 @@ const RegularFlightForm = ({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <RangeCalendar
-                    initialFocus
+                  <Calendar
                     mode="range"
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
                     onSelect={handleDateRangeChange}
                     numberOfMonths={2}
                     locale={es}
+                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
