@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plane, ArrowLeft } from "lucide-react";
 
 interface FlightBookingHeaderProps {
-  currentStep: 'type' | 'details' | 'summary' | 'results';
+  currentStep: 'type' | 'details' | 'summary';
   onStepBack: () => void;
 }
 
@@ -13,7 +13,6 @@ const FlightBookingHeader = ({ currentStep, onStepBack }: FlightBookingHeaderPro
       case 'type': return 'Selecciona tipo de viaje';
       case 'details': return 'Completa los detalles';
       case 'summary': return 'Confirma tu búsqueda';
-      case 'results': return 'Elige tu vuelo';
       default: return '';
     }
   };

@@ -1,7 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import FlightSummary from "./FlightSummary";
-import FlightSearchAnimation from "./FlightSearchAnimation";
 
 interface FormData {
   from: string;
@@ -26,7 +26,6 @@ interface FlightBookingSummaryStepProps {
   multiCityFlights: MultiCityFlight[];
   onComplete: () => void;
   onReset: () => void;
-  isSearching?: boolean;
 }
 
 const FlightBookingSummaryStep = ({
@@ -34,22 +33,8 @@ const FlightBookingSummaryStep = ({
   formData,
   multiCityFlights,
   onComplete,
-  onReset,
-  isSearching = false
+  onReset
 }: FlightBookingSummaryStepProps) => {
-  
-  // Show loading animation when searching
-  if (isSearching) {
-    return (
-      <div className="p-4">
-        <FlightSearchAnimation 
-          origin={formData.from || 'Origen'}
-          destination={formData.to || 'Destino'}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="p-4 space-y-4">
       <FlightSummary
@@ -62,7 +47,6 @@ const FlightBookingSummaryStep = ({
         <Button 
           onClick={onComplete}
           className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium"
-          disabled={isSearching}
         >
           <Search size={16} className="mr-2" />
           Buscar Vuelos

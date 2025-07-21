@@ -1,5 +1,7 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
 import FlightBookingContent from "./flight-booking/FlightBookingContent";
 
@@ -44,12 +46,17 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
   const [showAIRecommendation, setShowAIRecommendation] = useState(false);
   const { trips } = useHomeState();
+  const { toast } = useToast();
 
   const handleTripSelection = (tripId: number) => {
     setSelectedTrip(tripId);
   };
 
   const handleComplete = () => {
+    toast({
+      title: "Búsqueda de vuelos iniciada",
+      description: "Buscando los mejores vuelos para tu viaje...",
+    });
     onClose();
   };
 
