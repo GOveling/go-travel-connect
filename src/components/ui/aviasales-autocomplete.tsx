@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MapPin, Plane, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface AviasalesResult {
   type: 'city' | 'airport';
@@ -50,31 +49,37 @@ const AviasalesAutocomplete: React.FC<AviasalesAutocompleteProps> = ({
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('aviasales-autocomplete', {
-        body: null,
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      // Hacer la petición directamente ya que invoke no soporta query params
+      console.log('🔍 Buscando sugerencias para:', query);
+      
       const response = await fetch(
-        `https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/aviasales-autocomplete?query=${encodeURIComponent(query)}&limit=8&locale=${locale}`
+        `https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/aviasales-autocomplete?query=${encodeURIComponent(query)}&limit=8&locale=${locale}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
       
+      if (!response.ok) {
+        console.error('❌ Error en la respuesta de la API:', response.status);
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
       const result = await response.json();
+      console.log('📝 Respuesta de la API:', result);
 
-      if (result.success && result.results) {
+      if (result.success && result.results && Array.isArray(result.results)) {
         setSuggestions(result.results);
         setIsOpen(result.results.length > 0);
+        console.log('✅ Encontradas', result.results.length, 'sugerencias');
       } else {
-        console.error('Error en autocomplete:', result.error);
+        console.error('❌ Error en la estructura de respuesta:', result);
         setSuggestions([]);
         setIsOpen(false);
       }
     } catch (error) {
-      console.error('Network error:', error);
+      console.error('💥 Error de red:', error);
       setSuggestions([]);
       setIsOpen(false);
     } finally {
@@ -103,6 +108,7 @@ const AviasalesAutocomplete: React.FC<AviasalesAutocompleteProps> = ({
   }, []);
 
   const handleSelect = (result: AviasalesResult) => {
+    console.log('🎯 Seleccionando:', result.display_name);
     onChange(result.display_name);
     setIsOpen(false);
     setSelectedIndex(-1);

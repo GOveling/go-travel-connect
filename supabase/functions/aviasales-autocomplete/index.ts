@@ -67,7 +67,7 @@ interface AutocompleteResult {
 }
 
 serve(async (req) => {
-  console.log('🚀 Aviasales Autocomplete API started');
+  console.log('🚀 Aviasales Autocomplete API iniciada');
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -80,9 +80,10 @@ serve(async (req) => {
     const limit = parseInt(url.searchParams.get('limit') || '10');
     const locale = url.searchParams.get('locale') || 'en';
 
-    console.log(`🔍 Searching for: "${query}" (limit: ${limit}, locale: ${locale})`);
+    console.log(`🔍 Buscando: "${query}" (limit: ${limit}, locale: ${locale})`);
 
     if (query.length < 2) {
+      console.log('❌ Query muy corto');
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -93,14 +94,18 @@ serve(async (req) => {
       );
     }
 
-    // Get cities and airports data from Aviasales
+    // Fetch data from Aviasales API
+    console.log('📡 Obteniendo datos de Aviasales...');
     const [citiesResponse, airportsResponse] = await Promise.all([
       fetch(`https://api.travelpayouts.com/data/${locale}/cities.json`),
       fetch(`https://api.travelpayouts.com/data/${locale}/airports.json`)
     ]);
 
     if (!citiesResponse.ok || !airportsResponse.ok) {
-      console.error('❌ Failed to fetch data from Aviasales API');
+      console.error('❌ Error al obtener datos de Aviasales API');
+      console.error('Cities response:', citiesResponse.status, citiesResponse.statusText);
+      console.error('Airports response:', airportsResponse.status, airportsResponse.statusText);
+      
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -114,17 +119,22 @@ serve(async (req) => {
     const cities: AviasalesCity[] = await citiesResponse.json();
     const airports: AviasalesAirport[] = await airportsResponse.json();
 
-    console.log(`📊 Loaded ${cities.length} cities and ${airports.length} airports`);
+    console.log(`📊 Cargadas ${cities.length} ciudades y ${airports.length} aeropuertos`);
 
     const queryLower = query.toLowerCase();
     const results: AutocompleteResult[] = [];
 
-    // Search in cities
+    // Buscar en ciudades
     for (const city of cities) {
+      if (results.length >= limit) break;
+      
       const cityName = city.name.toLowerCase();
       const cityNameTranslated = city.name_translations[locale as keyof typeof city.name_translations]?.toLowerCase() || cityName;
       
-      if (cityName.includes(queryLower) || cityNameTranslated.includes(queryLower) || city.code.toLowerCase().includes(queryLower)) {
+      if (cityName.includes(queryLower) || 
+          cityNameTranslated.includes(queryLower) || 
+          city.code.toLowerCase().includes(queryLower)) {
+        
         results.push({
           type: 'city',
           code: city.code,
@@ -138,13 +148,12 @@ serve(async (req) => {
           display_name: `${city.name_translations[locale as keyof typeof city.name_translations] || city.name}, ${city.country_name}`
         });
       }
-      
-      if (results.length >= limit) break;
     }
 
-    // Search in airports (only if we haven't reached the limit)
+    // Buscar en aeropuertos (solo si no hemos alcanzado el límite)
     if (results.length < limit) {
       for (const airport of airports) {
+        if (results.length >= limit) break;
         if (!airport.flightable) continue; // Skip non-flightable airports
         
         const airportName = airport.name.toLowerCase();
@@ -170,12 +179,10 @@ serve(async (req) => {
             display_name: `${airport.city_name}, ${airport.country_name} (${airport.code})`
           });
         }
-        
-        if (results.length >= limit) break;
       }
     }
 
-    // Sort results: exact matches first, then by relevance
+    // Ordenar resultados: coincidencias exactas primero, luego por relevancia
     results.sort((a, b) => {
       const aExact = a.name.toLowerCase() === queryLower || a.code.toLowerCase() === queryLower;
       const bExact = b.name.toLowerCase() === queryLower || b.code.toLowerCase() === queryLower;
@@ -183,14 +190,14 @@ serve(async (req) => {
       if (aExact && !bExact) return -1;
       if (!aExact && bExact) return 1;
       
-      // Prioritize airports over cities for specific searches
+      // Priorizar aeropuertos sobre ciudades para búsquedas específicas
       if (a.type === 'airport' && b.type === 'city') return -1;
       if (a.type === 'city' && b.type === 'airport') return 1;
       
       return a.name.localeCompare(b.name);
     });
 
-    console.log(`✅ Found ${results.length} results`);
+    console.log(`✅ Encontrados ${results.length} resultados`);
 
     return new Response(
       JSON.stringify({
@@ -203,7 +210,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('💥 Autocomplete error:', error);
+    console.error('💥 Error en autocomplete:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
