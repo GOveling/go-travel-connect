@@ -8,6 +8,7 @@ import FlightResultsStep from "./FlightResultsStep";
 import ManualFlightModal from "../ManualFlightModal";
 import { useFlightBookingLogic } from "./useFlightBookingLogic";
 import { supabase } from "@/integrations/supabase/client";
+import { airportMatcher } from "@/utils/airportMatcher";
 
 interface FormData {
   from: string;
@@ -108,24 +109,41 @@ const FlightBookingContent = ({
     setShowAIRecommendation
   });
 
+  const extractCityName = (locationString: string): string => {
+    // Extract city name from formats like "Antofagasta, Chile" or "New York, United States"
+    const cityName = locationString.split(',')[0].trim();
+    console.log('🏙️ Extracted city name:', cityName, 'from:', locationString);
+    return cityName;
+  };
+
   const searchFlights = async () => {
     console.log('🚀 Starting flight search...');
     setIsSearching(true);
     setSearchError("");
     
     try {
-      console.log('🔍 Searching flights with:', formData);
+      const originCity = extractCityName(formData.from);
+      const destinationCity = extractCityName(formData.to);
       
-      // Extract airport codes from city names (take first part before comma)
-      const originCode = formData.from.split(',')[0].trim().slice(-3); // Get last 3 chars as potential code
-      const destinationCode = formData.to.split(',')[0].trim().slice(-3);
+      console.log('🔍 Processing cities:', { originCity, destinationCity });
       
-      console.log('✈️ Origin/Destination codes:', { originCode, destinationCode });
+      // Use our airport matcher to validate cities
+      const originAirport = airportMatcher.findAirport(originCity);
+      const destinationAirport = airportMatcher.findAirport(destinationCity);
+      
+      console.log('🛫 Airport matches:', { 
+        origin: originAirport ? `${originAirport.city} (${originAirport.iata})` : 'Not found',
+        destination: destinationAirport ? `${destinationAirport.city} (${destinationAirport.iata})` : 'Not found'
+      });
+      
+      if (!originAirport || !destinationAirport) {
+        throw new Error(`No se encontraron aeropuertos para: ${!originAirport ? originCity : ''} ${!destinationAirport ? destinationCity : ''}`);
+      }
       
       const searchRequest = {
-        method: 'search', // Add method to specify the action
-        origin: originCode || formData.from.split(',')[0].trim(),
-        destination: destinationCode || formData.to.split(',')[0].trim(),
+        method: 'search',
+        origin: originCity, // Send city name to let edge function handle the mapping
+        destination: destinationCity,
         departure_date: formData.departDate,
         return_date: tripType === 'round-trip' ? formData.returnDate : undefined,
         currency: 'USD',
@@ -142,22 +160,22 @@ const FlightBookingContent = ({
 
       if (error) {
         console.error('❌ Supabase function error:', error);
-        throw new Error(error.message || 'Failed to search flights');
+        throw new Error(error.message || 'Error al buscar vuelos');
       }
 
       if (!data || !data.success) {
         console.error('❌ Search was not successful:', data);
-        throw new Error(data?.error || 'Search was not successful');
+        throw new Error(data?.error || 'La búsqueda no fue exitosa');
       }
 
       console.log('✅ Flight search successful:', data);
       setFlightResults(data.data || []);
       setResultsCurrency(data.currency || 'USD');
-      setCurrentStep('results'); // Move to results step
+      setCurrentStep('results');
       
     } catch (error: any) {
       console.error('❌ Flight search failed:', error);
-      setSearchError(error.message || 'Failed to search flights. Please try again.');
+      setSearchError(error.message || 'Error al buscar vuelos. Por favor intenta nuevamente.');
     } finally {
       setIsSearching(false);
     }
