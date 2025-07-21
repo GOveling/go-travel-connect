@@ -86,6 +86,54 @@ export type Database = {
         }
         Relationships: []
       }
+      all_cities: {
+        Row: {
+          admin_name: string | null
+          capital: string | null
+          city: string
+          city_ascii: string | null
+          country: string | null
+          created_at: string
+          id: string
+          iso2: string | null
+          iso3: string | null
+          lat: number | null
+          lng: number | null
+          population: number | null
+          updated_at: string
+        }
+        Insert: {
+          admin_name?: string | null
+          capital?: string | null
+          city: string
+          city_ascii?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          iso2?: string | null
+          iso3?: string | null
+          lat?: number | null
+          lng?: number | null
+          population?: number | null
+          updated_at?: string
+        }
+        Update: {
+          admin_name?: string | null
+          capital?: string | null
+          city?: string
+          city_ascii?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          iso2?: string | null
+          iso3?: string | null
+          lat?: number | null
+          lng?: number | null
+          population?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           created_at: string
