@@ -8,7 +8,6 @@ import FlightResultsStep from "./FlightResultsStep";
 import ManualFlightModal from "../ManualFlightModal";
 import { useFlightBookingLogic } from "./useFlightBookingLogic";
 import { supabase } from "@/integrations/supabase/client";
-import { airportMatcher } from "@/utils/airportMatcher";
 
 interface FormData {
   from: string;
@@ -109,41 +108,18 @@ const FlightBookingContent = ({
     setShowAIRecommendation
   });
 
-  const extractCityName = (locationString: string): string => {
-    // Extract city name from formats like "Antofagasta, Chile" or "New York, United States"
-    const cityName = locationString.split(',')[0].trim();
-    console.log('🏙️ Extracted city name:', cityName, 'from:', locationString);
-    return cityName;
-  };
-
   const searchFlights = async () => {
     console.log('🚀 Starting flight search...');
     setIsSearching(true);
     setSearchError("");
     
     try {
-      const originCity = extractCityName(formData.from);
-      const destinationCity = extractCityName(formData.to);
-      
-      console.log('🔍 Processing cities:', { originCity, destinationCity });
-      
-      // Use our airport matcher to validate cities
-      const originAirport = airportMatcher.findAirport(originCity);
-      const destinationAirport = airportMatcher.findAirport(destinationCity);
-      
-      console.log('🛫 Airport matches:', { 
-        origin: originAirport ? `${originAirport.city} (${originAirport.iata})` : 'Not found',
-        destination: destinationAirport ? `${destinationAirport.city} (${destinationAirport.iata})` : 'Not found'
-      });
-      
-      if (!originAirport || !destinationAirport) {
-        throw new Error(`No se encontraron aeropuertos para: ${!originAirport ? originCity : ''} ${!destinationAirport ? destinationCity : ''}`);
-      }
-      
+      // Send the full city names as they come from the autocomplete
+      // The backend will handle the conversion to IATA codes
       const searchRequest = {
         method: 'search',
-        origin: originCity, // Send city name to let edge function handle the mapping
-        destination: destinationCity,
+        origin: formData.from, // Send full city name like "Antofagasta, Chile"
+        destination: formData.to, // Send full city name like "Santiago, Chile"
         departure_date: formData.departDate,
         return_date: tripType === 'round-trip' ? formData.returnDate : undefined,
         currency: 'USD',

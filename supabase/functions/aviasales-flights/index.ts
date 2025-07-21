@@ -16,12 +16,6 @@ interface FlightSearchRequest {
   limit?: number;
 }
 
-interface AviasalesResponse {
-  success: boolean;
-  data: any;
-  currency: string;
-}
-
 interface FlightResult {
   price: number;
   airline: string;
@@ -34,6 +28,89 @@ interface FlightResult {
   destination: string;
   found_at: string;
 }
+
+// Local airport database as fallback
+const AIRPORT_DATABASE = {
+  'Antofagasta': 'ANF',
+  'Santiago': 'SCL',
+  'Valparaíso': 'VAI',
+  'Concepción': 'CCP',
+  'Temuco': 'ZCO',
+  'Puerto Montt': 'PMC',
+  'Punta Arenas': 'PUQ',
+  'Iquique': 'IQQ',
+  'Calama': 'CJC',
+  'Arica': 'ARI',
+  'Copiapó': 'CPO',
+  'La Serena': 'LSC',
+  'Valdivia': 'ZAL',
+  'Osorno': 'ZOS',
+  'Castro': 'WCA',
+  'Balmaceda': 'BBA',
+  'Buenos Aires': 'EZE',
+  'Mendoza': 'MDZ',
+  'Córdoba': 'COR',
+  'Rosario': 'ROS',
+  'Salta': 'SLA',
+  'Bariloche': 'BRC',
+  'Ushuaia': 'USH',
+  'Mar del Plata': 'MDQ',
+  'Lima': 'LIM',
+  'Cusco': 'CUZ',
+  'Arequipa': 'AQP',
+  'Trujillo': 'TRU',
+  'Chiclayo': 'CIX',
+  'Iquitos': 'IQT',
+  'Pucallpa': 'PCL',
+  'Tacna': 'TCQ',
+  'Piura': 'PIU',
+  'Tumbes': 'TBP',
+  'Tarapoto': 'TPP',
+  'Cajamarca': 'CJA',
+  'Huancayo': 'HUU',
+  'Ayacucho': 'AYP',
+  'Juliaca': 'JUL',
+  'Puerto Maldonado': 'PEM',
+  'Chachapoyas': 'CHH',
+  'Pisco': 'PIO',
+  'Nazca': 'NZC',
+  'Huaraz': 'HUF',
+  'Tingo María': 'TGI',
+  'Baggage': 'BGL',
+  'Oxapampa': 'OXP',
+  'Rioja': 'RIJ',
+  'Yurimaguas': 'YMS',
+  'Chimbote': 'CHM',
+  'Moyobamba': 'MBB',
+  'Huánuco': 'HUC',
+  'Abancay': 'ABN',
+  'Andahuaylas': 'ANS',
+  'Jauja': 'JAU',
+  'Talara': 'TYL',
+  'Tumbes': 'TBP',
+  'Sullana': 'SLN',
+  'Chiclayo': 'CIX',
+  'Chachapoyas': 'CHH',
+  'Huancavelica': 'HUV',
+  'Huancayo': 'HUU',
+  'Huaraz': 'HUF',
+  'Ilo': 'ILO',
+  'Jauja': 'JAU',
+  'Juanjui': 'JJI',
+  'Juliaca': 'JUL',
+  'La Merced': 'LME',
+  'Moyobamba': 'MBB',
+  'Oxapampa': 'OXP',
+  'Pisco': 'PIO',
+  'Pucallpa': 'PCL',
+  'Puerto Maldonado': 'PEM',
+  'Rioja': 'RIJ',
+  'Talara': 'TYL',
+  'Tarapoto': 'TPP',
+  'Tingo María': 'TGI',
+  'Tumbes': 'TBP',
+  'Yurimaguas': 'YMS'
+};
 
 // Función para extraer código IATA del input del usuario
 function extractIATACode(input: string): string | null {
@@ -61,6 +138,32 @@ function extractIATACode(input: string): string | null {
   }
   
   console.log('❌ No IATA code found in:', input);
+  return null;
+}
+
+// Función para buscar en base de datos local
+function findIATACodeInLocalDB(cityName: string): string | null {
+  console.log('🔍 Searching in local database for:', cityName);
+  
+  // Buscar coincidencia exacta
+  const exactMatch = AIRPORT_DATABASE[cityName];
+  if (exactMatch) {
+    console.log('✅ Found exact match in local DB:', exactMatch);
+    return exactMatch;
+  }
+  
+  // Buscar coincidencia parcial
+  const partialMatch = Object.keys(AIRPORT_DATABASE).find(key => 
+    key.toLowerCase().includes(cityName.toLowerCase()) || 
+    cityName.toLowerCase().includes(key.toLowerCase())
+  );
+  
+  if (partialMatch) {
+    console.log('✅ Found partial match in local DB:', AIRPORT_DATABASE[partialMatch]);
+    return AIRPORT_DATABASE[partialMatch];
+  }
+  
+  console.log('❌ No match found in local database');
   return null;
 }
 
@@ -100,6 +203,27 @@ async function findIATACodeFromAutocomplete(cityName: string): Promise<string | 
   }
 }
 
+// Función principal para obtener código IATA
+async function getIATACode(input: string): Promise<string | null> {
+  console.log('🎯 Getting IATA code for:', input);
+  
+  // 1. Intentar extraer código IATA directo
+  let iataCode = extractIATACode(input);
+  if (iataCode) return iataCode;
+  
+  // 2. Buscar en base de datos local
+  const cityName = input.split(',')[0].trim();
+  iataCode = findIATACodeInLocalDB(cityName);
+  if (iataCode) return iataCode;
+  
+  // 3. Usar API de autocompletado como último recurso
+  iataCode = await findIATACodeFromAutocomplete(cityName);
+  if (iataCode) return iataCode;
+  
+  console.log('❌ Could not find IATA code for:', input);
+  return null;
+}
+
 Deno.serve(async (req) => {
   console.log('🚀 Edge function started - aviasales-flights');
   console.log('📧 Request method:', req.method);
@@ -136,18 +260,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Convertir nombres de ciudades a códigos IATA
-    let originCode = extractIATACode(origin);
-    let destinationCode = extractIATACode(destination);
-    
-    // Si no se encontró el código directamente, usar la API de autocompletado
-    if (!originCode) {
-      originCode = await findIATACodeFromAutocomplete(origin);
-    }
-    
-    if (!destinationCode) {
-      destinationCode = await findIATACodeFromAutocomplete(destination);
-    }
+    // Convertir nombres de ciudades a códigos IATA usando el backend
+    const originCode = await getIATACode(origin);
+    const destinationCode = await getIATACode(destination);
     
     console.log('🛫 Origin mapping:', `${origin} → ${originCode}`);
     console.log('🛬 Destination mapping:', `${destination} → ${destinationCode}`);

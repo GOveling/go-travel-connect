@@ -93,14 +93,39 @@ serve(async (req) => {
       );
     }
 
-    // Get cities and airports data from Aviasales
-    const [citiesResponse, airportsResponse] = await Promise.all([
-      fetch(`https://api.travelpayouts.com/data/${locale}/cities.json`),
-      fetch(`https://api.travelpayouts.com/data/${locale}/airports.json`)
-    ]);
+    // Get cities and airports data from Aviasales with proper error handling
+    let cities: AviasalesCity[] = [];
+    let airports: AviasalesAirport[] = [];
 
-    if (!citiesResponse.ok || !airportsResponse.ok) {
-      console.error('❌ Failed to fetch data from Aviasales API');
+    try {
+      console.log('📡 Fetching cities from Aviasales API...');
+      const citiesResponse = await fetch(`https://api.travelpayouts.com/data/${locale}/cities.json`);
+      if (citiesResponse.ok) {
+        cities = await citiesResponse.json();
+        console.log(`✅ Loaded ${cities.length} cities`);
+      } else {
+        console.error(`❌ Cities API error: ${citiesResponse.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching cities:', error);
+    }
+
+    try {
+      console.log('📡 Fetching airports from Aviasales API...');
+      const airportsResponse = await fetch(`https://api.travelpayouts.com/data/${locale}/airports.json`);
+      if (airportsResponse.ok) {
+        airports = await airportsResponse.json();
+        console.log(`✅ Loaded ${airports.length} airports`);
+      } else {
+        console.error(`❌ Airports API error: ${airportsResponse.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching airports:', error);
+    }
+
+    // If both requests failed, return an error
+    if (cities.length === 0 && airports.length === 0) {
+      console.error('❌ Failed to fetch data from both APIs');
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -111,45 +136,42 @@ serve(async (req) => {
       );
     }
 
-    const cities: AviasalesCity[] = await citiesResponse.json();
-    const airports: AviasalesAirport[] = await airportsResponse.json();
-
-    console.log(`📊 Loaded ${cities.length} cities and ${airports.length} airports`);
-
     const queryLower = query.toLowerCase();
     const results: AutocompleteResult[] = [];
 
-    // Search in cities
+    // Search in cities with null checks
     for (const city of cities) {
+      if (!city || !city.name || !city.code) continue;
+      
       const cityName = city.name.toLowerCase();
-      const cityNameTranslated = city.name_translations[locale as keyof typeof city.name_translations]?.toLowerCase() || cityName;
+      const cityNameTranslated = city.name_translations?.[locale as keyof typeof city.name_translations]?.toLowerCase() || cityName;
       
       if (cityName.includes(queryLower) || cityNameTranslated.includes(queryLower) || city.code.toLowerCase().includes(queryLower)) {
         results.push({
           type: 'city',
           code: city.code,
-          name: city.name_translations[locale as keyof typeof city.name_translations] || city.name,
-          country_name: city.country_name,
-          country_code: city.country_code,
+          name: city.name_translations?.[locale as keyof typeof city.name_translations] || city.name,
+          country_name: city.country_name || 'Unknown',
+          country_code: city.country_code || '',
           coordinates: {
-            lat: city.coordinates.lat,
-            lon: city.coordinates.lon
+            lat: city.coordinates?.lat || 0,
+            lon: city.coordinates?.lon || 0
           },
-          display_name: `${city.name_translations[locale as keyof typeof city.name_translations] || city.name}, ${city.country_name}`
+          display_name: `${city.name_translations?.[locale as keyof typeof city.name_translations] || city.name}, ${city.country_name || 'Unknown'}`
         });
       }
       
       if (results.length >= limit) break;
     }
 
-    // Search in airports (only if we haven't reached the limit)
+    // Search in airports (only if we haven't reached the limit) with null checks
     if (results.length < limit) {
       for (const airport of airports) {
-        if (!airport.flightable) continue; // Skip non-flightable airports
+        if (!airport || !airport.name || !airport.code || !airport.flightable) continue;
         
         const airportName = airport.name.toLowerCase();
-        const airportNameTranslated = airport.name_translations[locale as keyof typeof airport.name_translations]?.toLowerCase() || airportName;
-        const cityName = airport.city_name.toLowerCase();
+        const airportNameTranslated = airport.name_translations?.[locale as keyof typeof airport.name_translations]?.toLowerCase() || airportName;
+        const cityName = airport.city_name?.toLowerCase() || '';
         
         if (airportName.includes(queryLower) || 
             airportNameTranslated.includes(queryLower) || 
@@ -159,15 +181,15 @@ serve(async (req) => {
           results.push({
             type: 'airport',
             code: airport.code,
-            name: airport.name_translations[locale as keyof typeof airport.name_translations] || airport.name,
-            city_name: airport.city_name,
-            country_name: airport.country_name,
-            country_code: airport.country_code,
+            name: airport.name_translations?.[locale as keyof typeof airport.name_translations] || airport.name,
+            city_name: airport.city_name || '',
+            country_name: airport.country_name || 'Unknown',
+            country_code: airport.country_code || '',
             coordinates: {
-              lat: airport.coordinates.lat,
-              lon: airport.coordinates.lon
+              lat: airport.coordinates?.lat || 0,
+              lon: airport.coordinates?.lon || 0
             },
-            display_name: `${airport.city_name}, ${airport.country_name} (${airport.code})`
+            display_name: `${airport.city_name || airport.name}, ${airport.country_name || 'Unknown'} (${airport.code})`
           });
         }
         
