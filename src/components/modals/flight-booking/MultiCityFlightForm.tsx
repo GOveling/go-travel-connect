@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, Plus, ArrowRight } from "lucide-react";
+import AviasalesAutocomplete from "@/components/ui/aviasales-autocomplete";
 
 interface MultiCityFlight {
   from: string;
@@ -82,22 +83,20 @@ const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCit
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor={`from-${index}`} className="text-sm">From</Label>
-              <Input
-                id={`from-${index}`}
+              <Label htmlFor={`from-${index}`} className="text-sm">Desde</Label>
+              <AviasalesAutocomplete
                 value={flight.from}
-                onChange={(e) => updateFlight(index, 'from', e.target.value)}
-                placeholder="Departure city"
+                onChange={(value) => updateFlight(index, 'from', value)}
+                placeholder="Ciudad de origen"
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor={`to-${index}`} className="text-sm">To</Label>
-              <Input
-                id={`to-${index}`}
+              <Label htmlFor={`to-${index}`} className="text-sm">Hacia</Label>
+              <AviasalesAutocomplete
                 value={flight.to}
-                onChange={(e) => updateFlight(index, 'to', e.target.value)}
-                placeholder="Destination city"
+                onChange={(value) => updateFlight(index, 'to', value)}
+                placeholder="Ciudad de destino"
                 className="mt-1"
               />
             </div>
