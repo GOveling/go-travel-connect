@@ -40,9 +40,6 @@ verify_jwt = false
 [functions.google-places-enhanced]
 verify_jwt = false
 
-[functions.aviasales-autocomplete]
-verify_jwt = false
-
 [storage]
 enabled = true
 port = 54324

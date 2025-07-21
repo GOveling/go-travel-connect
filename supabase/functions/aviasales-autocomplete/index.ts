@@ -83,46 +83,29 @@ serve(async (req) => {
     console.log(`🔍 Searching for: "${query}" (limit: ${limit}, locale: ${locale})`);
 
     if (query.length < 2) {
-      console.log('⚠️ Query too short, returning empty results');
       return new Response(
         JSON.stringify({ 
-          success: true, 
-          results: [],
-          total: 0,
-          query: query,
-          message: 'Query must be at least 2 characters'
+          success: false, 
+          error: 'Query must be at least 2 characters',
+          results: [] 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('📡 Fetching data from Aviasales API...');
-    
-    // Get cities and airports data from Aviasales with timeout
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Request timeout')), 10000)
-    );
-
-    const [citiesResponse, airportsResponse] = await Promise.race([
-      Promise.all([
-        fetch(`https://api.travelpayouts.com/data/${locale}/cities.json`),
-        fetch(`https://api.travelpayouts.com/data/${locale}/airports.json`)
-      ]),
-      timeoutPromise
-    ]) as [Response, Response];
+    // Get cities and airports data from Aviasales
+    const [citiesResponse, airportsResponse] = await Promise.all([
+      fetch(`https://api.travelpayouts.com/data/${locale}/cities.json`),
+      fetch(`https://api.travelpayouts.com/data/${locale}/airports.json`)
+    ]);
 
     if (!citiesResponse.ok || !airportsResponse.ok) {
       console.error('❌ Failed to fetch data from Aviasales API');
-      console.error('Cities response status:', citiesResponse.status);
-      console.error('Airports response status:', airportsResponse.status);
-      
       return new Response(
         JSON.stringify({ 
           success: false, 
           error: 'Failed to fetch data from Aviasales API',
-          results: [],
-          total: 0,
-          query: query
+          results: [] 
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -136,70 +119,42 @@ serve(async (req) => {
     const queryLower = query.toLowerCase();
     const results: AutocompleteResult[] = [];
 
-    // Search in cities first - prioritize exact matches
+    // Search in cities
     for (const city of cities) {
-      if (results.length >= limit) break;
-      
       const cityName = city.name.toLowerCase();
       const cityNameTranslated = city.name_translations[locale as keyof typeof city.name_translations]?.toLowerCase() || cityName;
-      const cityCode = city.code.toLowerCase();
       
-      // Check for exact matches first
-      if (cityCode === queryLower || cityName === queryLower || cityNameTranslated === queryLower) {
-        results.unshift({
-          type: 'city',
-          code: city.code,
-          name: city.name_translations[locale as keyof typeof city.name_translations] || city.name,
-          country_name: city.country_name,
-          country_code: city.country_code,
-          coordinates: city.coordinates,
-          display_name: `${city.name_translations[locale as keyof typeof city.name_translations] || city.name}, ${city.country_name}`
-        });
-      }
-      // Then check for partial matches
-      else if (cityName.includes(queryLower) || cityNameTranslated.includes(queryLower) || cityCode.includes(queryLower)) {
+      if (cityName.includes(queryLower) || cityNameTranslated.includes(queryLower) || city.code.toLowerCase().includes(queryLower)) {
         results.push({
           type: 'city',
           code: city.code,
           name: city.name_translations[locale as keyof typeof city.name_translations] || city.name,
           country_name: city.country_name,
           country_code: city.country_code,
-          coordinates: city.coordinates,
+          coordinates: {
+            lat: city.coordinates.lat,
+            lon: city.coordinates.lon
+          },
           display_name: `${city.name_translations[locale as keyof typeof city.name_translations] || city.name}, ${city.country_name}`
         });
       }
+      
+      if (results.length >= limit) break;
     }
 
-    // Search in airports if we haven't reached the limit
+    // Search in airports (only if we haven't reached the limit)
     if (results.length < limit) {
       for (const airport of airports) {
-        if (results.length >= limit) break;
-        
         if (!airport.flightable) continue; // Skip non-flightable airports
         
         const airportName = airport.name.toLowerCase();
         const airportNameTranslated = airport.name_translations[locale as keyof typeof airport.name_translations]?.toLowerCase() || airportName;
         const cityName = airport.city_name.toLowerCase();
-        const airportCode = airport.code.toLowerCase();
         
-        // Check for exact matches first
-        if (airportCode === queryLower || airportName === queryLower || airportNameTranslated === queryLower) {
-          results.unshift({
-            type: 'airport',
-            code: airport.code,
-            name: airport.name_translations[locale as keyof typeof airport.name_translations] || airport.name,
-            city_name: airport.city_name,
-            country_name: airport.country_name,
-            country_code: airport.country_code,
-            coordinates: airport.coordinates,
-            display_name: `${airport.city_name}, ${airport.country_name} (${airport.code})`
-          });
-        }
-        // Then check for partial matches
-        else if (airportName.includes(queryLower) || 
-                 airportNameTranslated.includes(queryLower) || 
-                 cityName.includes(queryLower) ||
-                 airportCode.includes(queryLower)) {
+        if (airportName.includes(queryLower) || 
+            airportNameTranslated.includes(queryLower) || 
+            cityName.includes(queryLower) ||
+            airport.code.toLowerCase().includes(queryLower)) {
           
           results.push({
             type: 'airport',
@@ -208,14 +163,19 @@ serve(async (req) => {
             city_name: airport.city_name,
             country_name: airport.country_name,
             country_code: airport.country_code,
-            coordinates: airport.coordinates,
+            coordinates: {
+              lat: airport.coordinates.lat,
+              lon: airport.coordinates.lon
+            },
             display_name: `${airport.city_name}, ${airport.country_name} (${airport.code})`
           });
         }
+        
+        if (results.length >= limit) break;
       }
     }
 
-    // Sort results: exact matches first, then by type (cities first), then alphabetically
+    // Sort results: exact matches first, then by relevance
     results.sort((a, b) => {
       const aExact = a.name.toLowerCase() === queryLower || a.code.toLowerCase() === queryLower;
       const bExact = b.name.toLowerCase() === queryLower || b.code.toLowerCase() === queryLower;
@@ -223,40 +183,32 @@ serve(async (req) => {
       if (aExact && !bExact) return -1;
       if (!aExact && bExact) return 1;
       
-      // Prioritize cities over airports for general searches
-      if (a.type === 'city' && b.type === 'airport') return -1;
-      if (a.type === 'airport' && b.type === 'city') return 1;
+      // Prioritize airports over cities for specific searches
+      if (a.type === 'airport' && b.type === 'city') return -1;
+      if (a.type === 'city' && b.type === 'airport') return 1;
       
       return a.name.localeCompare(b.name);
     });
 
-    const finalResults = results.slice(0, limit);
-    
-    console.log(`✅ Found ${finalResults.length} results for "${query}"`);
-    console.log('📋 Sample results:', finalResults.slice(0, 3).map(r => `${r.display_name} (${r.type})`));
+    console.log(`✅ Found ${results.length} results`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        results: finalResults,
-        total: finalResults.length,
-        query: query,
-        locale: locale
+        results: results.slice(0, limit),
+        total: results.length,
+        query: query
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('💥 Autocomplete error:', error);
-    console.error('Error details:', error.message);
-    
     return new Response(
       JSON.stringify({ 
         success: false, 
         error: 'Internal server error',
         results: [],
-        total: 0,
-        query: '',
         details: error.message 
       }),
       { 

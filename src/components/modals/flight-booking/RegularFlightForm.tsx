@@ -11,7 +11,7 @@ import { es } from "date-fns/locale";
 import { CalendarIcon, ArrowLeftRight, Users, Settings } from "lucide-react";
 
 import { DateRange } from "react-day-picker";
-import AviasalesAutocomplete from "@/components/ui/aviasales-autocomplete";
+import AirportAutocomplete from "@/components/ui/airport-autocomplete";
 
 interface FormData {
   from: string;
@@ -83,7 +83,7 @@ const RegularFlightForm = ({
             <Label htmlFor="from" className="text-sm font-medium text-gray-700">
               Desde
             </Label>
-            <AviasalesAutocomplete
+            <AirportAutocomplete
               value={formData.from}
               onChange={(value) => setFormData(prev => ({ ...prev, from: value }))}
               placeholder="Ciudad de origen"
@@ -107,7 +107,7 @@ const RegularFlightForm = ({
             <Label htmlFor="to" className="text-sm font-medium text-gray-700">
               Hacia
             </Label>
-            <AviasalesAutocomplete
+            <AirportAutocomplete
               value={formData.to}
               onChange={(value) => setFormData(prev => ({ ...prev, to: value }))}
               placeholder="Ciudad de destino"

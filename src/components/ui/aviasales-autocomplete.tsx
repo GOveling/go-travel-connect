@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MapPin, Plane, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AviasalesResult {
   type: 'city' | 'airport';
@@ -37,7 +38,6 @@ const AviasalesAutocomplete: React.FC<AviasalesAutocompleteProps> = ({
   const [suggestions, setSuggestions] = useState<AviasalesResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -45,39 +45,36 @@ const AviasalesAutocomplete: React.FC<AviasalesAutocompleteProps> = ({
     if (query.length < 2) {
       setSuggestions([]);
       setIsOpen(false);
-      setError(null);
       return;
     }
 
     setIsLoading(true);
-    setError(null);
-    
     try {
-      console.log(`🔍 Searching for: "${query}"`);
-      
+      const { data, error } = await supabase.functions.invoke('aviasales-autocomplete', {
+        body: null,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Hacer la petición directamente ya que invoke no soporta query params
       const response = await fetch(
         `https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/aviasales-autocomplete?query=${encodeURIComponent(query)}&limit=8&locale=${locale}`
       );
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const result = await response.json();
-      console.log('🎯 API Response:', result);
 
       if (result.success && result.results) {
         setSuggestions(result.results);
         setIsOpen(result.results.length > 0);
       } else {
-        console.error('❌ API Error:', result.error);
-        setError(result.error || 'Error en la búsqueda');
+        console.error('Error en autocomplete:', result.error);
         setSuggestions([]);
         setIsOpen(false);
       }
     } catch (error) {
-      console.error('💥 Network error:', error);
-      setError('Error de conexión. Intente nuevamente.');
+      console.error('Network error:', error);
       setSuggestions([]);
       setIsOpen(false);
     } finally {
@@ -106,11 +103,9 @@ const AviasalesAutocomplete: React.FC<AviasalesAutocompleteProps> = ({
   }, []);
 
   const handleSelect = (result: AviasalesResult) => {
-    console.log('✅ Selected:', result);
     onChange(result.display_name);
     setIsOpen(false);
     setSelectedIndex(-1);
-    setError(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -188,18 +183,10 @@ const AviasalesAutocomplete: React.FC<AviasalesAutocompleteProps> = ({
         </div>
       )}
 
-      {isOpen && !isLoading && suggestions.length === 0 && value.length >= 2 && !error && (
+      {isOpen && !isLoading && suggestions.length === 0 && value.length >= 2 && (
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-3">
           <div className="text-center text-gray-500 text-sm">
             No se encontraron resultados para "{value}"
-          </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-red-200 rounded-md shadow-lg p-3">
-          <div className="text-center text-red-500 text-sm">
-            {error}
           </div>
         </div>
       )}
