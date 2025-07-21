@@ -144,6 +144,30 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
+      case 'import-data':
+        // Importar datos completos desde DataHub
+        try {
+          const { data: importResult, error: importError } = await supabase.functions.invoke('import-airport-data');
+          
+          if (importError) {
+            throw importError;
+          }
+          
+          return new Response(
+            JSON.stringify(importResult),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('❌ Import error:', error);
+          return new Response(
+            JSON.stringify({ error: 'Import failed', details: error.message }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500
+            }
+          );
+        }
+
       case 'populate':
         // Función para poblar la base de datos con datos de ejemplo
         const sampleCities = [
@@ -213,7 +237,7 @@ serve(async (req) => {
 
       default:
         return new Response(
-          JSON.stringify({ error: 'Invalid action. Use: search, get-by-iata, or populate' }),
+          JSON.stringify({ error: 'Invalid action. Use: search, get-by-iata, populate, or import-data' }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 400
