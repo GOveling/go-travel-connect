@@ -8,6 +8,7 @@ export interface CityResult {
   coordinates: { lat: number; lng: number };
   type: string;
   country_code: string;
+  admin_name?: string;
 }
 
 export const useCitiesByCountry = () => {

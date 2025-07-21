@@ -321,7 +321,10 @@ const PersonalInformationModal = ({ isOpen, onClose, profile, onProfileUpdate }:
                       >
                         <div className="flex flex-col">
                           <span className="font-medium">{city.name}</span>
-                          <span className="text-sm text-muted-foreground">{city.type === 'locality' ? 'Ciudad' : 'Estado/Provincia'}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {city.type === 'locality' ? 'Ciudad' : 'Estado/Provincia'}
+                            {city.admin_name && city.admin_name !== city.name && ` • ${city.admin_name}`}
+                          </span>
                         </div>
                       </button>
                     ))}
