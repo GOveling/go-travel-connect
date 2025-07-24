@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface Review {
   id: string;
@@ -20,7 +20,12 @@ interface Review {
   } | null;
 }
 
-export const usePlaceReviews = (placeId: string, placeName: string, lat?: number, lng?: number) => {
+export const usePlaceReviews = (
+  placeId: string,
+  placeName: string,
+  lat?: number,
+  lng?: number
+) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -28,46 +33,44 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
   const [totalReviews, setTotalReviews] = useState(0);
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   const reviewsPerPage = 5;
 
   // Fetch reviews for a specific place with pagination
   const fetchReviews = async (page = 1) => {
     if (!placeId) return;
-    
+
     setLoading(true);
     try {
       // Build query based on whether we have coordinates
       let countQuery = supabase
-        .from('place_reviews')
-        .select('*', { count: 'exact', head: true });
-      
-      let dataQuery = supabase
-        .from('place_reviews')
-        .select('*');
+        .from("place_reviews")
+        .select("*", { count: "exact", head: true });
+
+      let dataQuery = supabase.from("place_reviews").select("*");
 
       // If we have coordinates, filter by exact location
       if (lat !== undefined && lng !== undefined) {
         const latDiff = 0.0001; // ~10 meters tolerance
         const lngDiff = 0.0001;
-        
+
         countQuery = countQuery
-          .gte('lat', lat - latDiff)
-          .lte('lat', lat + latDiff)
-          .gte('lng', lng - lngDiff)
-          .lte('lng', lng + lngDiff)
-          .eq('place_name', placeName);
-          
+          .gte("lat", lat - latDiff)
+          .lte("lat", lat + latDiff)
+          .gte("lng", lng - lngDiff)
+          .lte("lng", lng + lngDiff)
+          .eq("place_name", placeName);
+
         dataQuery = dataQuery
-          .gte('lat', lat - latDiff)
-          .lte('lat', lat + latDiff)
-          .gte('lng', lng - lngDiff)
-          .lte('lng', lng + lngDiff)
-          .eq('place_name', placeName);
+          .gte("lat", lat - latDiff)
+          .lte("lat", lat + latDiff)
+          .gte("lng", lng - lngDiff)
+          .lte("lng", lng + lngDiff)
+          .eq("place_name", placeName);
       } else {
         // Fallback to place_id for places without coordinates
-        countQuery = countQuery.eq('place_id', placeId);
-        dataQuery = dataQuery.eq('place_id', placeId);
+        countQuery = countQuery.eq("place_id", placeId);
+        dataQuery = dataQuery.eq("place_id", placeId);
       }
 
       // Get total count
@@ -79,7 +82,7 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
       const to = from + reviewsPerPage - 1;
 
       const { data: reviewsData, error: reviewsError } = await dataQuery
-        .order('created_at', { ascending: false })
+        .order("created_at", { ascending: false })
         .range(from, to);
 
       if (reviewsError) throw reviewsError;
@@ -88,23 +91,25 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
       const reviewsWithUserInfo = await Promise.all(
         (reviewsData || []).map(async (review) => {
           let profileName = null;
-          
+
           // Only fetch profile if not anonymous
           if (!review.anonymous) {
             const { data: profileData } = await supabase
-              .from('profiles')
-              .select('full_name')
-              .eq('id', review.user_id)
+              .from("profiles")
+              .select("full_name")
+              .eq("id", review.user_id)
               .maybeSingle();
-            
+
             profileName = profileData?.full_name;
           }
 
           return {
             ...review,
-            user_name: review.anonymous ? 'Anonymous User' : (profileName || 'Verified User'),
-            user_avatar: review.anonymous ? '👤' : '👤',
-            profiles: review.anonymous ? null : { full_name: profileName }
+            user_name: review.anonymous
+              ? "Anonymous User"
+              : profileName || "Verified User",
+            user_avatar: review.anonymous ? "👤" : "👤",
+            profiles: review.anonymous ? null : { full_name: profileName },
           };
         })
       );
@@ -112,7 +117,7 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
       setReviews(reviewsWithUserInfo);
       setCurrentPage(page);
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      console.error("Error fetching reviews:", error);
       toast({
         title: "Error loading reviews",
         description: "Could not load reviews for this place.",
@@ -124,7 +129,11 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
   };
 
   // Submit a new review
-  const submitReview = async (rating: number, comment: string, anonymous: boolean = false) => {
+  const submitReview = async (
+    rating: number,
+    comment: string,
+    anonymous: boolean = false
+  ) => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -145,18 +154,16 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
 
     setSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('place_reviews')
-        .insert({
-          user_id: user.id,
-          place_id: placeId,
-          place_name: placeName,
-          rating,
-          comment: comment.trim(),
-          anonymous,
-          lat: lat || null,
-          lng: lng || null
-        });
+      const { error } = await supabase.from("place_reviews").insert({
+        user_id: user.id,
+        place_id: placeId,
+        place_name: placeName,
+        rating,
+        comment: comment.trim(),
+        anonymous,
+        lat: lat || null,
+        lng: lng || null,
+      });
 
       if (error) throw error;
 
@@ -169,7 +176,7 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
       await fetchReviews(1);
       return true;
     } catch (error) {
-      console.error('Error submitting review:', error);
+      console.error("Error submitting review:", error);
       toast({
         title: "Error submitting review",
         description: "Could not save your review. Please try again.",
@@ -214,6 +221,6 @@ export const usePlaceReviews = (placeId: string, placeName: string, lat?: number
     refreshReviews: () => fetchReviews(currentPage),
     goToPage,
     nextPage,
-    prevPage
+    prevPage,
   };
 };

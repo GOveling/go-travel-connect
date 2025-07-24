@@ -1,4 +1,3 @@
-
 import { Home, MapPin, Search, Calendar, Users, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,14 +6,17 @@ interface MobileNavigationProps {
   onTabChange: (tab: string) => void;
 }
 
-const MobileNavigation = ({ activeTab, onTabChange }: MobileNavigationProps) => {
+const MobileNavigation = ({
+  activeTab,
+  onTabChange,
+}: MobileNavigationProps) => {
   const tabs = [
-    { id: 'home', label: 'Inicio', icon: Home },
-    { id: 'explore', label: 'Explorar', icon: Search },
-    { id: 'trips', label: 'Viajes', icon: MapPin },
-    { id: 'booking', label: 'Reservas', icon: Calendar },
-    { id: 'travelers', label: 'Viajeros', icon: Users },
-    { id: 'profile', label: 'Perfil', icon: User },
+    { id: "home", label: "Inicio", icon: Home },
+    { id: "explore", label: "Explorar", icon: Search },
+    { id: "trips", label: "Viajes", icon: MapPin },
+    { id: "booking", label: "Reservas", icon: Calendar },
+    { id: "travelers", label: "Viajeros", icon: Users },
+    { id: "profile", label: "Perfil", icon: User },
   ];
 
   return (

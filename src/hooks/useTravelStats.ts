@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +10,7 @@ export const useTravelStats = () => {
     cities_explored: 0,
     places_visited: 0,
     achievement_points: 0,
-    level: 1
+    level: 1,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,40 +24,40 @@ export const useTravelStats = () => {
 
       try {
         setLoading(true);
-        
+
         // First try to get existing stats
         let { data, error } = await supabase
-          .from('user_stats')
-          .select('*')
-          .eq('user_id', user.id)
+          .from("user_stats")
+          .select("*")
+          .eq("user_id", user.id)
           .maybeSingle();
-        
+
         if (error) throw error;
-        
+
         // If no stats exist, create initial stats record
         if (!data) {
           const { data: newStats, error: insertError } = await supabase
-            .from('user_stats')
+            .from("user_stats")
             .insert({ user_id: user.id })
             .select()
             .single();
-          
+
           if (insertError) throw insertError;
           data = newStats;
         }
-        
+
         if (data) {
           setStats({
             countries_visited: data.countries_visited || 0,
             cities_explored: data.cities_explored || 0,
             places_visited: data.places_visited || 0,
             achievement_points: data.achievement_points || 0,
-            level: data.level || 1
+            level: data.level || 1,
           });
         }
       } catch (err) {
-        console.error('Error fetching travel stats:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch stats');
+        console.error("Error fetching travel stats:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch stats");
       } finally {
         setLoading(false);
       }
@@ -70,6 +69,6 @@ export const useTravelStats = () => {
   return {
     stats,
     loading,
-    error
+    error,
   };
 };

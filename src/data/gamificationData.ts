@@ -1,27 +1,206 @@
-
-import { TravelerLevel, AchievementBadge } from '@/types/gamification';
+import { TravelerLevel, AchievementBadge } from "@/types/gamification";
 
 export const TRAVELER_LEVELS: TravelerLevel[] = [
-  { level: 1, title: "Backpack Explorer", requiredXP: 0, currentXP: 0, nextLevelXP: 1000, unlockedFeatures: ["Basic Trip Planning"], color: "from-green-400 to-green-600", icon: "🎒" },
-  { level: 2, title: "City Wanderer", requiredXP: 1000, currentXP: 0, nextLevelXP: 2500, unlockedFeatures: ["City Recommendations"], color: "from-blue-400 to-blue-600", icon: "🏙️" },
-  { level: 3, title: "Culture Seeker", requiredXP: 2500, currentXP: 0, nextLevelXP: 4500, unlockedFeatures: ["Cultural Insights"], color: "from-purple-400 to-purple-600", icon: "🏛️" },
-  { level: 4, title: "Adventure Guide", requiredXP: 4500, currentXP: 0, nextLevelXP: 7000, unlockedFeatures: ["Adventure Planning"], color: "from-orange-400 to-orange-600", icon: "🧗" },
-  { level: 5, title: "Explorer", requiredXP: 7000, currentXP: 0, nextLevelXP: 10000, unlockedFeatures: ["Route Optimization"], color: "from-red-400 to-red-600", icon: "🧭" },
-  { level: 6, title: "Journey Master", requiredXP: 10000, currentXP: 0, nextLevelXP: 14000, unlockedFeatures: ["Premium Routes"], color: "from-indigo-400 to-indigo-600", icon: "🗺️" },
-  { level: 7, title: "Wanderer", requiredXP: 14000, currentXP: 0, nextLevelXP: 19000, unlockedFeatures: ["Advanced Planning"], color: "from-pink-400 to-pink-600", icon: "🌟" },
-  { level: 8, title: "Globe Trotter", requiredXP: 19000, currentXP: 0, nextLevelXP: 25000, unlockedFeatures: ["Global Insights"], color: "from-yellow-400 to-yellow-600", icon: "🌍" },
-  { level: 9, title: "Travel Guru", requiredXP: 25000, currentXP: 0, nextLevelXP: 32000, unlockedFeatures: ["Expert Recommendations"], color: "from-teal-400 to-teal-600", icon: "🧘" },
-  { level: 10, title: "Nomad", requiredXP: 32000, currentXP: 0, nextLevelXP: 40000, unlockedFeatures: ["Nomad Tools"], color: "from-cyan-400 to-cyan-600", icon: "🏜️" },
-  { level: 11, title: "World Explorer", requiredXP: 40000, currentXP: 0, nextLevelXP: 50000, unlockedFeatures: ["World Explorer Badge"], color: "from-emerald-400 to-emerald-600", icon: "🌎" },
-  { level: 12, title: "Cultural Ambassador", requiredXP: 50000, currentXP: 0, nextLevelXP: 62000, unlockedFeatures: ["Cultural Programs"], color: "from-violet-400 to-violet-600", icon: "🎭" },
-  { level: 13, title: "Adventure Legend", requiredXP: 62000, currentXP: 0, nextLevelXP: 76000, unlockedFeatures: ["Legend Status"], color: "from-rose-400 to-rose-600", icon: "🏔️" },
-  { level: 14, title: "Master Traveler", requiredXP: 76000, currentXP: 0, nextLevelXP: 92000, unlockedFeatures: ["Master Benefits"], color: "from-amber-400 to-amber-600", icon: "👑" },
-  { level: 15, title: "Epic Voyager", requiredXP: 92000, currentXP: 0, nextLevelXP: 110000, unlockedFeatures: ["Epic Rewards"], color: "from-lime-400 to-lime-600", icon: "⚡" },
-  { level: 16, title: "Cosmic Explorer", requiredXP: 110000, currentXP: 0, nextLevelXP: 130000, unlockedFeatures: ["Cosmic Features"], color: "from-fuchsia-400 to-fuchsia-600", icon: "🚀" },
-  { level: 17, title: "Infinity Traveler", requiredXP: 130000, currentXP: 0, nextLevelXP: 152000, unlockedFeatures: ["Infinity Access"], color: "from-sky-400 to-sky-600", icon: "♾️" },
-  { level: 18, title: "Dimensional Wanderer", requiredXP: 152000, currentXP: 0, nextLevelXP: 176000, unlockedFeatures: ["Dimensional Portal"], color: "from-slate-400 to-slate-600", icon: "🌌" },
-  { level: 19, title: "Mythical Adventurer", requiredXP: 176000, currentXP: 0, nextLevelXP: 202000, unlockedFeatures: ["Mythical Powers"], color: "from-stone-400 to-stone-600", icon: "🔮" },
-  { level: 20, title: "Legendary Traveler", requiredXP: 202000, currentXP: 0, nextLevelXP: 202000, unlockedFeatures: ["All Features Unlocked"], color: "from-gradient-to-r from-yellow-400 via-red-500 to-pink-500", icon: "🏆" }
+  {
+    level: 1,
+    title: "Backpack Explorer",
+    requiredXP: 0,
+    currentXP: 0,
+    nextLevelXP: 1000,
+    unlockedFeatures: ["Basic Trip Planning"],
+    color: "from-green-400 to-green-600",
+    icon: "🎒",
+  },
+  {
+    level: 2,
+    title: "City Wanderer",
+    requiredXP: 1000,
+    currentXP: 0,
+    nextLevelXP: 2500,
+    unlockedFeatures: ["City Recommendations"],
+    color: "from-blue-400 to-blue-600",
+    icon: "🏙️",
+  },
+  {
+    level: 3,
+    title: "Culture Seeker",
+    requiredXP: 2500,
+    currentXP: 0,
+    nextLevelXP: 4500,
+    unlockedFeatures: ["Cultural Insights"],
+    color: "from-purple-400 to-purple-600",
+    icon: "🏛️",
+  },
+  {
+    level: 4,
+    title: "Adventure Guide",
+    requiredXP: 4500,
+    currentXP: 0,
+    nextLevelXP: 7000,
+    unlockedFeatures: ["Adventure Planning"],
+    color: "from-orange-400 to-orange-600",
+    icon: "🧗",
+  },
+  {
+    level: 5,
+    title: "Explorer",
+    requiredXP: 7000,
+    currentXP: 0,
+    nextLevelXP: 10000,
+    unlockedFeatures: ["Route Optimization"],
+    color: "from-red-400 to-red-600",
+    icon: "🧭",
+  },
+  {
+    level: 6,
+    title: "Journey Master",
+    requiredXP: 10000,
+    currentXP: 0,
+    nextLevelXP: 14000,
+    unlockedFeatures: ["Premium Routes"],
+    color: "from-indigo-400 to-indigo-600",
+    icon: "🗺️",
+  },
+  {
+    level: 7,
+    title: "Wanderer",
+    requiredXP: 14000,
+    currentXP: 0,
+    nextLevelXP: 19000,
+    unlockedFeatures: ["Advanced Planning"],
+    color: "from-pink-400 to-pink-600",
+    icon: "🌟",
+  },
+  {
+    level: 8,
+    title: "Globe Trotter",
+    requiredXP: 19000,
+    currentXP: 0,
+    nextLevelXP: 25000,
+    unlockedFeatures: ["Global Insights"],
+    color: "from-yellow-400 to-yellow-600",
+    icon: "🌍",
+  },
+  {
+    level: 9,
+    title: "Travel Guru",
+    requiredXP: 25000,
+    currentXP: 0,
+    nextLevelXP: 32000,
+    unlockedFeatures: ["Expert Recommendations"],
+    color: "from-teal-400 to-teal-600",
+    icon: "🧘",
+  },
+  {
+    level: 10,
+    title: "Nomad",
+    requiredXP: 32000,
+    currentXP: 0,
+    nextLevelXP: 40000,
+    unlockedFeatures: ["Nomad Tools"],
+    color: "from-cyan-400 to-cyan-600",
+    icon: "🏜️",
+  },
+  {
+    level: 11,
+    title: "World Explorer",
+    requiredXP: 40000,
+    currentXP: 0,
+    nextLevelXP: 50000,
+    unlockedFeatures: ["World Explorer Badge"],
+    color: "from-emerald-400 to-emerald-600",
+    icon: "🌎",
+  },
+  {
+    level: 12,
+    title: "Cultural Ambassador",
+    requiredXP: 50000,
+    currentXP: 0,
+    nextLevelXP: 62000,
+    unlockedFeatures: ["Cultural Programs"],
+    color: "from-violet-400 to-violet-600",
+    icon: "🎭",
+  },
+  {
+    level: 13,
+    title: "Adventure Legend",
+    requiredXP: 62000,
+    currentXP: 0,
+    nextLevelXP: 76000,
+    unlockedFeatures: ["Legend Status"],
+    color: "from-rose-400 to-rose-600",
+    icon: "🏔️",
+  },
+  {
+    level: 14,
+    title: "Master Traveler",
+    requiredXP: 76000,
+    currentXP: 0,
+    nextLevelXP: 92000,
+    unlockedFeatures: ["Master Benefits"],
+    color: "from-amber-400 to-amber-600",
+    icon: "👑",
+  },
+  {
+    level: 15,
+    title: "Epic Voyager",
+    requiredXP: 92000,
+    currentXP: 0,
+    nextLevelXP: 110000,
+    unlockedFeatures: ["Epic Rewards"],
+    color: "from-lime-400 to-lime-600",
+    icon: "⚡",
+  },
+  {
+    level: 16,
+    title: "Cosmic Explorer",
+    requiredXP: 110000,
+    currentXP: 0,
+    nextLevelXP: 130000,
+    unlockedFeatures: ["Cosmic Features"],
+    color: "from-fuchsia-400 to-fuchsia-600",
+    icon: "🚀",
+  },
+  {
+    level: 17,
+    title: "Infinity Traveler",
+    requiredXP: 130000,
+    currentXP: 0,
+    nextLevelXP: 152000,
+    unlockedFeatures: ["Infinity Access"],
+    color: "from-sky-400 to-sky-600",
+    icon: "♾️",
+  },
+  {
+    level: 18,
+    title: "Dimensional Wanderer",
+    requiredXP: 152000,
+    currentXP: 0,
+    nextLevelXP: 176000,
+    unlockedFeatures: ["Dimensional Portal"],
+    color: "from-slate-400 to-slate-600",
+    icon: "🌌",
+  },
+  {
+    level: 19,
+    title: "Mythical Adventurer",
+    requiredXP: 176000,
+    currentXP: 0,
+    nextLevelXP: 202000,
+    unlockedFeatures: ["Mythical Powers"],
+    color: "from-stone-400 to-stone-600",
+    icon: "🔮",
+  },
+  {
+    level: 20,
+    title: "Legendary Traveler",
+    requiredXP: 202000,
+    currentXP: 0,
+    nextLevelXP: 202000,
+    unlockedFeatures: ["All Features Unlocked"],
+    color: "from-gradient-to-r from-yellow-400 via-red-500 to-pink-500",
+    icon: "🏆",
+  },
 ];
 
 export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
@@ -37,7 +216,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 1,
     points: 500,
     rarity: "common",
-    criteria: "Visit 1 country"
+    criteria: "Visit 1 country",
   },
   {
     id: "country-collector",
@@ -50,7 +229,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 5,
     points: 1500,
     rarity: "rare",
-    criteria: "Visit 5 countries"
+    criteria: "Visit 5 countries",
   },
   {
     id: "world-citizen",
@@ -63,7 +242,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 15,
     points: 5000,
     rarity: "epic",
-    criteria: "Visit 15 countries"
+    criteria: "Visit 15 countries",
   },
   {
     id: "travel-marathon",
@@ -76,7 +255,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 3,
     points: 2500,
     rarity: "rare",
-    criteria: "Visit 3 countries within 30 days"
+    criteria: "Visit 3 countries within 30 days",
   },
   {
     id: "continent-explorer",
@@ -89,7 +268,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 3,
     points: 3000,
     rarity: "epic",
-    criteria: "Visit 3 different continents"
+    criteria: "Visit 3 different continents",
   },
 
   // Local Discoveries & Culture
@@ -104,7 +283,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 5,
     points: 1000,
     rarity: "common",
-    criteria: "Visit 5 cities"
+    criteria: "Visit 5 cities",
   },
   {
     id: "museum-enthusiast",
@@ -117,7 +296,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 10,
     points: 2000,
     rarity: "rare",
-    criteria: "Visit 10 museums or cultural sites"
+    criteria: "Visit 10 museums or cultural sites",
   },
   {
     id: "photo-journalist",
@@ -130,7 +309,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 50,
     points: 1500,
     rarity: "rare",
-    criteria: "Upload 50 photos with location tags"
+    criteria: "Upload 50 photos with location tags",
   },
   {
     id: "historic-hunter",
@@ -143,7 +322,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 20,
     points: 2500,
     rarity: "rare",
-    criteria: "Visit 20 historical landmarks"
+    criteria: "Visit 20 historical landmarks",
   },
   {
     id: "architecture-admirer",
@@ -156,7 +335,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 15,
     points: 2000,
     rarity: "rare",
-    criteria: "Visit 15 notable architectural sites"
+    criteria: "Visit 15 notable architectural sites",
   },
 
   // Food & Nightlife
@@ -171,7 +350,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 20,
     points: 1200,
     rarity: "common",
-    criteria: "Visit 20 restaurants"
+    criteria: "Visit 20 restaurants",
   },
   {
     id: "cuisine-master",
@@ -184,7 +363,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 10,
     points: 2000,
     rarity: "rare",
-    criteria: "Experience 10 different cuisine types"
+    criteria: "Experience 10 different cuisine types",
   },
   {
     id: "street-food-explorer",
@@ -197,7 +376,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 8,
     points: 1500,
     rarity: "rare",
-    criteria: "Experience street food in 8 locations"
+    criteria: "Experience street food in 8 locations",
   },
   {
     id: "local-market-visitor",
@@ -210,7 +389,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 12,
     points: 1800,
     rarity: "rare",
-    criteria: "Visit 12 local food markets"
+    criteria: "Visit 12 local food markets",
   },
   {
     id: "coffee-connoisseur",
@@ -223,7 +402,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 25,
     points: 1000,
     rarity: "common",
-    criteria: "Visit 25 coffee shops worldwide"
+    criteria: "Visit 25 coffee shops worldwide",
   },
 
   // Family & Experience
@@ -238,7 +417,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 10,
     points: 1500,
     rarity: "common",
-    criteria: "Visit 10 family-friendly places"
+    criteria: "Visit 10 family-friendly places",
   },
   {
     id: "beach-lover",
@@ -251,7 +430,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 8,
     points: 1000,
     rarity: "common",
-    criteria: "Visit 8 different beaches"
+    criteria: "Visit 8 different beaches",
   },
   {
     id: "route-master",
@@ -264,7 +443,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 5,
     points: 2500,
     rarity: "rare",
-    criteria: "Complete 5 AI smart routes"
+    criteria: "Complete 5 AI smart routes",
   },
   {
     id: "nature-enthusiast",
@@ -277,7 +456,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 15,
     points: 2000,
     rarity: "rare",
-    criteria: "Visit 15 natural parks or nature reserves"
+    criteria: "Visit 15 natural parks or nature reserves",
   },
   {
     id: "mountain-climber",
@@ -290,7 +469,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 10,
     points: 2500,
     rarity: "rare",
-    criteria: "Visit 10 mountain destinations"
+    criteria: "Visit 10 mountain destinations",
   },
 
   // Contributions & Reviews
@@ -305,7 +484,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 25,
     points: 2000,
     rarity: "rare",
-    criteria: "Write 25 place reviews"
+    criteria: "Write 25 place reviews",
   },
   {
     id: "itinerary-creator",
@@ -318,7 +497,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 10,
     points: 3000,
     rarity: "epic",
-    criteria: "Create 10 AI-assisted itineraries"
+    criteria: "Create 10 AI-assisted itineraries",
   },
   {
     id: "map-pioneer",
@@ -331,7 +510,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 100,
     points: 2500,
     rarity: "rare",
-    criteria: "Pin 100 locations to your travel maps"
+    criteria: "Pin 100 locations to your travel maps",
   },
   {
     id: "travel-photographer",
@@ -344,7 +523,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 100,
     points: 3000,
     rarity: "epic",
-    criteria: "Upload 100 travel photos"
+    criteria: "Upload 100 travel photos",
   },
 
   // Special Badges
@@ -359,7 +538,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 3,
     points: 1000,
     rarity: "rare",
-    criteria: "Visit 3 different places in a single day"
+    criteria: "Visit 3 different places in a single day",
   },
   {
     id: "weekend-warrior",
@@ -372,7 +551,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 1,
     points: 1500,
     rarity: "rare",
-    criteria: "Complete a 2-3 day weekend trip"
+    criteria: "Complete a 2-3 day weekend trip",
   },
   {
     id: "early-bird",
@@ -385,7 +564,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 5,
     points: 1200,
     rarity: "rare",
-    criteria: "Check into places before 8 AM on 5 different days"
+    criteria: "Check into places before 8 AM on 5 different days",
   },
   {
     id: "night-explorer",
@@ -398,7 +577,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 10,
     points: 1800,
     rarity: "rare",
-    criteria: "Explore places after 10 PM on 10 different occasions"
+    criteria: "Explore places after 10 PM on 10 different occasions",
   },
   {
     id: "seasonal-traveler",
@@ -411,7 +590,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 4,
     points: 2500,
     rarity: "epic",
-    criteria: "Take trips in spring, summer, autumn, and winter"
+    criteria: "Take trips in spring, summer, autumn, and winter",
   },
   {
     id: "explorer-100",
@@ -424,7 +603,7 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 1,
     points: 10000,
     rarity: "legendary",
-    criteria: "Earn all available achievement badges"
+    criteria: "Earn all available achievement badges",
   },
   {
     id: "legendary-medal",
@@ -437,6 +616,6 @@ export const ACHIEVEMENT_BADGES: AchievementBadge[] = [
     total: 1,
     points: 10000,
     rarity: "legendary",
-    criteria: "Achieve maximum traveler level (20)"
-  }
+    criteria: "Achieve maximum traveler level (20)",
+  },
 ];

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import FlightForm from "./FlightForm";
 
@@ -20,11 +19,15 @@ interface MultiCityFlight {
 }
 
 interface FlightBookingDetailsStepProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
   isDateRangeOpen: boolean;
   setIsDateRangeOpen: (open: boolean) => void;
   isDepartDateOpen: boolean;
@@ -44,7 +47,7 @@ const FlightBookingDetailsStep = ({
   isDepartDateOpen,
   setIsDepartDateOpen,
   canProceed,
-  onContinue
+  onContinue,
 }: FlightBookingDetailsStepProps) => {
   return (
     <div className="p-4 space-y-4">
@@ -59,8 +62,8 @@ const FlightBookingDetailsStep = ({
         isDepartDateOpen={isDepartDateOpen}
         setIsDepartDateOpen={setIsDepartDateOpen}
       />
-      
-      <Button 
+
+      <Button
         onClick={onContinue}
         className="w-full h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
         disabled={!canProceed}

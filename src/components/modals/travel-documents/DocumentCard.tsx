@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Edit, Trash2, AlertTriangle, Clock } from "lucide-react";
@@ -23,26 +22,46 @@ interface DocumentCardProps {
 const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
   const calculateDaysToExpiry = (expiryDate: string) => {
     if (!expiryDate) return null;
-    
+
     const today = new Date();
     const expiry = new Date(expiryDate);
     const timeDiff = expiry.getTime() - today.getTime();
     const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
+
     return daysDiff;
   };
 
   const getExpiryStatus = (daysToExpiry: number | null) => {
     if (daysToExpiry === null) return null;
-    
+
     if (daysToExpiry < 0) {
-      return { status: 'expired', color: 'text-red-600', bgColor: 'bg-red-50', text: 'Expired' };
+      return {
+        status: "expired",
+        color: "text-red-600",
+        bgColor: "bg-red-50",
+        text: "Expired",
+      };
     } else if (daysToExpiry <= 30) {
-      return { status: 'expiring-soon', color: 'text-orange-600', bgColor: 'bg-orange-50', text: `${daysToExpiry} days left` };
+      return {
+        status: "expiring-soon",
+        color: "text-orange-600",
+        bgColor: "bg-orange-50",
+        text: `${daysToExpiry} days left`,
+      };
     } else if (daysToExpiry <= 90) {
-      return { status: 'expires-soon', color: 'text-yellow-600', bgColor: 'bg-yellow-50', text: `${daysToExpiry} days left` };
+      return {
+        status: "expires-soon",
+        color: "text-yellow-600",
+        bgColor: "bg-yellow-50",
+        text: `${daysToExpiry} days left`,
+      };
     } else {
-      return { status: 'valid', color: 'text-green-600', bgColor: 'bg-green-50', text: `${daysToExpiry} days left` };
+      return {
+        status: "valid",
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+        text: `${daysToExpiry} days left`,
+      };
     }
   };
 
@@ -59,10 +78,12 @@ const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
                 <FileText className="w-4 h-4 text-blue-600" />
                 <h3 className="font-medium">{document.type}</h3>
               </div>
-              
+
               {expiryStatus && (
-                <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${expiryStatus.bgColor} ${expiryStatus.color}`}>
-                  {expiryStatus.status === 'expired' ? (
+                <div
+                  className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${expiryStatus.bgColor} ${expiryStatus.color}`}
+                >
+                  {expiryStatus.status === "expired" ? (
                     <AlertTriangle className="w-3 h-3" />
                   ) : (
                     <Clock className="w-3 h-3" />
@@ -91,29 +112,33 @@ const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
                     <p className="text-gray-600">Document Number</p>
                     <p className="font-medium">{document.documentNumber}</p>
                   </div>
-                  
+
                   {document.issuingCountry && (
                     <div>
                       <p className="text-gray-600">Issuing Country</p>
                       <p className="font-medium">{document.issuingCountry}</p>
                     </div>
                   )}
-                  
+
                   {document.issueDate && (
                     <div>
                       <p className="text-gray-600">Issue Date</p>
-                      <p className="font-medium">{new Date(document.issueDate).toLocaleDateString()}</p>
+                      <p className="font-medium">
+                        {new Date(document.issueDate).toLocaleDateString()}
+                      </p>
                     </div>
                   )}
-                  
+
                   {document.expiryDate && (
                     <div>
                       <p className="text-gray-600">Expiry Date</p>
-                      <p className="font-medium">{new Date(document.expiryDate).toLocaleDateString()}</p>
+                      <p className="font-medium">
+                        {new Date(document.expiryDate).toLocaleDateString()}
+                      </p>
                     </div>
                   )}
                 </div>
-                
+
                 {document.notes && (
                   <div className="mt-3">
                     <p className="text-gray-600 text-sm">Notes</p>
@@ -123,7 +148,7 @@ const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex space-x-2 ml-4">
             <Button
               variant="outline"

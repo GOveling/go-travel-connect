@@ -1,4 +1,3 @@
-
 import ProfileContent from "@/components/profile/ProfileContent";
 
 interface ProfileSectionProps {

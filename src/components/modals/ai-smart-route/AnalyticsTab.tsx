@@ -1,8 +1,13 @@
-
 import { TrendingUp, Clock, MapPin, Star, Route } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RouteConfiguration } from "@/types/aiSmartRoute";
 
 interface AnalyticsTabProps {
@@ -18,7 +23,7 @@ const AnalyticsTab = ({
   routeConfigurations,
   totalSavedPlaces,
   totalTripDays,
-  onRouteTypeChange
+  onRouteTypeChange,
 }: AnalyticsTabProps) => {
   const currentRoute = routeConfigurations[selectedRouteType];
 
@@ -35,19 +40,27 @@ const AnalyticsTab = ({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-blue-50 p-3 rounded-lg text-center">
-              <p className="text-2xl font-bold text-blue-600">{currentRoute.efficiency}</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {currentRoute.efficiency}
+              </p>
               <p className="text-sm text-blue-800">Route Efficiency</p>
             </div>
             <div className="bg-green-50 p-3 rounded-lg text-center">
-              <p className="text-2xl font-bold text-green-600">{currentRoute.duration}</p>
+              <p className="text-2xl font-bold text-green-600">
+                {currentRoute.duration}
+              </p>
               <p className="text-sm text-green-800">Total Duration</p>
             </div>
             <div className="bg-purple-50 p-3 rounded-lg text-center">
-              <p className="text-2xl font-bold text-purple-600">{totalSavedPlaces}</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {totalSavedPlaces}
+              </p>
               <p className="text-sm text-purple-800">Places Covered</p>
             </div>
             <div className="bg-orange-50 p-3 rounded-lg text-center">
-              <p className="text-2xl font-bold text-orange-600">{totalTripDays}</p>
+              <p className="text-2xl font-bold text-orange-600">
+                {totalTripDays}
+              </p>
               <p className="text-sm text-orange-800">Trip Days</p>
             </div>
           </div>
@@ -64,7 +77,9 @@ const AnalyticsTab = ({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col space-y-3">
-            <span className="text-sm font-medium text-gray-600">Select Route:</span>
+            <span className="text-sm font-medium text-gray-600">
+              Select Route:
+            </span>
             <Select value={selectedRouteType} onValueChange={onRouteTypeChange}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue />
@@ -79,19 +94,23 @@ const AnalyticsTab = ({
 
           <div className="grid gap-4">
             {Object.entries(routeConfigurations).map(([key, config]) => (
-              <div 
-                key={key} 
+              <div
+                key={key}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  selectedRouteType === key 
-                    ? 'border-purple-500 bg-purple-50' 
-                    : 'border-gray-200 hover:border-purple-300'
+                  selectedRouteType === key
+                    ? "border-purple-500 bg-purple-50"
+                    : "border-gray-200 hover:border-purple-300"
                 }`}
                 onClick={() => onRouteTypeChange(key)}
               >
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800 mb-1">{config.name}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{config.description}</p>
+                    <h4 className="font-semibold text-gray-800 mb-1">
+                      {config.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {config.description}
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="outline" className="text-xs">
                         <Clock size={12} className="mr-1" />
@@ -125,11 +144,18 @@ const AnalyticsTab = ({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
-            <h4 className="font-semibold text-purple-800 mb-2">🤖 AI Recommendations</h4>
+            <h4 className="font-semibold text-purple-800 mb-2">
+              🤖 AI Recommendations
+            </h4>
             <ul className="space-y-2 text-sm text-purple-700">
-              <li>• This route optimizes for {currentRoute.efficiency} efficiency</li>
+              <li>
+                • This route optimizes for {currentRoute.efficiency} efficiency
+              </li>
               <li>• Expected total travel time: {currentRoute.duration}</li>
-              <li>• {totalSavedPlaces} saved places will be visited over {totalTripDays} days</li>
+              <li>
+                • {totalSavedPlaces} saved places will be visited over{" "}
+                {totalTripDays} days
+              </li>
               <li>• Route considers traffic patterns and opening hours</li>
             </ul>
           </div>

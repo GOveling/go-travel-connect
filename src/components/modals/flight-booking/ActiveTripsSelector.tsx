@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Users } from "lucide-react";
@@ -9,10 +8,16 @@ interface ActiveTripsSelectorProps {
   onTripSelect: (tripId: number) => void;
 }
 
-const ActiveTripsSelector = ({ activeTrips, selectedTrip, onTripSelect }: ActiveTripsSelectorProps) => {
+const ActiveTripsSelector = ({
+  activeTrips,
+  selectedTrip,
+  onTripSelect,
+}: ActiveTripsSelectorProps) => {
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-3">Select from Your Active Trips</h3>
+      <h3 className="text-lg font-semibold mb-3">
+        Select from Your Active Trips
+      </h3>
       <div className="space-y-2">
         {activeTrips.length === 0 ? (
           <Card>
@@ -24,10 +29,12 @@ const ActiveTripsSelector = ({ activeTrips, selectedTrip, onTripSelect }: Active
           </Card>
         ) : (
           activeTrips.map((trip) => (
-            <Card 
-              key={trip.id} 
+            <Card
+              key={trip.id}
               className={`cursor-pointer transition-all hover:shadow-md ${
-                selectedTrip === trip.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+                selectedTrip === trip.id
+                  ? "ring-2 ring-blue-500 bg-blue-50"
+                  : ""
               }`}
               onClick={() => onTripSelect(trip.id)}
             >
@@ -35,10 +42,10 @@ const ActiveTripsSelector = ({ activeTrips, selectedTrip, onTripSelect }: Active
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="font-medium">{trip.name}</h4>
                   <Badge variant="secondary" className="ml-2">
-                    {trip.status || 'Active'}
+                    {trip.status || "Active"}
                   </Badge>
                 </div>
-                
+
                 <div className="space-y-1 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <MapPin size={14} />
@@ -49,12 +56,12 @@ const ActiveTripsSelector = ({ activeTrips, selectedTrip, onTripSelect }: Active
                       </Badge>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Calendar size={14} />
                     <span>{trip.dates}</span>
                   </div>
-                  
+
                   {trip.travelers && (
                     <div className="flex items-center space-x-2">
                       <Users size={14} />

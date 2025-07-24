@@ -9,30 +9,28 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger()].filter(
+    Boolean
+  ),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
   define: {
-    global: 'globalThis',
+    global: "globalThis",
   },
   optimizeDeps: {
-    include: ['leaflet'],
+    include: ["leaflet"],
   },
   build: {
     rollupOptions: {
       external: [],
       output: {
         globals: {
-          leaflet: 'L'
-        }
-      }
-    }
-  }
+          leaflet: "L",
+        },
+      },
+    },
+  },
 }));

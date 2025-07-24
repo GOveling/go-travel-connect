@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -17,22 +16,26 @@ const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
   const [isLevelsModalOpen, setIsLevelsModalOpen] = useState(false);
   const progressPercentage = (level.currentXP / level.nextLevelXP) * 100;
   const isMaxLevel = level.level === 20;
-  
+
   // Get the next level information
-  const nextLevel = TRAVELER_LEVELS.find(l => l.level === level.level + 1);
+  const nextLevel = TRAVELER_LEVELS.find((l) => l.level === level.level + 1);
   const nextLevelName = nextLevel ? nextLevel.title : "Max Level";
 
   return (
     <>
       <Card className="overflow-hidden">
         <CardContent className="p-0">
-          <div className={`bg-gradient-to-r ${level.color} p-6 text-white relative overflow-hidden`}>
+          <div
+            className={`bg-gradient-to-r ${level.color} p-6 text-white relative overflow-hidden`}
+          >
             {/* Background decoration */}
             <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-4 right-4 text-6xl">{level.icon}</div>
+              <div className="absolute top-4 right-4 text-6xl">
+                {level.icon}
+              </div>
               <div className="absolute bottom-4 left-4 text-4xl">🌟</div>
             </div>
-            
+
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -42,13 +45,15 @@ const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
                   <div>
                     <div className="flex items-center space-x-2 mb-1">
                       <Trophy size={20} />
-                      <span className="text-xl font-bold">Level {level.level}</span>
+                      <span className="text-xl font-bold">
+                        Level {level.level}
+                      </span>
                     </div>
                     <h3 className="text-lg font-semibold">{level.title}</h3>
                   </div>
                 </div>
-                <Badge 
-                  variant="secondary" 
+                <Badge
+                  variant="secondary"
                   className="bg-white/20 text-white border-white/30 cursor-pointer hover:bg-white/30 transition-colors"
                   onClick={() => setIsLevelsModalOpen(true)}
                 >
@@ -61,14 +66,17 @@ const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm opacity-90">
                     <span>Progress to {nextLevelName}</span>
-                    <span>{level.currentXP} / {level.nextLevelXP} XP</span>
+                    <span>
+                      {level.currentXP} / {level.nextLevelXP} XP
+                    </span>
                   </div>
-                  <Progress 
-                    value={progressPercentage} 
+                  <Progress
+                    value={progressPercentage}
                     className="h-3 bg-white/20"
                   />
                   <div className="text-sm opacity-90">
-                    {level.nextLevelXP - level.currentXP} XP needed for {nextLevelName}
+                    {level.nextLevelXP - level.currentXP} XP needed for{" "}
+                    {nextLevelName}
                   </div>
                 </div>
               )}
@@ -76,8 +84,12 @@ const LevelProgressCard = ({ level, totalPoints }: LevelProgressCardProps) => {
               {isMaxLevel && (
                 <div className="text-center">
                   <div className="text-2xl mb-2">🏆</div>
-                  <div className="text-lg font-semibold">Maximum Level Reached!</div>
-                  <div className="text-sm opacity-90">You are a Legendary Traveler</div>
+                  <div className="text-lg font-semibold">
+                    Maximum Level Reached!
+                  </div>
+                  <div className="text-sm opacity-90">
+                    You are a Legendary Traveler
+                  </div>
                 </div>
               )}
             </div>

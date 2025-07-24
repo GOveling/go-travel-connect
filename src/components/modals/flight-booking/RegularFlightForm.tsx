@@ -1,7 +1,12 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import DateSelectionForm from "./DateSelectionForm";
 
 interface FormData {
@@ -14,7 +19,7 @@ interface FormData {
 }
 
 interface RegularFlightFormProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   isDateRangeOpen: boolean;
@@ -23,17 +28,17 @@ interface RegularFlightFormProps {
   setIsDepartDateOpen: (open: boolean) => void;
 }
 
-const RegularFlightForm = ({ 
-  tripType, 
-  formData, 
+const RegularFlightForm = ({
+  tripType,
+  formData,
   setFormData,
   isDateRangeOpen,
   setIsDateRangeOpen,
   isDepartDateOpen,
-  setIsDepartDateOpen
+  setIsDepartDateOpen,
 }: RegularFlightFormProps) => {
   const updateFormData = (field: keyof FormData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -44,7 +49,7 @@ const RegularFlightForm = ({
           <Input
             id="from"
             value={formData.from}
-            onChange={(e) => updateFormData('from', e.target.value)}
+            onChange={(e) => updateFormData("from", e.target.value)}
             placeholder="Departure city"
           />
         </div>
@@ -53,7 +58,7 @@ const RegularFlightForm = ({
           <Input
             id="to"
             value={formData.to}
-            onChange={(e) => updateFormData('to', e.target.value)}
+            onChange={(e) => updateFormData("to", e.target.value)}
             placeholder="Destination city"
           />
         </div>
@@ -72,20 +77,30 @@ const RegularFlightForm = ({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label htmlFor="passengers">Passengers</Label>
-          <Select value={formData.passengers.toString()} onValueChange={(value) => updateFormData('passengers', parseInt(value))}>
+          <Select
+            value={formData.passengers.toString()}
+            onValueChange={(value) =>
+              updateFormData("passengers", parseInt(value))
+            }
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                <SelectItem key={num} value={num.toString()}>{num} passenger{num > 1 ? 's' : ''}</SelectItem>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                <SelectItem key={num} value={num.toString()}>
+                  {num} passenger{num > 1 ? "s" : ""}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <Label htmlFor="class">Class</Label>
-          <Select value={formData.class} onValueChange={(value) => updateFormData('class', value)}>
+          <Select
+            value={formData.class}
+            onValueChange={(value) => updateFormData("class", value)}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

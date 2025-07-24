@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Search, MapPin, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -13,17 +12,18 @@ interface PlacesAutocompleteInputProps {
   value?: string;
 }
 
-const PlacesAutocompleteInput = ({ 
-  placeholder = "Search places...", 
+const PlacesAutocompleteInput = ({
+  placeholder = "Search places...",
   onPlaceSelect,
   onInputChange,
   className,
-  value: controlledValue
+  value: controlledValue,
 }: PlacesAutocompleteInputProps) => {
   const [inputValue, setInputValue] = useState(controlledValue || "");
   const [showResults, setShowResults] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const { predictions, loading, searchPlaces, clearResults } = useGooglePlaces();
+  const { predictions, loading, searchPlaces, clearResults } =
+    useGooglePlaces();
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -67,25 +67,25 @@ const PlacesAutocompleteInput = ({
     if (!showResults || predictions.length === 0) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex((prev) =>
           prev < predictions.length - 1 ? prev + 1 : 0
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setSelectedIndex(prev => 
+        setSelectedIndex((prev) =>
           prev > 0 ? prev - 1 : predictions.length - 1
         );
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < predictions.length) {
           handlePlaceSelect(predictions[selectedIndex]);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setShowResults(false);
         inputRef.current?.blur();
         break;
@@ -115,15 +115,21 @@ const PlacesAutocompleteInput = ({
             }
           }}
           placeholder={placeholder}
-          className={cn("pl-10 h-12 border-2 border-gray-200 focus:border-purple-500", className)}
+          className={cn(
+            "pl-10 h-12 border-2 border-gray-200 focus:border-purple-500",
+            className
+          )}
         />
         {loading && (
-          <Loader2 className="absolute right-3 top-3 text-gray-400 animate-spin" size={20} />
+          <Loader2
+            className="absolute right-3 top-3 text-gray-400 animate-spin"
+            size={20}
+          />
         )}
       </div>
 
       {showResults && predictions.length > 0 && (
-        <div 
+        <div
           ref={resultsRef}
           className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
         >

@@ -1,7 +1,12 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import ManualDateSelection from "./ManualDateSelection";
@@ -24,11 +29,17 @@ interface MultiCityFlight {
 }
 
 interface ManualFlightFormProps {
-  flightType: 'round-trip' | 'one-way' | 'multi-city';
+  flightType: "round-trip" | "one-way" | "multi-city";
   flightData: ManualFlightData;
-  setFlightData: (data: ManualFlightData | ((prev: ManualFlightData) => ManualFlightData)) => void;
+  setFlightData: (
+    data: ManualFlightData | ((prev: ManualFlightData) => ManualFlightData)
+  ) => void;
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
   isDateRangeOpen: boolean;
   setIsDateRangeOpen: (open: boolean) => void;
   isDepartDateOpen: boolean;
@@ -44,37 +55,47 @@ const ManualFlightForm = ({
   isDateRangeOpen,
   setIsDateRangeOpen,
   isDepartDateOpen,
-  setIsDepartDateOpen
+  setIsDepartDateOpen,
 }: ManualFlightFormProps) => {
-
   const addMultiCityFlight = () => {
-    setMultiCityFlights(prev => [
+    setMultiCityFlights((prev) => [
       ...prev,
-      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
+      { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
     ]);
   };
 
   const removeMultiCityFlight = (index: number) => {
     if (multiCityFlights.length > 2) {
-      setMultiCityFlights(prev => prev.filter((_, i) => i !== index));
+      setMultiCityFlights((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
-  const updateMultiCityFlight = (index: number, field: keyof MultiCityFlight, value: string | number) => {
-    setMultiCityFlights(prev => prev.map((flight, i) => 
-      i === index ? { ...flight, [field]: value } : flight
-    ));
+  const updateMultiCityFlight = (
+    index: number,
+    field: keyof MultiCityFlight,
+    value: string | number
+  ) => {
+    setMultiCityFlights((prev) =>
+      prev.map((flight, i) =>
+        i === index ? { ...flight, [field]: value } : flight
+      )
+    );
   };
 
-  if (flightType === 'multi-city') {
+  if (flightType === "multi-city") {
     return (
       <div className="space-y-4">
         <h3 className="font-medium text-gray-900">Vuelos Multi-destino</h3>
-        
+
         {multiCityFlights.map((flight, index) => (
-          <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-3">
+          <div
+            key={index}
+            className="p-4 border rounded-lg bg-gray-50 space-y-3"
+          >
             <div className="flex items-center justify-between">
-              <span className="font-medium text-sm text-gray-700">Vuelo {index + 1}</span>
+              <span className="font-medium text-sm text-gray-700">
+                Vuelo {index + 1}
+              </span>
               {multiCityFlights.length > 2 && (
                 <Button
                   variant="ghost"
@@ -86,14 +107,16 @@ const ManualFlightForm = ({
                 </Button>
               )}
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-xs">Origen</Label>
                 <Input
                   placeholder="Ciudad de origen"
                   value={flight.from}
-                  onChange={(e) => updateMultiCityFlight(index, 'from', e.target.value)}
+                  onChange={(e) =>
+                    updateMultiCityFlight(index, "from", e.target.value)
+                  }
                   className="h-10"
                 />
               </div>
@@ -102,25 +125,35 @@ const ManualFlightForm = ({
                 <Input
                   placeholder="Ciudad de destino"
                   value={flight.to}
-                  onChange={(e) => updateMultiCityFlight(index, 'to', e.target.value)}
+                  onChange={(e) =>
+                    updateMultiCityFlight(index, "to", e.target.value)
+                  }
                   className="h-10"
                 />
               </div>
             </div>
-            
+
             <ManualDateSelection
               flightType="one-way"
               flightData={{
                 ...flightData,
                 departDate: flight.departDate,
-                returnDate: ''
+                returnDate: "",
               }}
               setFlightData={(data) => {
-                if (typeof data === 'function') {
-                  const newData = data({ ...flightData, departDate: flight.departDate, returnDate: '' });
-                  updateMultiCityFlight(index, 'departDate', newData.departDate);
+                if (typeof data === "function") {
+                  const newData = data({
+                    ...flightData,
+                    departDate: flight.departDate,
+                    returnDate: "",
+                  });
+                  updateMultiCityFlight(
+                    index,
+                    "departDate",
+                    newData.departDate
+                  );
                 } else {
-                  updateMultiCityFlight(index, 'departDate', data.departDate);
+                  updateMultiCityFlight(index, "departDate", data.departDate);
                 }
               }}
               isDateRangeOpen={false}
@@ -128,29 +161,35 @@ const ManualFlightForm = ({
               isDepartDateOpen={isDepartDateOpen}
               setIsDepartDateOpen={setIsDepartDateOpen}
             />
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-xs">Pasajeros</Label>
-                <Select 
-                  value={flight.passengers.toString()} 
-                  onValueChange={(value) => updateMultiCityFlight(index, 'passengers', parseInt(value))}
+                <Select
+                  value={flight.passengers.toString()}
+                  onValueChange={(value) =>
+                    updateMultiCityFlight(index, "passengers", parseInt(value))
+                  }
                 >
                   <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {[1,2,3,4,5,6,7,8].map(num => (
-                      <SelectItem key={num} value={num.toString()}>{num} pasajero{num > 1 ? 's' : ''}</SelectItem>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num} pasajero{num > 1 ? "s" : ""}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs">Clase</Label>
-                <Select 
-                  value={flight.class} 
-                  onValueChange={(value) => updateMultiCityFlight(index, 'class', value)}
+                <Select
+                  value={flight.class}
+                  onValueChange={(value) =>
+                    updateMultiCityFlight(index, "class", value)
+                  }
                 >
                   <SelectTrigger className="h-10">
                     <SelectValue />
@@ -166,7 +205,7 @@ const ManualFlightForm = ({
             </div>
           </div>
         ))}
-        
+
         <Button
           variant="outline"
           onClick={addMultiCityFlight}
@@ -182,14 +221,16 @@ const ManualFlightForm = ({
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-gray-900">Detalles del Vuelo</h3>
-      
+
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label>Origen</Label>
           <Input
             placeholder="Ciudad de origen"
             value={flightData.from}
-            onChange={(e) => setFlightData(prev => ({ ...prev, from: e.target.value }))}
+            onChange={(e) =>
+              setFlightData((prev) => ({ ...prev, from: e.target.value }))
+            }
           />
         </div>
         <div className="space-y-2">
@@ -197,11 +238,13 @@ const ManualFlightForm = ({
           <Input
             placeholder="Ciudad de destino"
             value={flightData.to}
-            onChange={(e) => setFlightData(prev => ({ ...prev, to: e.target.value }))}
+            onChange={(e) =>
+              setFlightData((prev) => ({ ...prev, to: e.target.value }))
+            }
           />
         </div>
       </div>
-      
+
       <ManualDateSelection
         flightType={flightType}
         flightData={flightData}
@@ -211,29 +254,38 @@ const ManualFlightForm = ({
         isDepartDateOpen={isDepartDateOpen}
         setIsDepartDateOpen={setIsDepartDateOpen}
       />
-      
+
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label>Pasajeros</Label>
-          <Select 
-            value={flightData.passengers.toString()} 
-            onValueChange={(value) => setFlightData(prev => ({ ...prev, passengers: parseInt(value) }))}
+          <Select
+            value={flightData.passengers.toString()}
+            onValueChange={(value) =>
+              setFlightData((prev) => ({
+                ...prev,
+                passengers: parseInt(value),
+              }))
+            }
           >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[1,2,3,4,5,6,7,8].map(num => (
-                <SelectItem key={num} value={num.toString()}>{num} pasajero{num > 1 ? 's' : ''}</SelectItem>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                <SelectItem key={num} value={num.toString()}>
+                  {num} pasajero{num > 1 ? "s" : ""}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
           <Label>Clase</Label>
-          <Select 
-            value={flightData.class} 
-            onValueChange={(value) => setFlightData(prev => ({ ...prev, class: value }))}
+          <Select
+            value={flightData.class}
+            onValueChange={(value) =>
+              setFlightData((prev) => ({ ...prev, class: value }))
+            }
           >
             <SelectTrigger>
               <SelectValue />

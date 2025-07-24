@@ -1,4 +1,3 @@
-
 import FlightBookingHeader from "./FlightBookingHeader";
 import FlightBookingProgress from "./FlightBookingProgress";
 import FlightBookingTypeStep from "./FlightBookingTypeStep";
@@ -25,12 +24,18 @@ interface MultiCityFlight {
 }
 
 interface FlightBookingContentProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
-  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
+  setTripType: (
+    type: "round-trip" | "one-way" | "multi-city" | "manual"
+  ) => void;
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
   selectedTrip: number | null;
   handleTripSelection: (tripId: number) => void;
   trips: any[];
@@ -63,7 +68,7 @@ const FlightBookingContent = ({
   setShowAIRecommendation,
   onComplete,
   onClose,
-  onReset
+  onReset,
 }: FlightBookingContentProps) => {
   const {
     currentStep,
@@ -74,7 +79,7 @@ const FlightBookingContent = ({
     handleTripSelect,
     handleStepBack,
     canProceedToDetails,
-    canProceedToSummary
+    canProceedToSummary,
   } = useFlightBookingLogic({
     tripType,
     setTripType,
@@ -85,12 +90,12 @@ const FlightBookingContent = ({
     selectedTrip,
     handleTripSelection,
     trips,
-    setShowAIRecommendation
+    setShowAIRecommendation,
   });
 
   const renderContent = () => {
     switch (currentStep) {
-      case 'type':
+      case "type":
         return (
           <FlightBookingTypeStep
             tripType={tripType}
@@ -101,11 +106,11 @@ const FlightBookingContent = ({
             selectedTrip={selectedTrip}
             onTripSelect={handleTripSelect}
             canProceed={Boolean(canProceedToDetails())}
-            onContinue={() => setCurrentStep('details')}
+            onContinue={() => setCurrentStep("details")}
           />
         );
-        
-      case 'details':
+
+      case "details":
         return (
           <FlightBookingDetailsStep
             tripType={tripType}
@@ -118,11 +123,11 @@ const FlightBookingContent = ({
             isDepartDateOpen={Boolean(isDepartDateOpen)}
             setIsDepartDateOpen={setIsDepartDateOpen}
             canProceed={Boolean(canProceedToSummary())}
-            onContinue={() => setCurrentStep('summary')}
+            onContinue={() => setCurrentStep("summary")}
           />
         );
-        
-      case 'summary':
+
+      case "summary":
         return (
           <FlightBookingSummaryStep
             tripType={tripType}
@@ -132,7 +137,7 @@ const FlightBookingContent = ({
             onReset={onReset}
           />
         );
-        
+
       default:
         return null;
     }
@@ -140,22 +145,20 @@ const FlightBookingContent = ({
 
   const handleManualFlightModalClose = () => {
     setIsManualFlightModalOpen(false);
-    setTripType('round-trip');
+    setTripType("round-trip");
   };
 
   return (
     <>
       <div className="h-full max-h-[95vh] flex flex-col">
-        <FlightBookingHeader 
+        <FlightBookingHeader
           currentStep={currentStep}
           onStepBack={handleStepBack}
         />
         <FlightBookingProgress currentStep={currentStep} />
-        <div className="flex-1 overflow-y-auto">
-          {renderContent()}
-        </div>
+        <div className="flex-1 overflow-y-auto">{renderContent()}</div>
       </div>
-      
+
       <ManualFlightModal
         isOpen={Boolean(isManualFlightModalOpen)}
         onClose={handleManualFlightModalClose}

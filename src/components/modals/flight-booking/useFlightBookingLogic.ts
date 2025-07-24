@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { processTripSelection } from "./tripSelectionUtils";
@@ -21,12 +20,18 @@ interface MultiCityFlight {
 }
 
 interface UseFlightBookingLogicProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
-  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
+  setTripType: (
+    type: "round-trip" | "one-way" | "multi-city" | "manual"
+  ) => void;
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
   selectedTrip: number | null;
   handleTripSelection: (tripId: number) => void;
   trips: any[];
@@ -43,53 +48,60 @@ export const useFlightBookingLogic = ({
   selectedTrip,
   handleTripSelection,
   trips,
-  setShowAIRecommendation
+  setShowAIRecommendation,
 }: UseFlightBookingLogicProps) => {
-  const [currentStep, setCurrentStep] = useState<'type' | 'details' | 'summary'>('type');
+  const [currentStep, setCurrentStep] = useState<
+    "type" | "details" | "summary"
+  >("type");
   const [isManualFlightModalOpen, setIsManualFlightModalOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleTripTypeChange = (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => {
+  const handleTripTypeChange = (
+    type: "round-trip" | "one-way" | "multi-city" | "manual"
+  ) => {
     setTripType(type);
     setShowAIRecommendation(false);
-    if (type === 'manual') {
+    if (type === "manual") {
       setIsManualFlightModalOpen(true);
     } else {
-      setCurrentStep('type');
+      setCurrentStep("type");
     }
   };
 
   const handleTripSelect = (tripId: number) => {
     handleTripSelection(tripId);
-    const selectedTripData = trips.find(trip => trip.id === tripId);
-    
+    const selectedTripData = trips.find((trip) => trip.id === tripId);
+
     if (selectedTripData) {
       try {
         const result = processTripSelection(selectedTripData, "New York, NY");
-        
+
         setTripType(result.tripType);
-        
-        if (result.tripType === 'multi-city') {
+
+        if (result.tripType === "multi-city") {
           setMultiCityFlights(result.multiCityFlights!);
-          
-          const returnFlightInfo = selectedTripData.dates && selectedTripData.dates.includes(' - ') ? " + vuelo de retorno" : "";
+
+          const returnFlightInfo =
+            selectedTripData.dates && selectedTripData.dates.includes(" - ")
+              ? " + vuelo de retorno"
+              : "";
           toast({
             title: "🤖 IA optimizó vuelos multi-destino",
             description: `${result.optimizedFlights.length} vuelos planificados${returnFlightInfo}. ${result.aiRecommendation.reason}`,
           });
         } else {
           setFormData(result.formData!);
-          
+
           toast({
             title: "🤖 IA optimizó fechas de vuelo",
             description: `${result.aiRecommendation.reason} Distancia: ${result.aiRecommendation.distance}km`,
           });
         }
-        
+
         setShowAIRecommendation(true);
-        setCurrentStep('details');
+        setCurrentStep("details");
       } catch (error) {
-        console.error('Error processing trip selection:', error);
+        console.error("Error processing trip selection:", error);
         toast({
           title: "⚠️ No se encontraron destinos",
           description: "El viaje seleccionado no tiene destinos configurados.",
@@ -99,22 +111,30 @@ export const useFlightBookingLogic = ({
   };
 
   const handleStepBack = () => {
-    if (currentStep === 'summary') setCurrentStep('details');
-    else if (currentStep === 'details') setCurrentStep('type');
+    if (currentStep === "summary") setCurrentStep("details");
+    else if (currentStep === "details") setCurrentStep("type");
   };
 
   const canProceedToDetails = () => {
-    if (tripType === 'manual') return true;
+    if (tripType === "manual") return true;
     return selectedTrip !== null;
   };
 
   const canProceedToSummary = () => {
-    if (tripType === 'multi-city') {
-      return multiCityFlights.length >= 2 && 
-             multiCityFlights.every(flight => flight.from && flight.to && flight.departDate);
+    if (tripType === "multi-city") {
+      return (
+        multiCityFlights.length >= 2 &&
+        multiCityFlights.every(
+          (flight) => flight.from && flight.to && flight.departDate
+        )
+      );
     }
-    return formData.from && formData.to && formData.departDate && 
-           (tripType === 'one-way' || tripType === 'manual' || formData.returnDate);
+    return (
+      formData.from &&
+      formData.to &&
+      formData.departDate &&
+      (tripType === "one-way" || tripType === "manual" || formData.returnDate)
+    );
   };
 
   return {
@@ -126,6 +146,6 @@ export const useFlightBookingLogic = ({
     handleTripSelect,
     handleStepBack,
     canProceedToDetails,
-    canProceedToSummary
+    canProceedToSummary,
   };
 };

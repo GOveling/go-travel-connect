@@ -1,5 +1,5 @@
-import { apiService } from './apiService';
-import { LocationCoordinates } from './types';
+import { apiService } from "./apiService";
+import { LocationCoordinates } from "./types";
 
 export interface WeatherData {
   temperature: number;
@@ -23,11 +23,14 @@ export class WeatherService {
       let data;
 
       if (coordinates) {
-        data = await apiService.getWeatherByCoordinates(coordinates.lat, coordinates.lng);
+        data = await apiService.getWeatherByCoordinates(
+          coordinates.lat,
+          coordinates.lng
+        );
       } else if (city) {
         data = await apiService.getWeatherByCity(city);
       } else {
-        throw new Error('Either coordinates or city must be provided');
+        throw new Error("Either coordinates or city must be provided");
       }
 
       // ✅ Mapeo correcto del backend al formato esperado por Redux
@@ -46,7 +49,7 @@ export class WeatherService {
 
       return weatherData;
     } catch (error) {
-      console.error('Weather service error:', error);
+      console.error("Weather service error:", error);
       throw error;
     }
   }
@@ -61,7 +64,7 @@ export class WeatherService {
       );
       return response;
     } catch (error) {
-      console.error('Weather forecast error:', error);
+      console.error("Weather forecast error:", error);
       throw error;
     }
   }

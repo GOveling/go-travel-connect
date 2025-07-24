@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -24,7 +23,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Search, Edit, Trash2, Star, MapPin, Calendar, User, X } from "lucide-react";
+import {
+  Search,
+  Edit,
+  Trash2,
+  Star,
+  MapPin,
+  Calendar,
+  User,
+  X,
+} from "lucide-react";
 import { useMyReviews } from "@/hooks/useMyReviews";
 import { format } from "date-fns";
 
@@ -41,16 +49,21 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
   const [editForm, setEditForm] = useState({
     rating: 5,
     comment: "",
-    anonymous: false
+    anonymous: false,
   });
 
   // Filter reviews based on search criteria
-  const filteredReviews = reviews.filter(review => {
-    const matchesPlace = review.place_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesComment = review.comment.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDate = searchDate ? 
-      format(new Date(review.created_at), 'yyyy-MM-dd') === searchDate : true;
-    
+  const filteredReviews = reviews.filter((review) => {
+    const matchesPlace = review.place_name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesComment = review.comment
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesDate = searchDate
+      ? format(new Date(review.created_at), "yyyy-MM-dd") === searchDate
+      : true;
+
     return (matchesPlace || matchesComment) && matchesDate;
   });
 
@@ -59,19 +72,19 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
     setEditForm({
       rating: review.rating,
       comment: review.comment,
-      anonymous: review.anonymous || false
+      anonymous: review.anonymous || false,
     });
   };
 
   const handleUpdate = async () => {
     if (!editingReview) return;
-    
+
     const success = await updateReview(editingReview.id, {
       rating: editForm.rating,
       comment: editForm.comment,
-      anonymous: editForm.anonymous
+      anonymous: editForm.anonymous,
     });
-    
+
     if (success) {
       setEditingReview(null);
       setEditForm({ rating: 5, comment: "", anonymous: false });
@@ -133,7 +146,11 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" onClick={clearSearch} className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={clearSearch}
+              className="flex items-center space-x-2"
+            >
               <X size={16} />
               <span>Clear</span>
             </Button>
@@ -146,7 +163,9 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
             <div className="text-center py-8">
               <User size={48} className="mx-auto text-gray-400 mb-4" />
               <p className="text-gray-500">
-                {reviews.length === 0 ? "You haven't written any reviews yet" : "No reviews match your search criteria"}
+                {reviews.length === 0
+                  ? "You haven't written any reviews yet"
+                  : "No reviews match your search criteria"}
               </p>
             </div>
           ) : (
@@ -158,15 +177,23 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
                     <div className="space-y-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-semibold text-lg">{review.place_name}</h3>
+                          <h3 className="font-semibold text-lg">
+                            {review.place_name}
+                          </h3>
                           <div className="flex items-center space-x-2 text-sm text-gray-500">
                             <MapPin size={14} />
                             <span>Editing review</span>
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <Button size="sm" onClick={handleUpdate}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => setEditingReview(null)}>
+                          <Button size="sm" onClick={handleUpdate}>
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingReview(null)}
+                          >
                             Cancel
                           </Button>
                         </div>
@@ -179,16 +206,24 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
                           {[1, 2, 3, 4, 5].map((star) => (
                             <button
                               key={star}
-                              onClick={() => setEditForm({ ...editForm, rating: star })}
+                              onClick={() =>
+                                setEditForm({ ...editForm, rating: star })
+                              }
                               className="focus:outline-none"
                             >
                               <Star
                                 size={20}
-                                className={star <= editForm.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                                className={
+                                  star <= editForm.rating
+                                    ? "text-yellow-500 fill-yellow-500"
+                                    : "text-gray-300"
+                                }
                               />
                             </button>
                           ))}
-                          <span className="ml-2 text-sm text-gray-600">({editForm.rating}/5)</span>
+                          <span className="ml-2 text-sm text-gray-600">
+                            ({editForm.rating}/5)
+                          </span>
                         </div>
                       </div>
 
@@ -197,7 +232,12 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
                         <Label>Comment</Label>
                         <Textarea
                           value={editForm.comment}
-                          onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              comment: e.target.value,
+                            })
+                          }
                           placeholder="Share your experience..."
                           className="resize-none"
                           rows={3}
@@ -208,7 +248,9 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
                       <div className="flex items-center space-x-2">
                         <Switch
                           checked={editForm.anonymous}
-                          onCheckedChange={(checked) => setEditForm({ ...editForm, anonymous: checked })}
+                          onCheckedChange={(checked) =>
+                            setEditForm({ ...editForm, anonymous: checked })
+                          }
                         />
                         <Label>Post anonymously</Label>
                       </div>
@@ -218,40 +260,63 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-semibold text-lg">{review.place_name}</h3>
+                          <h3 className="font-semibold text-lg">
+                            {review.place_name}
+                          </h3>
                           <div className="flex items-center space-x-4 text-sm text-gray-500">
                             <div className="flex items-center space-x-1">
                               <Calendar size={14} />
-                              <span>{format(new Date(review.created_at), 'MMM dd, yyyy')}</span>
+                              <span>
+                                {format(
+                                  new Date(review.created_at),
+                                  "MMM dd, yyyy"
+                                )}
+                              </span>
                             </div>
                             <div className="flex items-center space-x-1">
-                              <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                              <Star
+                                size={14}
+                                className="text-yellow-500 fill-yellow-500"
+                              />
                               <span>{review.rating}/5</span>
                             </div>
                           </div>
                         </div>
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" onClick={() => startEdit(review)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => startEdit(review)}
+                          >
                             <Edit size={14} className="mr-1" />
                             Edit
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600 border-red-200 hover:bg-red-50"
+                              >
                                 <Trash2 size={14} className="mr-1" />
                                 Delete
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Review</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Delete Review
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete this review? This action cannot be undone.
+                                  Are you sure you want to delete this review?
+                                  This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(review.id)}>
+                                <AlertDialogAction
+                                  onClick={() => handleDelete(review.id)}
+                                >
                                   Delete
                                 </AlertDialogAction>
                               </AlertDialogFooter>

@@ -30,38 +30,42 @@ interface ManualFlightModalProps {
 }
 
 const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
-  const [currentStep, setCurrentStep] = useState<'type' | 'details' | 'summary'>('type');
-  const [flightType, setFlightType] = useState<'round-trip' | 'one-way' | 'multi-city'>('round-trip');
+  const [currentStep, setCurrentStep] = useState<
+    "type" | "details" | "summary"
+  >("type");
+  const [flightType, setFlightType] = useState<
+    "round-trip" | "one-way" | "multi-city"
+  >("round-trip");
   const [flightData, setFlightData] = useState<ManualFlightData>({
-    from: '',
-    to: '',
-    departDate: '',
-    returnDate: '',
+    from: "",
+    to: "",
+    departDate: "",
+    returnDate: "",
     passengers: 1,
-    class: 'economy'
+    class: "economy",
   });
   const [multiCityFlights, setMultiCityFlights] = useState<MultiCityFlight[]>([
-    { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
-    { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
+    { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
+    { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
   ]);
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isDepartDateOpen, setIsDepartDateOpen] = useState(false);
   const { toast } = useToast();
 
   const handleReset = () => {
-    setCurrentStep('type');
-    setFlightType('round-trip');
+    setCurrentStep("type");
+    setFlightType("round-trip");
     setFlightData({
-      from: '',
-      to: '',
-      departDate: '',
-      returnDate: '',
+      from: "",
+      to: "",
+      departDate: "",
+      returnDate: "",
       passengers: 1,
-      class: 'economy'
+      class: "economy",
     });
     setMultiCityFlights([
-      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
-      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
+      { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
+      { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
     ]);
   };
 
@@ -73,7 +77,8 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
   const handleComplete = () => {
     toast({
       title: "Búsqueda de vuelos iniciada",
-      description: "Buscando los mejores vuelos para tu configuración manual...",
+      description:
+        "Buscando los mejores vuelos para tu configuración manual...",
     });
     handleClose();
   };
@@ -83,24 +88,32 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
   };
 
   const canProceedToSummary = () => {
-    if (flightType === 'multi-city') {
-      return multiCityFlights.length >= 2 && 
-             multiCityFlights.every(flight => flight.from && flight.to && flight.departDate);
+    if (flightType === "multi-city") {
+      return (
+        multiCityFlights.length >= 2 &&
+        multiCityFlights.every(
+          (flight) => flight.from && flight.to && flight.departDate
+        )
+      );
     }
-    return flightData.from && flightData.to && flightData.departDate && 
-           (flightType === 'one-way' || flightData.returnDate);
+    return (
+      flightData.from &&
+      flightData.to &&
+      flightData.departDate &&
+      (flightType === "one-way" || flightData.returnDate)
+    );
   };
 
   const renderHeader = () => (
     <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-orange-50 to-amber-50">
       <div className="flex items-center space-x-3">
-        {currentStep !== 'type' && (
+        {currentStep !== "type" && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (currentStep === 'summary') setCurrentStep('details');
-              else if (currentStep === 'details') setCurrentStep('type');
+              if (currentStep === "summary") setCurrentStep("details");
+              else if (currentStep === "details") setCurrentStep("type");
             }}
           >
             <ArrowLeft size={16} />
@@ -109,9 +122,9 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Vuelo Manual</h2>
           <p className="text-xs text-gray-500">
-            {currentStep === 'type' && 'Selecciona el tipo de vuelo'}
-            {currentStep === 'details' && 'Configura los detalles'}
-            {currentStep === 'summary' && 'Confirma tu búsqueda'}
+            {currentStep === "type" && "Selecciona el tipo de vuelo"}
+            {currentStep === "details" && "Configura los detalles"}
+            {currentStep === "summary" && "Confirma tu búsqueda"}
           </p>
         </div>
       </div>
@@ -121,12 +134,17 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
   const renderProgress = () => (
     <div className="px-4 py-2 bg-gray-50">
       <div className="flex items-center justify-center space-x-2">
-        {['type', 'details', 'summary'].map((step, index) => (
+        {["type", "details", "summary"].map((step, index) => (
           <div key={step} className="flex items-center">
-            <div className={`w-2 h-2 rounded-full ${
-              currentStep === step ? 'bg-orange-500' : 
-              ['type', 'details', 'summary'].indexOf(currentStep) > index ? 'bg-orange-300' : 'bg-gray-300'
-            }`} />
+            <div
+              className={`w-2 h-2 rounded-full ${
+                currentStep === step
+                  ? "bg-orange-500"
+                  : ["type", "details", "summary"].indexOf(currentStep) > index
+                    ? "bg-orange-300"
+                    : "bg-gray-300"
+              }`}
+            />
             {index < 2 && <div className="w-6 h-px bg-gray-300 mx-1" />}
           </div>
         ))}
@@ -136,16 +154,16 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
 
   const renderContent = () => {
     switch (currentStep) {
-      case 'type':
+      case "type":
         return (
           <div className="p-4 space-y-4">
-            <ManualFlightTypeSelector 
-              flightType={flightType} 
+            <ManualFlightTypeSelector
+              flightType={flightType}
               onTypeChange={setFlightType}
             />
-            
-            <Button 
-              onClick={() => setCurrentStep('details')}
+
+            <Button
+              onClick={() => setCurrentStep("details")}
               className="w-full h-12 bg-gradient-to-r from-orange-500 to-amber-600 text-white"
               disabled={!canProceedToDetails()}
             >
@@ -153,8 +171,8 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
             </Button>
           </div>
         );
-        
-      case 'details':
+
+      case "details":
         return (
           <div className="p-4 space-y-4">
             <ManualFlightForm
@@ -168,9 +186,9 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
               isDepartDateOpen={isDepartDateOpen}
               setIsDepartDateOpen={setIsDepartDateOpen}
             />
-            
-            <Button 
-              onClick={() => setCurrentStep('summary')}
+
+            <Button
+              onClick={() => setCurrentStep("summary")}
               className="w-full h-12 bg-gradient-to-r from-orange-500 to-amber-600 text-white"
               disabled={!canProceedToSummary()}
             >
@@ -178,8 +196,8 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
             </Button>
           </div>
         );
-        
-      case 'summary':
+
+      case "summary":
         return (
           <div className="p-4 space-y-4">
             <ManualFlightSummary
@@ -187,9 +205,9 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
               flightData={flightData}
               multiCityFlights={multiCityFlights}
             />
-            
+
             <div className="space-y-2">
-              <Button 
+              <Button
                 onClick={handleComplete}
                 className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium"
               >
@@ -199,7 +217,7 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
             </div>
           </div>
         );
-        
+
       default:
         return null;
     }
@@ -211,9 +229,7 @@ const ManualFlightModal = ({ isOpen, onClose }: ManualFlightModalProps) => {
         <div className="h-full max-h-[95vh] flex flex-col">
           {renderHeader()}
           {renderProgress()}
-          <div className="flex-1 overflow-y-auto">
-            {renderContent()}
-          </div>
+          <div className="flex-1 overflow-y-auto">{renderContent()}</div>
         </div>
       </DialogContent>
     </Dialog>

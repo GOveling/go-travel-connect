@@ -1,6 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Filter, RotateCcw, Users, Calendar } from "lucide-react";
 
@@ -25,18 +31,32 @@ interface MapFiltersProps {
   onResetFilters: () => void;
 }
 
-const MapFilters = ({ 
-  filters, 
-  stats, 
-  onToggleStatus, 
-  onUpdateFilters, 
-  onResetFilters 
+const MapFilters = ({
+  filters,
+  stats,
+  onToggleStatus,
+  onUpdateFilters,
+  onResetFilters,
 }: MapFiltersProps) => {
-  
   const statusOptions = [
-    { value: 'upcoming', label: 'Próximos', color: 'bg-green-500', count: stats.upcomingTrips },
-    { value: 'planning', label: 'Planificando', color: 'bg-purple-600', count: stats.planningTrips },
-    { value: 'completed', label: 'Completados', color: 'bg-gray-500', count: stats.completedTrips }
+    {
+      value: "upcoming",
+      label: "Próximos",
+      color: "bg-green-500",
+      count: stats.upcomingTrips,
+    },
+    {
+      value: "planning",
+      label: "Planificando",
+      color: "bg-purple-600",
+      count: stats.planningTrips,
+    },
+    {
+      value: "completed",
+      label: "Completados",
+      color: "bg-gray-500",
+      count: stats.completedTrips,
+    },
   ];
 
   return (
@@ -60,20 +80,26 @@ const MapFilters = ({
 
         {/* Status Filters */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Estado del Viaje</label>
+          <label className="text-sm font-medium text-gray-700">
+            Estado del Viaje
+          </label>
           <div className="flex flex-wrap gap-2">
             {statusOptions.map((option) => (
               <Badge
                 key={option.value}
-                variant={filters.status.includes(option.value) ? "default" : "outline"}
+                variant={
+                  filters.status.includes(option.value) ? "default" : "outline"
+                }
                 className={`cursor-pointer hover:opacity-80 ${
-                  filters.status.includes(option.value) 
-                    ? `${option.color} text-white` 
-                    : 'border-gray-300'
+                  filters.status.includes(option.value)
+                    ? `${option.color} text-white`
+                    : "border-gray-300"
                 }`}
                 onClick={() => onToggleStatus(option.value)}
               >
-                <div className={`w-2 h-2 rounded-full mr-2 ${option.color}`}></div>
+                <div
+                  className={`w-2 h-2 rounded-full mr-2 ${option.color}`}
+                ></div>
                 {option.label} ({option.count})
               </Badge>
             ))}
@@ -82,7 +108,9 @@ const MapFilters = ({
 
         {/* Group Trip Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Tipo de Viaje</label>
+          <label className="text-sm font-medium text-gray-700">
+            Tipo de Viaje
+          </label>
           <div className="flex gap-2">
             <Badge
               variant={filters.isGroupTrip === null ? "default" : "outline"}
@@ -129,14 +157,25 @@ const MapFilters = ({
         </div>
 
         {/* Active Filters Summary */}
-        {(filters.status.length !== 3 || filters.isGroupTrip !== null || filters.dateRange !== 'all' || filters.selectedTripId) && (
+        {(filters.status.length !== 3 ||
+          filters.isGroupTrip !== null ||
+          filters.dateRange !== "all" ||
+          filters.selectedTripId) && (
           <div className="pt-2 border-t">
             <div className="text-sm text-gray-600 space-y-1">
-              <div>Mostrando <span className="font-semibold">{stats.totalTrips}</span> viajes 
-              con <span className="font-semibold">{stats.totalDestinations}</span> destinos</div>
+              <div>
+                Mostrando{" "}
+                <span className="font-semibold">{stats.totalTrips}</span> viajes
+                con{" "}
+                <span className="font-semibold">{stats.totalDestinations}</span>{" "}
+                destinos
+              </div>
               {stats.totalSavedPlaces > 0 && (
                 <div className="text-blue-600">
-                  <span className="font-semibold">{stats.totalSavedPlaces}</span> lugares guardados
+                  <span className="font-semibold">
+                    {stats.totalSavedPlaces}
+                  </span>{" "}
+                  lugares guardados
                 </div>
               )}
             </div>

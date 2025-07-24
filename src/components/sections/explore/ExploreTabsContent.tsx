@@ -1,4 +1,3 @@
-
 import ExploreCategoryTabs from "./ExploreCategoryTabs";
 import ExploreFeaturedDestination from "./ExploreFeaturedDestination";
 import ExplorePopularPlace from "./ExplorePopularPlace";
@@ -26,16 +25,16 @@ interface ExploreTabsContentProps {
   onPlaceClick: (place: Place) => void;
 }
 
-const ExploreTabsContent = ({ 
-  categories, 
-  selectedCategory, 
-  filteredPlaces, 
-  onCategoryClick, 
-  onPlaceClick 
+const ExploreTabsContent = ({
+  categories,
+  selectedCategory,
+  filteredPlaces,
+  onCategoryClick,
+  onPlaceClick,
 }: ExploreTabsContentProps) => {
   return (
     <div className="w-full space-y-6">
-      <ExploreCategoryTabs 
+      <ExploreCategoryTabs
         categories={categories}
         selectedCategory={selectedCategory}
         onCategoryClick={onCategoryClick}
@@ -48,7 +47,7 @@ const ExploreTabsContent = ({
         </>
       )}
 
-      <ExplorePlacesGrid 
+      <ExplorePlacesGrid
         places={filteredPlaces}
         selectedCategory={selectedCategory}
         onPlaceClick={onPlaceClick}

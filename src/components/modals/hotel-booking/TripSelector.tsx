@@ -1,7 +1,12 @@
-
 import { Route } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Trip } from "@/types/aiSmartRoute";
 
 interface TripSelectorProps {
@@ -10,7 +15,11 @@ interface TripSelectorProps {
   onTripSelection: (tripId: string) => void;
 }
 
-const TripSelector = ({ selectedTripId, trips, onTripSelection }: TripSelectorProps) => {
+const TripSelector = ({
+  selectedTripId,
+  trips,
+  onTripSelection,
+}: TripSelectorProps) => {
   return (
     <div className="space-y-2">
       <Label htmlFor="tripSelection">Select from My Trips (Optional)</Label>
@@ -28,9 +37,11 @@ const TripSelector = ({ selectedTripId, trips, onTripSelection }: TripSelectorPr
                   <span className="font-medium">{trip.name}</span>
                   <span className="text-xs text-gray-500">
                     {trip.destination} • {trip.dates}
-                    {trip.coordinates && trip.coordinates.length > 1 && 
-                      <span className="ml-1 text-green-600">({trip.coordinates.length} destinations)</span>
-                    }
+                    {trip.coordinates && trip.coordinates.length > 1 && (
+                      <span className="ml-1 text-green-600">
+                        ({trip.coordinates.length} destinations)
+                      </span>
+                    )}
                   </span>
                 </div>
               </SelectItem>

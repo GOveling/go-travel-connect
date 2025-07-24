@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +50,10 @@ const AuthForm = ({
             Full Name
           </Label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <User
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <Input
               id="name"
               type="text"
@@ -71,7 +73,10 @@ const AuthForm = ({
           Email Address
         </Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Mail
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="email"
             type="email"
@@ -90,7 +95,10 @@ const AuthForm = ({
           Password
         </Label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Lock
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
@@ -115,11 +123,17 @@ const AuthForm = ({
       {/* Confirm Password Field (Sign Up Only) */}
       {isSignUp && (
         <div className="space-y-2">
-          <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="confirm-password"
+            className="text-sm font-medium text-gray-700"
+          >
             Confirm Password
           </Label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Lock
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={18}
+            />
             <Input
               id="confirm-password"
               type={showConfirmPassword ? "text" : "password"}
@@ -161,10 +175,13 @@ const AuthForm = ({
         disabled={!isFormValid}
         className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white h-12 text-base font-medium rounded-lg"
       >
-        {isLoading ? 
-          (isSignUp ? "Creating account..." : "Signing in...") : 
-          (isSignUp ? "Create Account" : "Sign In")
-        }
+        {isLoading
+          ? isSignUp
+            ? "Creating account..."
+            : "Signing in..."
+          : isSignUp
+            ? "Create Account"
+            : "Sign In"}
       </Button>
     </form>
   );

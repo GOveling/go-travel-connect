@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ActivityItem } from "@/types/profile";
@@ -17,21 +16,24 @@ const iconMap = {
   Calendar,
 };
 
-const RecentActivityCard = ({ activities, loading }: RecentActivityCardProps) => {
+const RecentActivityCard = ({
+  activities,
+  loading,
+}: RecentActivityCardProps) => {
   const getIcon = (iconName: string) => {
     return iconMap[iconName as keyof typeof iconMap] || Camera;
   };
 
   const getIconColor = (activityType: string) => {
     switch (activityType) {
-      case 'trip_completed':
-        return 'text-green-600 bg-green-100';
-      case 'photo_added':
-        return 'text-blue-600 bg-blue-100';
-      case 'achievement_earned':
-        return 'text-purple-600 bg-purple-100';
+      case "trip_completed":
+        return "text-green-600 bg-green-100";
+      case "photo_added":
+        return "text-blue-600 bg-blue-100";
+      case "achievement_earned":
+        return "text-purple-600 bg-purple-100";
       default:
-        return 'text-gray-600 bg-gray-100';
+        return "text-gray-600 bg-gray-100";
     }
   };
 
@@ -56,16 +58,20 @@ const RecentActivityCard = ({ activities, loading }: RecentActivityCardProps) =>
           activities.slice(0, 2).map((activity) => {
             const Icon = getIcon(activity.icon);
             const colorClass = getIconColor(activity.activity_type);
-            
+
             return (
               <div key={activity.id} className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}
+                >
                   <Icon size={16} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{activity.description}</p>
                   <p className="text-xs text-gray-500">
-                    {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(activity.created_at), {
+                      addSuffix: true,
+                    })}
                   </p>
                 </div>
               </div>
@@ -74,7 +80,9 @@ const RecentActivityCard = ({ activities, loading }: RecentActivityCardProps) =>
         ) : (
           <div className="text-center py-4">
             <p className="text-sm text-gray-500">No recent activity</p>
-            <p className="text-xs text-gray-400">Start exploring to see your activity here!</p>
+            <p className="text-xs text-gray-400">
+              Start exploring to see your activity here!
+            </p>
           </div>
         )}
       </CardContent>

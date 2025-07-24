@@ -1,5 +1,10 @@
 import { Plane } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useNewTripForm } from "@/hooks/useNewTripForm";
 import NewTripBasicInfo from "./new-trip/NewTripBasicInfo";
@@ -19,7 +24,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
     handleNameChange,
     handleDateRangeChange,
     handleNotSureYet,
-    handleSubmit
+    handleSubmit,
   } = useNewTripForm(onCreateTrip, onClose);
 
   return (
@@ -31,7 +36,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
             <span>Create New Trip</span>
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6 px-1">
           <NewTripBasicInfo
             formData={formData}

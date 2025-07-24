@@ -1,28 +1,27 @@
-
 // Main exports from refactored utilities
-export { 
+export {
   getDestinationDateRanges,
   getIndividualDayDates,
   extractDestinationDateFromItinerary,
   calculateDestinationDays,
-  getDestinationDates
+  getDestinationDates,
 } from "./dateUtils";
 
 export {
   getSavedPlacesByDestination,
   convertToOptimizedPlaces,
   distributePlacesAcrossDays,
-  getPriorityColor
+  getPriorityColor,
 } from "./placeUtils";
 
 export {
   generateOptimizedRoutes,
-  getRouteConfigurations
+  getRouteConfigurations,
 } from "./routeGenerator";
 
 export {
   getSuggestedPlaces,
-  createSuggestedDayItinerary
+  createSuggestedDayItinerary,
 } from "./placeSuggestions";
 
 export { savedPlacesByDestination } from "./mockData";

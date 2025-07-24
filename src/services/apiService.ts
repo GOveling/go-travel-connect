@@ -1,21 +1,20 @@
-
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { store } from '../store';
-import { setError as setAuthError } from '../store/slices/authSlice';
-import { ApiResponse, ApiError } from './types';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { store } from "../store";
+import { setError as setAuthError } from "../store/slices/authSlice";
+import { ApiResponse, ApiError } from "./types";
 
 class ApiService {
   private api: AxiosInstance;
   private baseURL: string;
 
   constructor() {
-    this.baseURL = 'https://goveling-api.onrender.com';
+    this.baseURL = "https://goveling-api.onrender.com";
 
     this.api = axios.create({
       baseURL: this.baseURL,
       timeout: 10000,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -28,20 +27,23 @@ class ApiService {
       (config) => {
         const state = store.getState();
         const token = state.auth.token;
-        
+
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-        
-        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-          headers: config.headers,
-          data: config.data,
-        });
-        
+
+        console.log(
+          `API Request: ${config.method?.toUpperCase()} ${config.url}`,
+          {
+            headers: config.headers,
+            data: config.data,
+          }
+        );
+
         return config;
       },
       (error) => {
-        console.error('Request interceptor error:', error);
+        console.error("Request interceptor error:", error);
         return Promise.reject(error);
       }
     );
@@ -53,47 +55,64 @@ class ApiService {
         return response;
       },
       (error) => {
-        console.error('API Error:', error.response?.data || error.message);
-        
+        console.error("API Error:", error.response?.data || error.message);
+
         if (error.response?.status === 401) {
           // Handle unauthorized - clear token
-          store.dispatch(setAuthError('Session expired. Please login again.'));
+          store.dispatch(setAuthError("Session expired. Please login again."));
         }
-        
+
         const apiError: ApiError = {
-          message: error.response?.data?.message || error.message || 'An error occurred',
+          message:
+            error.response?.data?.message ||
+            error.message ||
+            "An error occurred",
           statusCode: error.response?.status || 500,
           error: error.response?.data?.error,
         };
-        
+
         return Promise.reject(apiError);
       }
     );
   }
 
   // Generic API methods
-  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async get<T = any>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.api.get<ApiResponse<T>>(url, config);
     return response.data;
   }
 
-  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.api.post<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.api.put<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T = any>(
+    url: string,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T>> {
     const response = await this.api.delete<ApiResponse<T>>(url, config);
     return response.data;
   }
 
   async getWeatherByCoordinates(lat: number, lng: number) {
-    return this.post('/weather', { lat, lng });
+    return this.post("/weather", { lat, lng });
   }
 
   async getWeatherByCity(city: string) {
@@ -110,7 +129,9 @@ class ApiService {
   }
 
   async getNearbyPlaces(lat: number, lng: number, radius?: number) {
-    return this.get(`/places/nearby?lat=${lat}&lng=${lng}&radius=${radius || 5000}`);
+    return this.get(
+      `/places/nearby?lat=${lat}&lng=${lng}&radius=${radius || 5000}`
+    );
   }
 
   // User specific methods

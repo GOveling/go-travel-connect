@@ -1,4 +1,3 @@
-
 import { useRef } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,7 @@ const ImageUpload = ({ onFileSelect, isUploading }: ImageUploadProps) => {
         <Upload size={16} />
         <span>{isUploading ? "Subiendo..." : "Tu Fotografía"}</span>
       </Button>
-      
+
       <input
         ref={fileInputRef}
         type="file"

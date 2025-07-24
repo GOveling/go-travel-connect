@@ -1,11 +1,19 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Building, MapPin, Camera, Utensils, CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -17,7 +25,11 @@ interface CityBreakModalProps {
   onCreateTrip?: (tripData: any) => void;
 }
 
-const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) => {
+const CityBreakModal = ({
+  isOpen,
+  onClose,
+  onCreateTrip,
+}: CityBreakModalProps) => {
   const [tripName, setTripName] = useState("");
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>();
@@ -60,7 +72,13 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
         travelers: parseInt(travelers),
         image: "🏛️",
         isGroupTrip: false,
-        coordinates: [{ name: destination || "City Destination", lat: 40.7128, lng: -74.0060 }]
+        coordinates: [
+          {
+            name: destination || "City Destination",
+            lat: 40.7128,
+            lng: -74.006,
+          },
+        ],
       });
     }
     onClose();
@@ -71,8 +89,12 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
       <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader className="text-center">
           <div className="text-4xl mb-2">🏛️</div>
-          <DialogTitle className="text-xl font-bold text-gray-800">City Break</DialogTitle>
-          <p className="text-sm text-gray-600">Discover urban culture and attractions</p>
+          <DialogTitle className="text-xl font-bold text-gray-800">
+            City Break
+          </DialogTitle>
+          <p className="text-sm text-gray-600">
+            Discover urban culture and attractions
+          </p>
         </DialogHeader>
 
         <div className="space-y-4 p-1">
@@ -107,7 +129,9 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
 
           <div className="space-y-3">
             <div>
-              <Label htmlFor="tripName" className="text-sm font-medium">Trip Name</Label>
+              <Label htmlFor="tripName" className="text-sm font-medium">
+                Trip Name
+              </Label>
               <Input
                 id="tripName"
                 placeholder="City Exploration"
@@ -118,7 +142,9 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
             </div>
 
             <div>
-              <Label htmlFor="destination" className="text-sm font-medium">City Destination</Label>
+              <Label htmlFor="destination" className="text-sm font-medium">
+                City Destination
+              </Label>
               <Input
                 id="destination"
                 placeholder="Paris, New York, Tokyo..."
@@ -141,7 +167,11 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "MMM d") : <span>Pick date</span>}
+                      {startDate ? (
+                        format(startDate, "MMM d")
+                      ) : (
+                        <span>Pick date</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -168,7 +198,11 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "MMM d") : <span>Pick date</span>}
+                      {endDate ? (
+                        format(endDate, "MMM d")
+                      ) : (
+                        <span>Pick date</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -176,7 +210,9 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
                       mode="single"
                       selected={endDate}
                       onSelect={handleEndDateSelect}
-                      disabled={(date) => startDate ? date < startDate : false}
+                      disabled={(date) =>
+                        startDate ? date < startDate : false
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                       onClose={() => setEndDateOpen(false)}
@@ -187,7 +223,9 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
             </div>
 
             <div>
-              <Label htmlFor="travelers" className="text-sm font-medium">Travelers</Label>
+              <Label htmlFor="travelers" className="text-sm font-medium">
+                Travelers
+              </Label>
               <Input
                 id="travelers"
                 type="number"
@@ -201,7 +239,9 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
 
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-0">
             <CardContent className="p-4">
-              <h4 className="font-medium text-gray-800 mb-2">City Experiences</h4>
+              <h4 className="font-medium text-gray-800 mb-2">
+                City Experiences
+              </h4>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                 <span>• Art galleries</span>
                 <span>• Shopping</span>
@@ -217,7 +257,7 @@ const CityBreakModal = ({ isOpen, onClose, onCreateTrip }: CityBreakModalProps) 
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSubmit}
               className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
             >

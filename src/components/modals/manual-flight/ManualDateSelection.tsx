@@ -1,10 +1,21 @@
-
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { JollyRangeCalendar, JollyCalendar } from "@/components/ui/range-calendar";
-import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  JollyRangeCalendar,
+  JollyCalendar,
+} from "@/components/ui/range-calendar";
+import {
+  parseDate,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+} from "@internationalized/date";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +29,11 @@ interface ManualFlightData {
 }
 
 interface ManualDateSelectionProps {
-  flightType: 'round-trip' | 'one-way' | 'multi-city';
+  flightType: "round-trip" | "one-way" | "multi-city";
   flightData: ManualFlightData;
-  setFlightData: (data: ManualFlightData | ((prev: ManualFlightData) => ManualFlightData)) => void;
+  setFlightData: (
+    data: ManualFlightData | ((prev: ManualFlightData) => ManualFlightData)
+  ) => void;
   isDateRangeOpen: boolean;
   setIsDateRangeOpen: (open: boolean) => void;
   isDepartDateOpen: boolean;
@@ -34,17 +47,24 @@ const ManualDateSelection = ({
   isDateRangeOpen,
   setIsDateRangeOpen,
   isDepartDateOpen,
-  setIsDepartDateOpen
+  setIsDepartDateOpen,
 }: ManualDateSelectionProps) => {
-  
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     if (range?.start && range?.end) {
-      const departDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
-      const returnDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
-      setFlightData(prev => ({
+      const departDate = format(
+        new Date(range.start.year, range.start.month - 1, range.start.day),
+        "yyyy-MM-dd"
+      );
+      const returnDate = format(
+        new Date(range.end.year, range.end.month - 1, range.end.day),
+        "yyyy-MM-dd"
+      );
+      setFlightData((prev) => ({
         ...prev,
         departDate,
-        returnDate
+        returnDate,
       }));
       setIsDateRangeOpen(false);
     }
@@ -52,10 +72,13 @@ const ManualDateSelection = ({
 
   const handleDepartDateChange = (date: CalendarDate | null) => {
     if (date) {
-      const departDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
-      setFlightData(prev => ({
+      const departDate = format(
+        new Date(date.year, date.month - 1, date.day),
+        "yyyy-MM-dd"
+      );
+      setFlightData((prev) => ({
         ...prev,
-        departDate
+        departDate,
       }));
       setIsDepartDateOpen(false);
     }
@@ -65,7 +88,7 @@ const ManualDateSelection = ({
     if (flightData.departDate && flightData.returnDate) {
       return {
         start: parseDate(flightData.departDate),
-        end: parseDate(flightData.returnDate)
+        end: parseDate(flightData.returnDate),
       };
     }
     return null;
@@ -92,7 +115,7 @@ const ManualDateSelection = ({
     return "Fecha de salida";
   };
 
-  if (flightType === 'round-trip') {
+  if (flightType === "round-trip") {
     return (
       <div className="space-y-2">
         <Label className="text-sm">Fechas (Ida y Vuelta)</Label>
@@ -102,7 +125,8 @@ const ManualDateSelection = ({
               variant="outline"
               className={cn(
                 "w-full justify-start text-left font-normal h-10",
-                (!flightData.departDate || !flightData.returnDate) && "text-muted-foreground"
+                (!flightData.departDate || !flightData.returnDate) &&
+                  "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />

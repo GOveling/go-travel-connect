@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import FlightBookingSteps from "./FlightBookingSteps";
 import TripSelectionStep from "./TripSelectionStep";
@@ -26,12 +25,18 @@ interface MultiCityFlight {
 interface FlightBookingSearchProps {
   currentStep: number;
   setCurrentStep: (step: number) => void;
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
-  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
+  setTripType: (
+    type: "round-trip" | "one-way" | "multi-city" | "manual"
+  ) => void;
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
   selectedTrip: number | null;
   handleTripSelection: (tripId: number) => void;
   trips: any[];
@@ -58,19 +63,19 @@ const FlightBookingSearch = ({
   setIsDateRangeOpen,
   isDepartDateOpen,
   setIsDepartDateOpen,
-  onComplete
+  onComplete,
 }: FlightBookingSearchProps) => {
   const bookingSteps = [
     { number: 1, title: "Select Trip", icon: MapPin },
     { number: 2, title: "Flight Details", icon: Plane },
-    { number: 3, title: "Confirmation", icon: Calendar }
+    { number: 3, title: "Confirmation", icon: Calendar },
   ];
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
-          <TripSelectionStep 
+          <TripSelectionStep
             tripType={tripType}
             setTripType={setTripType}
             selectedTrip={selectedTrip}

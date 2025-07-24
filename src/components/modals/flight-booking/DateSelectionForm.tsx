@@ -1,10 +1,21 @@
-
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { JollyRangeCalendar, JollyCalendar } from "@/components/ui/range-calendar";
-import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  JollyRangeCalendar,
+  JollyCalendar,
+} from "@/components/ui/range-calendar";
+import {
+  parseDate,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+} from "@internationalized/date";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +29,7 @@ interface FormData {
 }
 
 interface DateSelectionFormProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   isDateRangeOpen: boolean;
@@ -34,16 +45,24 @@ const DateSelectionForm = ({
   isDateRangeOpen,
   setIsDateRangeOpen,
   isDepartDateOpen,
-  setIsDepartDateOpen
+  setIsDepartDateOpen,
 }: DateSelectionFormProps) => {
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     if (range?.start && range?.end) {
-      const departDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
-      const returnDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
-      setFormData(prev => ({
+      const departDate = format(
+        new Date(range.start.year, range.start.month - 1, range.start.day),
+        "yyyy-MM-dd"
+      );
+      const returnDate = format(
+        new Date(range.end.year, range.end.month - 1, range.end.day),
+        "yyyy-MM-dd"
+      );
+      setFormData((prev) => ({
         ...prev,
         departDate,
-        returnDate
+        returnDate,
       }));
       setIsDateRangeOpen(false);
     }
@@ -51,10 +70,13 @@ const DateSelectionForm = ({
 
   const handleDepartDateChange = (date: CalendarDate | null) => {
     if (date) {
-      const departDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
-      setFormData(prev => ({
+      const departDate = format(
+        new Date(date.year, date.month - 1, date.day),
+        "yyyy-MM-dd"
+      );
+      setFormData((prev) => ({
         ...prev,
-        departDate
+        departDate,
       }));
       setIsDepartDateOpen(false);
     }
@@ -64,7 +86,7 @@ const DateSelectionForm = ({
     if (formData.departDate && formData.returnDate) {
       return {
         start: parseDate(formData.departDate),
-        end: parseDate(formData.returnDate)
+        end: parseDate(formData.returnDate),
       };
     }
     return null;
@@ -91,7 +113,7 @@ const DateSelectionForm = ({
     return "Seleccionar fecha de salida";
   };
 
-  if (tripType === 'round-trip') {
+  if (tripType === "round-trip") {
     return (
       <div className="space-y-2">
         <Label>Fechas del Vuelo (Ida y Vuelta)</Label>
@@ -101,7 +123,8 @@ const DateSelectionForm = ({
               variant="outline"
               className={cn(
                 "w-full justify-start text-left font-normal",
-                (!formData.departDate || !formData.returnDate) && "text-muted-foreground"
+                (!formData.departDate || !formData.returnDate) &&
+                  "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -119,7 +142,7 @@ const DateSelectionForm = ({
         </Popover>
       </div>
     );
-  } else if (tripType === 'manual') {
+  } else if (tripType === "manual") {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -147,7 +170,7 @@ const DateSelectionForm = ({
             </PopoverContent>
           </Popover>
         </div>
-        
+
         <div className="space-y-2">
           <Label>Fecha de Retorno (Opcional)</Label>
           <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
@@ -160,22 +183,33 @@ const DateSelectionForm = ({
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {formData.returnDate ? format(new Date(formData.returnDate), "dd/MM/yyyy") : "Seleccionar fecha de retorno"}
+                {formData.returnDate
+                  ? format(new Date(formData.returnDate), "dd/MM/yyyy")
+                  : "Seleccionar fecha de retorno"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <JollyCalendar
-                value={formData.returnDate ? parseDate(formData.returnDate) : null}
+                value={
+                  formData.returnDate ? parseDate(formData.returnDate) : null
+                }
                 onChange={(date) => {
                   if (date) {
-                    const returnDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
-                    setFormData(prev => ({ ...prev, returnDate }));
+                    const returnDate = format(
+                      new Date(date.year, date.month - 1, date.day),
+                      "yyyy-MM-dd"
+                    );
+                    setFormData((prev) => ({ ...prev, returnDate }));
                   } else {
-                    setFormData(prev => ({ ...prev, returnDate: '' }));
+                    setFormData((prev) => ({ ...prev, returnDate: "" }));
                   }
                   setIsDateRangeOpen(false);
                 }}
-                minValue={formData.departDate ? parseDate(formData.departDate) : today(getLocalTimeZone())}
+                minValue={
+                  formData.departDate
+                    ? parseDate(formData.departDate)
+                    : today(getLocalTimeZone())
+                }
                 className="p-3 pointer-events-auto"
               />
             </PopoverContent>

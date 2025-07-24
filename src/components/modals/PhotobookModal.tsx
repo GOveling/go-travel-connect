@@ -1,7 +1,11 @@
-
 import { useState } from "react";
 import { Image } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import ImageUploadModal from "./ImageUploadModal";
 import PhotoUploadSection from "./photobook/PhotoUploadSection";
@@ -43,22 +47,22 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
       url: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80",
       uploadedBy: "You",
       uploadedAt: "2 hours ago",
-      likes: 3
+      likes: 3,
     },
     {
-      id: "2", 
+      id: "2",
       url: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?auto=format&fit=crop&w=800&q=80",
       uploadedBy: "Emma Wilson",
-      uploadedAt: "5 hours ago", 
-      likes: 7
+      uploadedAt: "5 hours ago",
+      likes: 7,
     },
     {
       id: "3",
       url: "https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&w=800&q=80",
       uploadedBy: "David Brown",
       uploadedAt: "1 day ago",
-      likes: 5
-    }
+      likes: 5,
+    },
   ]);
 
   const [isImageUploadModalOpen, setIsImageUploadModalOpen] = useState(false);
@@ -69,20 +73,20 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
       url: imageSrc,
       uploadedBy: "You",
       uploadedAt: "Just now",
-      likes: 0
+      likes: 0,
     };
-    setPhotos(prev => [newPhoto, ...prev]);
+    setPhotos((prev) => [newPhoto, ...prev]);
     console.log("New photo uploaded");
   };
 
   const handleDeletePhoto = (photoId: string) => {
-    setPhotos(prev => prev.filter(photo => photo.id !== photoId));
+    setPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
     console.log("Photo deleted:", photoId);
   };
 
   const handleDownloadPhoto = (photoUrl: string, photoId: string) => {
     // Create a temporary anchor element to trigger download
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = photoUrl;
     link.download = `trip-photo-${photoId}.jpg`;
     document.body.appendChild(link);
@@ -106,7 +110,9 @@ const PhotobookModal = ({ trip, isOpen, onClose }: PhotobookModalProps) => {
 
           <div className="flex-1 overflow-hidden flex flex-col space-y-4 p-1">
             {/* Upload Section */}
-            <PhotoUploadSection onAddImageClick={() => setIsImageUploadModalOpen(true)} />
+            <PhotoUploadSection
+              onAddImageClick={() => setIsImageUploadModalOpen(true)}
+            />
 
             {/* Photo Carousel */}
             <PhotoCarousel

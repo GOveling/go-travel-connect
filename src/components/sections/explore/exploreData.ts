@@ -1,5 +1,3 @@
-
-
 export const places = [
   {
     id: "santorini-sunset-point",
@@ -8,12 +6,13 @@ export const places = [
     rating: 4.9,
     image: "🌅",
     category: "Tourist Attractions",
-    description: "One of the world's most photographed sunsets with breathtaking views over the Aegean Sea.",
+    description:
+      "One of the world's most photographed sunsets with breathtaking views over the Aegean Sea.",
     hours: "Open 24/7",
     website: "www.santorini-tourism.com",
     phone: "+30 22860 22722",
     lat: 36.3932,
-    lng: 25.4615
+    lng: 25.4615,
   },
   {
     id: "kyoto-bamboo-grove",
@@ -22,12 +21,13 @@ export const places = [
     rating: 4.8,
     image: "🎋",
     category: "Parks",
-    description: "Walk through thousands of towering bamboo stalks creating a natural cathedral.",
+    description:
+      "Walk through thousands of towering bamboo stalks creating a natural cathedral.",
     hours: "6:00 AM - 6:00 PM",
     website: "www.kyoto-bamboo.jp",
     phone: "+81 75-211-1215",
-    lat: 35.0170,
-    lng: 135.6728
+    lat: 35.017,
+    lng: 135.6728,
   },
   {
     id: "machu-picchu",
@@ -41,7 +41,7 @@ export const places = [
     website: "www.machupicchu.gob.pe",
     phone: "+51 84 211030",
     lat: -13.1631,
-    lng: -72.5450
+    lng: -72.545,
   },
   {
     id: "bondi-beach",
@@ -50,12 +50,13 @@ export const places = [
     rating: 4.7,
     image: "🏖️",
     category: "Beaches",
-    description: "Famous beach with golden sand and excellent surfing conditions.",
+    description:
+      "Famous beach with golden sand and excellent surfing conditions.",
     hours: "24/7",
     website: "www.bondibeach.com",
     phone: "+61 2 9130 3000",
     lat: -33.8915,
-    lng: 151.2767
+    lng: 151.2767,
   },
   {
     id: "cafe-central-vienna",
@@ -69,7 +70,7 @@ export const places = [
     website: "www.cafecentral.wien",
     phone: "+43 1 533 37 64",
     lat: 48.2108,
-    lng: 16.3660
+    lng: 16.366,
   },
   {
     id: "grand-palace-bangkok",
@@ -78,12 +79,13 @@ export const places = [
     rating: 4.6,
     image: "🏰",
     category: "Tourist Attractions",
-    description: "Ornate royal complex showcasing traditional Thai architecture.",
+    description:
+      "Ornate royal complex showcasing traditional Thai architecture.",
     hours: "8:30 AM - 3:30 PM",
     website: "www.grandpalacebangkok.com",
     phone: "+66 2 623 5500",
-    lat: 13.7500,
-    lng: 100.4913
+    lat: 13.75,
+    lng: 100.4913,
   },
   {
     id: "central-park-nyc",
@@ -97,7 +99,7 @@ export const places = [
     website: "www.centralparknyc.org",
     phone: "+1 212-310-6600",
     lat: 40.7829,
-    lng: -73.9654
+    lng: -73.9654,
   },
   {
     id: "lake-bled",
@@ -111,7 +113,7 @@ export const places = [
     website: "www.bled.si",
     phone: "+386 4 578 05 00",
     lat: 46.3683,
-    lng: 14.1118
+    lng: 14.1118,
   },
   {
     id: "louvre-museum",
@@ -125,7 +127,7 @@ export const places = [
     website: "www.louvre.fr",
     phone: "+33 1 40 20 50 50",
     lat: 48.8606,
-    lng: 2.3376
+    lng: 2.3376,
   },
   {
     id: "sydney-opera-house",
@@ -139,7 +141,7 @@ export const places = [
     website: "www.sydneyoperahouse.com",
     phone: "+61 2 9250 7111",
     lat: -33.8568,
-    lng: 151.2153
+    lng: 151.2153,
   },
   {
     id: "ibiza-nightclub",
@@ -153,7 +155,7 @@ export const places = [
     website: "www.pacha.com",
     phone: "+34 971 31 36 12",
     lat: 38.9072,
-    lng: 1.4208
+    lng: 1.4208,
   },
   {
     id: "disneyland-paris",
@@ -167,7 +169,7 @@ export const places = [
     website: "www.disneylandparis.com",
     phone: "+33 1 60 30 60 53",
     lat: 48.8723,
-    lng: 2.7756
+    lng: 2.7756,
   },
   {
     id: "madison-square-garden",
@@ -181,7 +183,7 @@ export const places = [
     website: "www.msg.com",
     phone: "+1 212-465-6741",
     lat: 40.7505,
-    lng: -73.9934
+    lng: -73.9934,
   },
   // Additional Landmarks
   {
@@ -196,7 +198,7 @@ export const places = [
     website: "www.nps.gov/stli",
     phone: "+1 212-363-3200",
     lat: 40.6892,
-    lng: -74.0445
+    lng: -74.0445,
   },
   {
     id: "eiffel-tower",
@@ -210,7 +212,7 @@ export const places = [
     website: "www.toureiffel.paris",
     phone: "+33 8 92 70 12 39",
     lat: 48.8584,
-    lng: 2.2945
+    lng: 2.2945,
   },
   {
     id: "taj-mahal",
@@ -219,12 +221,13 @@ export const places = [
     rating: 4.8,
     image: "🕌",
     category: "Landmark",
-    description: "Stunning white marble mausoleum and UNESCO World Heritage site.",
+    description:
+      "Stunning white marble mausoleum and UNESCO World Heritage site.",
     hours: "6:00 AM - 6:30 PM",
     website: "www.tajmahal.gov.in",
     phone: "+91 562 222 6431",
     lat: 27.1751,
-    lng: 78.0421
+    lng: 78.0421,
   },
   // Additional Beaches
   {
@@ -239,7 +242,7 @@ export const places = [
     website: "www.copacabana.com.br",
     phone: "+55 21 2547-7522",
     lat: -22.9711,
-    lng: -43.1822
+    lng: -43.1822,
   },
   {
     id: "maya-bay",
@@ -253,7 +256,7 @@ export const places = [
     website: "www.phiphi.phuket.com",
     phone: "+66 75 612 188",
     lat: 7.6769,
-    lng: 98.7681
+    lng: 98.7681,
   },
   {
     id: "waikiki-beach",
@@ -267,7 +270,7 @@ export const places = [
     website: "www.gohawaii.com/waikiki",
     phone: "+1 808-923-1311",
     lat: 21.2743,
-    lng: -157.8150
+    lng: -157.815,
   },
   // Additional Lakes
   {
@@ -282,7 +285,7 @@ export const places = [
     website: "www.tahoesouth.com",
     phone: "+1 530-541-5255",
     lat: 39.0968,
-    lng: -120.0324
+    lng: -120.0324,
   },
   {
     id: "lake-como",
@@ -296,7 +299,7 @@ export const places = [
     website: "www.lakecomo.it",
     phone: "+39 031 269 712",
     lat: 45.9931,
-    lng: 9.2611
+    lng: 9.2611,
   },
   {
     id: "crater-lake",
@@ -310,7 +313,7 @@ export const places = [
     website: "www.nps.gov/crla",
     phone: "+1 541-594-3000",
     lat: 42.8684,
-    lng: -122.1685
+    lng: -122.1685,
   },
   // Additional Concerts
   {
@@ -325,7 +328,7 @@ export const places = [
     website: "www.redrocksonline.com",
     phone: "+1 720-865-2494",
     lat: 39.6654,
-    lng: -105.2057
+    lng: -105.2057,
   },
   {
     id: "royal-albert-hall",
@@ -339,7 +342,7 @@ export const places = [
     website: "www.royalalberthall.com",
     phone: "+44 20 7589 8212",
     lat: 51.5009,
-    lng: -0.1773
+    lng: -0.1773,
   },
   {
     id: "sydney-opera-house-concerts",
@@ -353,7 +356,7 @@ export const places = [
     website: "www.sydneyoperahouse.com",
     phone: "+61 2 9250 7111",
     lat: -33.8568,
-    lng: 151.2153
+    lng: 151.2153,
   },
   // Additional Night Life
   {
@@ -368,7 +371,7 @@ export const places = [
     website: "www.berghain.de",
     phone: "+49 30 2936 0210",
     lat: 52.5108,
-    lng: 13.4429
+    lng: 13.4429,
   },
   {
     id: "fabric-london",
@@ -381,8 +384,8 @@ export const places = [
     hours: "Friday 11:00 PM - Saturday 7:00 AM",
     website: "www.fabriclondon.com",
     phone: "+44 20 7336 8898",
-    lat: 51.5200,
-    lng: -0.1025
+    lat: 51.52,
+    lng: -0.1025,
   },
   {
     id: "omnia-las-vegas",
@@ -396,7 +399,7 @@ export const places = [
     website: "www.omnianightclub.com",
     phone: "+1 702-785-6200",
     lat: 36.1147,
-    lng: -115.1728
+    lng: -115.1728,
   },
   // Additional Theatres
   {
@@ -410,8 +413,8 @@ export const places = [
     hours: "Various show times",
     website: "www.broadway.com",
     phone: "+1 212-239-6200",
-    lat: 40.7590,
-    lng: -73.9845
+    lat: 40.759,
+    lng: -73.9845,
   },
   {
     id: "west-end-london",
@@ -425,7 +428,7 @@ export const places = [
     website: "www.officiallondontheatre.com",
     phone: "+44 20 7557 6700",
     lat: 51.5125,
-    lng: -0.1308
+    lng: -0.1308,
   },
   {
     id: "la-scala-milan",
@@ -439,7 +442,7 @@ export const places = [
     website: "www.teatroallascala.org",
     phone: "+39 02 88791",
     lat: 45.4674,
-    lng: 9.1898
+    lng: 9.1898,
   },
   // Additional For Kids
   {
@@ -454,7 +457,7 @@ export const places = [
     website: "www.universalorlando.com",
     phone: "+1 407-363-8000",
     lat: 28.4754,
-    lng: -81.4694
+    lng: -81.4694,
   },
   {
     id: "legoland-denmark",
@@ -468,7 +471,7 @@ export const places = [
     website: "www.legoland.dk",
     phone: "+45 75 33 13 33",
     lat: 55.7367,
-    lng: 9.1283
+    lng: 9.1283,
   },
   {
     id: "tokyo-disneyland",
@@ -482,7 +485,7 @@ export const places = [
     website: "www.tokyodisneyresort.jp",
     phone: "+81 45-330-5211",
     lat: 35.6329,
-    lng: 139.8804
+    lng: 139.8804,
   },
   // Additional Parks
   {
@@ -496,8 +499,8 @@ export const places = [
     hours: "24/7",
     website: "www.nps.gov/yell",
     phone: "+1 307-344-7381",
-    lat: 44.4280,
-    lng: -110.5885
+    lat: 44.428,
+    lng: -110.5885,
   },
   {
     id: "banff-national-park",
@@ -511,7 +514,7 @@ export const places = [
     website: "www.pc.gc.ca/banff",
     phone: "+1 403-762-1550",
     lat: 51.4968,
-    lng: -115.9281
+    lng: -115.9281,
   },
   // Additional Cafes
   {
@@ -526,7 +529,7 @@ export const places = [
     website: "www.bluebottlecoffee.com",
     phone: "+1 510-653-3394",
     lat: 37.7749,
-    lng: -122.4194
+    lng: -122.4194,
   },
   {
     id: "stumptown-coffee",
@@ -540,7 +543,7 @@ export const places = [
     website: "www.stumptowncoffee.com",
     phone: "+1 503-295-6144",
     lat: 45.5152,
-    lng: -122.6784
+    lng: -122.6784,
   },
   {
     id: "cafe-tortoni",
@@ -554,7 +557,7 @@ export const places = [
     website: "www.cafetortoni.com.ar",
     phone: "+54 11 4342-4328",
     lat: -34.6118,
-    lng: -58.3960
+    lng: -58.396,
   },
   // Additional Museums
   {
@@ -564,12 +567,13 @@ export const places = [
     rating: 4.8,
     image: "🏛️",
     category: "Museums",
-    description: "One of the world's largest and most comprehensive art museums.",
+    description:
+      "One of the world's largest and most comprehensive art museums.",
     hours: "10:00 AM - 5:00 PM",
     website: "www.metmuseum.org",
     phone: "+1 212-535-7710",
     lat: 40.7794,
-    lng: -73.9632
+    lng: -73.9632,
   },
   {
     id: "british-museum",
@@ -583,7 +587,7 @@ export const places = [
     website: "www.britishmuseum.org",
     phone: "+44 20 7323 8299",
     lat: 51.5194,
-    lng: -0.1270
+    lng: -0.127,
   },
   {
     id: "prado-museum",
@@ -592,13 +596,14 @@ export const places = [
     rating: 4.8,
     image: "🎨",
     category: "Museums",
-    description: "Premier collection of European art from 12th to 20th centuries.",
+    description:
+      "Premier collection of European art from 12th to 20th centuries.",
     hours: "10:00 AM - 8:00 PM",
     website: "www.museodelprado.es",
     phone: "+34 91 330 2800",
     lat: 40.4138,
-    lng: -3.6921
-  }
+    lng: -3.6921,
+  },
 ];
 
 export const categories = [
@@ -613,6 +618,5 @@ export const categories = [
   "Next Concerts",
   "Night Life",
   "Theatres",
-  "For Kids"
+  "For Kids",
 ];
-

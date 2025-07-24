@@ -2,9 +2,18 @@ import { useState } from "react";
 import { Calendar, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { JollyRangeCalendar } from "@/components/ui/range-calendar";
-import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import {
+  parseDate,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+} from "@internationalized/date";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +21,9 @@ interface NewTripDatePickerProps {
   startDate?: Date;
   endDate?: Date;
   datesNotSet: boolean;
-  onDateRangeChange: (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => void;
+  onDateRangeChange: (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => void;
   onNotSureYet: () => void;
   onSetDatesNow: () => void;
 }
@@ -23,7 +34,7 @@ const NewTripDatePicker = ({
   datesNotSet,
   onDateRangeChange,
   onNotSureYet,
-  onSetDatesNow
+  onSetDatesNow,
 }: NewTripDatePickerProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
 
@@ -31,12 +42,12 @@ const NewTripDatePicker = ({
     if (startDate && endDate) {
       return {
         start: parseDate(format(startDate, "yyyy-MM-dd")),
-        end: parseDate(format(endDate, "yyyy-MM-dd"))
+        end: parseDate(format(endDate, "yyyy-MM-dd")),
       };
     } else if (startDate) {
       return {
         start: parseDate(format(startDate, "yyyy-MM-dd")),
-        end: null
+        end: null,
       };
     }
     return null;
@@ -51,7 +62,9 @@ const NewTripDatePicker = ({
     return "Seleccionar fechas del viaje";
   };
 
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     onDateRangeChange(range);
     if (range?.start && range?.end) {
       setIsDateRangeOpen(false);
@@ -64,10 +77,12 @@ const NewTripDatePicker = ({
         <Calendar size={16} />
         Travel Dates
       </Label>
-      
+
       {datesNotSet ? (
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-700 mb-2">Dates will be decided later</p>
+          <p className="text-sm text-blue-700 mb-2">
+            Dates will be decided later
+          </p>
           <Button
             type="button"
             variant="outline"
@@ -103,7 +118,7 @@ const NewTripDatePicker = ({
               />
             </PopoverContent>
           </Popover>
-          
+
           <Button
             type="button"
             variant="outline"

@@ -1,4 +1,3 @@
-
 import MultiCityFlightForm from "./MultiCityFlightForm";
 import RegularFlightForm from "./RegularFlightForm";
 
@@ -20,11 +19,15 @@ interface MultiCityFlight {
 }
 
 interface FlightFormProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
   formData: FormData;
   setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
   isDateRangeOpen: boolean;
   setIsDateRangeOpen: (open: boolean) => void;
   isDepartDateOpen: boolean;
@@ -40,13 +43,13 @@ const FlightForm = ({
   isDateRangeOpen,
   setIsDateRangeOpen,
   isDepartDateOpen,
-  setIsDepartDateOpen
+  setIsDepartDateOpen,
 }: FlightFormProps) => {
   return (
     <div className="space-y-4">
       <h3 className="font-medium text-gray-900">Detalles del Vuelo</h3>
-      
-      {tripType === 'multi-city' ? (
+
+      {tripType === "multi-city" ? (
         <MultiCityFlightForm
           multiCityFlights={multiCityFlights}
           setMultiCityFlights={setMultiCityFlights}

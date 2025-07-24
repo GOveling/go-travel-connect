@@ -1,17 +1,25 @@
-
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 interface TripTypeSelectorProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
-  setTripType: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
+  setTripType: (
+    type: "round-trip" | "one-way" | "multi-city" | "manual"
+  ) => void;
 }
 
 const TripTypeSelector = ({ tripType, setTripType }: TripTypeSelectorProps) => {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-3">Select Trip Type</h3>
-      <RadioGroup value={tripType} onValueChange={(value) => setTripType(value as 'round-trip' | 'one-way' | 'multi-city' | 'manual')}>
+      <RadioGroup
+        value={tripType}
+        onValueChange={(value) =>
+          setTripType(
+            value as "round-trip" | "one-way" | "multi-city" | "manual"
+          )
+        }
+      >
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="round-trip" id="round-trip" />
           <Label htmlFor="round-trip">Round Trip</Label>

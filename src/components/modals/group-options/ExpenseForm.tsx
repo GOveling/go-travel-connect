@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,18 +43,23 @@ const ExpenseForm = ({
   setNewExpense,
   allParticipants,
   onAddExpense,
-  onCancelEdit
+  onCancelEdit,
 }: ExpenseFormProps) => {
-  const handleSplitBetweenChange = (participantName: string, checked: boolean) => {
+  const handleSplitBetweenChange = (
+    participantName: string,
+    checked: boolean
+  ) => {
     if (checked) {
       setNewExpense({
         ...newExpense,
-        splitBetween: [...newExpense.splitBetween, participantName]
+        splitBetween: [...newExpense.splitBetween, participantName],
       });
     } else {
       setNewExpense({
         ...newExpense,
-        splitBetween: newExpense.splitBetween.filter(name => name !== participantName)
+        splitBetween: newExpense.splitBetween.filter(
+          (name) => name !== participantName
+        ),
       });
     }
   };
@@ -64,12 +68,12 @@ const ExpenseForm = ({
     if (checked) {
       setNewExpense({
         ...newExpense,
-        paidBy: [...newExpense.paidBy, participantName]
+        paidBy: [...newExpense.paidBy, participantName],
       });
     } else {
       setNewExpense({
         ...newExpense,
-        paidBy: newExpense.paidBy.filter(name => name !== participantName)
+        paidBy: newExpense.paidBy.filter((name) => name !== participantName),
       });
     }
   };
@@ -78,15 +82,16 @@ const ExpenseForm = ({
     const allSelected = newExpense.paidBy.length === allParticipants.length;
     setNewExpense({
       ...newExpense,
-      paidBy: allSelected ? [] : allParticipants.map(p => p.name)
+      paidBy: allSelected ? [] : allParticipants.map((p) => p.name),
     });
   };
 
   const handleSelectAllSplitBetween = () => {
-    const allSelected = newExpense.splitBetween.length === allParticipants.length;
+    const allSelected =
+      newExpense.splitBetween.length === allParticipants.length;
     setNewExpense({
       ...newExpense,
-      splitBetween: allSelected ? [] : allParticipants.map(p => p.name)
+      splitBetween: allSelected ? [] : allParticipants.map((p) => p.name),
     });
   };
 
@@ -100,23 +105,31 @@ const ExpenseForm = ({
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="desc" className="text-sm">Description</Label>
+            <Label htmlFor="desc" className="text-sm">
+              Description
+            </Label>
             <Input
               id="desc"
               placeholder="Dinner, Gas, etc."
               value={newExpense.description}
-              onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+              onChange={(e) =>
+                setNewExpense({ ...newExpense, description: e.target.value })
+              }
               className="h-12 text-base"
             />
           </div>
           <div>
-            <Label htmlFor="amount" className="text-sm">Amount ($)</Label>
+            <Label htmlFor="amount" className="text-sm">
+              Amount ($)
+            </Label>
             <Input
               id="amount"
               type="number"
               placeholder="0.00"
               value={newExpense.amount}
-              onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
+              onChange={(e) =>
+                setNewExpense({ ...newExpense, amount: e.target.value })
+              }
               className="h-12 text-base"
             />
           </div>
@@ -131,22 +144,27 @@ const ExpenseForm = ({
                 className="h-7 px-2 text-xs"
               >
                 <Users size={12} className="mr-1" />
-                {newExpense.paidBy.length === allParticipants.length ? "Deselect All" : "Select All"}
+                {newExpense.paidBy.length === allParticipants.length
+                  ? "Deselect All"
+                  : "Select All"}
               </Button>
             </div>
             <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
               {allParticipants.map((participant) => (
-                <div key={participant.id} className="flex items-center space-x-3">
+                <div
+                  key={participant.id}
+                  className="flex items-center space-x-3"
+                >
                   <Checkbox
                     id={`paid-${participant.id}`}
                     checked={newExpense.paidBy.includes(participant.name)}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       handlePaidByChange(participant.name, checked as boolean)
                     }
                     className="h-5 w-5"
                   />
-                  <label 
-                    htmlFor={`paid-${participant.id}`} 
+                  <label
+                    htmlFor={`paid-${participant.id}`}
                     className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                   >
                     <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
@@ -174,22 +192,30 @@ const ExpenseForm = ({
                 className="h-7 px-2 text-xs"
               >
                 <Users size={12} className="mr-1" />
-                {newExpense.splitBetween.length === allParticipants.length ? "Deselect All" : "Select All"}
+                {newExpense.splitBetween.length === allParticipants.length
+                  ? "Deselect All"
+                  : "Select All"}
               </Button>
             </div>
             <div className="border rounded-md p-3 space-y-3 max-h-32 overflow-y-auto">
               {allParticipants.map((participant) => (
-                <div key={participant.id} className="flex items-center space-x-3">
+                <div
+                  key={participant.id}
+                  className="flex items-center space-x-3"
+                >
                   <Checkbox
                     id={`split-${participant.id}`}
                     checked={newExpense.splitBetween.includes(participant.name)}
-                    onCheckedChange={(checked) => 
-                      handleSplitBetweenChange(participant.name, checked as boolean)
+                    onCheckedChange={(checked) =>
+                      handleSplitBetweenChange(
+                        participant.name,
+                        checked as boolean
+                      )
                     }
                     className="h-5 w-5"
                   />
-                  <label 
-                    htmlFor={`split-${participant.id}`} 
+                  <label
+                    htmlFor={`split-${participant.id}`}
                     className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                   >
                     <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
@@ -212,7 +238,11 @@ const ExpenseForm = ({
             {editingExpenseId ? "Update Expense" : "Add Expense"}
           </Button>
           {editingExpenseId && (
-            <Button onClick={onCancelEdit} variant="outline" className="flex-1 h-12">
+            <Button
+              onClick={onCancelEdit}
+              variant="outline"
+              className="flex-1 h-12"
+            >
               Cancel
             </Button>
           )}

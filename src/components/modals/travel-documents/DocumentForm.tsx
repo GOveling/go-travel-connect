@@ -1,16 +1,27 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { JollyRangeCalendar, JollyCalendar } from "@/components/ui/range-calendar";
-import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import {
+  JollyRangeCalendar,
+  JollyCalendar,
+} from "@/components/ui/range-calendar";
+import {
+  parseDate,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+} from "@internationalized/date";
 import PhotoUpload from "./PhotoUpload";
 
 interface TravelDocument {
@@ -25,37 +36,51 @@ interface TravelDocument {
 }
 
 interface DocumentFormProps {
-  document: Omit<TravelDocument, 'id'>;
-  onDocumentChange: (document: Omit<TravelDocument, 'id'>) => void;
+  document: Omit<TravelDocument, "id">;
+  onDocumentChange: (document: Omit<TravelDocument, "id">) => void;
   onSubmit: () => void;
   onCancel: () => void;
   isEditing: boolean;
 }
 
-const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditing }: DocumentFormProps) => {
+const DocumentForm = ({
+  document,
+  onDocumentChange,
+  onSubmit,
+  onCancel,
+  isEditing,
+}: DocumentFormProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isIssueDateOpen, setIsIssueDateOpen] = useState(false);
 
   const documentTypes = [
-    'Passport',
-    'Visa',
-    'Driver\'s License',
-    'Travel Insurance',
-    'Flight Ticket',
-    'Hotel Booking',
-    'Vaccination Certificate',
-    'Travel Permit',
-    'Other'
+    "Passport",
+    "Visa",
+    "Driver's License",
+    "Travel Insurance",
+    "Flight Ticket",
+    "Hotel Booking",
+    "Vaccination Certificate",
+    "Travel Permit",
+    "Other",
   ];
 
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     if (range?.start && range?.end) {
-      const issueDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
-      const expiryDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
+      const issueDate = format(
+        new Date(range.start.year, range.start.month - 1, range.start.day),
+        "yyyy-MM-dd"
+      );
+      const expiryDate = format(
+        new Date(range.end.year, range.end.month - 1, range.end.day),
+        "yyyy-MM-dd"
+      );
       onDocumentChange({
         ...document,
         issueDate,
-        expiryDate
+        expiryDate,
       });
       setIsDateRangeOpen(false);
     }
@@ -63,10 +88,13 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
 
   const handleIssueDateChange = (date: CalendarDate | null) => {
     if (date) {
-      const issueDate = format(new Date(date.year, date.month - 1, date.day), "yyyy-MM-dd");
+      const issueDate = format(
+        new Date(date.year, date.month - 1, date.day),
+        "yyyy-MM-dd"
+      );
       onDocumentChange({
         ...document,
-        issueDate
+        issueDate,
       });
       setIsIssueDateOpen(false);
     }
@@ -76,7 +104,7 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
     if (document.issueDate && document.expiryDate) {
       return {
         start: parseDate(document.issueDate),
-        end: parseDate(document.expiryDate)
+        end: parseDate(document.expiryDate),
       };
     }
     return null;
@@ -107,7 +135,7 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
     <Card className="mb-4">
       <CardHeader>
         <CardTitle>
-          {isEditing ? 'Edit Document' : 'Add New Document'}
+          {isEditing ? "Edit Document" : "Add New Document"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -117,22 +145,31 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
             <select
               id="type"
               value={document.type}
-              onChange={(e) => onDocumentChange({...document, type: e.target.value})}
+              onChange={(e) =>
+                onDocumentChange({ ...document, type: e.target.value })
+              }
               className="w-full p-2 border rounded-md"
             >
               <option value="">Select type</option>
-              {documentTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
+              {documentTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
-          
+
           <div>
             <Label htmlFor="documentNumber">Document Number *</Label>
             <Input
               id="documentNumber"
               value={document.documentNumber}
-              onChange={(e) => onDocumentChange({...document, documentNumber: e.target.value})}
+              onChange={(e) =>
+                onDocumentChange({
+                  ...document,
+                  documentNumber: e.target.value,
+                })
+              }
               placeholder="Enter document number"
             />
           </div>
@@ -172,7 +209,8 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
-                    (!document.issueDate || !document.expiryDate) && "text-muted-foreground"
+                    (!document.issueDate || !document.expiryDate) &&
+                      "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -195,7 +233,9 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
           <Input
             id="issuingCountry"
             value={document.issuingCountry}
-            onChange={(e) => onDocumentChange({...document, issuingCountry: e.target.value})}
+            onChange={(e) =>
+              onDocumentChange({ ...document, issuingCountry: e.target.value })
+            }
             placeholder="Enter issuing country"
           />
         </div>
@@ -205,20 +245,22 @@ const DocumentForm = ({ document, onDocumentChange, onSubmit, onCancel, isEditin
           <Textarea
             id="notes"
             value={document.notes}
-            onChange={(e) => onDocumentChange({...document, notes: e.target.value})}
+            onChange={(e) =>
+              onDocumentChange({ ...document, notes: e.target.value })
+            }
             placeholder="Additional notes..."
             rows={3}
           />
         </div>
 
         <PhotoUpload
-          photo={document.photo || ''}
-          onPhotoChange={(photo) => onDocumentChange({...document, photo})}
+          photo={document.photo || ""}
+          onPhotoChange={(photo) => onDocumentChange({ ...document, photo })}
         />
 
         <div className="flex space-x-2">
           <Button onClick={onSubmit}>
-            {isEditing ? 'Update' : 'Add'} Document
+            {isEditing ? "Update" : "Add"} Document
           </Button>
           <Button variant="outline" onClick={onCancel}>
             Cancel

@@ -1,4 +1,3 @@
-
 import TravelDocumentsModal from "@/components/modals/TravelDocumentsModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
 import TravelAchievementsModal from "@/components/modals/TravelAchievementsModal";
@@ -47,7 +46,7 @@ const ProfileModals = ({
   isPersonalInformationModalOpen,
   setIsPersonalInformationModalOpen,
   profile,
-  onProfileUpdate
+  onProfileUpdate,
 }: ProfileModalsProps) => {
   return (
     <>

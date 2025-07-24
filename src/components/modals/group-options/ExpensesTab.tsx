@@ -1,8 +1,24 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Edit, X } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
 import BalanceSummary from "./BalanceSummary";
@@ -50,7 +66,7 @@ const ExpensesTab = ({
   onAddExpense,
   onEditExpense,
   onDeleteExpense,
-  onCancelEdit
+  onCancelEdit,
 }: ExpensesTabProps) => {
   const getTotalExpenses = () => {
     return expenses.reduce((total, expense) => total + expense.amount, 0);
@@ -73,11 +89,20 @@ const ExpensesTab = ({
                 <CardContent className="p-3">
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
-                      <h4 className="font-medium text-sm">{expense.description}</h4>
-                      <span className="font-bold text-green-600">${expense.amount.toFixed(2)}</span>
+                      <h4 className="font-medium text-sm">
+                        {expense.description}
+                      </h4>
+                      <span className="font-bold text-green-600">
+                        ${expense.amount.toFixed(2)}
+                      </span>
                     </div>
                     <div className="text-xs text-gray-600 space-y-1">
-                      <div>Paid by: {Array.isArray(expense.paidBy) ? expense.paidBy.join(", ") : expense.paidBy}</div>
+                      <div>
+                        Paid by:{" "}
+                        {Array.isArray(expense.paidBy)
+                          ? expense.paidBy.join(", ")
+                          : expense.paidBy}
+                      </div>
                       <div>Split: {expense.splitBetween.join(", ")}</div>
                       <div>Date: {expense.date}</div>
                     </div>
@@ -103,13 +128,19 @@ const ExpensesTab = ({
                         </AlertDialogTrigger>
                         <AlertDialogContent className="w-[90vw] max-w-md">
                           <AlertDialogHeader>
-                            <AlertDialogTitle className="text-base">Delete Expense</AlertDialogTitle>
+                            <AlertDialogTitle className="text-base">
+                              Delete Expense
+                            </AlertDialogTitle>
                             <AlertDialogDescription className="text-sm">
-                              Are you sure you want to delete the expense "{expense.description}"? This action cannot be undone.
+                              Are you sure you want to delete the expense "
+                              {expense.description}"? This action cannot be
+                              undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter className="flex-col-reverse sm:flex-row gap-2">
-                            <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+                            <AlertDialogCancel className="w-full sm:w-auto">
+                              Cancel
+                            </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => onDeleteExpense(expense.id)}
                               className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
@@ -131,12 +162,24 @@ const ExpensesTab = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-gray-900 font-semibold">Description</TableHead>
-                  <TableHead className="text-gray-900 font-semibold">Amount</TableHead>
-                  <TableHead className="text-gray-900 font-semibold">Paid By</TableHead>
-                  <TableHead className="text-gray-900 font-semibold">Split Between</TableHead>
-                  <TableHead className="text-gray-900 font-semibold">Date</TableHead>
-                  <TableHead className="text-gray-900 font-semibold">Actions</TableHead>
+                  <TableHead className="text-gray-900 font-semibold">
+                    Description
+                  </TableHead>
+                  <TableHead className="text-gray-900 font-semibold">
+                    Amount
+                  </TableHead>
+                  <TableHead className="text-gray-900 font-semibold">
+                    Paid By
+                  </TableHead>
+                  <TableHead className="text-gray-900 font-semibold">
+                    Split Between
+                  </TableHead>
+                  <TableHead className="text-gray-900 font-semibold">
+                    Date
+                  </TableHead>
+                  <TableHead className="text-gray-900 font-semibold">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -144,7 +187,11 @@ const ExpensesTab = ({
                   <TableRow key={expense.id}>
                     <TableCell>{expense.description}</TableCell>
                     <TableCell>${expense.amount.toFixed(2)}</TableCell>
-                    <TableCell>{Array.isArray(expense.paidBy) ? expense.paidBy.join(", ") : expense.paidBy}</TableCell>
+                    <TableCell>
+                      {Array.isArray(expense.paidBy)
+                        ? expense.paidBy.join(", ")
+                        : expense.paidBy}
+                    </TableCell>
                     <TableCell>{expense.splitBetween.join(", ")}</TableCell>
                     <TableCell>{expense.date}</TableCell>
                     <TableCell>
@@ -169,9 +216,13 @@ const ExpensesTab = ({
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Delete Expense
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to delete the expense "{expense.description}"? This action cannot be undone.
+                                Are you sure you want to delete the expense "
+                                {expense.description}"? This action cannot be
+                                undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -204,10 +255,7 @@ const ExpensesTab = ({
         onCancelEdit={onCancelEdit}
       />
 
-      <BalanceSummary
-        expenses={expenses}
-        allParticipants={allParticipants}
-      />
+      <BalanceSummary expenses={expenses} allParticipants={allParticipants} />
     </div>
   );
 };

@@ -1,7 +1,6 @@
-
-import React, { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { getEnvironmentConfig } from '@/utils/environment';
+import React, { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { getEnvironmentConfig } from "@/utils/environment";
 
 const AuthDebug = () => {
   const { user, session, loading } = useAuth();
@@ -9,7 +8,7 @@ const AuthDebug = () => {
 
   useEffect(() => {
     // Solo mostrar logs en desarrollo
-    if (process.env.NODE_ENV !== 'development') {
+    if (process.env.NODE_ENV !== "development") {
       return;
     }
 
@@ -18,32 +17,36 @@ const AuthDebug = () => {
       environment: {
         mode: envConfig.environment,
         baseUrl: envConfig.baseUrl,
-        isDev: envConfig.isDevelopment
+        isDev: envConfig.isDevelopment,
       },
       authState: {
         loading,
         hasUser: !!user,
-        hasSession: !!session
+        hasSession: !!session,
       },
-      userInfo: user ? {
-        email: user.email,
-        id: user.id.substring(0, 8) + '...',
-        provider: user.app_metadata?.provider || 'email',
-        confirmed: !!user.email_confirmed_at
-      } : null,
-      sessionInfo: session ? {
-        hasToken: !!session.access_token,
-        tokenType: session.token_type,
-        expires: new Date(session.expires_at! * 1000).toLocaleString()
-      } : null,
+      userInfo: user
+        ? {
+            email: user.email,
+            id: user.id.substring(0, 8) + "...",
+            provider: user.app_metadata?.provider || "email",
+            confirmed: !!user.email_confirmed_at,
+          }
+        : null,
+      sessionInfo: session
+        ? {
+            hasToken: !!session.access_token,
+            tokenType: session.token_type,
+            expires: new Date(session.expires_at! * 1000).toLocaleString(),
+          }
+        : null,
       urls: {
         current: window.location.href,
         origin: window.location.origin,
-        host: window.location.hostname
-      }
+        host: window.location.hostname,
+      },
     };
 
-    console.log('🐛 Auth Debug Info:', debugInfo);
+    console.log("🐛 Auth Debug Info:", debugInfo);
   }, [user, session, loading, envConfig]);
 
   // No renderizar nada en el DOM

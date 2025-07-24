@@ -1,4 +1,3 @@
-
 import { Heart, Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,39 +29,39 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
     // Prevent any default behavior that might affect the UI
     e.preventDefault();
     e.stopPropagation();
-    
+
     try {
       // Fetch the image as blob to handle cross-origin issues
-      const response = await fetch(photo.url, { mode: 'cors' });
+      const response = await fetch(photo.url, { mode: "cors" });
       const blob = await response.blob();
-      
+
       // Create object URL from blob
       const url = window.URL.createObjectURL(blob);
-      
+
       // Create temporary anchor element
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `trip-photo-${photo.id}.jpg`;
-      link.style.display = 'none'; // Ensure it's hidden
-      
+      link.style.display = "none"; // Ensure it's hidden
+
       // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up object URL
       window.URL.revokeObjectURL(url);
-      
+
       // Call the parent callback
       onDownload(photo.url, photo.id);
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
       // Fallback to original method
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = photo.url;
       link.download = `trip-photo-${photo.id}.jpg`;
-      link.target = '_blank';
-      link.style.display = 'none'; // Ensure it's hidden
+      link.target = "_blank";
+      link.style.display = "none"; // Ensure it's hidden
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -78,14 +77,14 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
           src={photo.url}
           alt="Trip memory"
           className="max-w-full max-h-full object-contain pointer-events-none"
-          style={{ 
-            width: 'auto', 
-            height: 'auto',
-            maxWidth: '100%',
-            maxHeight: '100%'
+          style={{
+            width: "auto",
+            height: "auto",
+            maxWidth: "100%",
+            maxHeight: "100%",
           }}
         />
-        
+
         {/* Photo Action Buttons */}
         <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 sm:opacity-100">
           <Button
@@ -96,7 +95,7 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
           >
             <Download size={16} />
           </Button>
-          
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -111,7 +110,8 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Photo</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this photo? This action cannot be undone.
+                  Are you sure you want to delete this photo? This action cannot
+                  be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -123,7 +123,7 @@ const PhotoItem = ({ photo, onDelete, onDownload }: PhotoItemProps) => {
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        
+
         {/* Photo overlay info */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
           <div className="flex items-center justify-between text-white">

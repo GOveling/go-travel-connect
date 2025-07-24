@@ -1,7 +1,20 @@
-
 import { useState } from "react";
-import { Share, Copy, Facebook, Twitter, Instagram, Link, QrCode, Check } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Share,
+  Copy,
+  Facebook,
+  Twitter,
+  Instagram,
+  Link,
+  QrCode,
+  Check,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,22 +45,31 @@ const ShareProfileModal = ({ isOpen, onClose }: ShareProfileModalProps) => {
       icon: Facebook,
       color: "text-blue-600",
       bg: "bg-blue-50",
-      action: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`, '_blank')
+      action: () =>
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`,
+          "_blank"
+        ),
     },
     {
       name: "Twitter",
       icon: Twitter,
       color: "text-sky-500",
       bg: "bg-sky-50",
-      action: () => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(profileUrl)}&text=Check out my travel profile!`, '_blank')
+      action: () =>
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(profileUrl)}&text=Check out my travel profile!`,
+          "_blank"
+        ),
     },
     {
       name: "Instagram",
       icon: Instagram,
       color: "text-pink-600",
       bg: "bg-pink-50",
-      action: () => console.log("Instagram sharing - copy link to share in stories")
-    }
+      action: () =>
+        console.log("Instagram sharing - copy link to share in stories"),
+    },
   ];
 
   return (
@@ -70,9 +92,15 @@ const ShareProfileModal = ({ isOpen, onClose }: ShareProfileModalProps) => {
               <h3 className="font-semibold text-gray-800">John Doe</h3>
               <p className="text-sm text-gray-600">Travel Enthusiast</p>
               <div className="flex justify-center space-x-4 mt-2 text-sm">
-                <span><strong>8</strong> Countries</span>
-                <span><strong>24</strong> Cities</span>
-                <span><strong>15</strong> Reviews</span>
+                <span>
+                  <strong>8</strong> Countries
+                </span>
+                <span>
+                  <strong>24</strong> Cities
+                </span>
+                <span>
+                  <strong>15</strong> Reviews
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -97,7 +125,9 @@ const ShareProfileModal = ({ isOpen, onClose }: ShareProfileModalProps) => {
               </Button>
             </div>
             {copied && (
-              <p className="text-sm text-green-600">Link copied to clipboard!</p>
+              <p className="text-sm text-green-600">
+                Link copied to clipboard!
+              </p>
             )}
           </div>
 
@@ -115,7 +145,9 @@ const ShareProfileModal = ({ isOpen, onClose }: ShareProfileModalProps) => {
                     className={`flex flex-col items-center p-4 h-auto ${option.bg} border-gray-200 hover:border-gray-300`}
                   >
                     <Icon size={24} className={option.color} />
-                    <span className="text-xs mt-1 text-gray-700">{option.name}</span>
+                    <span className="text-xs mt-1 text-gray-700">
+                      {option.name}
+                    </span>
                   </Button>
                 );
               })}
@@ -141,7 +173,8 @@ const ShareProfileModal = ({ isOpen, onClose }: ShareProfileModalProps) => {
           {/* Privacy Note */}
           <div className="bg-blue-50 p-3 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Privacy:</strong> Only your public travel stats and achievements will be visible to others.
+              <strong>Privacy:</strong> Only your public travel stats and
+              achievements will be visible to others.
             </p>
           </div>
         </div>

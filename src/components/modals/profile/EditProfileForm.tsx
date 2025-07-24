@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +12,11 @@ interface EditProfileFormProps {
   onClose: () => void;
 }
 
-const EditProfileForm = ({ profile, onProfileUpdate, onClose }: EditProfileFormProps) => {
+const EditProfileForm = ({
+  profile,
+  onProfileUpdate,
+  onClose,
+}: EditProfileFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [fullName, setFullName] = useState("");
@@ -32,16 +35,16 @@ const EditProfileForm = ({ profile, onProfileUpdate, onClose }: EditProfileFormP
   const getInitials = () => {
     if (fullName && fullName.trim()) {
       return fullName
-        .split(' ')
+        .split(" ")
         .map((name: string) => name[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     }
     if (user?.email) {
       return user.email[0].toUpperCase();
     }
-    return 'U';
+    return "U";
   };
 
   const handleSave = async () => {
@@ -59,20 +62,24 @@ const EditProfileForm = ({ profile, onProfileUpdate, onClose }: EditProfileFormP
 
     setIsLoading(true);
     try {
-      console.log('Updating profile with:', { fullName, description, avatarUrl });
-      
+      console.log("Updating profile with:", {
+        fullName,
+        description,
+        avatarUrl,
+      });
+
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           full_name: fullName.trim() || null,
           description: description.trim() || null,
           avatar_url: avatarUrl.trim() || null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (error) {
-        console.error('Profile update error:', error);
+        console.error("Profile update error:", error);
         throw error;
       }
 
@@ -84,7 +91,7 @@ const EditProfileForm = ({ profile, onProfileUpdate, onClose }: EditProfileFormP
       onProfileUpdate();
       onClose();
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
       toast({
         title: "Error al actualizar",
         description: "No se pudo actualizar tu perfil. Inténtalo de nuevo.",
@@ -103,7 +110,7 @@ const EditProfileForm = ({ profile, onProfileUpdate, onClose }: EditProfileFormP
   };
 
   const handleImageChange = (imageUrl: string) => {
-    console.log('Image changed to:', imageUrl);
+    console.log("Image changed to:", imageUrl);
     setAvatarUrl(imageUrl);
   };
 

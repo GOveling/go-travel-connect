@@ -1,11 +1,19 @@
-
 import { Building, Users, CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { JollyRangeCalendar } from "@/components/ui/range-calendar";
-import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import {
+  parseDate,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+} from "@internationalized/date";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -23,17 +31,28 @@ interface SingleDestinationFormProps {
   onFormDataChange: (data: FormData | ((prev: FormData) => FormData)) => void;
 }
 
-const SingleDestinationForm = ({ formData, onFormDataChange }: SingleDestinationFormProps) => {
+const SingleDestinationForm = ({
+  formData,
+  onFormDataChange,
+}: SingleDestinationFormProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
 
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     if (range?.start && range?.end) {
-      const checkIn = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
-      const checkOut = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
-      onFormDataChange(prev => ({
+      const checkIn = format(
+        new Date(range.start.year, range.start.month - 1, range.start.day),
+        "yyyy-MM-dd"
+      );
+      const checkOut = format(
+        new Date(range.end.year, range.end.month - 1, range.end.day),
+        "yyyy-MM-dd"
+      );
+      onFormDataChange((prev) => ({
         ...prev,
         checkIn,
-        checkOut
+        checkOut,
       }));
       setIsDateRangeOpen(false);
     }
@@ -43,7 +62,7 @@ const SingleDestinationForm = ({ formData, onFormDataChange }: SingleDestination
     if (formData.checkIn && formData.checkOut) {
       return {
         start: parseDate(formData.checkIn),
-        end: parseDate(formData.checkOut)
+        end: parseDate(formData.checkOut),
       };
     }
     return null;
@@ -66,7 +85,12 @@ const SingleDestinationForm = ({ formData, onFormDataChange }: SingleDestination
             id="destination"
             placeholder="Where do you want to stay?"
             value={formData.destination}
-            onChange={(e) => onFormDataChange(prev => ({ ...prev, destination: e.target.value }))}
+            onChange={(e) =>
+              onFormDataChange((prev) => ({
+                ...prev,
+                destination: e.target.value,
+              }))
+            }
             className="pl-10"
           />
         </div>
@@ -80,7 +104,8 @@ const SingleDestinationForm = ({ formData, onFormDataChange }: SingleDestination
               variant="outline"
               className={cn(
                 "w-full justify-start text-left font-normal",
-                (!formData.checkIn || !formData.checkOut) && "text-muted-foreground"
+                (!formData.checkIn || !formData.checkOut) &&
+                  "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -109,7 +134,12 @@ const SingleDestinationForm = ({ formData, onFormDataChange }: SingleDestination
               min="1"
               max="12"
               value={formData.guests}
-              onChange={(e) => onFormDataChange(prev => ({ ...prev, guests: parseInt(e.target.value) }))}
+              onChange={(e) =>
+                onFormDataChange((prev) => ({
+                  ...prev,
+                  guests: parseInt(e.target.value),
+                }))
+              }
               className="pl-10"
             />
           </div>
@@ -123,7 +153,12 @@ const SingleDestinationForm = ({ formData, onFormDataChange }: SingleDestination
             min="1"
             max="5"
             value={formData.rooms}
-            onChange={(e) => onFormDataChange(prev => ({ ...prev, rooms: parseInt(e.target.value) }))}
+            onChange={(e) =>
+              onFormDataChange((prev) => ({
+                ...prev,
+                rooms: parseInt(e.target.value),
+              }))
+            }
           />
         </div>
       </div>

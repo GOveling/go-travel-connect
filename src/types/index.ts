@@ -1,4 +1,3 @@
-
 // User and Authentication Types
 export interface User {
   id: string;
@@ -224,7 +223,12 @@ export interface CurrentTripProps {
 export interface AddMemoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddInstaTripImage?: (image: string, text?: string, location?: string, tripId?: string) => void;
+  onAddInstaTripImage?: (
+    image: string,
+    text?: string,
+    location?: string,
+    tripId?: string
+  ) => void;
   onCreatePublication?: () => void;
   onOpenTripPhotobook?: (trip: Trip) => void;
   trips?: Trip[];

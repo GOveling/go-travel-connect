@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight } from "lucide-react";
 import { MenuItemConfig } from "@/types/profile";
@@ -13,8 +12,8 @@ const ProfileMenu = ({ menuItems }: ProfileMenuProps) => {
       {menuItems.map((item, index) => {
         const Icon = item.icon;
         return (
-          <Card 
-            key={index} 
+          <Card
+            key={index}
             className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.02]"
             onClick={item.onClick}
           >

@@ -1,24 +1,23 @@
-
-import { useEffect, useState } from "react";
-import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
-import HomeHeader from "@/components/home/HomeHeader";
-import QuickStats from "@/components/home/QuickStats";
 import CurrentTrip from "@/components/home/CurrentTrip";
-import QuickActions from "@/components/home/QuickActions";
-import HomePopularPlace from "@/components/home/HomePopularPlace";
 import HomeModals from "@/components/home/HomeModals";
-import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
-import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
+import HomePopularPlace from "@/components/home/HomePopularPlace";
+import NotificationBell from "@/components/home/NotificationBell";
+import QuickActions from "@/components/home/QuickActions";
+import QuickStats from "@/components/home/QuickStats";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
-import { useHomeState } from "@/hooks/useHomeState";
-import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import { useToast } from "@/hooks/use-toast";
+import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { useHomeState } from "@/hooks/useHomeState";
+import { useEffect, useState } from "react";
 
 const HomeSection = () => {
   const homeState = useHomeState();
   const handlers = useHomeHandlers(homeState);
   const { toast } = useToast();
-  
+
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
   const [isNearbyPlacesModalOpen, setIsNearbyPlacesModalOpen] = useState(false);
@@ -30,12 +29,12 @@ const HomeSection = () => {
   // Listen for navigation to trips section
   useEffect(() => {
     const handleNavigateToTrips = () => {
-      window.dispatchEvent(new CustomEvent('navigateToTrips'));
+      window.dispatchEvent(new CustomEvent("navigateToTrips"));
     };
 
     // Override the handleNavigateToTrips to trigger the global navigation
     handlers.handleNavigateToTrips = () => {
-      window.dispatchEvent(new CustomEvent('navigateToTrips'));
+      window.dispatchEvent(new CustomEvent("navigateToTrips"));
     };
   }, []);
 
@@ -64,22 +63,22 @@ const HomeSection = () => {
 
   const handleAddToExistingTrip = (tripId: string, place: any) => {
     addPlaceToTrip(tripId, place);
-    const selectedTrip = trips.find(trip => trip.id === tripId);
-    
+    const selectedTrip = trips.find((trip) => trip.id === tripId);
+
     toast({
       title: "Added to Trip",
       description: `${place.name} has been saved to ${selectedTrip?.name}`,
     });
-    
+
     setIsAddToTripModalOpen(false);
     setSelectedPlace(null);
   };
 
   const handleCreateNewTrip = (tripData: any) => {
-    setTrips(prev => [...prev, tripData]);
+    setTrips((prev) => [...prev, tripData]);
     setIsAddToTripModalOpen(false);
     setSelectedPlace(null);
-    
+
     toast({
       title: "Trip Created!",
       description: `${tripData.name} has been created with ${selectedPlace?.name}`,
@@ -88,21 +87,21 @@ const HomeSection = () => {
 
   return (
     <div className="min-h-screen p-4 space-y-4">
-      {/* Minimized Location, Date & Weather Widget */}
-      <div className="pt-2">
-        <LocationWeatherWidget />
+      {/* Location, Date & Weather Widget with Notification Bell */}
+      <div className="pt-2 flex items-center gap-3">
+        <div className="flex-1">
+          <LocationWeatherWidget />
+        </div>
+        <NotificationBell
+          notificationCount={homeState.notificationCount}
+          onNotificationClick={handlers.handleNotificationClick}
+        />
       </div>
-
-      {/* Header with Logo and Notification Bell */}
-      <HomeHeader
-        notificationCount={homeState.notificationCount}
-        onNotificationClick={handlers.handleNotificationClick}
-      />
 
       {/* Quick Stats */}
       <QuickStats />
 
-      <CurrentTrip 
+      <CurrentTrip
         currentTrip={homeState.currentTrip}
         travelingTrip={homeState.travelingTrip}
         nearestUpcomingTrip={homeState.nearestUpcomingTrip}
@@ -120,7 +119,7 @@ const HomeSection = () => {
       <HomeModals homeState={homeState} handlers={handlers} />
 
       {/* Place Detail Modal */}
-      <PlaceDetailModal 
+      <PlaceDetailModal
         place={selectedPlace}
         isOpen={isPlaceModalOpen}
         onClose={handleClosePlaceModal}

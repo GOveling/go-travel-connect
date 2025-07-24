@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,9 +17,17 @@ interface LoginModalProps {
   onSwitchToSignUp?: () => void;
 }
 
-const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onForgotPassword, onSwitchToSignUp }: LoginModalProps) => {
+const LoginModal = ({
+  isOpen,
+  onClose,
+  onLogin,
+  onGoogleLogin,
+  onForgotPassword,
+  onSwitchToSignUp,
+}: LoginModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
+    useState(false);
   const isMobile = useIsMobile();
 
   const handleLogin = async (email: string, password: string) => {
@@ -71,19 +78,24 @@ const LoginModal = ({ isOpen, onClose, onLogin, onGoogleLogin, onForgotPassword,
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
+        <DialogContent
+          className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
+        >
           <ModalHeader onClose={onClose} />
 
           {/* Content */}
           <div className="p-6 space-y-6">
-            <GoogleLoginButton onClick={handleGoogleLogin} isLoading={isLoading} />
+            <GoogleLoginButton
+              onClick={handleGoogleLogin}
+              isLoading={isLoading}
+            />
 
             <FormDivider text="Or sign in with email" />
 
-            <LoginForm 
-              onSubmit={handleLogin} 
+            <LoginForm
+              onSubmit={handleLogin}
               onForgotPassword={handleForgotPasswordClick}
-              isLoading={isLoading} 
+              isLoading={isLoading}
             />
 
             {/* Sign Up Link */}

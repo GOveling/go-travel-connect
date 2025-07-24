@@ -1,8 +1,7 @@
-
 import { LogOut } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProfileActionsProps {
   onSignOut: () => void;
@@ -10,12 +9,12 @@ interface ProfileActionsProps {
 
 const ProfileActions = ({ onSignOut }: ProfileActionsProps) => {
   const { t } = useLanguage();
-  
+
   return (
     <Card className="border-red-200">
       <CardContent className="p-4">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="w-full text-red-600 hover:bg-red-50"
           onClick={onSignOut}
         >

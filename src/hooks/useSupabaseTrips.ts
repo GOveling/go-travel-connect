@@ -1,9 +1,8 @@
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Trip } from '@/types';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Trip } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 export const useSupabaseTrips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -21,11 +20,12 @@ export const useSupabaseTrips = () => {
 
     try {
       setLoading(true);
-      
+
       // Fetch trips with their coordinates and collaborators
       const { data: tripsData, error: tripsError } = await supabase
-        .from('trips')
-        .select(`
+        .from("trips")
+        .select(
+          `
           *,
           trip_coordinates (
             id,
@@ -55,12 +55,13 @@ export const useSupabaseTrips = () => {
             lat,
             lng
           )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        `
+        )
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
       if (tripsError) {
-        console.error('Error fetching trips:', tripsError);
+        console.error("Error fetching trips:", tripsError);
         toast({
           title: "Error loading trips",
           description: tripsError.message,
@@ -69,52 +70,58 @@ export const useSupabaseTrips = () => {
         return;
       }
 
-  // Transform Supabase data to Trip format
-  const transformedTrips: Trip[] = tripsData?.map((trip: any) => ({
-    id: trip.id, // Keep UUID as string for proper Supabase compatibility
-    name: trip.name,
-        destination: trip.destination,
-        dates: trip.dates,
-        status: trip.status,
-        travelers: trip.travelers || 1,
-        image: trip.image || "✈️",
-        isGroupTrip: trip.is_group_trip || false,
-        description: trip.description || "",
-        budget: trip.budget || "",
-        accommodation: trip.accommodation || "",
-        transportation: trip.transportation || "",
-        coordinates: trip.trip_coordinates
-          ?.sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0))
-          ?.map((coord: any) => ({
-            name: coord.name,
-            lat: coord.lat || 0,
-            lng: coord.lng || 0
-          })) || [],
-        collaborators: trip.trip_collaborators?.map((collab: any) => ({
-          id: collab.id,
-          name: collab.name || collab.email || 'Unknown',
-          email: collab.email || '',
-          avatar: collab.avatar || '👤',
-          role: collab.role || 'editor'
-        })) || [],
-        savedPlaces: trip.saved_places?.map((place: any) => ({
-          id: place.id,
-          name: place.name,
-          category: place.category || 'attraction',
-          rating: place.rating || 4.5,
-          image: place.image || "📍",
-          description: place.description || "",
-          estimatedTime: place.estimated_time || "2-3 hours",
-          priority: place.priority || "medium",
-          destinationName: place.destination_name || "",
-          lat: place.lat || 0,
-          lng: place.lng || 0
-        })) || []
-      })) || [];
+      // Transform Supabase data to Trip format
+      const transformedTrips: Trip[] =
+        tripsData?.map((trip: any) => ({
+          id: trip.id, // Keep UUID as string for proper Supabase compatibility
+          name: trip.name,
+          destination: trip.destination,
+          dates: trip.dates,
+          status: trip.status,
+          travelers: trip.travelers || 1,
+          image: trip.image || "✈️",
+          isGroupTrip: trip.is_group_trip || false,
+          description: trip.description || "",
+          budget: trip.budget || "",
+          accommodation: trip.accommodation || "",
+          transportation: trip.transportation || "",
+          coordinates:
+            trip.trip_coordinates
+              ?.sort(
+                (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+              )
+              ?.map((coord: any) => ({
+                name: coord.name,
+                lat: coord.lat || 0,
+                lng: coord.lng || 0,
+              })) || [],
+          collaborators:
+            trip.trip_collaborators?.map((collab: any) => ({
+              id: collab.id,
+              name: collab.name || collab.email || "Unknown",
+              email: collab.email || "",
+              avatar: collab.avatar || "👤",
+              role: collab.role || "editor",
+            })) || [],
+          savedPlaces:
+            trip.saved_places?.map((place: any) => ({
+              id: place.id,
+              name: place.name,
+              category: place.category || "attraction",
+              rating: place.rating || 4.5,
+              image: place.image || "📍",
+              description: place.description || "",
+              estimatedTime: place.estimated_time || "2-3 hours",
+              priority: place.priority || "medium",
+              destinationName: place.destination_name || "",
+              lat: place.lat || 0,
+              lng: place.lng || 0,
+            })) || [],
+        })) || [];
 
       setTrips(transformedTrips);
     } catch (error) {
-      console.error('Error fetching trips:', error);
+      console.error("Error fetching trips:", error);
       toast({
         title: "Error loading trips",
         description: "Failed to load your trips",
@@ -132,26 +139,26 @@ export const useSupabaseTrips = () => {
     try {
       // Create the main trip
       const { data: trip, error: tripError } = await supabase
-        .from('trips')
+        .from("trips")
         .insert({
           user_id: user.id,
-          name: tripData.name || 'New Trip',
-          destination: tripData.destination || '',
-          dates: tripData.dates || 'Dates TBD',
-          status: tripData.status || 'planning',
+          name: tripData.name || "New Trip",
+          destination: tripData.destination || "",
+          dates: tripData.dates || "Dates TBD",
+          status: tripData.status || "planning",
           travelers: tripData.travelers || 1,
-          image: tripData.image || '✈️',
+          image: tripData.image || "✈️",
           is_group_trip: tripData.isGroupTrip || false,
-          description: tripData.description || '',
-          budget: tripData.budget || '',
-          accommodation: tripData.accommodation || '',
-          transportation: tripData.transportation || ''
+          description: tripData.description || "",
+          budget: tripData.budget || "",
+          accommodation: tripData.accommodation || "",
+          transportation: tripData.transportation || "",
         })
         .select()
         .single();
 
       if (tripError) {
-        console.error('Error creating trip:', tripError);
+        console.error("Error creating trip:", tripError);
         toast({
           title: "Error creating trip",
           description: tripError.message,
@@ -167,15 +174,15 @@ export const useSupabaseTrips = () => {
           name: coord.name,
           lat: coord.lat,
           lng: coord.lng,
-          order_index: index
+          order_index: index,
         }));
 
         const { error: coordError } = await supabase
-          .from('trip_coordinates')
+          .from("trip_coordinates")
           .insert(coordinatesData);
 
         if (coordError) {
-          console.error('Error creating coordinates:', coordError);
+          console.error("Error creating coordinates:", coordError);
         }
       }
 
@@ -192,15 +199,15 @@ export const useSupabaseTrips = () => {
           priority: tripData.savedPlace.priority,
           destination_name: tripData.savedPlace.destination_name,
           lat: tripData.savedPlace.lat,
-          lng: tripData.savedPlace.lng
+          lng: tripData.savedPlace.lng,
         };
 
         const { error: placeError } = await supabase
-          .from('saved_places')
+          .from("saved_places")
           .insert(savedPlaceData);
 
         if (placeError) {
-          console.error('Error creating saved place:', placeError);
+          console.error("Error creating saved place:", placeError);
         }
       }
 
@@ -214,7 +221,7 @@ export const useSupabaseTrips = () => {
 
       return trip;
     } catch (error) {
-      console.error('Error creating trip:', error);
+      console.error("Error creating trip:", error);
       toast({
         title: "Error creating trip",
         description: "Failed to create your trip",
@@ -225,15 +232,18 @@ export const useSupabaseTrips = () => {
   };
 
   // Update a trip
-  const updateTrip = async (tripId: string | number, tripData: Partial<Trip>) => {
+  const updateTrip = async (
+    tripId: string | number,
+    tripData: Partial<Trip>
+  ) => {
     if (!user) return false;
 
     try {
       // Use tripId directly since it's already the UUID string
-      const tripUUID = typeof tripId === 'string' ? tripId : tripId.toString();
-      
+      const tripUUID = typeof tripId === "string" ? tripId : tripId.toString();
+
       const { error: tripError } = await supabase
-        .from('trips')
+        .from("trips")
         .update({
           name: tripData.name,
           destination: tripData.destination,
@@ -245,12 +255,12 @@ export const useSupabaseTrips = () => {
           description: tripData.description,
           budget: tripData.budget,
           accommodation: tripData.accommodation,
-          transportation: tripData.transportation
+          transportation: tripData.transportation,
         })
-        .eq('id', tripUUID);
+        .eq("id", tripUUID);
 
       if (tripError) {
-        console.error('Error updating trip:', tripError);
+        console.error("Error updating trip:", tripError);
         toast({
           title: "Error updating trip",
           description: tripError.message,
@@ -263,9 +273,9 @@ export const useSupabaseTrips = () => {
       if (tripData.coordinates) {
         // Delete existing coordinates
         await supabase
-          .from('trip_coordinates')
+          .from("trip_coordinates")
           .delete()
-          .eq('trip_id', tripUUID);
+          .eq("trip_id", tripUUID);
 
         // Insert new coordinates
         if (tripData.coordinates.length > 0) {
@@ -274,12 +284,10 @@ export const useSupabaseTrips = () => {
             name: coord.name,
             lat: coord.lat,
             lng: coord.lng,
-            order_index: index
+            order_index: index,
           }));
 
-          await supabase
-            .from('trip_coordinates')
-            .insert(coordinatesData);
+          await supabase.from("trip_coordinates").insert(coordinatesData);
         }
       }
 
@@ -293,7 +301,7 @@ export const useSupabaseTrips = () => {
 
       return true;
     } catch (error) {
-      console.error('Error updating trip:', error);
+      console.error("Error updating trip:", error);
       toast({
         title: "Error updating trip",
         description: "Failed to update your trip",
@@ -309,15 +317,15 @@ export const useSupabaseTrips = () => {
 
     try {
       // Use tripId directly as UUID
-      const tripUUID = typeof tripId === 'string' ? tripId : tripId.toString();
-      
+      const tripUUID = typeof tripId === "string" ? tripId : tripId.toString();
+
       const { error } = await supabase
-        .from('trips')
+        .from("trips")
         .delete()
-        .eq('id', tripUUID);
+        .eq("id", tripUUID);
 
       if (error) {
-        console.error('Error deleting trip:', error);
+        console.error("Error deleting trip:", error);
         toast({
           title: "Error deleting trip",
           description: error.message,
@@ -336,7 +344,7 @@ export const useSupabaseTrips = () => {
 
       return true;
     } catch (error) {
-      console.error('Error deleting trip:', error);
+      console.error("Error deleting trip:", error);
       toast({
         title: "Error deleting trip",
         description: "Failed to delete your trip",
@@ -357,6 +365,6 @@ export const useSupabaseTrips = () => {
     createTrip,
     updateTrip,
     deleteTrip,
-    refetchTrips: fetchTrips
+    refetchTrips: fetchTrips,
   };
 };

@@ -1,9 +1,8 @@
+"use client";
 
-"use client"
-
-import * as React from "react"
-import { getLocalTimeZone, today } from "@internationalized/date"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import * as React from "react";
+import { getLocalTimeZone, today } from "@internationalized/date";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Button as AriaButton,
   Calendar as AriaCalendar,
@@ -26,17 +25,17 @@ import {
   composeRenderProps,
   Text,
   useLocale,
-} from "react-aria-components"
+} from "react-aria-components";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
-const Calendar = AriaCalendar
+const Calendar = AriaCalendar;
 
-const RangeCalendar = AriaRangeCalendar
+const RangeCalendar = AriaRangeCalendar;
 
 const CalendarHeading = (props: React.HTMLAttributes<HTMLElement>) => {
-  let { direction } = useLocale()
+  let { direction } = useLocale();
 
   return (
     <header className="flex w-full items-center gap-1 px-1 pb-4" {...props}>
@@ -72,8 +71,8 @@ const CalendarHeading = (props: React.HTMLAttributes<HTMLElement>) => {
         )}
       </AriaButton>
     </header>
-  )
-}
+  );
+};
 
 const CalendarGrid = ({ className, ...props }: AriaCalendarGridProps) => (
   <AriaCalendarGrid
@@ -83,11 +82,11 @@ const CalendarGrid = ({ className, ...props }: AriaCalendarGridProps) => (
     )}
     {...props}
   />
-)
+);
 
 const CalendarGridHeader = ({ ...props }: AriaCalendarGridHeaderProps) => (
   <AriaCalendarGridHeader {...props} />
-)
+);
 
 const CalendarHeaderCell = ({
   className,
@@ -100,17 +99,17 @@ const CalendarHeaderCell = ({
     )}
     {...props}
   />
-)
+);
 
 const CalendarGridBody = ({
   className,
   ...props
 }: AriaCalendarGridBodyProps) => (
   <AriaCalendarGridBody className={cn("[&>tr>td]:p-0", className)} {...props} />
-)
+);
 
 const CalendarCell = ({ className, ...props }: AriaCalendarCellProps) => {
-  const isRange = Boolean(React.useContext(AriaRangeCalendarStateContext))
+  const isRange = Boolean(React.useContext(AriaRangeCalendarStateContext));
   return (
     <AriaCalendarCell
       className={composeRenderProps(className, (className, renderProps) =>
@@ -151,12 +150,12 @@ const CalendarCell = ({ className, ...props }: AriaCalendarCellProps) => {
       )}
       {...props}
     />
-  )
-}
+  );
+};
 
 interface JollyCalendarProps<T extends AriaDateValue>
   extends AriaCalendarProps<T> {
-  errorMessage?: string
+  errorMessage?: string;
 }
 
 function JollyCalendar<T extends AriaDateValue>({
@@ -186,12 +185,12 @@ function JollyCalendar<T extends AriaDateValue>({
         </Text>
       )}
     </Calendar>
-  )
+  );
 }
 
 interface JollyRangeCalendarProps<T extends AriaDateValue>
   extends AriaRangeCalendarProps<T> {
-  errorMessage?: string
+  errorMessage?: string;
 }
 
 function JollyRangeCalendar<T extends AriaDateValue>({
@@ -221,7 +220,7 @@ function JollyRangeCalendar<T extends AriaDateValue>({
         </Text>
       )}
     </RangeCalendar>
-  )
+  );
 }
 
 export {
@@ -235,5 +234,5 @@ export {
   RangeCalendar,
   JollyCalendar,
   JollyRangeCalendar,
-}
-export type { JollyCalendarProps, JollyRangeCalendarProps }
+};
+export type { JollyCalendarProps, JollyRangeCalendarProps };

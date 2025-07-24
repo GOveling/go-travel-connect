@@ -1,6 +1,12 @@
-
 import { useState } from "react";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -22,52 +28,74 @@ export interface FilterOptions {
 }
 
 const categories = [
-  "All", "Restaurants", "Tourist Attractions", "Hotels", "Shopping",
-  "Entertainment", "Museums", "Parks", "Bars", "Cafes"
+  "All",
+  "Restaurants",
+  "Tourist Attractions",
+  "Hotels",
+  "Shopping",
+  "Entertainment",
+  "Museums",
+  "Parks",
+  "Bars",
+  "Cafes",
 ];
 
 const priceRanges = ["$", "$$", "$$$", "$$$$"];
-const popularLocations = ["Downtown", "Historic District", "Waterfront", "Arts Quarter", "Business District"];
+const popularLocations = [
+  "Downtown",
+  "Historic District",
+  "Waterfront",
+  "Arts Quarter",
+  "Business District",
+];
 
-const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }: ExploreFilterModalProps) => {
+const ExploreFilterModal = ({
+  isOpen,
+  onClose,
+  onApplyFilters,
+  currentFilters,
+}: ExploreFilterModalProps) => {
   const [tempFilters, setTempFilters] = useState<FilterOptions>(currentFilters);
 
   const toggleCategory = (category: string) => {
     if (category === "All") {
-      setTempFilters(prev => ({ ...prev, categories: ["All"] }));
+      setTempFilters((prev) => ({ ...prev, categories: ["All"] }));
     } else {
-      setTempFilters(prev => {
+      setTempFilters((prev) => {
         const newCategories = prev.categories.includes(category)
-          ? prev.categories.filter(c => c !== category)
-          : [...prev.categories.filter(c => c !== "All"), category];
-        
-        return { ...prev, categories: newCategories.length === 0 ? ["All"] : newCategories };
+          ? prev.categories.filter((c) => c !== category)
+          : [...prev.categories.filter((c) => c !== "All"), category];
+
+        return {
+          ...prev,
+          categories: newCategories.length === 0 ? ["All"] : newCategories,
+        };
       });
     }
   };
 
   const togglePriceRange = (price: string) => {
-    setTempFilters(prev => ({
+    setTempFilters((prev) => ({
       ...prev,
       priceRange: prev.priceRange.includes(price)
-        ? prev.priceRange.filter(p => p !== price)
-        : [...prev.priceRange, price]
+        ? prev.priceRange.filter((p) => p !== price)
+        : [...prev.priceRange, price],
     }));
   };
 
   const toggleLocation = (location: string) => {
-    setTempFilters(prev => ({
+    setTempFilters((prev) => ({
       ...prev,
       location: prev.location.includes(location)
-        ? prev.location.filter(l => l !== location)
-        : [...prev.location, location]
+        ? prev.location.filter((l) => l !== location)
+        : [...prev.location, location],
     }));
   };
 
   const setRating = (rating: number) => {
-    setTempFilters(prev => ({
+    setTempFilters((prev) => ({
       ...prev,
-      rating: prev.rating === rating ? null : rating
+      rating: prev.rating === rating ? null : rating,
     }));
   };
 
@@ -82,14 +110,18 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
       rating: null,
       priceRange: [],
       location: [],
-      openNow: false
+      openNow: false,
     };
     setTempFilters(clearedFilters);
   };
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (tempFilters.categories.length > 0 && !tempFilters.categories.includes("All")) count++;
+    if (
+      tempFilters.categories.length > 0 &&
+      !tempFilters.categories.includes("All")
+    )
+      count++;
     if (tempFilters.rating) count++;
     if (tempFilters.priceRange.length > 0) count++;
     if (tempFilters.location.length > 0) count++;
@@ -120,7 +152,11 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
               {categories.map((category) => (
                 <Badge
                   key={category}
-                  variant={tempFilters.categories.includes(category) ? "default" : "outline"}
+                  variant={
+                    tempFilters.categories.includes(category)
+                      ? "default"
+                      : "outline"
+                  }
                   className="cursor-pointer"
                   onClick={() => toggleCategory(category)}
                 >
@@ -142,7 +178,9 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
               {[3, 4, 5].map((rating) => (
                 <Badge
                   key={rating}
-                  variant={tempFilters.rating === rating ? "default" : "outline"}
+                  variant={
+                    tempFilters.rating === rating ? "default" : "outline"
+                  }
                   className="cursor-pointer flex items-center gap-1"
                   onClick={() => setRating(rating)}
                 >
@@ -164,7 +202,11 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
               {priceRanges.map((price) => (
                 <Badge
                   key={price}
-                  variant={tempFilters.priceRange.includes(price) ? "default" : "outline"}
+                  variant={
+                    tempFilters.priceRange.includes(price)
+                      ? "default"
+                      : "outline"
+                  }
                   className="cursor-pointer"
                   onClick={() => togglePriceRange(price)}
                 >
@@ -186,7 +228,11 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
               {popularLocations.map((location) => (
                 <Badge
                   key={location}
-                  variant={tempFilters.location.includes(location) ? "default" : "outline"}
+                  variant={
+                    tempFilters.location.includes(location)
+                      ? "default"
+                      : "outline"
+                  }
                   className="cursor-pointer"
                   onClick={() => toggleLocation(location)}
                 >
@@ -207,7 +253,9 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
             <Badge
               variant={tempFilters.openNow ? "default" : "outline"}
               className="cursor-pointer"
-              onClick={() => setTempFilters(prev => ({ ...prev, openNow: !prev.openNow }))}
+              onClick={() =>
+                setTempFilters((prev) => ({ ...prev, openNow: !prev.openNow }))
+              }
             >
               Open Now
             </Badge>
@@ -227,7 +275,8 @@ const ExploreFilterModal = ({ isOpen, onClose, onApplyFilters, currentFilters }:
               onClick={handleApplyFilters}
               className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500"
             >
-              Apply Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+              Apply Filters{" "}
+              {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
             </Button>
           </div>
         </DrawerFooter>

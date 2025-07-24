@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAddToTrip } from "@/hooks/useAddToTrip";
@@ -39,7 +38,10 @@ interface ExploreSectionProps {
   onClearSourceTrip?: () => void;
 }
 
-const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) => {
+const ExploreSection = ({
+  sourceTrip,
+  onClearSourceTrip,
+}: ExploreSectionProps) => {
   const { toast } = useToast();
   const { addPlaceToTrip } = useAddToTrip();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -55,9 +57,9 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
   const [selectedLocationPlace, setSelectedLocationPlace] = useState<any>(null);
 
   const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories((prev) =>
       prev.includes(category)
-        ? prev.filter(c => c !== category)
+        ? prev.filter((c) => c !== category)
         : [...prev, category]
     );
   };
@@ -74,9 +76,9 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
   };
 
   const handleShowRelatedPlaces = async (place: any) => {
-    console.log('Mostrando lugares basados en resultados para:', place);
+    console.log("Mostrando lugares basados en resultados para:", place);
     setSelectedPlaceId(place.place_id || place.id);
-    
+
     try {
       toast({
         title: "Lugar Seleccionado",
@@ -86,7 +88,7 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       toast({
         title: "Error",
         description: "Error al mostrar detalles del lugar. Inténtalo de nuevo.",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -101,7 +103,9 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       rating: place.rating, // Don't use artificial fallback rating
       image: place.image,
       category: place.category,
-      hours: place.opening_hours?.open_now ? "Open now" : (place.hours || "Hours vary"),
+      hours: place.opening_hours?.open_now
+        ? "Open now"
+        : place.hours || "Hours vary",
       website: place.website || "",
       phone: place.phone || "",
       lat: place.coordinates.lat,
@@ -111,7 +115,7 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       photos: place.photos || [], // Pass all photos array
       reviews_count: place.reviews_count,
       priceLevel: place.priceLevel,
-      opening_hours: place.opening_hours
+      opening_hours: place.opening_hours,
     };
 
     setSelectedPlace(enhancedPlace);
@@ -119,20 +123,25 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
   };
 
   // Function to handle results from the enhanced search bar
-  const handleSearchResults = useCallback((results: Place[], selectedId?: string) => {
-    // ALWAYS show ALL results, just reorder if there's a selected place
-    if (selectedId) {
-      // Reorder results to put selected place first, but keep ALL results
-      const selectedPlace = results.find(place => place.id === selectedId);
-      const otherPlaces = results.filter(place => place.id !== selectedId);
-      setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : results);
-      setSelectedPlaceId(selectedId);
-    } else {
-      // Show all results without any filtering
-      setSearchResults(results);
-      setSelectedPlaceId(null);
-    }
-  }, []);
+  const handleSearchResults = useCallback(
+    (results: Place[], selectedId?: string) => {
+      // ALWAYS show ALL results, just reorder if there's a selected place
+      if (selectedId) {
+        // Reorder results to put selected place first, but keep ALL results
+        const selectedPlace = results.find((place) => place.id === selectedId);
+        const otherPlaces = results.filter((place) => place.id !== selectedId);
+        setSearchResults(
+          selectedPlace ? [selectedPlace, ...otherPlaces] : results
+        );
+        setSelectedPlaceId(selectedId);
+      } else {
+        // Show all results without any filtering
+        setSearchResults(results);
+        setSelectedPlaceId(null);
+      }
+    },
+    []
+  );
 
   const handleLoadingChange = useCallback((isLoading: boolean) => {
     setLoading(isLoading);
@@ -149,14 +158,14 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       category: selectedPlace.category,
       description: selectedPlace.description,
       lat: selectedPlace.lat,
-      lng: selectedPlace.lng
+      lng: selectedPlace.lng,
     };
 
     // If we have a source trip, add directly to it
     if (sourceTrip) {
       try {
         const success = await addPlaceToTrip(sourceTrip.id, placeData);
-        
+
         if (success) {
           toast({
             title: "Lugar agregado",
@@ -164,16 +173,16 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
           });
           setIsModalOpen(false);
           onClearSourceTrip?.();
-          
+
           // Navigate back to trips section
-          const event = new CustomEvent('navigateToTrips');
+          const event = new CustomEvent("navigateToTrips");
           window.dispatchEvent(event);
         }
       } catch (error) {
         toast({
           title: "Error",
           description: "No se pudo agregar el lugar al viaje",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     } else {
@@ -190,7 +199,7 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       name: place.name,
       lat: place.coordinates.lat,
       lng: place.coordinates.lng,
-      address: place.address
+      address: place.address,
     });
     setIsLocationModalOpen(true);
   };
@@ -201,9 +210,12 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Explorar Lugares</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              Explorar Lugares
+            </h1>
             <p className="text-sm text-gray-600">
-              Descubre lugares increíbles con búsqueda mejorada por Google Places API y georreferenciación precisa
+              Descubre lugares increíbles con búsqueda mejorada por Google
+              Places API y georreferenciación precisa
             </p>
           </div>
 
@@ -240,7 +252,7 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
       </div>
 
       {/* Place Detail Modal */}
-      <PlaceDetailModal 
+      <PlaceDetailModal
         place={selectedPlace}
         isOpen={isModalOpen}
         onClose={() => {
@@ -259,7 +271,7 @@ const ExploreSection = ({ sourceTrip, onClearSourceTrip }: ExploreSectionProps) 
         onClose={() => setIsAddToTripModalOpen(false)}
         selectedPlace={placeForTrip}
       />
-      
+
       {/* Place Map Modal */}
       <PlaceMapModal
         place={selectedLocationPlace}

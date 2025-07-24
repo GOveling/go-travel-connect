@@ -1,10 +1,15 @@
-
 import { Separator } from "@/components/ui/separator";
 import NotificationItem from "./NotificationItem";
 
 interface NotificationAlert {
   id: string;
-  type: 'friend_request' | 'message' | 'place_recommendation' | 'like' | 'comment' | 'new_traveler';
+  type:
+    | "friend_request"
+    | "message"
+    | "place_recommendation"
+    | "like"
+    | "comment"
+    | "new_traveler";
   title: string;
   message: string;
   time: string;
@@ -20,7 +25,12 @@ interface NotificationSectionProps {
   showSeparator?: boolean;
 }
 
-const NotificationSection = ({ title, notifications, onMarkAsRead, showSeparator = false }: NotificationSectionProps) => {
+const NotificationSection = ({
+  title,
+  notifications,
+  onMarkAsRead,
+  showSeparator = false,
+}: NotificationSectionProps) => {
   if (notifications.length === 0) return null;
 
   return (

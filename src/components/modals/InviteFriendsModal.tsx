@@ -1,12 +1,32 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Users, Share2, Send, Copy, Check, X } from "lucide-react";
 
 interface InviteFriendsModalProps {
@@ -23,7 +43,11 @@ interface Collaborator {
   role: string;
 }
 
-const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) => {
+const InviteFriendsModal = ({
+  isOpen,
+  onClose,
+  trip,
+}: InviteFriendsModalProps) => {
   const [activeTab, setActiveTab] = useState("invite");
   const [inviteEmail, setInviteEmail] = useState("");
   const [shareMessage, setShareMessage] = useState("");
@@ -37,22 +61,22 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
         name: "Alice Johnson",
         email: "alice@example.com",
         avatar: "A",
-        role: "owner"
+        role: "owner",
       },
       {
         id: 2,
         name: "Bob Smith",
         email: "bob@example.com",
         avatar: "B",
-        role: "editor"
+        role: "editor",
       },
       {
         id: 3,
         name: "Carol Davis",
         email: "carol@example.com",
         avatar: "C",
-        role: "viewer"
-      }
+        role: "viewer",
+      },
     ]
   );
 
@@ -73,15 +97,19 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   // Functions for collaborator management
   const handleRoleChange = (collaboratorId: number, newRole: string) => {
-    setCollaborators(collaborators.map(collaborator => 
-      collaborator.id === collaboratorId 
-        ? { ...collaborator, role: newRole }
-        : collaborator
-    ));
+    setCollaborators(
+      collaborators.map((collaborator) =>
+        collaborator.id === collaboratorId
+          ? { ...collaborator, role: newRole }
+          : collaborator
+      )
+    );
   };
 
   const handleDeleteCollaborator = (collaboratorId: number) => {
-    setCollaborators(collaborators.filter(collaborator => collaborator.id !== collaboratorId));
+    setCollaborators(
+      collaborators.filter((collaborator) => collaborator.id !== collaboratorId)
+    );
   };
 
   if (!trip) return null;
@@ -100,14 +128,14 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
           {[
             { id: "invite", label: "Invite Friends", icon: Users },
-            { id: "share", label: "Share Itinerary", icon: Share2 }
+            { id: "share", label: "Share Itinerary", icon: Share2 },
           ].map((tab) => (
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "ghost"}
               className={`flex-1 text-xs sm:text-sm ${
-                activeTab === tab.id 
-                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm" 
+                activeTab === tab.id
+                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm"
                   : "text-black hover:text-black"
               }`}
               onClick={() => setActiveTab(tab.id)}
@@ -123,7 +151,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
           <div className="space-y-6 px-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Invite by Email</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Invite by Email
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -148,7 +178,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Share Trip Link</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Share Trip Link
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
@@ -157,7 +189,11 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     readOnly
                     className="flex-1 bg-gray-50 text-xs sm:text-sm"
                   />
-                  <Button onClick={handleCopyLink} variant="outline" className="w-full sm:w-auto">
+                  <Button
+                    onClick={handleCopyLink}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
                     {linkCopied ? <Check size={16} /> : <Copy size={16} />}
                     {linkCopied ? "Copied!" : "Copy"}
                   </Button>
@@ -171,27 +207,38 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
             {/* Current Collaborators */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Current Collaborators</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Current Collaborators
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {collaborators.map((collaborator) => (
-                    <div key={collaborator.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div
+                      key={collaborator.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-white text-sm">
                           {collaborator.avatar}
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{collaborator.name}</p>
-                          <p className="text-xs text-gray-600">{collaborator.email}</p>
+                          <p className="font-medium text-sm">
+                            {collaborator.name}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {collaborator.email}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         {collaborator.role !== "owner" ? (
                           <>
-                            <Select 
-                              value={collaborator.role} 
-                              onValueChange={(value) => handleRoleChange(collaborator.id, value)}
+                            <Select
+                              value={collaborator.role}
+                              onValueChange={(value) =>
+                                handleRoleChange(collaborator.id, value)
+                              }
                             >
                               <SelectTrigger className="w-20 sm:w-24">
                                 <SelectValue />
@@ -213,15 +260,21 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Remove Collaborator</AlertDialogTitle>
+                                  <AlertDialogTitle>
+                                    Remove Collaborator
+                                  </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to remove {collaborator.name} from this trip? This action cannot be undone.
+                                    Are you sure you want to remove{" "}
+                                    {collaborator.name} from this trip? This
+                                    action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleDeleteCollaborator(collaborator.id)}
+                                    onClick={() =>
+                                      handleDeleteCollaborator(collaborator.id)
+                                    }
                                     className="bg-red-600 hover:bg-red-700"
                                   >
                                     Remove
@@ -249,7 +302,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
           <div className="space-y-6 px-1">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Trip Overview</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Trip Overview
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -279,7 +334,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Share Options</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Share Options
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -298,7 +355,10 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     <Share2 size={16} className="mr-2" />
                     Share via Email
                   </Button>
-                  <Button variant="outline" className="flex-1 text-xs sm:text-sm">
+                  <Button
+                    variant="outline"
+                    className="flex-1 text-xs sm:text-sm"
+                  >
                     <Copy size={16} className="mr-2" />
                     Copy Itinerary Link
                   </Button>

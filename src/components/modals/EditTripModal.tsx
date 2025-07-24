@@ -1,5 +1,9 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Edit3, Save } from "lucide-react";
@@ -24,7 +28,13 @@ interface Destination {
   endDate: Date | undefined;
 }
 
-const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: EditTripModalProps) => {
+const EditTripModal = ({
+  isOpen,
+  onClose,
+  trip,
+  onUpdateTrip,
+  onDeleteTrip,
+}: EditTripModalProps) => {
   const [tripName, setTripName] = useState("");
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [travelers, setTravelers] = useState("1");
@@ -45,25 +55,34 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
       if (trip.coordinates && trip.coordinates.length > 0) {
         if (trip.dates && trip.dates !== "Dates TBD") {
           // Use existing date calculation logic
-          const dateRanges = getDestinationDateRanges(trip.dates, trip.coordinates.length);
-          const destinationsWithDates = trip.coordinates.map((coord: any, index: number) => ({
-            name: coord.name,
-            startDate: dateRanges[index]?.startDate || undefined,
-            endDate: dateRanges[index]?.endDate || undefined
-          }));
+          const dateRanges = getDestinationDateRanges(
+            trip.dates,
+            trip.coordinates.length
+          );
+          const destinationsWithDates = trip.coordinates.map(
+            (coord: any, index: number) => ({
+              name: coord.name,
+              startDate: dateRanges[index]?.startDate || undefined,
+              endDate: dateRanges[index]?.endDate || undefined,
+            })
+          );
           setDestinations(destinationsWithDates);
         } else {
           // No dates, initialize with empty dates
-          const destinationsWithEmptyDates = trip.coordinates.map((coord: any) => ({
-            name: coord.name,
-            startDate: undefined,
-            endDate: undefined
-          }));
+          const destinationsWithEmptyDates = trip.coordinates.map(
+            (coord: any) => ({
+              name: coord.name,
+              startDate: undefined,
+              endDate: undefined,
+            })
+          );
           setDestinations(destinationsWithEmptyDates);
         }
       } else {
         // No coordinates, initialize with one empty destination
-        setDestinations([{ name: "", startDate: undefined, endDate: undefined }]);
+        setDestinations([
+          { name: "", startDate: undefined, endDate: undefined },
+        ]);
       }
     }
   }, [trip]);
@@ -74,7 +93,9 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
   }, [destinations]);
 
   const calculateTripDates = () => {
-    const validDestinations = destinations.filter(dest => dest.startDate && dest.endDate);
+    const validDestinations = destinations.filter(
+      (dest) => dest.startDate && dest.endDate
+    );
     if (validDestinations.length === 0) {
       setCalculatedDates("");
       return;
@@ -84,8 +105,11 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
     let earliestStart: Date | null = null;
     let latestEnd: Date | null = null;
 
-    validDestinations.forEach(dest => {
-      if (dest.startDate && (!earliestStart || dest.startDate < earliestStart)) {
+    validDestinations.forEach((dest) => {
+      if (
+        dest.startDate &&
+        (!earliestStart || dest.startDate < earliestStart)
+      ) {
         earliestStart = dest.startDate;
       }
       if (dest.endDate && (!latestEnd || dest.endDate > latestEnd)) {
@@ -103,22 +127,27 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
   const handleSave = () => {
     if (onUpdateTrip && trip) {
       // Create coordinates from destinations
-      const coordinates = destinations.filter(dest => dest.name).map(dest => ({
-        name: dest.name,
-        lat: 0, // You might want to add geocoding here
-        lng: 0
-      }));
+      const coordinates = destinations
+        .filter((dest) => dest.name)
+        .map((dest) => ({
+          name: dest.name,
+          lat: 0, // You might want to add geocoding here
+          lng: 0,
+        }));
 
       onUpdateTrip({
         ...trip,
         name: tripName,
-        destination: destinations.map(d => d.name).filter(Boolean).join(' → '),
+        destination: destinations
+          .map((d) => d.name)
+          .filter(Boolean)
+          .join(" → "),
         dates: calculatedDates || "Dates TBD",
         travelers: parseInt(travelers),
         status: status,
         budget: budget,
         description: description,
-        coordinates: coordinates
+        coordinates: coordinates,
       });
     }
     onClose();
@@ -179,7 +208,7 @@ const EditTripModal = ({ isOpen, onClose, trip, onUpdateTrip, onDeleteTrip }: Ed
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSave}
               className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
             >

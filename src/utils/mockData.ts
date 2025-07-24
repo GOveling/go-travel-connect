@@ -1,9 +1,8 @@
-
 import { SavedPlace } from "@/types/aiSmartRoute";
 
 // Mock saved places data that matches TripDetailModal structure
 export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
-  "Paris": [
+  Paris: [
     {
       id: "1",
       name: "Eiffel Tower",
@@ -13,7 +12,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Iconic iron tower and symbol of Paris",
       estimatedTime: "2-3 hours",
       priority: "high" as const,
-      destinationName: "Paris"
+      destinationName: "Paris",
     },
     {
       id: "2",
@@ -24,7 +23,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "World's largest art museum",
       estimatedTime: "4-6 hours",
       priority: "high" as const,
-      destinationName: "Paris"
+      destinationName: "Paris",
     },
     {
       id: "3",
@@ -35,10 +34,10 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Historic café in Saint-Germain",
       estimatedTime: "1-2 hours",
       priority: "medium" as const,
-      destinationName: "Paris"
-    }
+      destinationName: "Paris",
+    },
   ],
-  "Rome": [
+  Rome: [
     {
       id: "4",
       name: "Colosseum",
@@ -48,7 +47,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Ancient Roman amphitheater",
       estimatedTime: "2-3 hours",
       priority: "high" as const,
-      destinationName: "Rome"
+      destinationName: "Rome",
     },
     {
       id: "5",
@@ -59,7 +58,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Pope's art collection and Sistine Chapel",
       estimatedTime: "3-4 hours",
       priority: "high" as const,
-      destinationName: "Rome"
+      destinationName: "Rome",
     },
     {
       id: "6",
@@ -70,10 +69,10 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Famous baroque fountain",
       estimatedTime: "30 minutes",
       priority: "medium" as const,
-      destinationName: "Rome"
-    }
+      destinationName: "Rome",
+    },
   ],
-  "Barcelona": [
+  Barcelona: [
     {
       id: "7",
       name: "Sagrada Familia",
@@ -83,7 +82,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Gaudí's masterpiece basilica",
       estimatedTime: "2-3 hours",
       priority: "high" as const,
-      destinationName: "Barcelona"
+      destinationName: "Barcelona",
     },
     {
       id: "8",
@@ -94,7 +93,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Colorful mosaic park by Gaudí",
       estimatedTime: "2-3 hours",
       priority: "high" as const,
-      destinationName: "Barcelona"
+      destinationName: "Barcelona",
     },
     {
       id: "9",
@@ -105,10 +104,10 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Famous food market on Las Ramblas",
       estimatedTime: "1-2 hours",
       priority: "medium" as const,
-      destinationName: "Barcelona"
-    }
+      destinationName: "Barcelona",
+    },
   ],
-  "Tokyo": [
+  Tokyo: [
     {
       id: "10",
       name: "Senso-ji Temple",
@@ -118,7 +117,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Tokyo's oldest Buddhist temple",
       estimatedTime: "1-2 hours",
       priority: "high" as const,
-      destinationName: "Tokyo"
+      destinationName: "Tokyo",
     },
     {
       id: "11",
@@ -129,10 +128,10 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "World's busiest pedestrian crossing",
       estimatedTime: "30 minutes",
       priority: "medium" as const,
-      destinationName: "Tokyo"
-    }
+      destinationName: "Tokyo",
+    },
   ],
-  "Bali": [
+  Bali: [
     {
       id: "12",
       name: "Tanah Lot Temple",
@@ -142,7 +141,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Temple on a rock formation in the sea",
       estimatedTime: "2 hours",
       priority: "high" as const,
-      destinationName: "Bali"
+      destinationName: "Bali",
     },
     {
       id: "13",
@@ -153,7 +152,7 @@ export const savedPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "UNESCO World Heritage rice terraces",
       estimatedTime: "3-4 hours",
       priority: "high" as const,
-      destinationName: "Bali"
-    }
-  ]
+      destinationName: "Bali",
+    },
+  ],
 };

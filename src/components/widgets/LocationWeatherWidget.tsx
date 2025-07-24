@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
-import { MapPin, Cloud, Sun, CloudRain, Thermometer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useWeatherData } from "@/hooks/useWeatherData";
 import { useReduxAuth } from "@/hooks/useReduxAuth";
+import { useWeatherData } from "@/hooks/useWeatherData";
+import { Cloud, CloudRain, MapPin, Sun, Thermometer } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const LocationWeatherWidget = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { weatherData, isLoading, fetchWeatherByLocation, isDataStale } = useWeatherData();
+  const { weatherData, isLoading, fetchWeatherByLocation, isDataStale } =
+    useWeatherData();
   const { isAuthenticated } = useReduxAuth();
 
   useEffect(() => {
@@ -21,33 +22,31 @@ const LocationWeatherWidget = () => {
     if (!isLoading && isAuthenticated && (!weatherData || isDataStale())) {
       fetchWeatherByLocation();
     }
-  }, [isAuthenticated, isLoading, weatherData, isDataStale, fetchWeatherByLocation]);
+  }, [
+    isAuthenticated,
+    isLoading,
+    weatherData,
+    isDataStale,
+    fetchWeatherByLocation,
+  ]);
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
   };
 
   const getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
-      case 'sunny':
-      case 'clear':
+      case "sunny":
+      case "clear":
         return <Sun size={20} className="text-yellow-500" />;
-      case 'cloudy':
-      case 'partly cloudy':
+      case "cloudy":
+      case "partly cloudy":
         return <Cloud size={20} className="text-gray-500" />;
-      case 'rainy':
-      case 'rain':
+      case "rainy":
+      case "rain":
         return <CloudRain size={20} className="text-blue-500" />;
       default:
         return <Cloud size={20} className="text-gray-500" />;
@@ -71,12 +70,11 @@ const LocationWeatherWidget = () => {
     <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
       <CardContent className="p-2">
         <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-1">
             <MapPin size={12} />
             <span className="font-medium">{weatherData.location.city}</span>
             <span className="opacity-80">•</span>
             <span>{formatDate(currentDate)}</span>
-            <span>{formatTime(currentDate)}</span>
           </div>
 
           <div className="flex items-center space-x-2">

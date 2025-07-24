@@ -1,8 +1,7 @@
-
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProfileFormFieldsProps {
   fullName: string;
@@ -12,15 +11,15 @@ interface ProfileFormFieldsProps {
   userEmail: string;
 }
 
-const ProfileFormFields = ({ 
-  fullName, 
-  setFullName, 
-  description, 
-  setDescription, 
-  userEmail 
+const ProfileFormFields = ({
+  fullName,
+  setFullName,
+  description,
+  setDescription,
+  userEmail,
 }: ProfileFormFieldsProps) => {
   const { t } = useLanguage();
-  
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -37,7 +36,10 @@ const ProfileFormFields = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+        <Label
+          htmlFor="description"
+          className="text-sm font-medium text-gray-700"
+        >
           {t("profile.description")}
         </Label>
         <Textarea
@@ -49,7 +51,9 @@ const ProfileFormFields = ({
           className="min-h-[80px] border-2 border-gray-200 focus:border-blue-500 rounded-xl resize-none"
         />
         <p className="text-xs text-gray-400">
-          {t("profile.charactersLeft", { count: description.length.toString() })}
+          {t("profile.charactersLeft", {
+            count: description.length.toString(),
+          })}
         </p>
       </div>
 

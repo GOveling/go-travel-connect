@@ -1,7 +1,11 @@
-
 import { useState } from "react";
 import { Camera, ChevronRight } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -21,15 +25,15 @@ interface TripPhotobookSelectorModalProps {
   onSelectTrip: (trip: Trip) => void;
 }
 
-const TripPhotobookSelectorModal = ({ 
-  isOpen, 
-  onClose, 
-  trips, 
-  onSelectTrip 
+const TripPhotobookSelectorModal = ({
+  isOpen,
+  onClose,
+  trips,
+  onSelectTrip,
 }: TripPhotobookSelectorModalProps) => {
   // Filter only planned trips (upcoming and planning status)
-  const plannedTrips = trips.filter(trip => 
-    trip.status === 'upcoming' || trip.status === 'planning'
+  const plannedTrips = trips.filter(
+    (trip) => trip.status === "upcoming" || trip.status === "planning"
   );
 
   const handleTripSelect = (trip: Trip) => {
@@ -46,17 +50,17 @@ const TripPhotobookSelectorModal = ({
             Select Trip Photobook
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-3 px-1">
           {plannedTrips.length > 0 ? (
             <>
               <p className="text-sm text-gray-600 text-center mb-4">
                 Choose which trip photobook to add your image to
               </p>
-              
+
               {plannedTrips.map((trip) => (
-                <Card 
-                  key={trip.id} 
+                <Card
+                  key={trip.id}
                   className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-purple-200"
                   onClick={() => handleTripSelect(trip)}
                 >
@@ -73,19 +77,24 @@ const TripPhotobookSelectorModal = ({
                           <p className="text-xs text-gray-600 truncate">
                             {trip.destination}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {trip.dates}
-                          </p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                            trip.status === 'upcoming' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {trip.status === 'upcoming' ? 'Upcoming' : 'Planning'}
+                          <p className="text-xs text-gray-500">{trip.dates}</p>
+                          <span
+                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                              trip.status === "upcoming"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {trip.status === "upcoming"
+                              ? "Upcoming"
+                              : "Planning"}
                           </span>
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-gray-400 flex-shrink-0" />
+                      <ChevronRight
+                        size={16}
+                        className="text-gray-400 flex-shrink-0"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -98,17 +107,15 @@ const TripPhotobookSelectorModal = ({
               </div>
               <div>
                 <p className="text-gray-600 mb-2">No planned trips found</p>
-                <p className="text-sm text-gray-500">Create a trip first to add photos to its photobook</p>
+                <p className="text-sm text-gray-500">
+                  Create a trip first to add photos to its photobook
+                </p>
               </div>
             </div>
           )}
-          
+
           <div className="pt-4 border-t">
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className="w-full"
-            >
+            <Button variant="outline" onClick={onClose} className="w-full">
               Cancel
             </Button>
           </div>

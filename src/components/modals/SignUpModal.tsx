@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -16,11 +15,21 @@ interface SignUpModalProps {
   onSwitchToLogin?: () => void;
 }
 
-const SignUpModal = ({ isOpen, onClose, onSignUp, onGoogleSignUp, onSwitchToLogin }: SignUpModalProps) => {
+const SignUpModal = ({
+  isOpen,
+  onClose,
+  onSignUp,
+  onGoogleSignUp,
+  onSwitchToLogin,
+}: SignUpModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const isMobile = useIsMobile();
 
-  const handleSignUp = async (name: string, email: string, password: string) => {
+  const handleSignUp = async (
+    name: string,
+    email: string,
+    password: string
+  ) => {
     if (onSignUp) {
       setIsLoading(true);
       try {
@@ -50,12 +59,17 @@ const SignUpModal = ({ isOpen, onClose, onSignUp, onGoogleSignUp, onSwitchToLogi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
+      <DialogContent
+        className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
+      >
         <ModalHeader onClose={onClose} />
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          <GoogleLoginButton onClick={handleGoogleSignUp} isLoading={isLoading} />
+          <GoogleLoginButton
+            onClick={handleGoogleSignUp}
+            isLoading={isLoading}
+          />
 
           <FormDivider text="Or sign up with email" />
 

@@ -1,21 +1,27 @@
 import { Camera, MapPin, Share, Plus, Upload } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import type { Trip, AddMemoryModalProps } from '@/types';
+import type { Trip, AddMemoryModalProps } from "@/types";
 import InstaTripUploadModal from "./InstaTripUploadModal";
 import TripPhotobookSelectorModal from "./TripPhotobookSelectorModal";
 
-const AddMemoryModal = ({ 
-  isOpen, 
-  onClose, 
-  onAddInstaTripImage, 
+const AddMemoryModal = ({
+  isOpen,
+  onClose,
+  onAddInstaTripImage,
   onCreatePublication,
   onOpenTripPhotobook,
-  trips = []
+  trips = [],
 }: AddMemoryModalProps) => {
   const [isInstaTripUploadOpen, setIsInstaTripUploadOpen] = useState(false);
-  const [isTripPhotobookSelectorOpen, setIsTripPhotobookSelectorOpen] = useState(false);
+  const [isTripPhotobookSelectorOpen, setIsTripPhotobookSelectorOpen] =
+    useState(false);
 
   const handleInstanTrip = () => {
     setIsInstaTripUploadOpen(true);
@@ -35,7 +41,12 @@ const AddMemoryModal = ({
     onClose();
   };
 
-  const handleInstaTripUpload = (imageSrc: string, text?: string, location?: string, tripId?: string) => {
+  const handleInstaTripUpload = (
+    imageSrc: string,
+    text?: string,
+    location?: string,
+    tripId?: string
+  ) => {
     onAddInstaTripImage?.(imageSrc, text, location, tripId);
     setIsInstaTripUploadOpen(false);
     onClose();
@@ -50,7 +61,7 @@ const AddMemoryModal = ({
               Add Memory
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-3 pb-4">
             <Button
               onClick={handleInstanTrip}
@@ -62,7 +73,9 @@ const AddMemoryModal = ({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-sm">Add InstanTrip</p>
-                <p className="text-xs text-gray-500 break-words">Show your Trip in real time</p>
+                <p className="text-xs text-gray-500 break-words">
+                  Show your Trip in real time
+                </p>
               </div>
             </Button>
 
@@ -76,7 +89,9 @@ const AddMemoryModal = ({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-sm">Create Publication</p>
-                <p className="text-xs text-gray-500 break-words">Share the best part of your travels</p>
+                <p className="text-xs text-gray-500 break-words">
+                  Share the best part of your travels
+                </p>
               </div>
             </Button>
 
@@ -90,7 +105,9 @@ const AddMemoryModal = ({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-medium text-sm">Add Image</p>
-                <p className="text-xs text-gray-500 break-words">Add photo in your Places Photobook</p>
+                <p className="text-xs text-gray-500 break-words">
+                  Add photo in your Places Photobook
+                </p>
               </div>
             </Button>
           </div>
