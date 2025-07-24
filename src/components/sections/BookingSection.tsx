@@ -5,7 +5,7 @@ import TransportationModal from "@/components/modals/TransportationModal";
 import ToursModal from "@/components/modals/ToursModal";
 import RestaurantModal from "@/components/modals/RestaurantModal";
 import ESIMModal from "@/components/modals/ESIMModal";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 import BookingHeader from "./booking/BookingHeader";
 import SpecialOfferCard from "./booking/SpecialOfferCard";
 import BookingCategoriesGrid from "./booking/BookingCategoriesGrid";

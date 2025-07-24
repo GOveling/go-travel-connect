@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
-import HomeHeader from "@/components/home/HomeHeader";
-import QuickStats from "@/components/home/QuickStats";
 import CurrentTrip from "@/components/home/CurrentTrip";
-import QuickActions from "@/components/home/QuickActions";
-import HomePopularPlace from "@/components/home/HomePopularPlace";
 import HomeModals from "@/components/home/HomeModals";
-import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
-import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
+import HomePopularPlace from "@/components/home/HomePopularPlace";
+import NotificationBell from "@/components/home/NotificationBell";
+import QuickActions from "@/components/home/QuickActions";
+import QuickStats from "@/components/home/QuickStats";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
-import { useHomeState } from "@/hooks/useHomeState";
-import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import { useToast } from "@/hooks/use-toast";
+import { useHomeHandlers } from "@/hooks/useHomeHandlers";
+import { useHomeState } from "@/hooks/useHomeState";
+import { useEffect, useState } from "react";
 
 const HomeSection = () => {
   const homeState = useHomeState();
@@ -87,16 +87,16 @@ const HomeSection = () => {
 
   return (
     <div className="min-h-screen p-4 space-y-4">
-      {/* Minimized Location, Date & Weather Widget */}
-      <div className="pt-2">
-        <LocationWeatherWidget />
+      {/* Location, Date & Weather Widget with Notification Bell */}
+      <div className="pt-2 flex items-center gap-3">
+        <div className="flex-1">
+          <LocationWeatherWidget />
+        </div>
+        <NotificationBell
+          notificationCount={homeState.notificationCount}
+          onNotificationClick={handlers.handleNotificationClick}
+        />
       </div>
-
-      {/* Header with Logo and Notification Bell */}
-      <HomeHeader
-        notificationCount={homeState.notificationCount}
-        onNotificationClick={handlers.handleNotificationClick}
-      />
 
       {/* Quick Stats */}
       <QuickStats />

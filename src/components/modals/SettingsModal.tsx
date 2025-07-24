@@ -1,25 +1,11 @@
-import { useState, useEffect } from "react";
-import {
-  Settings,
-  User,
-  Bell,
-  Shield,
-  Globe,
-  Moon,
-  Sun,
-  Smartphone,
-  HelpCircle,
-  Languages,
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -28,7 +14,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { Switch } from "@/components/ui/switch";
+import { Language } from "@/contexts/LanguageTypes";
+import { useLanguage } from "@/hooks/useLanguage";
+import {
+  Bell,
+  HelpCircle,
+  Languages,
+  Moon,
+  Settings,
+  Shield,
+  Sun,
+  User,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -36,7 +35,7 @@ interface SettingsModalProps {
 }
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, supportedLanguages } = useLanguage();
 
   const [darkMode, setDarkMode] = useState(() => {
     // Check if dark mode is already enabled
@@ -61,7 +60,7 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
   // Handle language change - now integrated with context
   const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage as any);
+    setLanguage(newLanguage as Language);
   };
 
   // Load preferences on component mount
@@ -111,14 +110,10 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           type: "select",
           value: language,
           onChange: handleLanguageChange,
-          options: [
-            { value: "en", label: "English" },
-            { value: "es", label: "Español" },
-            { value: "pt", label: "Português" },
-            { value: "fr", label: "Français" },
-            { value: "it", label: "Italiano" },
-            { value: "zh", label: "中文" },
-          ],
+          options: supportedLanguages.map((lang) => ({
+            value: lang.code,
+            label: lang.nativeName,
+          })),
         },
       ],
     },

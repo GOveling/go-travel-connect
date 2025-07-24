@@ -19,7 +19,7 @@ import QuickStats from "@/components/trips/QuickStats";
 import TripTemplates from "@/components/trips/TripTemplates";
 import ShareSection from "@/components/trips/ShareSection";
 import { useHomeState } from "@/hooks/useHomeState";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const TripsSection = () => {
   const { t } = useLanguage();

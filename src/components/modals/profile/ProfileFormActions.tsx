@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProfileFormActionsProps {
   onCancel: () => void;

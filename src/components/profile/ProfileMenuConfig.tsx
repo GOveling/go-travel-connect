@@ -10,7 +10,7 @@ import {
 import { MenuItemConfig } from "@/types/profile";
 import { TravelStats } from "@/types/profile";
 import { useGamification } from "@/hooks/useGamification";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProfileMenuConfigProps {
   stats: TravelStats;

@@ -1,9 +1,9 @@
-import { Home, Compass, MapPin, Calendar, User } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import {
   InteractiveMenu,
   InteractiveMenuItem,
 } from "@/components/ui/modern-mobile-menu";
+import { useLanguage } from "@/hooks/useLanguage";
+import { Calendar, Compass, Home, MapPin, User } from "lucide-react";
 
 interface BottomNavigationProps {
   activeTab: string;

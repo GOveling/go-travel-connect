@@ -1,0 +1,20 @@
+{
+  "pages": {
+    "notFound": {
+      "title": "404 - Page Not Found",
+      "message": "The page you're looking for doesn't exist.",
+      "returnHome": "Return to Home"
+    },
+    "home": {
+      "title": "Home",
+      "sections": {
+        "home": "Home",
+        "trips": "My Trips",
+        "explore": "Explore",
+        "booking": "Booking",
+        "travelers": "Travelers",
+        "profile": "My Profile"
+      }
+    }
+  }
+}

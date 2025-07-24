@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getRedirectUrl, getEnvironmentConfig } from "@/utils/environment";
+import { supabase } from "@/integrations/supabase/client";
+import { getEnvironmentConfig, getRedirectUrl } from "@/utils/environment";
+import { Session, User } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -33,10 +33,7 @@ export const useAuth = () => {
           "✅ useAuth: User signed in successfully:",
           session?.user?.email
         );
-        toast({
-          title: "¡Bienvenido!",
-          description: "Has iniciado sesión exitosamente.",
-        });
+        // Toast notification removed to avoid showing on every home load
       } else if (event === "SIGNED_OUT") {
         console.log("👋 useAuth: User signed out");
       } else if (event === "TOKEN_REFRESHED") {
@@ -217,10 +214,7 @@ export const useAuth = () => {
 
       console.log("✅ useAuth: Sign out successful");
 
-      toast({
-        title: "Sesión cerrada",
-        description: "Has cerrado sesión exitosamente.",
-      });
+      // Toast notification removed to avoid unnecessary modal on sign out
     } catch (error: any) {
       console.error("❌ useAuth: Sign out exception:", error);
       toast({

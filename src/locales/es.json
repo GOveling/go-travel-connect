@@ -28,6 +28,71 @@
     "loadMore": "Cargar Más",
     "seeAll": "Ver Todo"
   },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer Contraseña",
+    "createAccount": "Crear Cuenta",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signInWithGoogle": "Iniciar sesión con Google",
+    "signUpWithGoogle": "Registrarse con Google",
+    "terms": "Al registrarte, aceptas nuestros Términos de Servicio y Política de Privacidad",
+    "emailVerification": "Por favor revisa tu correo y haz clic en el enlace de confirmación para verificar tu cuenta."
+  },
+  "errors": {
+    "general": "Ocurrió un error",
+    "networkError": "Error de red. Por favor verifica tu conexión.",
+    "unauthorizedError": "No tienes autorización para realizar esta acción",
+    "validationError": "Por favor verifica tu información e intenta de nuevo",
+    "authError": {
+      "invalidCredentials": "Email o contraseña incorrectos. Verifica tus credenciales.",
+      "emailNotConfirmed": "Por favor verifica tu email y haz clic en el enlace de confirmación.",
+      "createAccountError": "Error al crear la cuenta",
+      "signOutError": "Error al cerrar sesión",
+      "signOutErrorDescription": "Ocurrió un error al cerrar sesión"
+    },
+    "tryAgain": "Por favor intenta de nuevo",
+    "contactSupport": "Si el problema persiste, por favor contacta soporte"
+  },
+  "loading": {
+    "default": "Cargando...",
+    "saving": "Guardando...",
+    "processing": "Procesando...",
+    "uploading": "Subiendo...",
+    "authenticating": "Autenticando...",
+    "pleaseWait": "Por favor espera..."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "invalidEmail": "Por favor ingresa un correo válido",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "invalidFormat": "Formato inválido"
+  },
+  "pages": {
+    "notFound": {
+      "title": "404 - Página No Encontrada",
+      "message": "La página que buscas no existe.",
+      "returnHome": "Volver al Inicio"
+    },
+    "home": {
+      "title": "Inicio",
+      "sections": {
+        "home": "Inicio",
+        "trips": "Mis Viajes",
+        "explore": "Explorar",
+        "booking": "Reservas",
+        "travelers": "Viajeros",
+        "profile": "Mi Perfil"
+      }
+    }
+  },
   "home": {
     "welcomeBack": "Bienvenido de Vuelta",
     "travelSmart": "Viaja Inteligente",

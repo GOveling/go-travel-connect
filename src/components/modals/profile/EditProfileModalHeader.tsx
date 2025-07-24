@@ -1,5 +1,5 @@
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface EditProfileModalHeaderProps {
   onClose: () => void;

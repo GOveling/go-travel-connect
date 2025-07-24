@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Search, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   useGooglePlacesEnhanced,
   EnhancedPlace,

@@ -1,7 +1,7 @@
 import CommunityStats from "../travelers/CommunityStats";
 import TravelersList from "../travelers/TravelersList";
 import LoadMoreButton from "../travelers/LoadMoreButton";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const TravelersSection = () => {
   const { t } = useLanguage();
