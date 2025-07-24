@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Vote, Plus } from "lucide-react";
@@ -29,16 +28,18 @@ const DecisionsTab = ({
   onCreateDecision,
   onVote,
   onEditDecision,
-  onDeleteDecision
+  onDeleteDecision,
 }: DecisionsTabProps) => {
-  const activeDecisions = decisions.filter(d => d.status === 'active');
+  const activeDecisions = decisions.filter((d) => d.status === "active");
 
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h3 className="text-lg font-semibold">Group Decisions</h3>
-          <p className="text-sm text-gray-600">Vote on trip decisions with your group</p>
+          <p className="text-sm text-gray-600">
+            Vote on trip decisions with your group
+          </p>
         </div>
         <Button
           onClick={onCreateDecision}
@@ -59,13 +60,18 @@ const DecisionsTab = ({
             onDelete={onDeleteDecision}
           />
         ))}
-        
+
         {activeDecisions.length === 0 && (
           <Card className="border-dashed border-2 border-gray-300">
             <CardContent className="p-8 text-center">
               <Vote size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">No Active Decisions</h3>
-              <p className="text-gray-500 mb-4">Create your first group decision to start voting with your trip collaborators.</p>
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                No Active Decisions
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Create your first group decision to start voting with your trip
+                collaborators.
+              </p>
               <Button
                 onClick={onCreateDecision}
                 className="bg-[#EA6123] hover:bg-[#EA6123]/90"

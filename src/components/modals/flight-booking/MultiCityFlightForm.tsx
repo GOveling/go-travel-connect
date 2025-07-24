@@ -1,8 +1,13 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Trash2, Plus, ArrowRight } from "lucide-react";
 
 interface MultiCityFlight {
@@ -15,45 +20,62 @@ interface MultiCityFlight {
 
 interface MultiCityFlightFormProps {
   multiCityFlights: MultiCityFlight[];
-  setMultiCityFlights: (flights: MultiCityFlight[] | ((prev: MultiCityFlight[]) => MultiCityFlight[])) => void;
+  setMultiCityFlights: (
+    flights:
+      | MultiCityFlight[]
+      | ((prev: MultiCityFlight[]) => MultiCityFlight[])
+  ) => void;
 }
 
-const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCityFlightFormProps) => {
-  const updateFlight = (index: number, field: keyof MultiCityFlight, value: string | number) => {
-    setMultiCityFlights(prev => prev.map((flight, i) => 
-      i === index ? { ...flight, [field]: value } : flight
-    ));
+const MultiCityFlightForm = ({
+  multiCityFlights,
+  setMultiCityFlights,
+}: MultiCityFlightFormProps) => {
+  const updateFlight = (
+    index: number,
+    field: keyof MultiCityFlight,
+    value: string | number
+  ) => {
+    setMultiCityFlights((prev) =>
+      prev.map((flight, i) =>
+        i === index ? { ...flight, [field]: value } : flight
+      )
+    );
   };
 
   const addFlight = () => {
-    setMultiCityFlights(prev => [...prev, {
-      from: '',
-      to: '',
-      departDate: '',
-      passengers: 1,
-      class: 'economy'
-    }]);
+    setMultiCityFlights((prev) => [
+      ...prev,
+      {
+        from: "",
+        to: "",
+        departDate: "",
+        passengers: 1,
+        class: "economy",
+      },
+    ]);
   };
 
   const removeFlight = (index: number) => {
     if (multiCityFlights.length > 2) {
-      setMultiCityFlights(prev => prev.filter((_, i) => i !== index));
+      setMultiCityFlights((prev) => prev.filter((_, i) => i !== index));
     }
   };
 
   const formatFlightLabel = (index: number) => {
     const totalFlights = multiCityFlights.length;
     const isLastFlight = index === totalFlights - 1;
-    
+
     // Check if last flight is a return flight (destination matches first flight's origin)
-    const isReturnFlight = isLastFlight && 
-      multiCityFlights[0]?.from && 
+    const isReturnFlight =
+      isLastFlight &&
+      multiCityFlights[0]?.from &&
       multiCityFlights[index]?.to === multiCityFlights[0].from;
-    
+
     if (isReturnFlight) {
       return `Vuelo ${index + 1} - Retorno al origen`;
     }
-    
+
     return `Vuelo ${index + 1}`;
   };
 
@@ -61,7 +83,9 @@ const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCit
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="font-medium">Multi-City Flights</h4>
-        <span className="text-sm text-gray-500">{multiCityFlights.length} vuelos planificados</span>
+        <span className="text-sm text-gray-500">
+          {multiCityFlights.length} vuelos planificados
+        </span>
       </div>
 
       {multiCityFlights.map((flight, index) => (
@@ -82,21 +106,25 @@ const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCit
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor={`from-${index}`} className="text-sm">From</Label>
+              <Label htmlFor={`from-${index}`} className="text-sm">
+                From
+              </Label>
               <Input
                 id={`from-${index}`}
                 value={flight.from}
-                onChange={(e) => updateFlight(index, 'from', e.target.value)}
+                onChange={(e) => updateFlight(index, "from", e.target.value)}
                 placeholder="Departure city"
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor={`to-${index}`} className="text-sm">To</Label>
+              <Label htmlFor={`to-${index}`} className="text-sm">
+                To
+              </Label>
               <Input
                 id={`to-${index}`}
                 value={flight.to}
-                onChange={(e) => updateFlight(index, 'to', e.target.value)}
+                onChange={(e) => updateFlight(index, "to", e.target.value)}
                 placeholder="Destination city"
                 className="mt-1"
               />
@@ -105,18 +133,27 @@ const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCit
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor={`date-${index}`} className="text-sm">Departure Date</Label>
+              <Label htmlFor={`date-${index}`} className="text-sm">
+                Departure Date
+              </Label>
               <Input
                 id={`date-${index}`}
                 type="date"
                 value={flight.departDate}
-                onChange={(e) => updateFlight(index, 'departDate', e.target.value)}
+                onChange={(e) =>
+                  updateFlight(index, "departDate", e.target.value)
+                }
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor={`class-${index}`} className="text-sm">Class</Label>
-              <Select value={flight.class} onValueChange={(value) => updateFlight(index, 'class', value)}>
+              <Label htmlFor={`class-${index}`} className="text-sm">
+                Class
+              </Label>
+              <Select
+                value={flight.class}
+                onValueChange={(value) => updateFlight(index, "class", value)}
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -137,11 +174,7 @@ const MultiCityFlightForm = ({ multiCityFlights, setMultiCityFlights }: MultiCit
         </div>
       ))}
 
-      <Button
-        variant="outline"
-        onClick={addFlight}
-        className="w-full"
-      >
+      <Button variant="outline" onClick={addFlight} className="w-full">
         <Plus size={16} className="mr-2" />
         Add Another Flight
       </Button>

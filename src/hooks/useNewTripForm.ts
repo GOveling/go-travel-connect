@@ -14,7 +14,10 @@ export interface NewTripFormData {
   datesNotSet: boolean;
 }
 
-export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: () => void) => {
+export const useNewTripForm = (
+  onCreateTrip: (tripData: any) => void,
+  onClose: () => void
+) => {
   const { toast } = useToast();
   const [nameError, setNameError] = useState(false);
   const [formData, setFormData] = useState<NewTripFormData>({
@@ -25,58 +28,72 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
     description: "",
     accommodation: [],
     transportation: [],
-    datesNotSet: false
+    datesNotSet: false,
   });
 
   const handleInputChange = (field: keyof NewTripFormData, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     handleInputChange("name", value);
-    
+
     if (value.trim() && nameError) {
       setNameError(false);
     }
   };
 
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     if (range?.start && range?.end) {
-      const startDate = new Date(range.start.year, range.start.month - 1, range.start.day);
-      const endDate = new Date(range.end.year, range.end.month - 1, range.end.day);
-      setFormData(prev => ({
+      const startDate = new Date(
+        range.start.year,
+        range.start.month - 1,
+        range.start.day
+      );
+      const endDate = new Date(
+        range.end.year,
+        range.end.month - 1,
+        range.end.day
+      );
+      setFormData((prev) => ({
         ...prev,
         startDate,
         endDate,
-        datesNotSet: false
+        datesNotSet: false,
       }));
     } else if (range?.start) {
-      const startDate = new Date(range.start.year, range.start.month - 1, range.start.day);
-      setFormData(prev => ({
+      const startDate = new Date(
+        range.start.year,
+        range.start.month - 1,
+        range.start.day
+      );
+      setFormData((prev) => ({
         ...prev,
         startDate,
         endDate: undefined,
-        datesNotSet: false
+        datesNotSet: false,
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         startDate: undefined,
-        endDate: undefined
+        endDate: undefined,
       }));
     }
   };
 
   const handleNotSureYet = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       startDate: undefined,
       endDate: undefined,
-      datesNotSet: true
+      datesNotSet: true,
     }));
   };
 
@@ -94,7 +111,7 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       setNameError(true);
       return;
@@ -114,14 +131,14 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
       accommodation: formData.accommodation.join(", "),
       transportation: formData.transportation.join(", "),
       coordinates: [],
-      datesNotSet: formData.datesNotSet
+      datesNotSet: formData.datesNotSet,
     };
 
     onCreateTrip(newTrip);
-    
+
     toast({
       title: "Trip Created!",
-      description: `${formData.name} has been added to your trips.`
+      description: `${formData.name} has been added to your trips.`,
     });
 
     // Reset form
@@ -133,7 +150,7 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
       description: "",
       accommodation: [],
       transportation: [],
-      datesNotSet: false
+      datesNotSet: false,
     });
 
     // Reset validation states
@@ -149,6 +166,6 @@ export const useNewTripForm = (onCreateTrip: (tripData: any) => void, onClose: (
     handleNameChange,
     handleDateRangeChange,
     handleNotSureYet,
-    handleSubmit
+    handleSubmit,
   };
 };

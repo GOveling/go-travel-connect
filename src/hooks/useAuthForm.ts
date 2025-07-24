@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { UseAuthFormReturn } from '@/types';
+import type { UseAuthFormReturn } from "@/types";
 
 export const useAuthForm = (): UseAuthFormReturn => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -25,9 +25,10 @@ export const useAuthForm = (): UseAuthFormReturn => {
     resetForm();
   };
 
-  const isFormValid = !isLoading && 
-    email && 
-    password && 
+  const isFormValid =
+    !isLoading &&
+    email &&
+    password &&
     (!isSignUp || (name && confirmPassword && password === confirmPassword));
 
   return {

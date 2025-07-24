@@ -1,6 +1,10 @@
-
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -25,31 +29,36 @@ interface TravelDocumentsModalProps {
   onClose: () => void;
 }
 
-const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) => {
+const TravelDocumentsModal = ({
+  isOpen,
+  onClose,
+}: TravelDocumentsModalProps) => {
   const [documents, setDocuments] = useState<TravelDocument[]>([]);
   const [isOfflineMode, setIsOfflineMode] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
-  const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(null);
-  const [newDocument, setNewDocument] = useState<Omit<TravelDocument, 'id'>>({
-    type: '',
-    documentNumber: '',
-    issueDate: '',
-    expiryDate: '',
-    issuingCountry: '',
-    notes: '',
-    photo: ''
+  const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(
+    null
+  );
+  const [newDocument, setNewDocument] = useState<Omit<TravelDocument, "id">>({
+    type: "",
+    documentNumber: "",
+    issueDate: "",
+    expiryDate: "",
+    issuingCountry: "",
+    notes: "",
+    photo: "",
   });
   const { toast } = useToast();
 
   // Load documents from localStorage on component mount
   useEffect(() => {
-    const savedDocuments = localStorage.getItem('travelDocuments');
-    const savedOfflineMode = localStorage.getItem('offlineMode');
-    
+    const savedDocuments = localStorage.getItem("travelDocuments");
+    const savedOfflineMode = localStorage.getItem("offlineMode");
+
     if (savedDocuments) {
       setDocuments(JSON.parse(savedDocuments));
     }
-    
+
     if (savedOfflineMode) {
       setIsOfflineMode(JSON.parse(savedOfflineMode));
     }
@@ -57,12 +66,12 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
   // Save documents to localStorage whenever documents change
   useEffect(() => {
-    localStorage.setItem('travelDocuments', JSON.stringify(documents));
+    localStorage.setItem("travelDocuments", JSON.stringify(documents));
   }, [documents]);
 
   // Save offline mode preference
   useEffect(() => {
-    localStorage.setItem('offlineMode', JSON.stringify(isOfflineMode));
+    localStorage.setItem("offlineMode", JSON.stringify(isOfflineMode));
   }, [isOfflineMode]);
 
   const handleAddDocument = () => {
@@ -70,22 +79,22 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       toast({
         title: "Error",
         description: "Please fill in required fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     const document: TravelDocument = {
       ...newDocument,
-      id: Date.now().toString()
+      id: Date.now().toString(),
     };
 
     setDocuments([...documents, document]);
     resetForm();
-    
+
     toast({
       title: "Success",
-      description: "Document added successfully"
+      description: "Document added successfully",
     });
   };
 
@@ -98,54 +107,56 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const handleUpdateDocument = () => {
     if (!editingDocument) return;
 
-    const updatedDocuments = documents.map(doc => 
-      doc.id === editingDocument.id ? { ...newDocument, id: editingDocument.id } : doc
+    const updatedDocuments = documents.map((doc) =>
+      doc.id === editingDocument.id
+        ? { ...newDocument, id: editingDocument.id }
+        : doc
     );
 
     setDocuments(updatedDocuments);
     setEditingDocument(null);
     resetForm();
-    
+
     toast({
       title: "Success",
-      description: "Document updated successfully"
+      description: "Document updated successfully",
     });
   };
 
   const handleDeleteDocument = (id: string) => {
-    setDocuments(documents.filter(doc => doc.id !== id));
+    setDocuments(documents.filter((doc) => doc.id !== id));
     toast({
       title: "Success",
-      description: "Document deleted successfully"
+      description: "Document deleted successfully",
     });
   };
 
   const resetForm = () => {
     setNewDocument({
-      type: '',
-      documentNumber: '',
-      issueDate: '',
-      expiryDate: '',
-      issuingCountry: '',
-      notes: '',
-      photo: ''
+      type: "",
+      documentNumber: "",
+      issueDate: "",
+      expiryDate: "",
+      issuingCountry: "",
+      notes: "",
+      photo: "",
     });
     setIsAddingDocument(false);
   };
 
   const exportDocuments = () => {
     const dataStr = JSON.stringify(documents, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = 'travel_documents.json';
+    link.download = "travel_documents.json";
     link.click();
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Success",
-      description: "Documents exported successfully"
+      description: "Documents exported successfully",
     });
   };
 
@@ -164,7 +175,11 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                {isOfflineMode ? <WifiOff className="w-5 h-5" /> : <Wifi className="w-5 h-5" />}
+                {isOfflineMode ? (
+                  <WifiOff className="w-5 h-5" />
+                ) : (
+                  <Wifi className="w-5 h-5" />
+                )}
                 <div>
                   <p className="font-medium">Offline Mode</p>
                   <p className="text-sm text-gray-600">
@@ -189,7 +204,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
             <Plus className="w-4 h-4" />
             <span>Add Document</span>
           </Button>
-          
+
           <Button
             variant="outline"
             onClick={exportDocuments}
@@ -205,7 +220,9 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           <DocumentForm
             document={newDocument}
             onDocumentChange={setNewDocument}
-            onSubmit={editingDocument ? handleUpdateDocument : handleAddDocument}
+            onSubmit={
+              editingDocument ? handleUpdateDocument : handleAddDocument
+            }
             onCancel={() => {
               setEditingDocument(null);
               resetForm();
@@ -221,7 +238,9 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               <CardContent className="p-8 text-center">
                 <FileText className="w-12 h-12 mx-auto text-gray-400 mb-3" />
                 <p className="text-gray-600">No documents added yet</p>
-                <p className="text-sm text-gray-500">Add your first travel document to get started</p>
+                <p className="text-sm text-gray-500">
+                  Add your first travel document to get started
+                </p>
               </CardContent>
             </Card>
           ) : (

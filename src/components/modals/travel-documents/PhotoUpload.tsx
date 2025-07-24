@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Camera, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,17 +21,17 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
       toast({
         title: "Error",
         description: "File size must be less than 5MB",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     // Check file type
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
         title: "Error",
         description: "Please upload an image file",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -43,14 +42,14 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
       onPhotoChange(base64);
       toast({
         title: "Success",
-        description: "Photo uploaded successfully"
+        description: "Photo uploaded successfully",
       });
     };
     reader.readAsDataURL(file);
   };
 
   const removePhoto = () => {
-    onPhotoChange('');
+    onPhotoChange("");
   };
 
   return (
@@ -77,7 +76,9 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
         ) : (
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-sm text-gray-600 mb-2">Upload a photo of your document</p>
+            <p className="text-sm text-gray-600 mb-2">
+              Upload a photo of your document
+            </p>
             <input
               type="file"
               id="photo"
@@ -88,7 +89,7 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => document.getElementById('photo')?.click()}
+              onClick={() => document.getElementById("photo")?.click()}
               className="flex items-center space-x-2"
             >
               <Upload className="w-4 h-4" />

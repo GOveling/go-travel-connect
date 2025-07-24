@@ -1,13 +1,13 @@
 export const accommodationOptions = [
   "Hotels",
-  "Hostels", 
+  "Hostels",
   "Vacation Rentals",
   "Bed & Breakfast",
   "Resorts",
   "Apartments",
   "Guesthouses",
   "Camping",
-  "Motels"
+  "Motels",
 ];
 
 export const transportationOptions = [
@@ -20,5 +20,5 @@ export const transportationOptions = [
   "Walking",
   "Bicycle",
   "Ferry",
-  "Motorcycle"
+  "Motorcycle",
 ];

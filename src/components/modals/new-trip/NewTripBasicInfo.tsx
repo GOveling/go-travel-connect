@@ -12,7 +12,9 @@ interface NewTripBasicInfoProps {
   nameError: boolean;
   onNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onInputChange: (field: keyof NewTripFormData, value: any) => void;
-  onDateRangeChange: (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => void;
+  onDateRangeChange: (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => void;
   onNotSureYet: () => void;
 }
 
@@ -22,7 +24,7 @@ const NewTripBasicInfo = ({
   onNameChange,
   onInputChange,
   onDateRangeChange,
-  onNotSureYet
+  onNotSureYet,
 }: NewTripBasicInfoProps) => {
   const handleSetDatesNow = () => {
     onInputChange("datesNotSet", false);
@@ -31,7 +33,7 @@ const NewTripBasicInfo = ({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-700">Basic Information</h3>
-      
+
       <div>
         <Label htmlFor="tripName" className="text-sm font-medium">
           Trip Name *

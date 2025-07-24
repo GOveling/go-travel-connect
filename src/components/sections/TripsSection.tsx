@@ -37,14 +37,14 @@ const TripsSection = () => {
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [tripToDelete, setTripToDelete] = useState(null);
-  
+
   // Use Supabase trips instead of local state
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useHomeState();
 
   // Calculate automatic status for each trip
-  const tripsWithAutoStatus = trips.map(trip => ({
+  const tripsWithAutoStatus = trips.map((trip) => ({
     ...trip,
-    status: calculateTripStatus(trip.dates)
+    status: calculateTripStatus(trip.dates),
   }));
 
   const handleViewDetails = (trip: any) => {
@@ -80,7 +80,7 @@ const TripsSection = () => {
   };
 
   const handleAISmartRoute = (trip: any) => {
-    console.log('AI Smart Route button clicked for trip:', trip); // Debug log
+    console.log("AI Smart Route button clicked for trip:", trip); // Debug log
     setSelectedTrip(trip);
     setShowAISmartRouteModal(true);
   };
@@ -95,7 +95,7 @@ const TripsSection = () => {
     setShowTripDetail(true);
     // We'll use a custom event to tell the TripDetailModal to show the saved-places tab
     setTimeout(() => {
-      const event = new CustomEvent('openSavedPlacesTab');
+      const event = new CustomEvent("openSavedPlacesTab");
       window.dispatchEvent(event);
     }, 100);
   };
@@ -119,12 +119,16 @@ const TripsSection = () => {
         <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.title")}</h2>
-              <p className="text-gray-600 text-sm sm:text-base">{t("trips.subtitle")}</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                {t("trips.title")}
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base">
+                {t("trips.subtitle")}
+              </p>
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-center items-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
@@ -139,10 +143,14 @@ const TripsSection = () => {
         <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.mapView")}</h2>
-              <p className="text-gray-600 text-sm sm:text-base">View all your trip destinations</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                {t("trips.mapView")}
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base">
+                View all your trip destinations
+              </p>
             </div>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowMap(false)}
               className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
@@ -153,7 +161,7 @@ const TripsSection = () => {
         </div>
 
         {/* Map Component */}
-        {typeof window !== 'undefined' && (
+        {typeof window !== "undefined" && (
           <TripMapInteractive trips={tripsWithAutoStatus} />
         )}
       </div>
@@ -166,11 +174,15 @@ const TripsSection = () => {
       <div className="pt-4 sm:pt-8 pb-2 sm:pb-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">{t("trips.title")}</h2>
-            <p className="text-gray-600 text-sm sm:text-base">{t("trips.subtitle")}</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              {t("trips.title")}
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base">
+              {t("trips.subtitle")}
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowMap(true)}
               className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 w-full sm:w-auto"
@@ -178,7 +190,7 @@ const TripsSection = () => {
               <Map size={20} className="mr-2" />
               {t("trips.mapView")}
             </Button>
-            <Button 
+            <Button
               className="bg-gradient-to-r from-blue-500 to-orange-500 border-0 w-full sm:w-auto"
               onClick={() => setShowNewTripModal(true)}
             >
@@ -197,9 +209,13 @@ const TripsSection = () => {
         {tripsWithAutoStatus.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">✈️</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">No trips yet</h3>
-            <p className="text-gray-600 mb-6">Create your first trip to get started!</p>
-            <Button 
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              No trips yet
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Create your first trip to get started!
+            </p>
+            <Button
               className="bg-gradient-to-r from-blue-500 to-orange-500"
               onClick={() => setShowNewTripModal(true)}
             >
@@ -236,13 +252,13 @@ const TripsSection = () => {
       <ShareSection />
 
       {/* All Modals */}
-      <NewTripModal 
+      <NewTripModal
         isOpen={showNewTripModal}
         onClose={() => setShowNewTripModal(false)}
         onCreateTrip={handleCreateTrip}
       />
 
-      <TripDetailModal 
+      <TripDetailModal
         trip={selectedTrip}
         isOpen={showTripDetail}
         onClose={() => {

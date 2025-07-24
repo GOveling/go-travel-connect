@@ -9,10 +9,7 @@ interface NewTripDetailsProps {
   onInputChange: (field: keyof NewTripFormData, value: any) => void;
 }
 
-const NewTripDetails = ({
-  formData,
-  onInputChange
-}: NewTripDetailsProps) => {
+const NewTripDetails = ({ formData, onInputChange }: NewTripDetailsProps) => {
   const handleAccommodationSelect = (item: string) => {
     if (!formData.accommodation.includes(item)) {
       onInputChange("accommodation", [...formData.accommodation, item]);
@@ -20,7 +17,10 @@ const NewTripDetails = ({
   };
 
   const handleAccommodationRemove = (item: string) => {
-    onInputChange("accommodation", formData.accommodation.filter(a => a !== item));
+    onInputChange(
+      "accommodation",
+      formData.accommodation.filter((a) => a !== item)
+    );
   };
 
   const handleTransportationSelect = (item: string) => {
@@ -30,13 +30,16 @@ const NewTripDetails = ({
   };
 
   const handleTransportationRemove = (item: string) => {
-    onInputChange("transportation", formData.transportation.filter(t => t !== item));
+    onInputChange(
+      "transportation",
+      formData.transportation.filter((t) => t !== item)
+    );
   };
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-700">Trip Details</h3>
-      
+
       <div>
         <Label htmlFor="budget" className="text-sm font-medium">
           Budget (optional)
@@ -48,7 +51,10 @@ const NewTripDetails = ({
           value={formData.budget || ""}
           onChange={(e) => {
             const value = e.target.value;
-            onInputChange("budget", value === "" ? "" : parseFloat(value) || "");
+            onInputChange(
+              "budget",
+              value === "" ? "" : parseFloat(value) || ""
+            );
           }}
           placeholder="Enter budget amount"
           className="mt-1"

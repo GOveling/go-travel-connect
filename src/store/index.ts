@@ -1,9 +1,8 @@
-
-import { configureStore } from '@reduxjs/toolkit';
-import authSlice from './slices/authSlice';
-import weatherSlice from './slices/weatherSlice';
-import apiSlice from './slices/apiSlice';
-import userSlice from './slices/userSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import authSlice from "./slices/authSlice";
+import weatherSlice from "./slices/weatherSlice";
+import apiSlice from "./slices/apiSlice";
+import userSlice from "./slices/userSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +14,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST'],
+        ignoredActions: ["persist/PERSIST"],
       },
     }),
 });

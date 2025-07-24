@@ -2,7 +2,11 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 
 interface MultiSelectPopoverProps {
@@ -20,7 +24,7 @@ const MultiSelectPopover = ({
   selectedItems,
   onItemSelect,
   onItemRemove,
-  placeholder
+  placeholder,
 }: MultiSelectPopoverProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -34,9 +38,7 @@ const MultiSelectPopover = ({
 
   return (
     <div>
-      <Label className="text-sm font-medium">
-        {label}
-      </Label>
+      <Label className="text-sm font-medium">{label}</Label>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -46,8 +48,7 @@ const MultiSelectPopover = ({
           >
             {selectedItems.length > 0
               ? `${selectedItems.length} selected`
-              : placeholder
-            }
+              : placeholder}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0" align="start">
@@ -70,11 +71,15 @@ const MultiSelectPopover = ({
       {selectedItems.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {selectedItems.map((item) => (
-            <Badge key={item} variant="secondary" className="flex items-center gap-1">
+            <Badge
+              key={item}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
               {item}
-              <X 
-                size={14} 
-                className="cursor-pointer hover:text-red-500" 
+              <X
+                size={14}
+                className="cursor-pointer hover:text-red-500"
                 onClick={() => onItemRemove(item)}
               />
             </Badge>

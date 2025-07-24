@@ -1,4 +1,3 @@
-
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
@@ -37,7 +36,11 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
     }
   };
 
-  const handleEmailSignUp = async (name: string, email: string, password: string) => {
+  const handleEmailSignUp = async (
+    name: string,
+    email: string,
+    password: string
+  ) => {
     try {
       await signUp(email, password, name);
       homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
@@ -86,7 +89,9 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       {/* Login Modal */}
       <LoginModal
         isOpen={homeState.isLoginModalOpen || false}
-        onClose={() => homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false)}
+        onClose={() =>
+          homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false)
+        }
         onLogin={handleEmailLogin}
         onGoogleLogin={handleGoogleAuth}
         onSwitchToSignUp={handleSwitchToSignUp}
@@ -95,7 +100,10 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       {/* Sign Up Modal */}
       <SignUpModal
         isOpen={homeState.isSignUpModalOpen || false}
-        onClose={() => homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false)}
+        onClose={() =>
+          homeState.setIsSignUpModalOpen &&
+          homeState.setIsSignUpModalOpen(false)
+        }
         onSignUp={handleEmailSignUp}
         onGoogleSignUp={handleGoogleAuth}
         onSwitchToLogin={handleSwitchToLogin}

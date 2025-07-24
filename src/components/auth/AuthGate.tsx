@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AnimatedSignIn from "@/components/ui/animated-sign-in";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,13 +10,14 @@ interface AuthGateProps {
 const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle, resetPassword, user, loading } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword, user, loading } =
+    useAuth();
   const { toast } = useToast();
 
   // Auto-call onAuthSuccess when user is authenticated
   useEffect(() => {
     if (user && !loading) {
-      console.log('✅ AuthGate: User authenticated, calling onAuthSuccess');
+      console.log("✅ AuthGate: User authenticated, calling onAuthSuccess");
       onAuthSuccess();
     }
   }, [user, loading, onAuthSuccess]);
@@ -36,8 +36,8 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleLogin = async (email: string, password: string) => {
-    console.log('🔑 AuthGate: handleLogin called for:', email);
-    
+    console.log("🔑 AuthGate: handleLogin called for:", email);
+
     // Validación de campos vacíos
     if (!email?.trim() || !password?.trim()) {
       toast({
@@ -70,13 +70,13 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
 
     setIsLoading(true);
     try {
-      console.log('🔑 AuthGate: Attempting login for:', email);
+      console.log("🔑 AuthGate: Attempting login for:", email);
       const { error } = await signIn(email, password);
-      
+
       if (error) {
-        console.error('❌ AuthGate: Login error:', error);
+        console.error("❌ AuthGate: Login error:", error);
       } else {
-        console.log('✅ AuthGate: Login successful');
+        console.log("✅ AuthGate: Login successful");
       }
     } catch (error) {
       console.error("❌ AuthGate: Login exception:", error);
@@ -85,9 +85,13 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
     }
   };
 
-  const handleSignUp = async (name: string, email: string, password: string) => {
-    console.log('📝 AuthGate: handleSignUp called for:', email,  'name:', name);
-    
+  const handleSignUp = async (
+    name: string,
+    email: string,
+    password: string
+  ) => {
+    console.log("📝 AuthGate: handleSignUp called for:", email, "name:", name);
+
     // Validación de campos vacíos
     if (!name?.trim() || !email?.trim() || !password?.trim()) {
       toast({
@@ -130,13 +134,18 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
 
     setIsLoading(true);
     try {
-      console.log('📝 AuthGate: Attempting sign up for:', email, 'with name:', name);
+      console.log(
+        "📝 AuthGate: Attempting sign up for:",
+        email,
+        "with name:",
+        name
+      );
       const { error } = await signUp(email, password, name.trim());
-      
+
       if (error) {
-        console.error('❌ AuthGate: Sign up error:', error);
+        console.error("❌ AuthGate: Sign up error:", error);
       } else {
-        console.log('✅ AuthGate: Sign up successful');
+        console.log("✅ AuthGate: Sign up successful");
       }
     } catch (error) {
       console.error("❌ AuthGate: Sign up exception:", error);
@@ -146,17 +155,17 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleGoogleLogin = async () => {
-    console.log('🔍 AuthGate: handleGoogleLogin called');
-    
+    console.log("🔍 AuthGate: handleGoogleLogin called");
+
     setIsLoading(true);
     try {
-      console.log('🔍 AuthGate: Attempting Google login');
+      console.log("🔍 AuthGate: Attempting Google login");
       const { error } = await signInWithGoogle();
-      
+
       if (error) {
-        console.error('❌ AuthGate: Google login error:', error);
+        console.error("❌ AuthGate: Google login error:", error);
       } else {
-        console.log('✅ AuthGate: Google login initiated successfully');
+        console.log("✅ AuthGate: Google login initiated successfully");
       }
     } catch (error) {
       console.error("❌ AuthGate: Google login exception:", error);
@@ -166,8 +175,8 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleForgotPassword = async (email: string) => {
-    console.log('🔐 AuthGate: handleForgotPassword called for:', email);
-    
+    console.log("🔐 AuthGate: handleForgotPassword called for:", email);
+
     // Validación de email
     if (!email?.trim()) {
       toast({
@@ -189,13 +198,13 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
 
     setIsLoading(true);
     try {
-      console.log('🔐 AuthGate: Attempting password reset for:', email);
+      console.log("🔐 AuthGate: Attempting password reset for:", email);
       const { error } = await resetPassword(email);
-      
+
       if (error) {
-        console.error('❌ AuthGate: Password reset error:', error);
+        console.error("❌ AuthGate: Password reset error:", error);
       } else {
-        console.log('✅ AuthGate: Password reset email sent successfully');
+        console.log("✅ AuthGate: Password reset email sent successfully");
       }
     } catch (error) {
       console.error("❌ AuthGate: Password reset exception:", error);
@@ -205,7 +214,12 @@ const AuthGate = ({ onAuthSuccess }: AuthGateProps) => {
   };
 
   const handleSwitchMode = () => {
-    console.log('🔄 AuthGate: Switching mode from', isSignUp ? 'signup' : 'login', 'to', isSignUp ? 'login' : 'signup');
+    console.log(
+      "🔄 AuthGate: Switching mode from",
+      isSignUp ? "signup" : "login",
+      "to",
+      isSignUp ? "login" : "signup"
+    );
     setIsSignUp(!isSignUp);
   };
 

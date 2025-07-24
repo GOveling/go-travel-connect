@@ -1,13 +1,23 @@
-
 import { useState, useEffect } from "react";
 import { X, Camera, MapPin, Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import AddToTripModal from "./AddToTripModal";
-import type { InstaTripImage, Trip } from '@/types';
+import type { InstaTripImage, Trip } from "@/types";
 
 interface InstaTripModalProps {
   isOpen: boolean;
@@ -16,11 +26,17 @@ interface InstaTripModalProps {
   onRemoveImage: (id: string) => void;
 }
 
-const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripModalProps) => {
+const InstaTripModal = ({
+  isOpen,
+  onClose,
+  images,
+  onRemoveImage,
+}: InstaTripModalProps) => {
   const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
-  const [selectedImageForTrip, setSelectedImageForTrip] = useState<InstaTripImage | null>(null);
+  const [selectedImageForTrip, setSelectedImageForTrip] =
+    useState<InstaTripImage | null>(null);
 
   // Mock trips data - in a real app this would come from props or context
   const trips: Trip[] = [
@@ -36,8 +52,8 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
       coordinates: [
         { name: "Paris", lat: 48.8566, lng: 2.3522 },
         { name: "Rome", lat: 41.9028, lng: 12.4964 },
-        { name: "Barcelona", lat: 41.3851, lng: 2.1734 }
-      ]
+        { name: "Barcelona", lat: 41.3851, lng: 2.1734 },
+      ],
     },
     {
       id: "2",
@@ -48,10 +64,8 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
       travelers: 1,
       image: "🇯🇵",
       isGroupTrip: false,
-      coordinates: [
-        { name: "Tokyo", lat: 35.6762, lng: 139.6503 }
-      ]
-    }
+      coordinates: [{ name: "Tokyo", lat: 35.6762, lng: 139.6503 }],
+    },
   ];
 
   // Auto-advance images every 15 seconds
@@ -68,9 +82,9 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
   // Clean up expired images (older than 12 hours)
   useEffect(() => {
     const now = Date.now();
-    const twelveHoursAgo = now - (12 * 60 * 60 * 1000);
-    
-    images.forEach(image => {
+    const twelveHoursAgo = now - 12 * 60 * 60 * 1000;
+
+    images.forEach((image) => {
       if (image.addedAt < twelveHoursAgo) {
         onRemoveImage(image.id);
       }
@@ -85,11 +99,11 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
   const handleAddToExistingTrip = (tripId: string) => {
     if (selectedImageForTrip) {
       // Update the image to mark it as added to trip
-      const trip = trips.find(t => t.id === tripId);
+      const trip = trips.find((t) => t.id === tripId);
       if (trip) {
         toast({
           title: "Added to Trip!",
-          description: `${selectedImageForTrip.location} has been added to ${trip.name}.`
+          description: `${selectedImageForTrip.location} has been added to ${trip.name}.`,
         });
       }
     }
@@ -99,7 +113,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
     setIsAddToTripModalOpen(false);
     toast({
       title: "Create New Trip",
-      description: "Opening trip creation form..."
+      description: "Opening trip creation form...",
     });
   };
 
@@ -112,11 +126,14 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
               InstanTrip
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="py-8 text-center">
             <Camera className="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <p className="text-gray-600 mb-2">No InstanTrip memories yet</p>
-            <p className="text-sm text-gray-500">Add photos through the "Add Memory" button to start your InstanTrip!</p>
+            <p className="text-sm text-gray-500">
+              Add photos through the "Add Memory" button to start your
+              InstanTrip!
+            </p>
           </div>
         </DialogContent>
       </Dialog>
@@ -131,7 +148,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
             InstanTrip
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="relative px-1">
           <Carousel className="w-full">
             <CarouselContent>
@@ -153,16 +170,18 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
-                    
+
                     {/* Location and trip info overlay */}
                     <div className="absolute bottom-4 left-4 right-4 space-y-2">
                       {image.location && (
                         <div className="bg-black/70 text-white p-3 rounded-lg backdrop-blur-sm">
                           <div className="flex items-center gap-2 mb-2">
                             <MapPin size={16} />
-                            <span className="text-sm font-medium">{image.location}</span>
+                            <span className="text-sm font-medium">
+                              {image.location}
+                            </span>
                           </div>
-                          
+
                           {/* Add to trip button */}
                           <div className="space-y-2">
                             {!image.tripId ? (
@@ -175,14 +194,18 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
                                 Add to Trip
                               </Button>
                             ) : (
-                              <Badge variant="default" className="bg-blue-600 text-white">
-                                Already in: {trips.find(t => t.id === image.tripId)?.name}
+                              <Badge
+                                variant="default"
+                                className="bg-blue-600 text-white"
+                              >
+                                Already in:{" "}
+                                {trips.find((t) => t.id === image.tripId)?.name}
                               </Badge>
                             )}
                           </div>
                         </div>
                       )}
-                      
+
                       {image.text && (
                         <div className="bg-black/70 text-white p-3 rounded-lg backdrop-blur-sm">
                           <p className="text-sm">{image.text}</p>
@@ -200,14 +223,14 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
               </>
             )}
           </Carousel>
-          
+
           {images.length > 1 && (
             <div className="flex justify-center mt-4 gap-2">
               {images.map((_, index) => (
                 <div
                   key={index}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    index === currentIndex ? 'bg-purple-600' : 'bg-gray-300'
+                    index === currentIndex ? "bg-purple-600" : "bg-gray-300"
                   }`}
                 />
               ))}
@@ -221,7 +244,7 @@ const InstaTripModal = ({ isOpen, onClose, images, onRemoveImage }: InstaTripMod
             setIsAddToTripModalOpen(false);
             setSelectedImageForTrip(null);
           }}
-          existingTrips={trips.filter(trip => trip.status !== 'completed')}
+          existingTrips={trips.filter((trip) => trip.status !== "completed")}
           onAddToExistingTrip={handleAddToExistingTrip}
           onCreateNewTrip={handleCreateNewTripFromImage}
           postLocation={selectedImageForTrip?.location}

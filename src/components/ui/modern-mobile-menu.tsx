@@ -1,6 +1,5 @@
-
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Home, Briefcase, Calendar, Shield, Settings } from 'lucide-react';
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { Home, Briefcase, Calendar, Shield, Settings } from "lucide-react";
 
 type IconComponentType = React.ElementType<{ className?: string }>;
 export interface InteractiveMenuItem {
@@ -16,38 +15,44 @@ export interface InteractiveMenuProps {
 }
 
 const defaultItems: InteractiveMenuItem[] = [
-    { label: 'home', icon: Home },
-    { label: 'strategy', icon: Briefcase },
-    { label: 'period', icon: Calendar },
-    { label: 'security', icon: Shield },
-    { label: 'settings', icon: Settings },
+  { label: "home", icon: Home },
+  { label: "strategy", icon: Briefcase },
+  { label: "period", icon: Calendar },
+  { label: "security", icon: Shield },
+  { label: "settings", icon: Settings },
 ];
 
-const defaultAccentColor = 'var(--component-active-color-default)';
+const defaultAccentColor = "var(--component-active-color-default)";
 
-const InteractiveMenu: React.FC<InteractiveMenuProps> = ({ 
-  items, 
-  accentColor, 
+const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
+  items,
+  accentColor,
   activeIndex: externalActiveIndex,
-  onItemClick: externalOnItemClick 
+  onItemClick: externalOnItemClick,
 }) => {
-
   const finalItems = useMemo(() => {
-     const isValid = items && Array.isArray(items) && items.length >= 2 && items.length <= 5;
-     if (!isValid) {
-        console.warn("InteractiveMenu: 'items' prop is invalid or missing. Using default items.", items);
-        return defaultItems;
-     }
-     return items;
+    const isValid =
+      items && Array.isArray(items) && items.length >= 2 && items.length <= 5;
+    if (!isValid) {
+      console.warn(
+        "InteractiveMenu: 'items' prop is invalid or missing. Using default items.",
+        items
+      );
+      return defaultItems;
+    }
+    return items;
   }, [items]);
 
   const [internalActiveIndex, setInternalActiveIndex] = useState(0);
-  const activeIndex = externalActiveIndex !== undefined ? externalActiveIndex : internalActiveIndex;
+  const activeIndex =
+    externalActiveIndex !== undefined
+      ? externalActiveIndex
+      : internalActiveIndex;
 
   useEffect(() => {
-      if (activeIndex >= finalItems.length) {
-          setInternalActiveIndex(0);
-      }
+    if (activeIndex >= finalItems.length) {
+      setInternalActiveIndex(0);
+    }
   }, [finalItems, activeIndex]);
 
   const textRefs = useRef<(HTMLElement | null)[]>([]);
@@ -60,15 +65,15 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
 
       if (activeItemElement && activeTextElement) {
         const textWidth = activeTextElement.offsetWidth;
-        activeItemElement.style.setProperty('--lineWidth', `${textWidth}px`);
+        activeItemElement.style.setProperty("--lineWidth", `${textWidth}px`);
       }
     };
 
     setLineWidth();
 
-    window.addEventListener('resize', setLineWidth);
+    window.addEventListener("resize", setLineWidth);
     return () => {
-      window.removeEventListener('resize', setLineWidth);
+      window.removeEventListener("resize", setLineWidth);
     };
   }, [activeIndex, finalItems]);
 
@@ -81,16 +86,12 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   };
 
   const navStyle = useMemo(() => {
-      const activeColor = accentColor || defaultAccentColor;
-      return { '--component-active-color': activeColor } as React.CSSProperties;
-  }, [accentColor]); 
+    const activeColor = accentColor || defaultAccentColor;
+    return { "--component-active-color": activeColor } as React.CSSProperties;
+  }, [accentColor]);
 
   return (
-    <nav
-      className="menu"
-      role="navigation"
-      style={navStyle}
-    >
+    <nav className="menu" role="navigation" style={navStyle}>
       {finalItems.map((item, index) => {
         const isActive = index === activeIndex;
         const isTextActive = isActive;
@@ -100,16 +101,16 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
         return (
           <button
             key={item.label}
-            className={`menu__item ${isActive ? 'active' : ''}`}
+            className={`menu__item ${isActive ? "active" : ""}`}
             onClick={() => handleItemClick(index)}
             ref={(el) => (itemRefs.current[index] = el)}
-            style={{ '--lineWidth': '0px' } as React.CSSProperties} 
+            style={{ "--lineWidth": "0px" } as React.CSSProperties}
           >
             <div className="menu__icon">
               <IconComponent className="icon" />
             </div>
             <strong
-              className={`menu__text ${isTextActive ? 'active' : ''}`}
+              className={`menu__text ${isTextActive ? "active" : ""}`}
               ref={(el) => (textRefs.current[index] = el)}
             >
               {item.label}
@@ -121,4 +122,4 @@ const InteractiveMenu: React.FC<InteractiveMenuProps> = ({
   );
 };
 
-export {InteractiveMenu}
+export { InteractiveMenu };

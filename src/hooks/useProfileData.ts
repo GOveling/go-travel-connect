@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,49 +17,49 @@ export const useProfileData = () => {
 
     try {
       setLoading(true);
-      console.log('Fetching profile for user:', user.id);
-      
+      console.log("Fetching profile for user:", user.id);
+
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
         .maybeSingle();
-      
+
       if (error) {
-        console.error('Supabase error:', error);
+        console.error("Supabase error:", error);
         throw error;
       }
-      
-      console.log('Profile data fetched:', data);
-      
+
+      console.log("Profile data fetched:", data);
+
       // Si no existe perfil, crear uno automáticamente
       if (!data) {
-        console.log('No profile found, creating one...');
+        console.log("No profile found, creating one...");
         const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
+          .from("profiles")
           .insert({
             id: user.id,
             email: user.email,
             full_name: user.user_metadata?.full_name || null,
             description: null,
-            avatar_url: null
+            avatar_url: null,
           })
           .select()
           .single();
-        
+
         if (insertError) {
-          console.error('Error creating profile:', insertError);
+          console.error("Error creating profile:", insertError);
           throw insertError;
         }
-        
-        console.log('Profile created:', newProfile);
+
+        console.log("Profile created:", newProfile);
         setProfile(newProfile as ProfileData);
       } else {
         setProfile(data as ProfileData);
       }
     } catch (err) {
-      console.error('Error fetching profile:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch profile');
+      console.error("Error fetching profile:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch profile");
     } finally {
       setLoading(false);
     }
@@ -73,20 +72,20 @@ export const useProfileData = () => {
   const getInitials = () => {
     if (profile?.full_name && profile.full_name.trim()) {
       return profile.full_name
-        .split(' ')
+        .split(" ")
         .map((name: string) => name[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     }
     if (user?.email) {
       return user.email[0].toUpperCase();
     }
-    return 'U';
+    return "U";
   };
 
   const refreshProfile = () => {
-    console.log('Refreshing profile data...');
+    console.log("Refreshing profile data...");
     fetchProfile();
   };
 
@@ -96,6 +95,6 @@ export const useProfileData = () => {
     error,
     getInitials,
     user,
-    refreshProfile
+    refreshProfile,
   };
 };

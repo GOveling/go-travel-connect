@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plane } from "lucide-react";
 import FlightTypeSelector from "./FlightTypeSelector";
@@ -23,8 +22,10 @@ interface MultiCityFlight {
 }
 
 interface FlightBookingTypeStepProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
-  onTypeChange: (type: 'round-trip' | 'one-way' | 'multi-city' | 'manual') => void;
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
+  onTypeChange: (
+    type: "round-trip" | "one-way" | "multi-city" | "manual"
+  ) => void;
   showAIRecommendation: boolean;
   multiCityFlights: MultiCityFlight[];
   trips: any[];
@@ -43,32 +44,29 @@ const FlightBookingTypeStep = ({
   selectedTrip,
   onTripSelect,
   canProceed,
-  onContinue
+  onContinue,
 }: FlightBookingTypeStepProps) => {
   return (
     <div className="p-4 space-y-4">
-      <FlightTypeSelector 
-        tripType={tripType} 
-        onTypeChange={onTypeChange}
-      />
-      
+      <FlightTypeSelector tripType={tripType} onTypeChange={onTypeChange} />
+
       {showAIRecommendation && (
-        <AIRecommendationBanner 
-          tripType={tripType} 
+        <AIRecommendationBanner
+          tripType={tripType}
           multiCityFlights={multiCityFlights}
         />
       )}
-      
-      {tripType !== 'manual' && (
+
+      {tripType !== "manual" && (
         <TripSelector
           trips={trips}
           selectedTrip={selectedTrip}
           onTripSelect={onTripSelect}
         />
       )}
-      
-      {tripType !== 'manual' && (
-        <Button 
+
+      {tripType !== "manual" && (
+        <Button
           onClick={onContinue}
           className="w-full h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
           disabled={!canProceed}

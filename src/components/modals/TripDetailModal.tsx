@@ -1,7 +1,40 @@
 import { useState, useEffect, useMemo } from "react";
-import { Calendar, MapPin, Users, Globe, Phone, Edit3, Share2, UserPlus, X, Plane, Car, Building, Clock, ExternalLink, Star, Heart, Map, Trash2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Globe,
+  Phone,
+  Edit3,
+  Share2,
+  UserPlus,
+  X,
+  Plane,
+  Car,
+  Building,
+  Clock,
+  ExternalLink,
+  Star,
+  Heart,
+  Map,
+  Trash2,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,17 +74,26 @@ interface TripDetailModalProps {
   onDeleteTrip?: (tripId: string) => void;
 }
 
-const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: TripDetailModalProps) => {
+const TripDetailModal = ({
+  trip,
+  isOpen,
+  onClose,
+  onUpdateTrip,
+  onDeleteTrip,
+}: TripDetailModalProps) => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [showRouteMap, setShowRouteMap] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>("");
   const [selectedPlaces, setSelectedPlaces] = useState<SavedPlace[]>([]);
-  const [selectedDestinationIndex, setSelectedDestinationIndex] = useState<number>(0);
+  const [selectedDestinationIndex, setSelectedDestinationIndex] =
+    useState<number>(0);
   const [showInviteFriendsModal, setShowInviteFriendsModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(
+    null
+  );
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
@@ -61,9 +103,12 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   const [showHotelSearchModal, setShowHotelSearchModal] = useState(false);
   const [showToursModal, setShowToursModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
-  const [selectedLocationForModal, setSelectedLocationForModal] = useState<TripCoordinate | null>(null);
+  const [selectedLocationForModal, setSelectedLocationForModal] =
+    useState<TripCoordinate | null>(null);
   const [selectedLocationIndex, setSelectedLocationIndex] = useState<number>(0);
-  const [transferType, setTransferType] = useState<'arrival' | 'departure' | 'between'>('arrival');
+  const [transferType, setTransferType] = useState<
+    "arrival" | "departure" | "between"
+  >("arrival");
 
   // Listen for the custom event to open saved-places tab
   useEffect(() => {
@@ -71,18 +116,21 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
       setActiveTab("saved-places");
     };
 
-    window.addEventListener('openSavedPlacesTab', handleOpenSavedPlacesTab);
-    
+    window.addEventListener("openSavedPlacesTab", handleOpenSavedPlacesTab);
+
     return () => {
-      window.removeEventListener('openSavedPlacesTab', handleOpenSavedPlacesTab);
+      window.removeEventListener(
+        "openSavedPlacesTab",
+        handleOpenSavedPlacesTab
+      );
     };
   }, []);
 
   // Function to navigate to explore section
   const handleNavigateToExplore = () => {
     onClose(); // Close the modal first
-    const event = new CustomEvent('navigateToExplore', {
-      detail: { sourceTrip: trip }
+    const event = new CustomEvent("navigateToExplore", {
+      detail: { sourceTrip: trip },
     });
     window.dispatchEvent(event);
   };
@@ -111,7 +159,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
       website: undefined,
       phone: undefined,
       lat: place.lat || undefined,
-      lng: place.lng || undefined
+      lng: place.lng || undefined,
     };
     setSelectedPlace(placeForModal);
     setShowPlaceDetailModal(true);
@@ -120,18 +168,23 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Group saved places by country from destination_name
   const savedPlacesByCountry = useMemo(() => {
     if (!trip?.savedPlaces) return {};
-    
-    return trip.savedPlaces.reduce((acc, place) => {
-      // Extract country from destination_name (assuming format like "City, Country")
-      const destinationName = place.destinationName || 'Other';
-      const country = destinationName.includes(',') ? destinationName.split(',').pop()?.trim() || 'Other' : destinationName;
-      
-      if (!acc[country]) {
-        acc[country] = [];
-      }
-      acc[country].push(place);
-      return acc;
-    }, {} as Record<string, SavedPlace[]>);
+
+    return trip.savedPlaces.reduce(
+      (acc, place) => {
+        // Extract country from destination_name (assuming format like "City, Country")
+        const destinationName = place.destinationName || "Other";
+        const country = destinationName.includes(",")
+          ? destinationName.split(",").pop()?.trim() || "Other"
+          : destinationName;
+
+        if (!acc[country]) {
+          acc[country] = [];
+        }
+        acc[country].push(place);
+        return acc;
+      },
+      {} as Record<string, SavedPlace[]>
+    );
   }, [trip?.savedPlaces]);
 
   // Get countries from trip destination (now a JSON array)
@@ -139,8 +192,10 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     if (!trip?.destination) return [];
     try {
       // Parse the JSON array of countries
-      const countries = Array.isArray(trip.destination) ? trip.destination : JSON.parse(trip.destination as string);
-      return countries.filter(country => country && country !== 'Unknown');
+      const countries = Array.isArray(trip.destination)
+        ? trip.destination
+        : JSON.parse(trip.destination as string);
+      return countries.filter((country) => country && country !== "Unknown");
     } catch {
       return [];
     }
@@ -160,18 +215,18 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Function to confirm and delete the saved place
   const confirmRemovePlace = async () => {
     if (!trip || !placeToRemove) return;
-    
+
     try {
       setIsRemoving(placeToRemove.id);
-      
+
       // Delete from Supabase
       const { error } = await supabase
-        .from('saved_places')
+        .from("saved_places")
         .delete()
-        .eq('id', placeToRemove.id);
+        .eq("id", placeToRemove.id);
 
       if (error) {
-        console.error('Error deleting place:', error);
+        console.error("Error deleting place:", error);
         toast({
           title: "Error",
           description: "Failed to remove place. Please try again.",
@@ -182,10 +237,12 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
 
       // Update the trip state locally by filtering out the deleted place
       if (onUpdateTrip && trip.savedPlaces) {
-        const updatedSavedPlaces = trip.savedPlaces.filter(place => place.id !== placeToRemove.id);
+        const updatedSavedPlaces = trip.savedPlaces.filter(
+          (place) => place.id !== placeToRemove.id
+        );
         const updatedTrip = {
           ...trip,
-          savedPlaces: updatedSavedPlaces
+          savedPlaces: updatedSavedPlaces,
         };
         onUpdateTrip(updatedTrip);
       }
@@ -198,9 +255,8 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
       // Close the confirmation modal
       setShowRemoveConfirmation(false);
       setPlaceToRemove(null);
-
     } catch (error) {
-      console.error('Error removing place:', error);
+      console.error("Error removing place:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -216,19 +272,19 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     if (!imageUrl) {
       return <span className="text-2xl">📍</span>;
     }
-    
+
     // Check if it's a URL (contains http/https)
-    if (imageUrl.includes('http://') || imageUrl.includes('https://')) {
+    if (imageUrl.includes("http://") || imageUrl.includes("https://")) {
       return (
         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             alt="Place"
             className="w-full h-full object-cover"
             onError={(e) => {
               // Fallback to default icon if image fails to load
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              e.currentTarget.style.display = "none";
+              e.currentTarget.nextElementSibling?.classList.remove("hidden");
             }}
           />
           <div className="hidden w-full h-full flex items-center justify-center text-2xl">
@@ -237,7 +293,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         </div>
       );
     }
-    
+
     // It's an emoji or icon, render as text
     return <span className="text-2xl">{imageUrl}</span>;
   };
@@ -249,60 +305,96 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   };
 
   // Function to parse trip dates and calculate destination dates
-  const getDestinationDates = (tripDates: string, destinationIndex: number, totalDestinations: number) => {
+  const getDestinationDates = (
+    tripDates: string,
+    destinationIndex: number,
+    totalDestinations: number
+  ) => {
     try {
       // Parse dates like "Dec 15 - Dec 25, 2024"
-      const dateRange = tripDates.split(' - ');
+      const dateRange = tripDates.split(" - ");
       if (dateRange.length !== 2) return `Day ${destinationIndex + 1}`;
-      
+
       const startDateStr = dateRange[0];
       const endDateStr = dateRange[1];
-      
+
       // Extract year from end date
-      const year = endDateStr.split(', ')[1] || new Date().getFullYear().toString();
-      
+      const year =
+        endDateStr.split(", ")[1] || new Date().getFullYear().toString();
+
       // Parse start date
-      const startMonth = startDateStr.split(' ')[0];
-      const startDay = parseInt(startDateStr.split(' ')[1]);
-      
+      const startMonth = startDateStr.split(" ")[0];
+      const startDay = parseInt(startDateStr.split(" ")[1]);
+
       // Parse end date
-      const endMonth = endDateStr.split(' ')[0];
-      const endDay = parseInt(endDateStr.split(' ')[1].split(',')[0]);
-      
+      const endMonth = endDateStr.split(" ")[0];
+      const endDay = parseInt(endDateStr.split(" ")[1].split(",")[0]);
+
       // Convert month names to numbers
       const monthMap: { [key: string]: number } = {
-        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
-        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+        Jan: 0,
+        Feb: 1,
+        Mar: 2,
+        Apr: 3,
+        May: 4,
+        Jun: 5,
+        Jul: 6,
+        Aug: 7,
+        Sep: 8,
+        Oct: 9,
+        Nov: 10,
+        Dec: 11,
       };
-      
-      const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
+
+      const startDate = new Date(
+        parseInt(year),
+        monthMap[startMonth],
+        startDay
+      );
       const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
-      
+
       // Fix: Calculate days correctly (inclusive of both start and end dates)
-      const totalDays = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      const totalDays =
+        Math.floor(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        ) + 1;
       const baseDaysPerDestination = Math.floor(totalDays / totalDestinations);
       const extraDays = totalDays % totalDestinations;
-      
+
       // Calculate destination start and end dates
-      const daysForThisDestination = baseDaysPerDestination + (destinationIndex < extraDays ? 1 : 0);
+      const daysForThisDestination =
+        baseDaysPerDestination + (destinationIndex < extraDays ? 1 : 0);
       const destStartDate = new Date(startDate);
-      
+
       // Add days for previous destinations
       let dayOffset = 0;
       for (let i = 0; i < destinationIndex; i++) {
         dayOffset += baseDaysPerDestination + (i < extraDays ? 1 : 0);
       }
       destStartDate.setDate(startDate.getDate() + dayOffset);
-      
+
       const destEndDate = new Date(destStartDate);
       destEndDate.setDate(destStartDate.getDate() + daysForThisDestination - 1);
-      
+
       // Format dates
       const formatDate = (date: Date) => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
         return `${months[date.getMonth()]} ${date.getDate()}`;
       };
-      
+
       if (destStartDate.getTime() === destEndDate.getTime()) {
         return formatDate(destStartDate);
       } else {
@@ -317,7 +409,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
   // Function to calculate total travelers for group trips
   const getTotalTravelers = () => {
     if (!trip) return 0;
-    
+
     if (trip.isGroupTrip && trip.collaborators) {
       // For group trips, count collaborators + 1 (the user)
       return trip.collaborators.length + 1;
@@ -351,7 +443,10 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
     }
   };
 
-  const handleTransferSearch = (locationIndex: number, type: 'arrival' | 'departure' | 'between') => {
+  const handleTransferSearch = (
+    locationIndex: number,
+    type: "arrival" | "departure" | "between"
+  ) => {
     if (trip && trip.coordinates[locationIndex]) {
       setSelectedLocationForModal(trip.coordinates[locationIndex]);
       setSelectedLocationIndex(locationIndex);
@@ -411,7 +506,9 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                 <span className="text-2xl md:text-3xl">{trip.image}</span>
                 <span className="truncate">{trip.name}</span>
               </DialogTitle>
-              <Badge className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
+              <Badge
+                className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}
+              >
                 {trip.status}
               </Badge>
             </div>
@@ -424,7 +521,11 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
               {uniqueCountries.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {uniqueCountries.map((country) => (
-                    <Badge key={country} variant="secondary" className="text-xs">
+                    <Badge
+                      key={country}
+                      variant="secondary"
+                      className="text-xs"
+                    >
                       {country}
                     </Badge>
                   ))}
@@ -436,24 +537,43 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
               </div>
               <div className="flex items-center space-x-2 text-gray-600 text-sm">
                 <Users size={14} />
-                <span>{getTotalTravelers()} traveler{getTotalTravelers() > 1 ? 's' : ''}</span>
+                <span>
+                  {getTotalTravelers()} traveler
+                  {getTotalTravelers() > 1 ? "s" : ""}
+                </span>
               </div>
             </div>
 
             {/* Tab Navigation using shadcn Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="flex-1 flex flex-col overflow-hidden"
+            >
               <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-1 mb-4 flex-shrink-0">
-                <TabsTrigger value="overview" className="text-xs md:text-sm px-2 py-2">
+                <TabsTrigger
+                  value="overview"
+                  className="text-xs md:text-sm px-2 py-2"
+                >
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="itinerary" className="text-xs md:text-sm px-2 py-2">
+                <TabsTrigger
+                  value="itinerary"
+                  className="text-xs md:text-sm px-2 py-2"
+                >
                   Itinerary
                 </TabsTrigger>
-                <TabsTrigger value="saved-places" className="text-xs md:text-sm px-2 py-2">
+                <TabsTrigger
+                  value="saved-places"
+                  className="text-xs md:text-sm px-2 py-2"
+                >
                   <span className="hidden md:inline">Saved Places</span>
                   <span className="md:hidden">Places</span>
                 </TabsTrigger>
-                <TabsTrigger value="collaborators" className="text-xs md:text-sm px-2 py-2">
+                <TabsTrigger
+                  value="collaborators"
+                  className="text-xs md:text-sm px-2 py-2"
+                >
                   <span className="hidden md:inline">Collaborators</span>
                   <span className="md:hidden">Team</span>
                 </TabsTrigger>
@@ -462,31 +582,47 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
               <div className="flex-1 overflow-y-auto">
                 <TabsContent value="overview" className="space-y-4 mt-0">
                   <div>
-                    <h4 className="font-semibold text-gray-800 mb-2">About This Trip</h4>
+                    <h4 className="font-semibold text-gray-800 mb-2">
+                      About This Trip
+                    </h4>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      {trip.description || "An amazing journey through beautiful destinations with unforgettable experiences and wonderful memories to be made."}
+                      {trip.description ||
+                        "An amazing journey through beautiful destinations with unforgettable experiences and wonderful memories to be made."}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card>
                       <CardContent className="p-4">
-                        <h5 className="font-medium text-gray-800 mb-1">Budget</h5>
-                        <p className="text-gray-600 text-sm">{trip.budget || "$2,500 per person"}</p>
+                        <h5 className="font-medium text-gray-800 mb-1">
+                          Budget
+                        </h5>
+                        <p className="text-gray-600 text-sm">
+                          {trip.budget || "$2,500 per person"}
+                        </p>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className="p-4">
-                        <h5 className="font-medium text-gray-800 mb-1">Accommodation</h5>
-                        <p className="text-gray-600 text-sm">{trip.accommodation || "Hotels & Airbnb"}</p>
+                        <h5 className="font-medium text-gray-800 mb-1">
+                          Accommodation
+                        </h5>
+                        <p className="text-gray-600 text-sm">
+                          {trip.accommodation || "Hotels & Airbnb"}
+                        </p>
                       </CardContent>
                     </Card>
                   </div>
 
                   <Card>
                     <CardContent className="p-4">
-                      <h5 className="font-medium text-gray-800 mb-1">Transportation</h5>
-                      <p className="text-gray-600 text-sm">{trip.transportation || "Flights, trains, and local transport"}</p>
+                      <h5 className="font-medium text-gray-800 mb-1">
+                        Transportation
+                      </h5>
+                      <p className="text-gray-600 text-sm">
+                        {trip.transportation ||
+                          "Flights, trains, and local transport"}
+                      </p>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -502,18 +638,23 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="bg-purple-50 p-4 rounded-lg">
-                        <h5 className="font-medium text-purple-800 mb-2">Round-trip Flight</h5>
+                        <h5 className="font-medium text-purple-800 mb-2">
+                          Round-trip Flight
+                        </h5>
                         <p className="text-sm text-purple-600 mb-3">
                           From your location to {trip.coordinates[0]?.name}
                         </p>
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                          <Button 
+                          <Button
                             className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none"
                             onClick={() => handleFlightSearch(0)}
                           >
                             Search Flights
                           </Button>
-                          <Button variant="outline" className="border-purple-300 text-purple-600 flex-1 sm:flex-none">
+                          <Button
+                            variant="outline"
+                            className="border-purple-300 text-purple-600 flex-1 sm:flex-none"
+                          >
                             Compare Prices
                           </Button>
                         </div>
@@ -527,19 +668,31 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                       <MapPin size={18} />
                       <span>Destinations & Bookings</span>
                     </h4>
-                    
+
                     {trip.coordinates.map((location, index) => (
-                      <Card key={index} className="border-l-4 border-l-orange-400">
+                      <Card
+                        key={index}
+                        className="border-l-4 border-l-orange-400"
+                      >
                         <CardContent className="p-4">
                           <div className="space-y-4">
                             {/* Destination Info */}
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <h5 className="font-medium text-gray-800">{location.name}</h5>
-                                <p className="text-gray-600 text-sm">{getDestinationDates(trip.dates, index, trip.coordinates.length)}</p>
+                                <h5 className="font-medium text-gray-800">
+                                  {location.name}
+                                </h5>
+                                <p className="text-gray-600 text-sm">
+                                  {getDestinationDates(
+                                    trip.dates,
+                                    index,
+                                    trip.coordinates.length
+                                  )}
+                                </p>
                               </div>
                               <div className="text-gray-400 text-xs hidden md:block">
-                                {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                                {location.lat.toFixed(4)},{" "}
+                                {location.lng.toFixed(4)}
                               </div>
                             </div>
 
@@ -549,16 +702,23 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                               {index > 0 && (
                                 <div className="bg-orange-50 p-3 rounded-lg">
                                   <div className="flex items-center space-x-2 mb-2">
-                                    <Car className="text-orange-600" size={16} />
-                                    <h6 className="font-medium text-orange-800 text-sm">Transport to {location.name}</h6>
+                                    <Car
+                                      className="text-orange-600"
+                                      size={16}
+                                    />
+                                    <h6 className="font-medium text-orange-800 text-sm">
+                                      Transport to {location.name}
+                                    </h6>
                                   </div>
                                   <p className="text-xs text-orange-600 mb-2">
                                     From {trip.coordinates[index - 1]?.name}
                                   </p>
-                                  <Button 
-                                    size="sm" 
+                                  <Button
+                                    size="sm"
                                     className="bg-orange-600 hover:bg-orange-700 text-xs w-full sm:w-auto"
-                                    onClick={() => handleTransferSearch(index, 'between')}
+                                    onClick={() =>
+                                      handleTransferSearch(index, "between")
+                                    }
                                   >
                                     Book Transport
                                   </Button>
@@ -568,21 +728,30 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                               {/* Hotel Booking */}
                               <div className="bg-green-50 p-3 rounded-lg">
                                 <div className="flex items-center space-x-2 mb-2">
-                                  <Building className="text-green-600" size={16} />
-                                  <h6 className="font-medium text-green-800 text-sm">Hotel Options</h6>
+                                  <Building
+                                    className="text-green-600"
+                                    size={16}
+                                  />
+                                  <h6 className="font-medium text-green-800 text-sm">
+                                    Hotel Options
+                                  </h6>
                                 </div>
                                 <p className="text-xs text-green-600 mb-2">
                                   Best rates in {location.name}
                                 </p>
                                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                  <Button 
-                                    size="sm" 
+                                  <Button
+                                    size="sm"
                                     className="bg-green-600 hover:bg-green-700 text-xs flex-1"
                                     onClick={() => handleHotelSearch(index)}
                                   >
                                     Search Hotels
                                   </Button>
-                                  <Button size="sm" variant="outline" className="border-green-300 text-green-600 text-xs flex-1">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-green-300 text-green-600 text-xs flex-1"
+                                  >
                                     View Deals
                                   </Button>
                                 </div>
@@ -591,14 +760,19 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                               {/* Activities */}
                               <div className="bg-purple-50 p-3 rounded-lg">
                                 <div className="flex items-center space-x-2 mb-2">
-                                  <MapPin className="text-purple-600" size={16} />
-                                  <h6 className="font-medium text-purple-800 text-sm">Activities & Tours</h6>
+                                  <MapPin
+                                    className="text-purple-600"
+                                    size={16}
+                                  />
+                                  <h6 className="font-medium text-purple-800 text-sm">
+                                    Activities & Tours
+                                  </h6>
                                 </div>
                                 <p className="text-xs text-purple-600 mb-2">
                                   Explore {location.name}
                                 </p>
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   className="bg-purple-600 hover:bg-purple-700 text-xs w-full sm:w-auto"
                                   onClick={() => handleToursSearch(index)}
                                 >
@@ -611,15 +785,19 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                 <div className="bg-blue-50 p-3 rounded-lg">
                                   <div className="flex items-center space-x-2 mb-2">
                                     <Car className="text-blue-600" size={16} />
-                                    <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
+                                    <h6 className="font-medium text-blue-800 text-sm">
+                                      Airport Transfer
+                                    </h6>
                                   </div>
                                   <p className="text-xs text-blue-600 mb-2">
                                     From airport to accommodation
                                   </p>
-                                  <Button 
-                                    size="sm" 
+                                  <Button
+                                    size="sm"
                                     className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto"
-                                    onClick={() => handleTransferSearch(index, 'arrival')}
+                                    onClick={() =>
+                                      handleTransferSearch(index, "arrival")
+                                    }
                                   >
                                     Book Transfer
                                   </Button>
@@ -631,15 +809,19 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                 <div className="bg-blue-50 p-3 rounded-lg">
                                   <div className="flex items-center space-x-2 mb-2">
                                     <Car className="text-blue-600" size={16} />
-                                    <h6 className="font-medium text-blue-800 text-sm">Airport Transfer</h6>
+                                    <h6 className="font-medium text-blue-800 text-sm">
+                                      Airport Transfer
+                                    </h6>
                                   </div>
                                   <p className="text-xs text-blue-600 mb-2">
                                     From accommodation to airport
                                   </p>
-                                  <Button 
-                                    size="sm" 
+                                  <Button
+                                    size="sm"
                                     className="bg-blue-600 hover:bg-blue-700 text-xs w-full sm:w-auto"
-                                    onClick={() => handleTransferSearch(index, 'departure')}
+                                    onClick={() =>
+                                      handleTransferSearch(index, "departure")
+                                    }
                                   >
                                     Book Transfer
                                   </Button>
@@ -673,16 +855,22 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                   {/* Package Deals */}
                   <Card className="bg-gradient-to-r from-purple-50 to-orange-50 border-0">
                     <CardHeader>
-                      <CardTitle className="text-lg text-gray-800">Package Deals</CardTitle>
+                      <CardTitle className="text-lg text-gray-800">
+                        Package Deals
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="bg-white p-4 rounded-lg border">
-                        <h5 className="font-medium text-gray-800 mb-2">Complete Trip Package</h5>
+                        <h5 className="font-medium text-gray-800 mb-2">
+                          Complete Trip Package
+                        </h5>
                         <p className="text-sm text-gray-600 mb-3">
                           Flights + Hotels + Transfers for the entire trip
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
-                          <span className="text-lg font-bold text-green-600">Save up to 25%</span>
+                          <span className="text-lg font-bold text-green-600">
+                            Save up to 25%
+                          </span>
                           <Button className="bg-gradient-to-r from-purple-600 to-orange-500 w-full sm:w-auto">
                             Book Package
                           </Button>
@@ -700,12 +888,13 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                         <span>Saved Places</span>
                       </h4>
                       <Badge variant="secondary" className="text-xs">
-                        {totalSavedPlaces} place{totalSavedPlaces !== 1 ? 's' : ''}
+                        {totalSavedPlaces} place
+                        {totalSavedPlaces !== 1 ? "s" : ""}
                       </Badge>
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="text-xs"
                       onClick={handleNavigateToExplore}
                     >
@@ -714,86 +903,121 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                     </Button>
                   </div>
 
-                  {Object.entries(savedPlacesByCountry).map(([country, places]) => (
-                    <div key={country} className="space-y-3">
-                      <div className="flex items-center border-b pb-2">
-                        <div className="flex items-center space-x-2">
-                          <MapPin size={16} className="text-red-500" />
-                          <h5 className="font-medium text-gray-800">{country}</h5>
-                          <Badge variant="outline" className="text-xs">
-                            {places.length} place{places.length !== 1 ? 's' : ''}
-                          </Badge>
+                  {Object.entries(savedPlacesByCountry).map(
+                    ([country, places]) => (
+                      <div key={country} className="space-y-3">
+                        <div className="flex items-center border-b pb-2">
+                          <div className="flex items-center space-x-2">
+                            <MapPin size={16} className="text-red-500" />
+                            <h5 className="font-medium text-gray-800">
+                              {country}
+                            </h5>
+                            <Badge variant="outline" className="text-xs">
+                              {places.length} place
+                              {places.length !== 1 ? "s" : ""}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                          {places.map((place) => (
+                            <Card
+                              key={place.id}
+                              className="border-l-4 border-l-red-400"
+                            >
+                              <CardContent className="p-4">
+                                <div className="space-y-3">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex items-center space-x-3 flex-1">
+                                      {renderPlaceImage(place.image)}
+                                      <div className="flex-1">
+                                        <h6 className="font-medium text-gray-800">
+                                          {place.name}
+                                        </h6>
+                                        <p className="text-xs text-gray-600">
+                                          {place.category || "Place"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Badge
+                                      className={`text-xs px-2 py-1 ${getPriorityColor(place.priority || "medium")}`}
+                                    >
+                                      {place.priority || "medium"}
+                                    </Badge>
+                                  </div>
+
+                                  <div className="flex items-center space-x-2">
+                                    <div className="flex items-center space-x-1">
+                                      <Star
+                                        size={12}
+                                        className="text-yellow-500 fill-current"
+                                      />
+                                      <span className="text-xs text-gray-600">
+                                        {place.rating || 0}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs text-gray-400">
+                                      •
+                                    </span>
+                                    <span className="text-xs text-gray-600">
+                                      {place.estimatedTime || "N/A"}
+                                    </span>
+                                  </div>
+
+                                  <p className="text-xs text-gray-600 leading-relaxed">
+                                    {place.description ||
+                                      "No description available"}
+                                  </p>
+
+                                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="flex-1 text-xs"
+                                      onClick={() =>
+                                        handleViewPlaceDetails(place)
+                                      }
+                                    >
+                                      View Details
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="flex-1 text-xs"
+                                      onClick={() => handleRemovePlace(place)}
+                                      disabled={isRemoving === place.id}
+                                    >
+                                      <Trash2 size={12} className="mr-1" />
+                                      {isRemoving === place.id
+                                        ? "Removing..."
+                                        : "Remove"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-1 gap-3">
-                        {places.map((place) => (
-                          <Card key={place.id} className="border-l-4 border-l-red-400">
-                            <CardContent className="p-4">
-                              <div className="space-y-3">
-                                <div className="flex items-start justify-between">
-                                   <div className="flex items-center space-x-3 flex-1">
-                                     {renderPlaceImage(place.image)}
-                                     <div className="flex-1">
-                                       <h6 className="font-medium text-gray-800">{place.name}</h6>
-                                       <p className="text-xs text-gray-600">{place.category || 'Place'}</p>
-                                     </div>
-                                   </div>
-                                   <Badge className={`text-xs px-2 py-1 ${getPriorityColor(place.priority || 'medium')}`}>
-                                     {place.priority || 'medium'}
-                                   </Badge>
-                                </div>
-
-                                 <div className="flex items-center space-x-2">
-                                   <div className="flex items-center space-x-1">
-                                     <Star size={12} className="text-yellow-500 fill-current" />
-                                     <span className="text-xs text-gray-600">{place.rating || 0}</span>
-                                   </div>
-                                   <span className="text-xs text-gray-400">•</span>
-                                   <span className="text-xs text-gray-600">{place.estimatedTime || 'N/A'}</span>
-                                 </div>
-
-                                 <p className="text-xs text-gray-600 leading-relaxed">
-                                   {place.description || 'No description available'}
-                                 </p>
-
-                                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="flex-1 text-xs"
-                                    onClick={() => handleViewPlaceDetails(place)}
-                                  >
-                                    View Details
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="destructive" 
-                                    className="flex-1 text-xs"
-                                     onClick={() => handleRemovePlace(place)}
-                                     disabled={isRemoving === place.id}
-                                  >
-                                    <Trash2 size={12} className="mr-1" />
-                                    {isRemoving === place.id ? 'Removing...' : 'Remove'}
-                                  </Button>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  )}
 
                   {totalSavedPlaces === 0 && (
                     <Card className="border-dashed border-2 border-gray-200">
                       <CardContent className="p-6 text-center">
-                        <MapPin size={32} className="mx-auto mb-2 text-gray-300" />
-                        <p className="text-gray-500 text-sm">No places saved yet</p>
-                        <p className="text-gray-400 text-xs">Explore and save places you want to visit</p>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <MapPin
+                          size={32}
+                          className="mx-auto mb-2 text-gray-300"
+                        />
+                        <p className="text-gray-500 text-sm">
+                          No places saved yet
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Explore and save places you want to visit
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="mt-3"
                           onClick={handleNavigateToExplore}
                         >
@@ -806,11 +1030,13 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
 
                 <TabsContent value="collaborators" className="space-y-4 mt-0">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-gray-800">Trip Collaborators</h4>
+                    <h4 className="font-semibold text-gray-800">
+                      Trip Collaborators
+                    </h4>
                     {trip.isGroupTrip && (
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         className="text-xs"
                         onClick={handleInviteFriends}
                       >
@@ -831,11 +1057,17 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                                   {collaborator.avatar}
                                 </div>
                                 <div className="flex-1">
-                                  <h5 className="font-medium text-gray-800">{collaborator.name}</h5>
-                                  <p className="text-gray-600 text-sm truncate">{collaborator.email}</p>
+                                  <h5 className="font-medium text-gray-800">
+                                    {collaborator.name}
+                                  </h5>
+                                  <p className="text-gray-600 text-sm truncate">
+                                    {collaborator.email}
+                                  </p>
                                 </div>
                               </div>
-                              <Badge className={`text-xs px-2 py-1 rounded-full ${getRoleColor(collaborator.role)}`}>
+                              <Badge
+                                className={`text-xs px-2 py-1 rounded-full ${getRoleColor(collaborator.role)}`}
+                              >
                                 {collaborator.role}
                               </Badge>
                             </div>
@@ -847,7 +1079,9 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
                     <div className="text-center py-8 text-gray-500">
                       <Users size={48} className="mx-auto mb-3 text-gray-300" />
                       <p>This is a solo trip</p>
-                      <p className="text-sm">Convert to group trip to add collaborators</p>
+                      <p className="text-sm">
+                        Convert to group trip to add collaborators
+                      </p>
                     </div>
                   )}
                 </TabsContent>
@@ -856,7 +1090,7 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t flex-shrink-0">
-              <Button 
+              <Button
                 className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
                 onClick={handleEditTrip}
               >
@@ -913,7 +1147,15 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         isOpen={showHotelSearchModal}
         onClose={() => setShowHotelSearchModal(false)}
         destination={selectedLocationForModal?.name || ""}
-        dates={trip ? getDestinationDates(trip.dates, selectedLocationIndex, trip.coordinates.length) : ""}
+        dates={
+          trip
+            ? getDestinationDates(
+                trip.dates,
+                selectedLocationIndex,
+                trip.coordinates.length
+              )
+            : ""
+        }
         travelers={getTotalTravelers()}
       />
 
@@ -921,7 +1163,15 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         isOpen={showToursModal}
         onClose={() => setShowToursModal(false)}
         destination={selectedLocationForModal?.name || ""}
-        dates={trip ? getDestinationDates(trip.dates, selectedLocationIndex, trip.coordinates.length) : ""}
+        dates={
+          trip
+            ? getDestinationDates(
+                trip.dates,
+                selectedLocationIndex,
+                trip.coordinates.length
+              )
+            : ""
+        }
         travelers={getTotalTravelers()}
       />
 
@@ -930,28 +1180,38 @@ const TripDetailModal = ({ trip, isOpen, onClose, onUpdateTrip, onDeleteTrip }: 
         onClose={() => setShowTransferModal(false)}
         destination={selectedLocationForModal?.name || ""}
         transferType={transferType}
-        fromLocation={transferType === 'between' && selectedLocationIndex > 0 ? trip?.coordinates[selectedLocationIndex - 1]?.name : undefined}
+        fromLocation={
+          transferType === "between" && selectedLocationIndex > 0
+            ? trip?.coordinates[selectedLocationIndex - 1]?.name
+            : undefined
+        }
         toLocation={selectedLocationForModal?.name}
         travelers={getTotalTravelers()}
       />
-      
+
       {/* Remove Confirmation Dialog */}
-      <AlertDialog open={showRemoveConfirmation} onOpenChange={setShowRemoveConfirmation}>
+      <AlertDialog
+        open={showRemoveConfirmation}
+        onOpenChange={setShowRemoveConfirmation}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Place</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove "{placeToRemove?.name}" from your trip? This action cannot be undone.
+              Are you sure you want to remove "{placeToRemove?.name}" from your
+              trip? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelRemovePlace}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel onClick={cancelRemovePlace}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmRemovePlace}
               className="bg-red-600 hover:bg-red-700"
               disabled={isRemoving === placeToRemove?.id}
             >
-              {isRemoving === placeToRemove?.id ? 'Removing...' : 'Remove'}
+              {isRemoving === placeToRemove?.id ? "Removing..." : "Remove"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

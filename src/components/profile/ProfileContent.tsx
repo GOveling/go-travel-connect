@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useTravelStats } from "@/hooks/useTravelStats";
@@ -18,7 +17,13 @@ interface ProfileContentProps {
 
 const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
   const { signOut } = useAuth();
-  const { profile, loading: profileLoading, getInitials, user, refreshProfile } = useProfileData();
+  const {
+    profile,
+    loading: profileLoading,
+    getInitials,
+    user,
+    refreshProfile,
+  } = useProfileData();
   const { stats, loading: statsLoading } = useTravelStats();
   const { activities, loading: activitiesLoading } = useRecentActivity();
   const modalState = useProfileModals();
@@ -37,13 +42,14 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
   };
 
   // Display name logic: prioritize full_name, fallback to email or 'Traveler'
-  const displayName = profile?.full_name && profile.full_name.trim() 
-    ? profile.full_name 
-    : user?.email || 'Traveler';
+  const displayName =
+    profile?.full_name && profile.full_name.trim()
+      ? profile.full_name
+      : user?.email || "Traveler";
 
   return (
     <div className="space-y-6">
-      <ProfileHeader 
+      <ProfileHeader
         displayName={displayName}
         initials={getInitials()}
         loading={profileLoading}
@@ -52,22 +58,16 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
         description={profile?.description}
       />
 
-      <TravelStatsCard 
-        stats={stats}
-        loading={statsLoading}
-      />
+      <TravelStatsCard stats={stats} loading={statsLoading} />
 
-      <RecentActivityCard 
-        activities={activities}
-        loading={activitiesLoading}
-      />
+      <RecentActivityCard activities={activities} loading={activitiesLoading} />
 
       <ProfileMenu menuItems={menuItems} />
 
       <ProfileActions onSignOut={handleSignOut} />
 
-      <ProfileModals 
-        {...modalState} 
+      <ProfileModals
+        {...modalState}
         profile={profile}
         onProfileUpdate={refreshProfile}
       />

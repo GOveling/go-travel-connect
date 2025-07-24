@@ -15,35 +15,43 @@ interface PlaceLocationModalProps {
   place: Place | null;
 }
 
-const PlaceLocationModal = ({ isOpen, onClose, place }: PlaceLocationModalProps) => {
+const PlaceLocationModal = ({
+  isOpen,
+  onClose,
+  place,
+}: PlaceLocationModalProps) => {
   if (!place || !place.lat || !place.lng) return null;
 
   // Convert place to trip format for the map component
   const mockTrip = {
     id: `place-${place.id}`,
     name: place.name,
-    status: 'planning',
+    status: "planning",
     destination: {
       name: place.name,
       lat: place.lat,
-      lng: place.lng
+      lng: place.lng,
     },
-    coordinates: [{
-      id: `coord-${place.id}`,
-      name: place.name,
-      lat: place.lat,
-      lng: place.lng,
-      order_index: 0,
-      trip_id: `place-${place.id}`
-    }],
-    saved_places: [{
-      id: `saved-${place.id}`,
-      name: place.name,
-      lat: place.lat,
-      lng: place.lng,
-      category: 'point_of_interest',
-      trip_id: `place-${place.id}`
-    }]
+    coordinates: [
+      {
+        id: `coord-${place.id}`,
+        name: place.name,
+        lat: place.lat,
+        lng: place.lng,
+        order_index: 0,
+        trip_id: `place-${place.id}`,
+      },
+    ],
+    saved_places: [
+      {
+        id: `saved-${place.id}`,
+        name: place.name,
+        lat: place.lat,
+        lng: place.lng,
+        category: "point_of_interest",
+        trip_id: `place-${place.id}`,
+      },
+    ],
   };
 
   return (

@@ -1,11 +1,33 @@
 import { useState, useEffect } from "react";
-import { Settings, User, Bell, Shield, Globe, Moon, Sun, Smartphone, HelpCircle, Languages } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Settings,
+  User,
+  Bell,
+  Shield,
+  Globe,
+  Moon,
+  Sun,
+  Smartphone,
+  HelpCircle,
+  Languages,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SettingsModalProps {
@@ -15,10 +37,10 @@ interface SettingsModalProps {
 
 const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const { language, setLanguage, t } = useLanguage();
-  
+
   const [darkMode, setDarkMode] = useState(() => {
     // Check if dark mode is already enabled
-    return document.documentElement.classList.contains('dark');
+    return document.documentElement.classList.contains("dark");
   });
   const [pushNotifications, setPushNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -29,11 +51,11 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const handleDarkModeToggle = (enabled: boolean) => {
     setDarkMode(enabled);
     if (enabled) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("darkMode", "true");
     } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("darkMode", "false");
     }
   };
 
@@ -44,13 +66,13 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
   // Load preferences on component mount
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode === 'true') {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode === "true") {
       setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else if (savedDarkMode === 'false') {
+      document.documentElement.classList.add("dark");
+    } else if (savedDarkMode === "false") {
       setDarkMode(false);
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, []);
 
@@ -67,11 +89,17 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           onChange: setProfileVisibility,
           options: [
             { value: "public", label: t("settings.profileVisibility.public") },
-            { value: "friends", label: t("settings.profileVisibility.friends") },
-            { value: "private", label: t("settings.profileVisibility.private") }
-          ]
-        }
-      ]
+            {
+              value: "friends",
+              label: t("settings.profileVisibility.friends"),
+            },
+            {
+              value: "private",
+              label: t("settings.profileVisibility.private"),
+            },
+          ],
+        },
+      ],
     },
     {
       title: t("settings.language"),
@@ -89,10 +117,10 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
             { value: "pt", label: "Português" },
             { value: "fr", label: "Français" },
             { value: "it", label: "Italiano" },
-            { value: "zh", label: "中文" }
-          ]
-        }
-      ]
+            { value: "zh", label: "中文" },
+          ],
+        },
+      ],
     },
     {
       title: t("settings.notifications"),
@@ -103,16 +131,16 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           description: t("settings.pushNotifications.description"),
           type: "switch",
           value: pushNotifications,
-          onChange: setPushNotifications
+          onChange: setPushNotifications,
         },
         {
           label: t("settings.emailNotifications.label"),
           description: t("settings.emailNotifications.description"),
           type: "switch",
           value: emailNotifications,
-          onChange: setEmailNotifications
-        }
-      ]
+          onChange: setEmailNotifications,
+        },
+      ],
     },
     {
       title: t("settings.privacy"),
@@ -123,9 +151,9 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           description: t("settings.locationSharing.description"),
           type: "switch",
           value: locationSharing,
-          onChange: setLocationSharing
-        }
-      ]
+          onChange: setLocationSharing,
+        },
+      ],
     },
     {
       title: t("settings.appearance"),
@@ -136,10 +164,10 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           description: t("settings.darkMode.description"),
           type: "switch",
           value: darkMode,
-          onChange: handleDarkModeToggle
-        }
-      ]
-    }
+          onChange: handleDarkModeToggle,
+        },
+      ],
+    },
   ];
 
   return (
@@ -165,10 +193,17 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {section.items.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between space-x-3">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between space-x-3"
+                    >
                       <div className="flex-1 min-w-0">
-                        <Label className="text-sm font-medium">{item.label}</Label>
-                        <p className="text-xs text-gray-500">{item.description}</p>
+                        <Label className="text-sm font-medium">
+                          {item.label}
+                        </Label>
+                        <p className="text-xs text-gray-500">
+                          {item.description}
+                        </p>
                       </div>
                       <div className="shrink-0">
                         {item.type === "switch" ? (
@@ -177,13 +212,19 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             onCheckedChange={item.onChange}
                           />
                         ) : item.type === "select" ? (
-                          <Select value={item.value as string} onValueChange={item.onChange}>
+                          <Select
+                            value={item.value as string}
+                            onValueChange={item.onChange}
+                          >
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               {item.options?.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
                                   {option.label}
                                 </SelectItem>
                               ))}
@@ -207,22 +248,43 @@ const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button variant="ghost" className="w-full justify-start p-0 h-auto">
+              <Button
+                variant="ghost"
+                className="w-full justify-start p-0 h-auto"
+              >
                 <div className="text-left">
-                  <p className="text-sm font-medium">{t("settings.helpCenter.title")}</p>
-                  <p className="text-xs text-gray-500">{t("settings.helpCenter.description")}</p>
+                  <p className="text-sm font-medium">
+                    {t("settings.helpCenter.title")}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t("settings.helpCenter.description")}
+                  </p>
                 </div>
               </Button>
-              <Button variant="ghost" className="w-full justify-start p-0 h-auto">
+              <Button
+                variant="ghost"
+                className="w-full justify-start p-0 h-auto"
+              >
                 <div className="text-left">
-                  <p className="text-sm font-medium">{t("settings.privacyPolicy.title")}</p>
-                  <p className="text-xs text-gray-500">{t("settings.privacyPolicy.description")}</p>
+                  <p className="text-sm font-medium">
+                    {t("settings.privacyPolicy.title")}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t("settings.privacyPolicy.description")}
+                  </p>
                 </div>
               </Button>
-              <Button variant="ghost" className="w-full justify-start p-0 h-auto">
+              <Button
+                variant="ghost"
+                className="w-full justify-start p-0 h-auto"
+              >
                 <div className="text-left">
-                  <p className="text-sm font-medium">{t("settings.termsOfService.title")}</p>
-                  <p className="text-xs text-gray-500">{t("settings.termsOfService.description")}</p>
+                  <p className="text-sm font-medium">
+                    {t("settings.termsOfService.title")}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t("settings.termsOfService.description")}
+                  </p>
                 </div>
               </Button>
             </CardContent>

@@ -1,4 +1,3 @@
-
 import React from "react";
 import AvatarDisplay from "./AvatarDisplay";
 import ImageUpload from "./ImageUpload";
@@ -10,24 +9,19 @@ interface ImageUploadSectionProps {
   initials: string;
 }
 
-const ImageUploadSection = ({ currentAvatarUrl, onImageChange, initials }: ImageUploadSectionProps) => {
-  const {
-    isUploading,
-    handleFileSelect
-  } = useImageUpload(onImageChange);
+const ImageUploadSection = ({
+  currentAvatarUrl,
+  onImageChange,
+  initials,
+}: ImageUploadSectionProps) => {
+  const { isUploading, handleFileSelect } = useImageUpload(onImageChange);
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      <AvatarDisplay 
-        currentAvatarUrl={currentAvatarUrl}
-        initials={initials}
-      />
-      
-      <ImageUpload
-        onFileSelect={handleFileSelect}
-        isUploading={isUploading}
-      />
-      
+      <AvatarDisplay currentAvatarUrl={currentAvatarUrl} initials={initials} />
+
+      <ImageUpload onFileSelect={handleFileSelect} isUploading={isUploading} />
+
       <p className="text-sm text-gray-500 text-center">
         Selecciona una imagen desde tu dispositivo
       </p>

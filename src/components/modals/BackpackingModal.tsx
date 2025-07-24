@@ -1,11 +1,19 @@
-
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Backpack, Compass, Map, Tent, CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
@@ -17,7 +25,11 @@ interface BackpackingModalProps {
   onCreateTrip?: (tripData: any) => void;
 }
 
-const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalProps) => {
+const BackpackingModal = ({
+  isOpen,
+  onClose,
+  onCreateTrip,
+}: BackpackingModalProps) => {
   const [tripName, setTripName] = useState("");
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>();
@@ -44,7 +56,13 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
         travelers: parseInt(travelers),
         image: "🎒",
         isGroupTrip: false,
-        coordinates: [{ name: destination || "Backpacking Destination", lat: 47.3769, lng: 8.5417 }]
+        coordinates: [
+          {
+            name: destination || "Backpacking Destination",
+            lat: 47.3769,
+            lng: 8.5417,
+          },
+        ],
       });
     }
     onClose();
@@ -55,7 +73,9 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
       <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader className="text-center">
           <div className="text-4xl mb-2">🎒</div>
-          <DialogTitle className="text-xl font-bold text-gray-800">Backpacking</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-800">
+            Backpacking
+          </DialogTitle>
           <p className="text-sm text-gray-600">Epic adventure on a budget</p>
         </DialogHeader>
 
@@ -91,7 +111,9 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
 
           <div className="space-y-3">
             <div>
-              <Label htmlFor="tripName" className="text-sm font-medium">Trip Name</Label>
+              <Label htmlFor="tripName" className="text-sm font-medium">
+                Trip Name
+              </Label>
               <Input
                 id="tripName"
                 placeholder="Solo Backpacking Trip"
@@ -102,7 +124,9 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
             </div>
 
             <div>
-              <Label htmlFor="destination" className="text-sm font-medium">Backpacking Route</Label>
+              <Label htmlFor="destination" className="text-sm font-medium">
+                Backpacking Route
+              </Label>
               <Input
                 id="destination"
                 placeholder="Europe, Southeast Asia, South America..."
@@ -125,7 +149,11 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "MMM d") : <span>Pick date</span>}
+                      {startDate ? (
+                        format(startDate, "MMM d")
+                      ) : (
+                        <span>Pick date</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -151,7 +179,11 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "MMM d") : <span>Pick date</span>}
+                      {endDate ? (
+                        format(endDate, "MMM d")
+                      ) : (
+                        <span>Pick date</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -159,7 +191,9 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
                       mode="single"
                       selected={endDate}
                       onSelect={setEndDate}
-                      disabled={(date) => startDate ? date < startDate : false}
+                      disabled={(date) =>
+                        startDate ? date < startDate : false
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -169,7 +203,9 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
             </div>
 
             <div>
-              <Label htmlFor="travelers" className="text-sm font-medium">Travelers</Label>
+              <Label htmlFor="travelers" className="text-sm font-medium">
+                Travelers
+              </Label>
               <Input
                 id="travelers"
                 type="number"
@@ -183,7 +219,9 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
 
           <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-0">
             <CardContent className="p-4">
-              <h4 className="font-medium text-gray-800 mb-2">Backpacking Tips</h4>
+              <h4 className="font-medium text-gray-800 mb-2">
+                Backpacking Tips
+              </h4>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                 <span>• Pack light</span>
                 <span>• Budget hostels</span>
@@ -199,7 +237,7 @@ const BackpackingModal = ({ isOpen, onClose, onCreateTrip }: BackpackingModalPro
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleSubmit}
               className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
             >

@@ -1,14 +1,13 @@
-
 import { MapPin, Plus, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ProfilePost, ProfilePublicationProps } from '@/types';
+import type { ProfilePost, ProfilePublicationProps } from "@/types";
 
-const ProfilePublication = ({ 
-  posts, 
-  onProfilePublicationClick, 
-  onAddToTrip, 
-  formatTimeAgo 
+const ProfilePublication = ({
+  posts,
+  onProfilePublicationClick,
+  onAddToTrip,
+  formatTimeAgo,
 }: ProfilePublicationProps) => {
   return (
     <Card>
@@ -28,7 +27,9 @@ const ProfilePublication = ({
           <div className="text-center py-8">
             <Share size={32} className="mx-auto text-gray-400 mb-2" />
             <p className="text-gray-500">No publications yet</p>
-            <p className="text-xs text-gray-400">Share your travel memories with the world!</p>
+            <p className="text-xs text-gray-400">
+              Share your travel memories with the world!
+            </p>
           </div>
         ) : (
           posts.slice(0, 3).map((post) => (
@@ -84,7 +85,9 @@ const ProfilePublication = ({
                   </div>
                 </div>
               )}
-              <p className="text-xs text-gray-500">{formatTimeAgo(post.createdAt)}</p>
+              <p className="text-xs text-gray-500">
+                {formatTimeAgo(post.createdAt)}
+              </p>
             </div>
           ))
         )}

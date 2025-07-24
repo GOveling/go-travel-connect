@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plane, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,13 +22,13 @@ const AddFlightView = ({ onBackToMyFlights }: AddFlightViewProps) => {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     setIsLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
@@ -45,11 +44,7 @@ const AddFlightView = ({ onBackToMyFlights }: AddFlightViewProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">Add Flight</h3>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onBackToMyFlights}
-        >
+        <Button variant="outline" size="sm" onClick={onBackToMyFlights}>
           <ArrowLeft size={16} className="mr-1" />
           Back
         </Button>
@@ -62,7 +57,8 @@ const AddFlightView = ({ onBackToMyFlights }: AddFlightViewProps) => {
             <h4 className="font-medium text-blue-800">Flight Information</h4>
           </div>
           <p className="text-sm text-blue-700">
-            Enter your flight details to track your booking and get real-time updates
+            Enter your flight details to track your booking and get real-time
+            updates
           </p>
         </CardContent>
       </Card>
@@ -100,7 +96,7 @@ const AddFlightView = ({ onBackToMyFlights }: AddFlightViewProps) => {
         </div>
 
         <div className="pt-4">
-          <Button 
+          <Button
             onClick={handleSearch}
             className="w-full bg-gradient-to-r from-blue-500 to-blue-600"
             disabled={isLoading}
@@ -121,7 +117,8 @@ const AddFlightView = ({ onBackToMyFlights }: AddFlightViewProps) => {
 
         <div className="bg-gray-50 p-3 rounded-lg">
           <p className="text-xs text-gray-600">
-            <strong>Tip:</strong> Your confirmation code is usually 5-6 characters and can be found in your booking email or airline app.
+            <strong>Tip:</strong> Your confirmation code is usually 5-6
+            characters and can be found in your booking email or airline app.
           </p>
         </div>
       </div>

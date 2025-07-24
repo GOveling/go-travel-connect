@@ -13,7 +13,7 @@ export interface ProfileData {
   city_state: string | null;
   mobile_phone: string | null;
   country_code: string | null;
-  gender: 'male' | 'female' | 'prefer_not_to_say' | null;
+  gender: "male" | "female" | "prefer_not_to_say" | null;
 }
 
 export interface TravelStats {

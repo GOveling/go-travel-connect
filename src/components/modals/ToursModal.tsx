@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MapPin, Users, X, Camera, CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -6,16 +5,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeState } from "@/hooks/useHomeState";
 import TripSelectorWithAI from "./tours/TripSelectorWithAI";
 import MultiDestinationTourBooking from "./tours/MultiDestinationTourBooking";
 import AITourPlan from "./tours/AITourPlan";
-import { getAITourBookingPlan, AITourBookingPlan } from "./tours/aiTourDateUtils";
+import {
+  getAITourBookingPlan,
+  AITourBookingPlan,
+} from "./tours/aiTourDateUtils";
 import { JollyRangeCalendar } from "@/components/ui/range-calendar";
-import { parseDate, getLocalTimeZone, today, CalendarDate } from "@internationalized/date";
+import {
+  parseDate,
+  getLocalTimeZone,
+  today,
+  CalendarDate,
+} from "@internationalized/date";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -36,15 +53,17 @@ interface DestinationTourBooking {
 const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [formData, setFormData] = useState({
-    destination: '',
-    startDate: '',
-    endDate: '',
+    destination: "",
+    startDate: "",
+    endDate: "",
     participants: 2,
-    tourType: '',
-    duration: ''
+    tourType: "",
+    duration: "",
   });
-  const [selectedTripId, setSelectedTripId] = useState<string>('manual');
-  const [multiDestinationBookings, setMultiDestinationBookings] = useState<DestinationTourBooking[]>([]);
+  const [selectedTripId, setSelectedTripId] = useState<string>("manual");
+  const [multiDestinationBookings, setMultiDestinationBookings] = useState<
+    DestinationTourBooking[]
+  >([]);
   const [isMultiDestination, setIsMultiDestination] = useState(false);
   const [aiTourPlan, setAiTourPlan] = useState<AITourBookingPlan | null>(null);
   const { toast } = useToast();
@@ -52,16 +71,16 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
 
   const handleTripSelection = (tripId: string) => {
     setSelectedTripId(tripId);
-    
-    if (tripId === 'manual') {
+
+    if (tripId === "manual") {
       // Reset form when manual entry is selected
       setFormData({
-        destination: '',
-        startDate: '',
-        endDate: '',
+        destination: "",
+        startDate: "",
+        endDate: "",
         participants: 2,
-        tourType: '',
-        duration: ''
+        tourType: "",
+        duration: "",
       });
       setMultiDestinationBookings([]);
       setIsMultiDestination(false);
@@ -69,7 +88,7 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
       return;
     }
 
-    const selectedTrip = trips.find(trip => trip.id.toString() === tripId);
+    const selectedTrip = trips.find((trip) => trip.id.toString() === tripId);
     if (selectedTrip) {
       // 🤖 AI Protocol: Generate tour booking plan
       const aiPlan = getAITourBookingPlan(selectedTrip);
@@ -78,30 +97,32 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
       // Check if trip has multiple destinations using coordinates
       const destinations = selectedTrip.coordinates || [];
       const isMultiDest = destinations.length > 1;
-      
+
       setIsMultiDestination(isMultiDest);
 
       if (isMultiDest) {
         // Handle multi-destination trip with AI recommendations
-        const bookings: DestinationTourBooking[] = aiPlan.recommendations.map((rec) => ({
-          destination: rec.destination,
-          startDate: rec.date,
-          endDate: rec.date, // Single day by default
-          duration: rec.duration,
-          tourType: rec.tourType,
-          participants: rec.participants
-        }));
+        const bookings: DestinationTourBooking[] = aiPlan.recommendations.map(
+          (rec) => ({
+            destination: rec.destination,
+            startDate: rec.date,
+            endDate: rec.date, // Single day by default
+            duration: rec.duration,
+            tourType: rec.tourType,
+            participants: rec.participants,
+          })
+        );
 
         setMultiDestinationBookings(bookings);
-        
+
         // Clear single destination form
         setFormData({
-          destination: '',
-          startDate: '',
-          endDate: '',
+          destination: "",
+          startDate: "",
+          endDate: "",
           participants: 2,
-          tourType: '',
-          duration: ''
+          tourType: "",
+          duration: "",
         });
 
         // Show AI automation toast for multi-destination
@@ -112,17 +133,17 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
       } else if (aiPlan.recommendations.length === 1) {
         // Handle single destination trip with AI optimization
         const rec = aiPlan.recommendations[0];
-        
-        setFormData(prev => ({
+
+        setFormData((prev) => ({
           ...prev,
           destination: rec.destination,
           startDate: rec.date,
           endDate: rec.date, // Single day by default
           participants: rec.participants,
           tourType: rec.tourType,
-          duration: rec.duration
+          duration: rec.duration,
         }));
-        
+
         setMultiDestinationBookings([]);
 
         // Show AI automation toast
@@ -134,22 +155,34 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
     }
   };
 
-  const updateMultiDestinationBooking = (index: number, field: keyof DestinationTourBooking, value: string | number) => {
-    setMultiDestinationBookings(prev => 
-      prev.map((booking, i) => 
+  const updateMultiDestinationBooking = (
+    index: number,
+    field: keyof DestinationTourBooking,
+    value: string | number
+  ) => {
+    setMultiDestinationBookings((prev) =>
+      prev.map((booking, i) =>
         i === index ? { ...booking, [field]: value } : booking
       )
     );
   };
 
-  const handleDateRangeChange = (range: { start: CalendarDate | null; end: CalendarDate | null } | null) => {
+  const handleDateRangeChange = (
+    range: { start: CalendarDate | null; end: CalendarDate | null } | null
+  ) => {
     if (range?.start && range?.end) {
-      const startDate = format(new Date(range.start.year, range.start.month - 1, range.start.day), "yyyy-MM-dd");
-      const endDate = format(new Date(range.end.year, range.end.month - 1, range.end.day), "yyyy-MM-dd");
-      setFormData(prev => ({
+      const startDate = format(
+        new Date(range.start.year, range.start.month - 1, range.start.day),
+        "yyyy-MM-dd"
+      );
+      const endDate = format(
+        new Date(range.end.year, range.end.month - 1, range.end.day),
+        "yyyy-MM-dd"
+      );
+      setFormData((prev) => ({
         ...prev,
         startDate,
-        endDate
+        endDate,
       }));
       setIsDateRangeOpen(false);
     }
@@ -159,7 +192,7 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
     if (formData.startDate && formData.endDate) {
       return {
         start: parseDate(formData.startDate),
-        end: parseDate(formData.endDate)
+        end: parseDate(formData.endDate),
       };
     }
     return null;
@@ -204,7 +237,9 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
             <MapPin size={24} />
             <div>
               <h2 className="text-xl font-bold">Tours & Experiencias</h2>
-              <p className="text-sm opacity-90">IA optimiza tus aventuras guiadas</p>
+              <p className="text-sm opacity-90">
+                IA optimiza tus aventuras guiadas
+              </p>
             </div>
           </div>
         </div>
@@ -214,7 +249,9 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
             <CardContent className="p-4">
               <div className="flex items-center space-x-2 mb-2">
                 <Camera size={16} className="text-orange-600" />
-                <span className="text-sm font-medium text-orange-800">Expertos Locales</span>
+                <span className="text-sm font-medium text-orange-800">
+                  Expertos Locales
+                </span>
               </div>
               <p className="text-xs text-orange-700">
                 Reserva tours con guías locales certificados y crea recuerdos!
@@ -223,20 +260,20 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
           </Card>
 
           <div className="space-y-4">
-            <TripSelectorWithAI 
+            <TripSelectorWithAI
               selectedTripId={selectedTripId}
               trips={trips}
               onTripSelection={handleTripSelection}
             />
 
             {/* AI Tour Plan Display */}
-            {aiTourPlan && selectedTripId !== 'manual' && (
+            {aiTourPlan && selectedTripId !== "manual" && (
               <AITourPlan plan={aiTourPlan} />
             )}
 
             {/* Multi-destination bookings */}
             {isMultiDestination && multiDestinationBookings.length > 0 && (
-              <MultiDestinationTourBooking 
+              <MultiDestinationTourBooking
                 bookings={multiDestinationBookings}
                 onUpdateBooking={updateMultiDestinationBooking}
               />
@@ -248,12 +285,20 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                 <div className="space-y-2">
                   <Label htmlFor="destination">Destination</Label>
                   <div className="relative">
-                    <MapPin size={16} className="absolute left-3 top-3 text-gray-400" />
+                    <MapPin
+                      size={16}
+                      className="absolute left-3 top-3 text-gray-400"
+                    />
                     <Input
                       id="destination"
                       placeholder="Where do you want to explore?"
                       value={formData.destination}
-                      onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          destination: e.target.value,
+                        }))
+                      }
                       className="pl-10"
                     />
                   </div>
@@ -261,13 +306,17 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
 
                 <div className="space-y-2">
                   <Label>Fechas del Tour</Label>
-                  <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
+                  <Popover
+                    open={isDateRangeOpen}
+                    onOpenChange={setIsDateRangeOpen}
+                  >
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
-                          (!formData.startDate || !formData.endDate) && "text-muted-foreground"
+                          (!formData.startDate || !formData.endDate) &&
+                            "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -288,14 +337,22 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                 <div className="space-y-2">
                   <Label htmlFor="participants">Participants</Label>
                   <div className="relative">
-                    <Users size={16} className="absolute left-3 top-3 text-gray-400" />
+                    <Users
+                      size={16}
+                      className="absolute left-3 top-3 text-gray-400"
+                    />
                     <Input
                       id="participants"
                       type="number"
                       min="1"
                       max="20"
                       value={formData.participants}
-                      onChange={(e) => setFormData(prev => ({ ...prev, participants: parseInt(e.target.value) }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          participants: parseInt(e.target.value),
+                        }))
+                      }
                       className="pl-10"
                     />
                   </div>
@@ -303,7 +360,12 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="tourType">Tour Type</Label>
-                  <Select value={formData.tourType} onValueChange={(value) => setFormData(prev => ({ ...prev, tourType: value }))}>
+                  <Select
+                    value={formData.tourType}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, tourType: value }))
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select tour type" />
                     </SelectTrigger>
@@ -312,7 +374,9 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
                       <SelectItem value="cultural">Cultural Tours</SelectItem>
                       <SelectItem value="food">Food Tours</SelectItem>
                       <SelectItem value="adventure">Adventure Tours</SelectItem>
-                      <SelectItem value="historical">Historical Tours</SelectItem>
+                      <SelectItem value="historical">
+                        Historical Tours
+                      </SelectItem>
                       <SelectItem value="nature">Nature Tours</SelectItem>
                     </SelectContent>
                   </Select>
@@ -320,26 +384,39 @@ const ToursModal = ({ isOpen, onClose }: ToursModalProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duration</Label>
-                  <Select value={formData.duration} onValueChange={(value) => setFormData(prev => ({ ...prev, duration: value }))}>
+                  <Select
+                    value={formData.duration}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, duration: value }))
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select duration" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="half-day">Half Day (2-4 hours)</SelectItem>
-                      <SelectItem value="full-day">Full Day (6-8 hours)</SelectItem>
-                      <SelectItem value="multi-day">Multi-day (2+ days)</SelectItem>
+                      <SelectItem value="half-day">
+                        Half Day (2-4 hours)
+                      </SelectItem>
+                      <SelectItem value="full-day">
+                        Full Day (6-8 hours)
+                      </SelectItem>
+                      <SelectItem value="multi-day">
+                        Multi-day (2+ days)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             )}
 
-            <Button 
+            <Button
               onClick={handleSearch}
               className="w-full bg-gradient-to-r from-orange-500 to-orange-600"
             >
               <MapPin size={16} className="mr-2" />
-              {isMultiDestination ? `Buscar Tours para ${multiDestinationBookings.length} Destinos` : 'Find Tours'}
+              {isMultiDestination
+                ? `Buscar Tours para ${multiDestinationBookings.length} Destinos`
+                : "Find Tours"}
             </Button>
           </div>
         </div>

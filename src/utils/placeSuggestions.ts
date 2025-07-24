@@ -1,9 +1,8 @@
-
 import { SavedPlace, DayItinerary, OptimizedPlace } from "@/types";
 
 // Popular places database organized by destination
 const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
-  "Paris": [
+  Paris: [
     {
       id: "suggest-paris-1",
       name: "Notre-Dame Cathedral",
@@ -13,7 +12,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Gothic cathedral with stunning architecture",
       estimatedTime: "1-2 hours",
       priority: "medium" as const,
-      destinationName: "Paris"
+      destinationName: "Paris",
     },
     {
       id: "suggest-paris-2",
@@ -24,7 +23,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Artistic district with panoramic city views",
       estimatedTime: "2-3 hours",
       priority: "medium" as const,
-      destinationName: "Paris"
+      destinationName: "Paris",
     },
     {
       id: "suggest-paris-3",
@@ -35,10 +34,10 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Scenic boat tour along the Seine",
       estimatedTime: "1-2 hours",
       priority: "low" as const,
-      destinationName: "Paris"
-    }
+      destinationName: "Paris",
+    },
   ],
-  "Rome": [
+  Rome: [
     {
       id: "suggest-rome-1",
       name: "Pantheon",
@@ -48,7 +47,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Ancient Roman temple with impressive dome",
       estimatedTime: "1 hour",
       priority: "medium" as const,
-      destinationName: "Rome"
+      destinationName: "Rome",
     },
     {
       id: "suggest-rome-2",
@@ -59,7 +58,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Famous baroque stairway with great views",
       estimatedTime: "30 minutes",
       priority: "low" as const,
-      destinationName: "Rome"
+      destinationName: "Rome",
     },
     {
       id: "suggest-rome-3",
@@ -70,10 +69,10 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Charming neighborhood with local restaurants",
       estimatedTime: "2-3 hours",
       priority: "medium" as const,
-      destinationName: "Rome"
-    }
+      destinationName: "Rome",
+    },
   ],
-  "Barcelona": [
+  Barcelona: [
     {
       id: "suggest-barcelona-1",
       name: "Casa Batlló",
@@ -83,7 +82,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Gaudí's colorful modernist masterpiece",
       estimatedTime: "1-2 hours",
       priority: "medium" as const,
-      destinationName: "Barcelona"
+      destinationName: "Barcelona",
     },
     {
       id: "suggest-barcelona-2",
@@ -94,10 +93,10 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Popular city beach with restaurants",
       estimatedTime: "2-4 hours",
       priority: "low" as const,
-      destinationName: "Barcelona"
-    }
+      destinationName: "Barcelona",
+    },
   ],
-  "Tokyo": [
+  Tokyo: [
     {
       id: "suggest-tokyo-1",
       name: "Meiji Shrine",
@@ -107,7 +106,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Peaceful Shinto shrine in the city",
       estimatedTime: "1-2 hours",
       priority: "medium" as const,
-      destinationName: "Tokyo"
+      destinationName: "Tokyo",
     },
     {
       id: "suggest-tokyo-2",
@@ -118,10 +117,10 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Famous fish market and street food",
       estimatedTime: "2-3 hours",
       priority: "medium" as const,
-      destinationName: "Tokyo"
-    }
+      destinationName: "Tokyo",
+    },
   ],
-  "Bali": [
+  Bali: [
     {
       id: "suggest-bali-1",
       name: "Uluwatu Temple",
@@ -131,7 +130,7 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Clifftop temple with ocean views",
       estimatedTime: "2 hours",
       priority: "medium" as const,
-      destinationName: "Bali"
+      destinationName: "Bali",
     },
     {
       id: "suggest-bali-2",
@@ -142,15 +141,17 @@ const popularPlacesByDestination: { [key: string]: SavedPlace[] } = {
       description: "Sacred forest sanctuary with playful monkeys",
       estimatedTime: "1-2 hours",
       priority: "low" as const,
-      destinationName: "Bali"
-    }
-  ]
+      destinationName: "Bali",
+    },
+  ],
 };
 
 // Generic destination activities for destinations not in our database
-const getGenericDestinationActivities = (destinationName: string): SavedPlace[] => {
-  const baseId = `generic-${destinationName.toLowerCase().replace(/\s+/g, '-')}`;
-  
+const getGenericDestinationActivities = (
+  destinationName: string
+): SavedPlace[] => {
+  const baseId = `generic-${destinationName.toLowerCase().replace(/\s+/g, "-")}`;
+
   return [
     {
       id: `${baseId}-1`,
@@ -161,7 +162,7 @@ const getGenericDestinationActivities = (destinationName: string): SavedPlace[] 
       description: `Explore the historic heart of ${destinationName} with its architecture and cultural sites`,
       estimatedTime: "2-3 hours",
       priority: "high" as const,
-      destinationName: destinationName
+      destinationName: destinationName,
     },
     {
       id: `${baseId}-2`,
@@ -172,7 +173,7 @@ const getGenericDestinationActivities = (destinationName: string): SavedPlace[] 
       description: `Experience local culture and cuisine at ${destinationName}'s traditional markets`,
       estimatedTime: "1-2 hours",
       priority: "medium" as const,
-      destinationName: destinationName
+      destinationName: destinationName,
     },
     {
       id: `${baseId}-3`,
@@ -183,7 +184,7 @@ const getGenericDestinationActivities = (destinationName: string): SavedPlace[] 
       description: `Guided walking tour to discover the main attractions of ${destinationName}`,
       estimatedTime: "2-3 hours",
       priority: "medium" as const,
-      destinationName: destinationName
+      destinationName: destinationName,
     },
     {
       id: `${baseId}-4`,
@@ -194,7 +195,7 @@ const getGenericDestinationActivities = (destinationName: string): SavedPlace[] 
       description: `Taste authentic local cuisine at recommended restaurants in ${destinationName}`,
       estimatedTime: "1-2 hours",
       priority: "low" as const,
-      destinationName: destinationName
+      destinationName: destinationName,
     },
     {
       id: `${baseId}-5`,
@@ -205,7 +206,7 @@ const getGenericDestinationActivities = (destinationName: string): SavedPlace[] 
       description: `Learn about the history and culture of ${destinationName} at local museums`,
       estimatedTime: "2 hours",
       priority: "medium" as const,
-      destinationName: destinationName
+      destinationName: destinationName,
     },
     {
       id: `${baseId}-6`,
@@ -216,16 +217,23 @@ const getGenericDestinationActivities = (destinationName: string): SavedPlace[] 
       description: `Visit the best viewpoints for panoramic views of ${destinationName}`,
       estimatedTime: "1 hour",
       priority: "low" as const,
-      destinationName: destinationName
-    }
+      destinationName: destinationName,
+    },
   ];
 };
 
-export const getSuggestedPlaces = (destinationName: string, existingPlaceIds: string[]): SavedPlace[] => {
-  const availablePlaces = popularPlacesByDestination[destinationName] || getGenericDestinationActivities(destinationName);
-  
+export const getSuggestedPlaces = (
+  destinationName: string,
+  existingPlaceIds: string[]
+): SavedPlace[] => {
+  const availablePlaces =
+    popularPlacesByDestination[destinationName] ||
+    getGenericDestinationActivities(destinationName);
+
   // Filter out places that are already in the user's saved places
-  return availablePlaces.filter(place => !existingPlaceIds.includes(place.id));
+  return availablePlaces.filter(
+    (place) => !existingPlaceIds.includes(place.id)
+  );
 };
 
 export const createSuggestedDayItinerary = (
@@ -237,26 +245,35 @@ export const createSuggestedDayItinerary = (
   routeType: string
 ): DayItinerary => {
   const suggestedPlaces = getSuggestedPlaces(destinationName, existingPlaceIds);
-  
+
   // Select 1-2 suggested places based on route type
-  const placesToAdd = routeType === 'leisure' ? 
-    suggestedPlaces.slice(0, 1) : 
-    suggestedPlaces.slice(0, 2);
-  
+  const placesToAdd =
+    routeType === "leisure"
+      ? suggestedPlaces.slice(0, 1)
+      : suggestedPlaces.slice(0, 2);
+
   const optimizedPlaces: OptimizedPlace[] = placesToAdd.map((place, index) => ({
     ...place,
     lat: place.lat || destination.lat,
     lng: place.lng || destination.lng,
     destinationName: destination.name,
-    aiRecommendedDuration: routeType === 'speed' ? "1 hour" : 
-                           routeType === 'leisure' ? (place.estimatedTime.split('-')[1]?.trim() || place.estimatedTime) :
-                           place.estimatedTime.split('-')[0]?.trim() || place.estimatedTime,
-    bestTimeToVisit: routeType === 'speed' ? `${10 + (index * 3)}:00 ${index === 0 ? 'AM' : 'PM'}` :
-                    routeType === 'leisure' ? "11:00 AM" :
-                    index === 0 ? "10:00 AM" : "2:00 PM",
-    orderInRoute: index + 1
+    aiRecommendedDuration:
+      routeType === "speed"
+        ? "1 hour"
+        : routeType === "leisure"
+          ? place.estimatedTime.split("-")[1]?.trim() || place.estimatedTime
+          : place.estimatedTime.split("-")[0]?.trim() || place.estimatedTime,
+    bestTimeToVisit:
+      routeType === "speed"
+        ? `${10 + index * 3}:00 ${index === 0 ? "AM" : "PM"}`
+        : routeType === "leisure"
+          ? "11:00 AM"
+          : index === 0
+            ? "10:00 AM"
+            : "2:00 PM",
+    orderInRoute: index + 1,
   }));
-  
+
   return {
     day: dayNumber,
     date: date,
@@ -267,7 +284,7 @@ export const createSuggestedDayItinerary = (
     transportTime: "15 minutes",
     freeTime: `${Math.max(4, 8 - optimizedPlaces.length * 1.5)} hours`,
     allocatedDays: 1,
-    isSuggested: true
+    isSuggested: true,
   };
 };
 
@@ -282,54 +299,72 @@ export const createTentativeDestinationItinerary = (
   totalDays: number
 ): DayItinerary => {
   const allActivities = getSuggestedPlaces(destinationName, []);
-  
+
   // Create a more comprehensive itinerary for destinations without saved places
   let selectedActivities: SavedPlace[] = [];
-  
-  if (routeType === 'speed') {
+
+  if (routeType === "speed") {
     // Speed route: 3-4 activities per day, prioritize high-impact places
-    const highPriorityPlaces = allActivities.filter(place => place.priority === 'high');
-    const mediumPriorityPlaces = allActivities.filter(place => place.priority === 'medium');
+    const highPriorityPlaces = allActivities.filter(
+      (place) => place.priority === "high"
+    );
+    const mediumPriorityPlaces = allActivities.filter(
+      (place) => place.priority === "medium"
+    );
     selectedActivities = [
-      ...highPriorityPlaces.slice(dayIndex * 2, (dayIndex * 2) + 2),
-      ...mediumPriorityPlaces.slice(dayIndex, dayIndex + 2)
+      ...highPriorityPlaces.slice(dayIndex * 2, dayIndex * 2 + 2),
+      ...mediumPriorityPlaces.slice(dayIndex, dayIndex + 2),
     ].slice(0, 4);
-  } else if (routeType === 'leisure') {
+  } else if (routeType === "leisure") {
     // Leisure route: 2-3 activities per day, more relaxed
-    selectedActivities = allActivities.slice(dayIndex * 2, (dayIndex * 2) + 2);
+    selectedActivities = allActivities.slice(dayIndex * 2, dayIndex * 2 + 2);
   } else {
     // Current route: 2-3 activities per day, balanced approach
-    selectedActivities = allActivities.slice(dayIndex * 3, (dayIndex * 3) + 3);
+    selectedActivities = allActivities.slice(dayIndex * 3, dayIndex * 3 + 3);
   }
 
-  const optimizedPlaces: OptimizedPlace[] = selectedActivities.map((place, index) => ({
-    ...place,
-    lat: place.lat || destination.lat,
-    lng: place.lng || destination.lng,
-    destinationName: destination.name,
-    aiRecommendedDuration: routeType === 'speed' ? "1-2 hours" : 
-                           routeType === 'leisure' ? "2-3 hours" :
-                           place.estimatedTime,
-    bestTimeToVisit: routeType === 'speed' ? `${9 + (index * 2)}:00 AM` :
-                    routeType === 'leisure' ? `${10 + (index * 3)}:00 AM` :
-                    `${9 + (index * 2)}:00 ${index < 2 ? 'AM' : 'PM'}`,
-    orderInRoute: index + 1
-  }));
-  
+  const optimizedPlaces: OptimizedPlace[] = selectedActivities.map(
+    (place, index) => ({
+      ...place,
+      lat: place.lat || destination.lat,
+      lng: place.lng || destination.lng,
+      destinationName: destination.name,
+      aiRecommendedDuration:
+        routeType === "speed"
+          ? "1-2 hours"
+          : routeType === "leisure"
+            ? "2-3 hours"
+            : place.estimatedTime,
+      bestTimeToVisit:
+        routeType === "speed"
+          ? `${9 + index * 2}:00 AM`
+          : routeType === "leisure"
+            ? `${10 + index * 3}:00 AM`
+            : `${9 + index * 2}:00 ${index < 2 ? "AM" : "PM"}`,
+      orderInRoute: index + 1,
+    })
+  );
+
   return {
     day: dayNumber,
     date: date,
     destinationName: destinationName,
     places: optimizedPlaces,
-    totalTime: routeType === 'speed' ? `${optimizedPlaces.length * 1.5} hours` :
-               routeType === 'leisure' ? `${optimizedPlaces.length * 2.5} hours` :
-               `${optimizedPlaces.length * 2} hours`,
-    walkingTime: routeType === 'speed' ? "45 minutes" : "30 minutes",
-    transportTime: routeType === 'speed' ? "30 minutes" : "20 minutes",
-    freeTime: routeType === 'speed' ? "2 hours" :
-              routeType === 'leisure' ? "5 hours" :
-              "3 hours",
+    totalTime:
+      routeType === "speed"
+        ? `${optimizedPlaces.length * 1.5} hours`
+        : routeType === "leisure"
+          ? `${optimizedPlaces.length * 2.5} hours`
+          : `${optimizedPlaces.length * 2} hours`,
+    walkingTime: routeType === "speed" ? "45 minutes" : "30 minutes",
+    transportTime: routeType === "speed" ? "30 minutes" : "20 minutes",
+    freeTime:
+      routeType === "speed"
+        ? "2 hours"
+        : routeType === "leisure"
+          ? "5 hours"
+          : "3 hours",
     allocatedDays: totalDays,
-    isTentative: true
+    isTentative: true,
   };
 };

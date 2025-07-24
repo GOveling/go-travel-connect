@@ -1,10 +1,12 @@
-
 import React, { useState } from "react";
 import { Search, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useGooglePlacesEnhanced, EnhancedPlace } from "@/hooks/useGooglePlacesEnhanced";
+import {
+  useGooglePlacesEnhanced,
+  EnhancedPlace,
+} from "@/hooks/useGooglePlacesEnhanced";
 
 interface Place {
   id: string;
@@ -39,25 +41,28 @@ interface ExploreSearchBarProps {
   selectedCategories: string[];
 }
 
-const ExploreSearchBar = ({ 
-  onPlaceSelect, 
-  onSearchSubmit, 
-  onShowRelatedPlaces, 
+const ExploreSearchBar = ({
+  onPlaceSelect,
+  onSearchSubmit,
+  onShowRelatedPlaces,
   onSearchResults,
   onLoadingChange,
-  selectedCategories 
+  selectedCategories,
 }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-  const { predictions, loading, searchPlaces, clearResults } = useGooglePlacesEnhanced();
+  const { predictions, loading, searchPlaces, clearResults } =
+    useGooglePlacesEnhanced();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
   };
 
-  const convertEnhancedResultsToPlaces = (predictions: EnhancedPlace[]): Place[] => {
-    return predictions.map(prediction => ({
+  const convertEnhancedResultsToPlaces = (
+    predictions: EnhancedPlace[]
+  ): Place[] => {
+    return predictions.map((prediction) => ({
       id: prediction.id,
       name: prediction.name,
       address: prediction.address,
@@ -75,7 +80,7 @@ const ExploreSearchBar = ({
       photos: prediction.photos,
       reviews_count: prediction.reviews_count,
       opening_hours: prediction.opening_hours,
-      image: prediction.photos?.[0] // Use first photo as image
+      image: prediction.photos?.[0], // Use first photo as image
     }));
   };
 
@@ -84,14 +89,14 @@ const ExploreSearchBar = ({
       // Notify parent component that we're starting a search
       onLoadingChange?.(true);
       onSearchSubmit?.(searchQuery);
-      
+
       try {
         // Start the enhanced search
         await searchPlaces(searchQuery, selectedCategories);
-        
+
         // The search results will be handled by the useEffect below
       } catch (error) {
-        console.error('Error during enhanced search:', error);
+        console.error("Error during enhanced search:", error);
         onLoadingChange?.(false);
       }
     }
@@ -107,17 +112,18 @@ const ExploreSearchBar = ({
   }, [predictions, onSearchResults, onLoadingChange]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
 
   const getCategoryHint = () => {
-    if (selectedCategories.length === 0) return "Buscar lugares con Google Places API - Datos precisos y verificados...";
+    if (selectedCategories.length === 0)
+      return "Buscar lugares con Google Places API - Datos precisos y verificados...";
     if (selectedCategories.length === 1) {
       const categoryNames: { [key: string]: string } = {
         restaurant: "restaurantes",
-        hotel: "hoteles", 
+        hotel: "hoteles",
         attraction: "atracciones",
         shopping: "centros comerciales",
         entertainment: "lugares de entretenimiento",
@@ -128,7 +134,7 @@ const ExploreSearchBar = ({
         museum: "museos",
         park: "parques",
         beach: "playas",
-        lake: "lagos"
+        lake: "lagos",
       };
       return `Buscar ${categoryNames[selectedCategories[0]] || "lugares"} con datos verificados de Google...`;
     }
@@ -161,7 +167,6 @@ const ExploreSearchBar = ({
           )}
         </Button>
       </div>
-      
     </div>
   );
 };

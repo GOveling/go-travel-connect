@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ const PublicationPhotosModal = ({
   initialIndex = 0,
   friendName,
   publication,
-  onAddToTrip
+  onAddToTrip,
 }: PublicationPhotosModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -127,8 +126,8 @@ const PublicationPhotosModal = ({
                   onClick={() => goToImage(index)}
                   className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                     index === currentIndex
-                      ? 'border-white scale-110'
-                      : 'border-transparent opacity-70 hover:opacity-100'
+                      ? "border-white scale-110"
+                      : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
                   <img

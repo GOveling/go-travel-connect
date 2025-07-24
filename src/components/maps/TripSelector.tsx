@@ -1,6 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Map, MapPin, Users, Calendar, Bookmark } from "lucide-react";
 
@@ -12,22 +18,25 @@ interface TripSelectorProps {
   onToggleSavedPlaces?: () => void;
 }
 
-const TripSelector = ({ 
-  trips, 
-  selectedTripId, 
+const TripSelector = ({
+  trips,
+  selectedTripId,
   onSelectTrip,
   showSavedPlaces = true,
-  onToggleSavedPlaces
+  onToggleSavedPlaces,
 }: TripSelectorProps) => {
-  
-  const selectedTrip = trips.find(trip => trip.id === selectedTripId);
-  
+  const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'upcoming': return 'bg-green-500 text-white';
-      case 'planning': return 'bg-purple-600 text-white';
-      case 'completed': return 'bg-gray-500 text-white';
-      default: return 'bg-gray-300 text-gray-700';
+      case "upcoming":
+        return "bg-green-500 text-white";
+      case "planning":
+        return "bg-purple-600 text-white";
+      case "completed":
+        return "bg-gray-500 text-white";
+      default:
+        return "bg-gray-300 text-gray-700";
     }
   };
 
@@ -53,10 +62,14 @@ const TripSelector = ({
 
         {/* Trip Selector */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Seleccionar Viaje</label>
+          <label className="text-sm font-medium text-gray-700">
+            Seleccionar Viaje
+          </label>
           <Select
             value={selectedTripId || "all"}
-            onValueChange={(value) => onSelectTrip(value === "all" ? null : value)}
+            onValueChange={(value) =>
+              onSelectTrip(value === "all" ? null : value)
+            }
           >
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -85,15 +98,21 @@ const TripSelector = ({
               <div className="text-2xl">{selectedTrip.image}</div>
               <div className="flex-1">
                 <h4 className="font-semibold text-lg">{selectedTrip.name}</h4>
-                <p className="text-sm text-gray-600 mb-2">{selectedTrip.dates}</p>
+                <p className="text-sm text-gray-600 mb-2">
+                  {selectedTrip.dates}
+                </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-1">
                     <MapPin size={14} className="text-gray-500" />
-                    <span>{selectedTrip.coordinates?.length || 0} destinos</span>
+                    <span>
+                      {selectedTrip.coordinates?.length || 0} destinos
+                    </span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Bookmark size={14} className="text-gray-500" />
-                    <span>{selectedTrip.savedPlaces?.length || 0} lugares guardados</span>
+                    <span>
+                      {selectedTrip.savedPlaces?.length || 0} lugares guardados
+                    </span>
                   </div>
                   {selectedTrip.isGroupTrip && (
                     <div className="flex items-center space-x-1">
@@ -106,50 +125,67 @@ const TripSelector = ({
             </div>
 
             {/* Trip Destinations */}
-            {selectedTrip.coordinates && selectedTrip.coordinates.length > 0 && (
-              <div className="space-y-2">
-                <h5 className="text-sm font-medium text-gray-700">Destinos:</h5>
-                <div className="flex flex-wrap gap-2">
-                  {selectedTrip.coordinates.map((coord: any, index: number) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {coord.name}
-                    </Badge>
-                  ))}
+            {selectedTrip.coordinates &&
+              selectedTrip.coordinates.length > 0 && (
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-700">
+                    Destinos:
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTrip.coordinates.map(
+                      (coord: any, index: number) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="text-xs"
+                        >
+                          {coord.name}
+                        </Badge>
+                      )
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Saved Places Summary */}
-            {selectedTrip.savedPlaces && selectedTrip.savedPlaces.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h5 className="text-sm font-medium text-gray-700">Lugares Guardados:</h5>
-                  {onToggleSavedPlaces && (
-                    <Button
-                      size="sm"
-                      variant={showSavedPlaces ? "default" : "outline"}
-                      onClick={onToggleSavedPlaces}
-                      className="h-6 text-xs"
-                    >
-                      {showSavedPlaces ? "Ocultar" : "Mostrar"}
-                    </Button>
-                  )}
+            {selectedTrip.savedPlaces &&
+              selectedTrip.savedPlaces.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-sm font-medium text-gray-700">
+                      Lugares Guardados:
+                    </h5>
+                    {onToggleSavedPlaces && (
+                      <Button
+                        size="sm"
+                        variant={showSavedPlaces ? "default" : "outline"}
+                        onClick={onToggleSavedPlaces}
+                        className="h-6 text-xs"
+                      >
+                        {showSavedPlaces ? "Ocultar" : "Mostrar"}
+                      </Button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {selectedTrip.savedPlaces
+                      .slice(0, 4)
+                      .map((place: any, index: number) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-1 bg-white rounded p-2"
+                        >
+                          <span>{place.image}</span>
+                          <span className="truncate">{place.name}</span>
+                        </div>
+                      ))}
+                    {selectedTrip.savedPlaces.length > 4 && (
+                      <div className="col-span-2 text-center text-gray-500">
+                        +{selectedTrip.savedPlaces.length - 4} lugares más
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {selectedTrip.savedPlaces.slice(0, 4).map((place: any, index: number) => (
-                    <div key={index} className="flex items-center space-x-1 bg-white rounded p-2">
-                      <span>{place.image}</span>
-                      <span className="truncate">{place.name}</span>
-                    </div>
-                  ))}
-                  {selectedTrip.savedPlaces.length > 4 && (
-                    <div className="col-span-2 text-center text-gray-500">
-                      +{selectedTrip.savedPlaces.length - 4} lugares más
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+              )}
           </div>
         )}
 

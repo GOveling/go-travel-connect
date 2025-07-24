@@ -1,10 +1,26 @@
-
-import { Calendar, MapPin, Users, UserPlus, Share2, Edit3, Route, Heart, MoreHorizontal, Eye, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  UserPlus,
+  Share2,
+  Edit3,
+  Route,
+  Heart,
+  MoreHorizontal,
+  Eye,
+  Trash2,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { Trip, TripCardProps } from '@/types';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { Trip, TripCardProps } from "@/types";
 
 const TripCard = ({
   trip,
@@ -14,7 +30,7 @@ const TripCard = ({
   onGroupOptions,
   onAISmartRoute,
   onViewSavedPlaces,
-  onDeleteTrip
+  onDeleteTrip,
 }: TripCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -45,18 +61,20 @@ const TripCard = ({
   const getCountriesFromDestination = (destination: string | string[]) => {
     try {
       if (Array.isArray(destination)) {
-        return destination.filter(country => country && country !== 'Unknown');
+        return destination.filter(
+          (country) => country && country !== "Unknown"
+        );
       }
-      if (typeof destination === 'string') {
+      if (typeof destination === "string") {
         // Try to parse as JSON first
         try {
           const parsed = JSON.parse(destination);
           if (Array.isArray(parsed)) {
-            return parsed.filter(country => country && country !== 'Unknown');
+            return parsed.filter((country) => country && country !== "Unknown");
           }
         } catch {
           // Fallback to old string format
-          const parts = destination.split(',').map(part => part.trim());
+          const parts = destination.split(",").map((part) => part.trim());
           return [parts[parts.length - 1]]; // Last part is usually the country
         }
       }
@@ -69,44 +87,44 @@ const TripCard = ({
   // Get country flag emoji
   const getCountryFlag = (country: string) => {
     const countryFlags: { [key: string]: string } = {
-      'Spain': '🇪🇸',
-      'France': '🇫🇷',
-      'Italy': '🇮🇹',
-      'Germany': '🇩🇪',
-      'United Kingdom': '🇬🇧',
-      'United States': '🇺🇸',
-      'Japan': '🇯🇵',
-      'Brazil': '🇧🇷',
-      'Mexico': '🇲🇽',
-      'Canada': '🇨🇦',
-      'Australia': '🇦🇺',
-      'Argentina': '🇦🇷',
-      'Thailand': '🇹🇭',
-      'Greece': '🇬🇷',
-      'Portugal': '🇵🇹',
-      'Netherlands': '🇳🇱',
-      'Switzerland': '🇨🇭',
-      'Austria': '🇦🇹',
-      'Belgium': '🇧🇪',
-      'Norway': '🇳🇴',
-      'Sweden': '🇸🇪',
-      'Denmark': '🇩🇰',
-      'Finland': '🇫🇮',
-      'Poland': '🇵🇱',
-      'Turkey': '🇹🇷',
-      'Egypt': '🇪🇬',
-      'Morocco': '🇲🇦',
-      'South Africa': '🇿🇦',
-      'India': '🇮🇳',
-      'China': '🇨🇳',
-      'South Korea': '🇰🇷',
-      'Russia': '🇷🇺',
+      Spain: "🇪🇸",
+      France: "🇫🇷",
+      Italy: "🇮🇹",
+      Germany: "🇩🇪",
+      "United Kingdom": "🇬🇧",
+      "United States": "🇺🇸",
+      Japan: "🇯🇵",
+      Brazil: "🇧🇷",
+      Mexico: "🇲🇽",
+      Canada: "🇨🇦",
+      Australia: "🇦🇺",
+      Argentina: "🇦🇷",
+      Thailand: "🇹🇭",
+      Greece: "🇬🇷",
+      Portugal: "🇵🇹",
+      Netherlands: "🇳🇱",
+      Switzerland: "🇨🇭",
+      Austria: "🇦🇹",
+      Belgium: "🇧🇪",
+      Norway: "🇳🇴",
+      Sweden: "🇸🇪",
+      Denmark: "🇩🇰",
+      Finland: "🇫🇮",
+      Poland: "🇵🇱",
+      Turkey: "🇹🇷",
+      Egypt: "🇪🇬",
+      Morocco: "🇲🇦",
+      "South Africa": "🇿🇦",
+      India: "🇮🇳",
+      China: "🇨🇳",
+      "South Korea": "🇰🇷",
+      Russia: "🇷🇺",
     };
-    return countryFlags[country] || '🌍';
+    return countryFlags[country] || "🌍";
   };
 
   const countries = getCountriesFromDestination(trip.destination);
-  const firstCountry = countries[0] || 'Unknown';
+  const firstCountry = countries[0] || "Unknown";
   const countryFlag = getCountryFlag(firstCountry);
 
   return (
@@ -128,7 +146,9 @@ const TripCard = ({
                     <h3 className="text-lg md:text-xl font-bold text-gray-800 truncate">
                       {trip.name}
                     </h3>
-                    <Badge className={`text-xs px-2 py-1 rounded-full ${getStatusColor(trip.status)}`}>
+                    <Badge
+                      className={`text-xs px-2 py-1 rounded-full ${getStatusColor(trip.status)}`}
+                    >
                       {trip.status}
                     </Badge>
                     {trip.isGroupTrip && (
@@ -138,23 +158,34 @@ const TripCard = ({
                         variant="ghost"
                       >
                         <Users size={12} className="text-purple-600" />
-                        <span className="text-xs text-purple-600 font-medium">Group</span>
+                        <span className="text-xs text-purple-600 font-medium">
+                          Group
+                        </span>
                       </Button>
                     )}
                   </div>
-                  
+
                   <div className="space-y-1 text-sm text-gray-600">
                     <div className="flex items-center space-x-2 flex-wrap gap-1">
                       <MapPin size={14} />
                       {countries.length > 0 ? (
                         countries.map((country, index) => (
-                          <Badge key={index} variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
-                            <span className="mr-1">{getCountryFlag(country)}</span>
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                          >
+                            <span className="mr-1">
+                              {getCountryFlag(country)}
+                            </span>
                             {country}
                           </Badge>
                         ))
                       ) : (
-                        <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                        >
                           <span className="mr-1">🌍</span>
                           No destinations
                         </Badge>
@@ -166,7 +197,9 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />
-                      <span>{totalTravelers} traveler{totalTravelers > 1 ? 's' : ''}</span>
+                      <span>
+                        {totalTravelers} traveler{totalTravelers > 1 ? "s" : ""}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -208,7 +241,7 @@ const TripCard = ({
                       <Share2 size={14} className="mr-2" />
                       Share Trip
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => onDeleteTrip && onDeleteTrip(trip)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
@@ -220,38 +253,40 @@ const TripCard = ({
               </div>
 
               {/* Collaborators Preview */}
-              {trip.isGroupTrip && trip.collaborators && trip.collaborators.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Team:</span>
-                  <div className="flex -space-x-1">
-                    {trip.collaborators.slice(0, 3).map((collaborator) => (
-                      <div
-                        key={collaborator.id}
-                        className="w-6 h-6 bg-gradient-to-br from-purple-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white font-medium border-2 border-white"
-                        title={collaborator.name}
-                      >
-                        {collaborator.avatar}
-                      </div>
-                    ))}
-                    {trip.collaborators.length > 3 && (
-                      <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600 border-2 border-white">
-                        +{trip.collaborators.length - 3}
-                      </div>
-                    )}
+              {trip.isGroupTrip &&
+                trip.collaborators &&
+                trip.collaborators.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">Team:</span>
+                    <div className="flex -space-x-1">
+                      {trip.collaborators.slice(0, 3).map((collaborator) => (
+                        <div
+                          key={collaborator.id}
+                          className="w-6 h-6 bg-gradient-to-br from-purple-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white font-medium border-2 border-white"
+                          title={collaborator.name}
+                        >
+                          {collaborator.avatar}
+                        </div>
+                      ))}
+                      {trip.collaborators.length > 3 && (
+                        <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs text-gray-600 border-2 border-white">
+                          +{trip.collaborators.length - 3}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Action Buttons - Now showing three buttons instead of four */}
               <div className="pt-2 space-y-2">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <Button 
+                  <Button
                     className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-sm"
                     onClick={() => onViewDetails(trip)}
                   >
                     View Details
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline"
                     className="border-red-300 text-red-600 hover:bg-red-50 text-sm"
                     onClick={() => onViewSavedPlaces(trip)}
@@ -259,7 +294,7 @@ const TripCard = ({
                     <Heart size={14} className="mr-1" />
                     Saved Places
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline"
                     className="border-blue-300 text-blue-600 hover:bg-blue-50 text-sm"
                     onClick={() => onAISmartRoute(trip)}

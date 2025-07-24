@@ -1,5 +1,4 @@
-
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface WeatherData {
   temperature: number;
@@ -29,7 +28,7 @@ const initialState: WeatherState = {
 };
 
 const weatherSlice = createSlice({
-  name: 'weather',
+  name: "weather",
   initialState,
   reducers: {
     setWeatherLoading: (state, action: PayloadAction<boolean>) => {
@@ -51,7 +50,10 @@ const weatherSlice = createSlice({
       state.error = null;
       state.lastUpdated = null;
     },
-    updateLocation: (state, action: PayloadAction<{ city: string; country: string; region: string }>) => {
+    updateLocation: (
+      state,
+      action: PayloadAction<{ city: string; country: string; region: string }>
+    ) => {
       if (state.data) {
         state.data.location = action.payload;
       }

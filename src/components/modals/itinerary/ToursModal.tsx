@@ -1,11 +1,16 @@
-
 import { useState } from "react";
 import { MapPin, X, Calendar, Users, Star } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 interface ToursModalProps {
@@ -16,13 +21,19 @@ interface ToursModalProps {
   travelers: number;
 }
 
-const ToursModal = ({ isOpen, onClose, destination, dates, travelers }: ToursModalProps) => {
+const ToursModal = ({
+  isOpen,
+  onClose,
+  destination,
+  dates,
+  travelers,
+}: ToursModalProps) => {
   const [formData, setFormData] = useState({
     destination: destination,
-    date: '',
+    date: "",
     travelers: travelers,
-    category: '',
-    duration: ''
+    category: "",
+    duration: "",
   });
   const { toast } = useToast();
 
@@ -61,7 +72,9 @@ const ToursModal = ({ isOpen, onClose, destination, dates, travelers }: ToursMod
           <div className="bg-purple-50 p-3 rounded-lg">
             <div className="flex items-center space-x-2 mb-2">
               <MapPin size={16} className="text-purple-600" />
-              <span className="text-sm font-medium text-purple-800">Destino: {destination}</span>
+              <span className="text-sm font-medium text-purple-800">
+                Destino: {destination}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <Calendar size={16} className="text-purple-600" />
@@ -103,31 +116,49 @@ const ToursModal = ({ isOpen, onClose, destination, dates, travelers }: ToursMod
           {/* Form */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="date" className="text-sm font-medium">Fecha Preferida</Label>
+              <Label htmlFor="date" className="text-sm font-medium">
+                Fecha Preferida
+              </Label>
               <Input
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, date: e.target.value }))
+                }
                 className="mt-1"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="travelers" className="text-sm font-medium">Viajeros</Label>
+                <Label htmlFor="travelers" className="text-sm font-medium">
+                  Viajeros
+                </Label>
                 <Input
                   id="travelers"
                   type="number"
                   min="1"
                   value={formData.travelers}
-                  onChange={(e) => setFormData(prev => ({ ...prev, travelers: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      travelers: parseInt(e.target.value),
+                    }))
+                  }
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="duration" className="text-sm font-medium">Duración</Label>
-                <Select value={formData.duration} onValueChange={(value) => setFormData(prev => ({ ...prev, duration: value }))}>
+                <Label htmlFor="duration" className="text-sm font-medium">
+                  Duración
+                </Label>
+                <Select
+                  value={formData.duration}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, duration: value }))
+                  }
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
@@ -141,8 +172,15 @@ const ToursModal = ({ isOpen, onClose, destination, dates, travelers }: ToursMod
             </div>
 
             <div>
-              <Label htmlFor="category" className="text-sm font-medium">Categoría</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+              <Label htmlFor="category" className="text-sm font-medium">
+                Categoría
+              </Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, category: value }))
+                }
+              >
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Tipo de actividad" />
                 </SelectTrigger>
@@ -156,7 +194,7 @@ const ToursModal = ({ isOpen, onClose, destination, dates, travelers }: ToursMod
               </Select>
             </div>
 
-            <Button 
+            <Button
               onClick={handleSearch}
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500"
             >

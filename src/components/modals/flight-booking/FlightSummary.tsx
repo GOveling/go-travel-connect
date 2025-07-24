@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plane, Calendar, Users, MapPin, ArrowRight } from "lucide-react";
@@ -21,28 +20,37 @@ interface MultiCityFlight {
 }
 
 interface FlightSummaryProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
   formData: FormData;
   multiCityFlights: MultiCityFlight[];
 }
 
-const FlightSummary = ({ tripType, formData, multiCityFlights }: FlightSummaryProps) => {
+const FlightSummary = ({
+  tripType,
+  formData,
+  multiCityFlights,
+}: FlightSummaryProps) => {
   const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('es-ES', { 
-      day: 'numeric', 
-      month: 'short',
-      year: 'numeric'
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const getTripTypeLabel = () => {
     switch (tripType) {
-      case 'round-trip': return 'Ida y Vuelta';
-      case 'one-way': return 'Solo Ida';
-      case 'multi-city': return 'Multi-destino';
-      case 'manual': return 'Manual';
-      default: return tripType;
+      case "round-trip":
+        return "Ida y Vuelta";
+      case "one-way":
+        return "Solo Ida";
+      case "multi-city":
+        return "Multi-destino";
+      case "manual":
+        return "Manual";
+      default:
+        return tripType;
     }
   };
 
@@ -55,7 +63,8 @@ const FlightSummary = ({ tripType, formData, multiCityFlights }: FlightSummaryPr
               Vuelo {index + 1}
             </Badge>
             <div className="text-xs text-gray-500">
-              {flight.passengers} pasajero{flight.passengers > 1 ? 's' : ''} • {flight.class}
+              {flight.passengers} pasajero{flight.passengers > 1 ? "s" : ""} •{" "}
+              {flight.class}
             </div>
           </div>
           <div className="flex items-center space-x-2 text-sm">
@@ -86,28 +95,33 @@ const FlightSummary = ({ tripType, formData, multiCityFlights }: FlightSummaryPr
             <span className="font-medium">{formData.to}</span>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex items-center space-x-2">
             <Calendar size={14} className="text-blue-500" />
             <div>
               <div className="font-medium">Salida</div>
-              <div className="text-xs text-gray-600">{formatDate(formData.departDate)}</div>
+              <div className="text-xs text-gray-600">
+                {formatDate(formData.departDate)}
+              </div>
             </div>
           </div>
-          
-          {(tripType === 'round-trip' || (tripType === 'manual' && formData.returnDate)) && (
+
+          {(tripType === "round-trip" ||
+            (tripType === "manual" && formData.returnDate)) && (
             <div className="flex items-center space-x-2">
               <Calendar size={14} className="text-blue-500" />
               <div>
                 <div className="font-medium">Regreso</div>
-                <div className="text-xs text-gray-600">{formatDate(formData.returnDate)}</div>
+                <div className="text-xs text-gray-600">
+                  {formatDate(formData.returnDate)}
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center space-x-2 mb-1">
@@ -115,16 +129,18 @@ const FlightSummary = ({ tripType, formData, multiCityFlights }: FlightSummaryPr
             <span className="font-medium text-sm">Pasajeros</span>
           </div>
           <span className="text-sm text-gray-600">
-            {formData.passengers} pasajero{formData.passengers > 1 ? 's' : ''}
+            {formData.passengers} pasajero{formData.passengers > 1 ? "s" : ""}
           </span>
         </div>
-        
+
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center space-x-2 mb-1">
             <Plane size={14} className="text-blue-500" />
             <span className="font-medium text-sm">Clase</span>
           </div>
-          <span className="text-sm text-gray-600 capitalize">{formData.class}</span>
+          <span className="text-sm text-gray-600 capitalize">
+            {formData.class}
+          </span>
         </div>
       </div>
     </div>
@@ -138,7 +154,7 @@ const FlightSummary = ({ tripType, formData, multiCityFlights }: FlightSummaryPr
           {getTripTypeLabel()}
         </Badge>
       </div>
-      
+
       <Card className="border-2 border-gray-100">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center space-x-2 text-base">
@@ -147,7 +163,9 @@ const FlightSummary = ({ tripType, formData, multiCityFlights }: FlightSummaryPr
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          {tripType === 'multi-city' ? renderMultiCityFlights() : renderRegularFlight()}
+          {tripType === "multi-city"
+            ? renderMultiCityFlights()
+            : renderRegularFlight()}
         </CardContent>
       </Card>
     </div>

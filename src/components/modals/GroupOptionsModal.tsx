@@ -1,6 +1,16 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { DollarSign, Vote } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -44,17 +54,23 @@ interface Collaborator {
   role: string;
 }
 
-const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) => {
+const GroupOptionsModal = ({
+  isOpen,
+  onClose,
+  trip,
+}: GroupOptionsModalProps) => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("expenses");
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
-  const [editingDecisionId, setEditingDecisionId] = useState<number | null>(null);
+  const [editingDecisionId, setEditingDecisionId] = useState<number | null>(
+    null
+  );
   const [showCreateDecisionModal, setShowCreateDecisionModal] = useState(false);
-  
+
   // Get trip-specific mock data based on trip ID
   const getTripSpecificExpenses = () => {
     if (!trip) return [];
-    
+
     switch (trip.id) {
       case 1: // European Adventure
         return [
@@ -64,7 +80,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             amount: 450,
             paidBy: ["Alice Johnson"],
             splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
-            date: "2024-12-10"
+            date: "2024-12-10",
           },
           {
             id: 2,
@@ -72,8 +88,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             amount: 850,
             paidBy: ["You"],
             splitBetween: ["Alice Johnson", "Bob Smith", "You"],
-            date: "2024-12-08"
-          }
+            date: "2024-12-08",
+          },
         ];
       case 3: // Bali Retreat
         return [
@@ -83,7 +99,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             amount: 320,
             paidBy: ["Emma Wilson"],
             splitBetween: ["Emma Wilson", "David Brown", "You"],
-            date: "2024-11-15"
+            date: "2024-11-15",
           },
           {
             id: 2,
@@ -91,8 +107,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             amount: 180,
             paidBy: ["You"],
             splitBetween: ["Emma Wilson", "David Brown", "You"],
-            date: "2024-11-18"
-          }
+            date: "2024-11-18",
+          },
         ];
       default:
         return [];
@@ -101,25 +117,26 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const getTripSpecificDecisions = () => {
     if (!trip) return [];
-    
+
     switch (trip.id) {
       case 1: // European Adventure
         return [
           {
             id: 1,
             title: "Restaurant Choice for Day 1 in Paris",
-            description: "Where should we have dinner on our first day in Paris?",
+            description:
+              "Where should we have dinner on our first day in Paris?",
             options: ["Le Bernardin", "Eleven Madison Park", "Per Se"],
             votes: { "Le Bernardin": 2, "Eleven Madison Park": 1, "Per Se": 0 },
-            votersPerOption: { 
-              "Le Bernardin": ["Alice Johnson", "Bob Smith"], 
-              "Eleven Madison Park": ["Carol Davis"], 
-              "Per Se": [] 
+            votersPerOption: {
+              "Le Bernardin": ["Alice Johnson", "Bob Smith"],
+              "Eleven Madison Park": ["Carol Davis"],
+              "Per Se": [],
             },
             status: "active",
             startDate: "2024-12-20",
             endDate: "2024-12-20",
-            createdBy: "Alice Johnson"
+            createdBy: "Alice Johnson",
           },
           {
             id: 2,
@@ -127,16 +144,16 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             description: "How should we get around Rome?",
             options: ["Metro Pass", "Taxi Services", "Walking Tours"],
             votes: { "Metro Pass": 2, "Taxi Services": 0, "Walking Tours": 1 },
-            votersPerOption: { 
-              "Metro Pass": ["Alice Johnson", "You"], 
-              "Taxi Services": [], 
-              "Walking Tours": ["Bob Smith"] 
+            votersPerOption: {
+              "Metro Pass": ["Alice Johnson", "You"],
+              "Taxi Services": [],
+              "Walking Tours": ["Bob Smith"],
             },
             status: "active",
             startDate: "2024-12-21",
             endDate: "2024-12-21",
-            createdBy: "Bob Smith"
-          }
+            createdBy: "Bob Smith",
+          },
         ];
       case 3: // Bali Retreat
         return [
@@ -146,30 +163,34 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             description: "What should we do for our morning activities?",
             options: ["Beach Yoga", "Temple Visit", "Cooking Class"],
             votes: { "Beach Yoga": 2, "Temple Visit": 1, "Cooking Class": 0 },
-            votersPerOption: { 
-              "Beach Yoga": ["Emma Wilson", "You"], 
-              "Temple Visit": ["David Brown"], 
-              "Cooking Class": [] 
+            votersPerOption: {
+              "Beach Yoga": ["Emma Wilson", "You"],
+              "Temple Visit": ["David Brown"],
+              "Cooking Class": [],
             },
             status: "active",
             startDate: "2024-11-25",
             endDate: "2024-11-25",
-            createdBy: "Emma Wilson"
-          }
+            createdBy: "Emma Wilson",
+          },
         ];
       default:
         return [];
     }
   };
 
-  const [expenses, setExpenses] = useState<Expense[]>(getTripSpecificExpenses());
-  const [decisions, setDecisions] = useState<Decision[]>(getTripSpecificDecisions());
+  const [expenses, setExpenses] = useState<Expense[]>(
+    getTripSpecificExpenses()
+  );
+  const [decisions, setDecisions] = useState<Decision[]>(
+    getTripSpecificDecisions()
+  );
 
   const [newExpense, setNewExpense] = useState({
     description: "",
     amount: "",
     paidBy: [] as string[],
-    splitBetween: [] as string[]
+    splitBetween: [] as string[],
   });
 
   const [newDecision, setNewDecision] = useState({
@@ -178,22 +199,28 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     options: ["", ""],
     startDate: "",
     endDate: "",
-    selectedParticipants: [] as string[]
+    selectedParticipants: [] as string[],
   });
 
   // Use actual trip collaborators and add current user
   const collaborators: Collaborator[] = trip?.collaborators || [];
-  
+
   // Add current user to the list of all participants for expenses
   const allParticipants = [
-    { id: 0, name: "You", email: "you@example.com", avatar: "Y", role: "owner" },
+    {
+      id: 0,
+      name: "You",
+      email: "you@example.com",
+      avatar: "Y",
+      role: "owner",
+    },
     ...collaborators.map((collaborator: any) => ({
       id: collaborator.id,
       name: collaborator.name,
       email: collaborator.email,
       avatar: collaborator.avatar,
-      role: collaborator.role
-    }))
+      role: collaborator.role,
+    })),
   ];
 
   // Show message if no collaborators are available
@@ -206,7 +233,9 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           </DialogHeader>
           <div className="text-center py-8">
             <p className="text-gray-600 mb-4">
-              This trip doesn't have any collaborators yet. Add collaborators to your trip to use group features like expense splitting and group decisions.
+              This trip doesn't have any collaborators yet. Add collaborators to
+              your trip to use group features like expense splitting and group
+              decisions.
             </p>
             <Button onClick={onClose} variant="outline">
               Close
@@ -218,20 +247,29 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   }
 
   const handleAddExpense = () => {
-    if (newExpense.description && newExpense.amount && newExpense.paidBy.length > 0) {
+    if (
+      newExpense.description &&
+      newExpense.amount &&
+      newExpense.paidBy.length > 0
+    ) {
       if (editingExpenseId) {
         // Update existing expense
-        setExpenses(expenses.map(expense => 
-          expense.id === editingExpenseId 
-            ? {
-                ...expense,
-                description: newExpense.description,
-                amount: parseFloat(newExpense.amount),
-                paidBy: newExpense.paidBy,
-                splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy
-              }
-            : expense
-        ));
+        setExpenses(
+          expenses.map((expense) =>
+            expense.id === editingExpenseId
+              ? {
+                  ...expense,
+                  description: newExpense.description,
+                  amount: parseFloat(newExpense.amount),
+                  paidBy: newExpense.paidBy,
+                  splitBetween:
+                    newExpense.splitBetween.length > 0
+                      ? newExpense.splitBetween
+                      : newExpense.paidBy,
+                }
+              : expense
+          )
+        );
         setEditingExpenseId(null);
       } else {
         // Add new expense
@@ -240,12 +278,20 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           description: newExpense.description,
           amount: parseFloat(newExpense.amount),
           paidBy: newExpense.paidBy,
-          splitBetween: newExpense.splitBetween.length > 0 ? newExpense.splitBetween : newExpense.paidBy,
-          date: new Date().toISOString().split('T')[0]
+          splitBetween:
+            newExpense.splitBetween.length > 0
+              ? newExpense.splitBetween
+              : newExpense.paidBy,
+          date: new Date().toISOString().split("T")[0],
         };
         setExpenses([...expenses, expense]);
       }
-      setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
+      setNewExpense({
+        description: "",
+        amount: "",
+        paidBy: [],
+        splitBetween: [],
+      });
     }
   };
 
@@ -254,32 +300,39 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       description: expense.description,
       amount: expense.amount.toString(),
       paidBy: expense.paidBy,
-      splitBetween: expense.splitBetween
+      splitBetween: expense.splitBetween,
     });
     setEditingExpenseId(expense.id);
   };
 
   const handleDeleteExpense = (expenseId: number) => {
-    setExpenses(expenses.filter(expense => expense.id !== expenseId));
+    setExpenses(expenses.filter((expense) => expense.id !== expenseId));
   };
 
   const handleCancelEdit = () => {
     setEditingExpenseId(null);
-    setNewExpense({ description: "", amount: "", paidBy: [], splitBetween: [] });
+    setNewExpense({
+      description: "",
+      amount: "",
+      paidBy: [],
+      splitBetween: [],
+    });
   };
 
   const handleCreateDecision = () => {
-    if (newDecision.title && 
-        newDecision.options.filter(opt => opt.trim()).length >= 2 &&
-        newDecision.selectedParticipants.length > 0) {
-      const validOptions = newDecision.options.filter(opt => opt.trim());
+    if (
+      newDecision.title &&
+      newDecision.options.filter((opt) => opt.trim()).length >= 2 &&
+      newDecision.selectedParticipants.length > 0
+    ) {
+      const validOptions = newDecision.options.filter((opt) => opt.trim());
       const initialVotes: Record<string, number> = {};
       const initialVotersPerOption: Record<string, string[]> = {};
-      validOptions.forEach(option => {
+      validOptions.forEach((option) => {
         initialVotes[option] = 0;
         initialVotersPerOption[option] = [];
       });
-      
+
       const decision: Decision = {
         id: decisions.length + 1,
         title: newDecision.title,
@@ -288,12 +341,27 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         votes: initialVotes,
         votersPerOption: initialVotersPerOption,
         status: "active",
-        startDate: newDecision.startDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        endDate: newDecision.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        createdBy: "You"
+        startDate:
+          newDecision.startDate ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        endDate:
+          newDecision.endDate ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        createdBy: "You",
       };
       setDecisions([...decisions, decision]);
-      setNewDecision({ title: "", description: "", options: ["", ""], startDate: "", endDate: "", selectedParticipants: [] });
+      setNewDecision({
+        title: "",
+        description: "",
+        options: ["", ""],
+        startDate: "",
+        endDate: "",
+        selectedParticipants: [],
+      });
       setShowCreateDecisionModal(false);
     }
   };
@@ -305,76 +373,96 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
       options: decision.options,
       startDate: decision.startDate,
       endDate: decision.endDate,
-      selectedParticipants: allParticipants.map(p => p.name) // Default to all participants for existing decisions
+      selectedParticipants: allParticipants.map((p) => p.name), // Default to all participants for existing decisions
     });
     setEditingDecisionId(decision.id);
     setShowCreateDecisionModal(true);
   };
 
   const handleUpdateDecision = () => {
-    if (editingDecisionId && 
-        newDecision.title && 
-        newDecision.options.filter(opt => opt.trim()).length >= 2 &&
-        newDecision.selectedParticipants.length > 0) {
-      const validOptions = newDecision.options.filter(opt => opt.trim());
-      
-      setDecisions(decisions.map(decision => 
-        decision.id === editingDecisionId 
-          ? {
-              ...decision,
-              title: newDecision.title,
-              description: newDecision.description,
-              options: validOptions,
-              startDate: newDecision.startDate,
-              endDate: newDecision.endDate
-            }
-          : decision
-      ));
-      setNewDecision({ title: "", description: "", options: ["", ""], startDate: "", endDate: "", selectedParticipants: [] });
+    if (
+      editingDecisionId &&
+      newDecision.title &&
+      newDecision.options.filter((opt) => opt.trim()).length >= 2 &&
+      newDecision.selectedParticipants.length > 0
+    ) {
+      const validOptions = newDecision.options.filter((opt) => opt.trim());
+
+      setDecisions(
+        decisions.map((decision) =>
+          decision.id === editingDecisionId
+            ? {
+                ...decision,
+                title: newDecision.title,
+                description: newDecision.description,
+                options: validOptions,
+                startDate: newDecision.startDate,
+                endDate: newDecision.endDate,
+              }
+            : decision
+        )
+      );
+      setNewDecision({
+        title: "",
+        description: "",
+        options: ["", ""],
+        startDate: "",
+        endDate: "",
+        selectedParticipants: [],
+      });
       setEditingDecisionId(null);
       setShowCreateDecisionModal(false);
     }
   };
 
   const handleDeleteDecision = (decisionId: number) => {
-    setDecisions(decisions.filter(decision => decision.id !== decisionId));
+    setDecisions(decisions.filter((decision) => decision.id !== decisionId));
   };
 
   const handleVote = (decisionId: number, option: string) => {
     const currentUser = "You";
-    
-    setDecisions(decisions.map(decision => {
-      if (decision.id === decisionId) {
-        const newVotersPerOption = { ...decision.votersPerOption };
-        const newVotes = { ...decision.votes };
-        
-        // Remove user's previous vote if any
-        Object.keys(newVotersPerOption).forEach(opt => {
-          const index = newVotersPerOption[opt].indexOf(currentUser);
-          if (index > -1) {
-            newVotersPerOption[opt].splice(index, 1);
-            newVotes[opt]--;
+
+    setDecisions(
+      decisions.map((decision) => {
+        if (decision.id === decisionId) {
+          const newVotersPerOption = { ...decision.votersPerOption };
+          const newVotes = { ...decision.votes };
+
+          // Remove user's previous vote if any
+          Object.keys(newVotersPerOption).forEach((opt) => {
+            const index = newVotersPerOption[opt].indexOf(currentUser);
+            if (index > -1) {
+              newVotersPerOption[opt].splice(index, 1);
+              newVotes[opt]--;
+            }
+          });
+
+          // Add new vote
+          if (!newVotersPerOption[option].includes(currentUser)) {
+            newVotersPerOption[option].push(currentUser);
+            newVotes[option]++;
           }
-        });
-        
-        // Add new vote
-        if (!newVotersPerOption[option].includes(currentUser)) {
-          newVotersPerOption[option].push(currentUser);
-          newVotes[option]++;
+
+          return {
+            ...decision,
+            votes: newVotes,
+            votersPerOption: newVotersPerOption,
+          };
         }
-        
-        return {
-          ...decision,
-          votes: newVotes,
-          votersPerOption: newVotersPerOption
-        };
-      }
-      return decision;
-    }));
+        return decision;
+      })
+    );
   };
 
   const resetCreateDecisionForm = () => {
-    setNewDecision({ title: "", description: "", options: ["", ""], startDate: "", endDate: "", selectedParticipants: [] });
+    setNewDecision({
+      title: "",
+      description: "",
+      options: ["", ""],
+      startDate: "",
+      endDate: "",
+      selectedParticipants: [],
+    });
     setEditingDecisionId(null);
   };
 
@@ -393,7 +481,13 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   return (
     <>
       <ModalWrapper open={isOpen} onOpenChange={onClose}>
-        <ModalContent className={isMobile ? "max-h-[95vh]" : "max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col"}>
+        <ModalContent
+          className={
+            isMobile
+              ? "max-h-[95vh]"
+              : "max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col"
+          }
+        >
           <ModalHeader className="flex-shrink-0 pb-4">
             <ModalTitle className="flex items-center space-x-2 text-lg md:text-xl">
               <span>Group Options - {trip.name}</span>
@@ -405,8 +499,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             <Button
               variant={activeTab === "expenses" ? "default" : "ghost"}
               className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${
-                activeTab === "expenses" 
-                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm" 
+                activeTab === "expenses"
+                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm"
                   : "text-black hover:text-black"
               }`}
               onClick={() => setActiveTab("expenses")}
@@ -418,8 +512,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             <Button
               variant={activeTab === "decisions" ? "default" : "ghost"}
               className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${
-                activeTab === "decisions" 
-                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm" 
+                activeTab === "decisions"
+                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm"
                   : "text-black hover:text-black"
               }`}
               onClick={() => setActiveTab("decisions")}
@@ -457,7 +551,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
           </div>
         </ModalContent>
       </ModalWrapper>
-      
+
       <CreateDecisionModal
         isOpen={showCreateDecisionModal}
         onClose={handleCloseCreateDecisionModal}

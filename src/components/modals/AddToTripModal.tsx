@@ -1,18 +1,23 @@
 import { useState } from "react";
 import { MapPin, Calendar, Plus, Check } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import type { Trip, AddToTripModalProps } from '@/types';
+import type { Trip, AddToTripModalProps } from "@/types";
 
-const AddToTripModal = ({ 
-  isOpen, 
-  onClose, 
-  existingTrips, 
-  onAddToExistingTrip, 
+const AddToTripModal = ({
+  isOpen,
+  onClose,
+  existingTrips,
+  onAddToExistingTrip,
   onCreateNewTrip,
-  postLocation 
+  postLocation,
 }: AddToTripModalProps) => {
   const { toast } = useToast();
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
@@ -22,7 +27,7 @@ const AddToTripModal = ({
       onAddToExistingTrip(selectedTripId);
       toast({
         title: "Added to Trip!",
-        description: `Location has been added to your selected trip.`
+        description: `Location has been added to your selected trip.`,
       });
       onClose();
       setSelectedTripId(null);
@@ -62,7 +67,7 @@ const AddToTripModal = ({
             </p>
           )}
         </DialogHeader>
-        
+
         <div className="space-y-4 px-1">
           {/* Create New Trip Option */}
           <Card className="border-2 border-dashed border-blue-300 hover:border-blue-400 cursor-pointer transition-colors">
@@ -77,8 +82,12 @@ const AddToTripModal = ({
                     <Plus size={20} className="text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-800">Create New Trip</h3>
-                    <p className="text-sm text-gray-600">Start planning a new adventure</p>
+                    <h3 className="font-medium text-gray-800">
+                      Create New Trip
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Start planning a new adventure
+                    </p>
                   </div>
                 </div>
               </Button>
@@ -88,15 +97,17 @@ const AddToTripModal = ({
           {/* Existing Trips */}
           {existingTrips.length > 0 && (
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-gray-700">Or add to existing trip:</h3>
+              <h3 className="text-sm font-medium text-gray-700">
+                Or add to existing trip:
+              </h3>
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {existingTrips.map((trip) => (
-                  <Card 
-                    key={trip.id} 
+                  <Card
+                    key={trip.id}
                     className={`cursor-pointer transition-all duration-200 ${
-                      selectedTripId === trip.id 
-                        ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300'
+                      selectedTripId === trip.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                     onClick={() => setSelectedTripId(trip.id)}
                   >
@@ -107,15 +118,21 @@ const AddToTripModal = ({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-sm text-gray-800 truncate">{trip.name}</h4>
-                            <span className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}>
+                            <h4 className="font-medium text-sm text-gray-800 truncate">
+                              {trip.name}
+                            </h4>
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}
+                            >
                               {trip.status}
                             </span>
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center space-x-1 text-xs text-gray-600">
                               <MapPin size={10} />
-                              <span className="truncate">{trip.destination}</span>
+                              <span className="truncate">
+                                {trip.destination}
+                              </span>
                             </div>
                             <div className="flex items-center space-x-1 text-xs text-gray-600">
                               <Calendar size={10} />
@@ -138,11 +155,7 @@ const AddToTripModal = ({
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
             {selectedTripId && (

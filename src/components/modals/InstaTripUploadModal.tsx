@@ -1,6 +1,11 @@
 import { useState, useRef } from "react";
 import { Camera, Upload, Image as ImageIcon, Send } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -9,10 +14,19 @@ import LocationSelector from "./LocationSelector";
 interface InstaTripUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddInstaTripImage: (imageSrc: string, text?: string, location?: string, tripId?: string) => void;
+  onAddInstaTripImage: (
+    imageSrc: string,
+    text?: string,
+    location?: string,
+    tripId?: string
+  ) => void;
 }
 
-const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTripUploadModalProps) => {
+const InstaTripUploadModal = ({
+  isOpen,
+  onClose,
+  onAddInstaTripImage,
+}: InstaTripUploadModalProps) => {
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [text, setText] = useState("");
@@ -23,7 +37,24 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const emojis = ["😀", "😍", "🎉", "❤️", "🔥", "✨", "🌟", "🚀", "🎈", "🌈", "☀️", "🌸", "🎊", "💫", "🎯", "🌺"];
+  const emojis = [
+    "😀",
+    "😍",
+    "🎉",
+    "❤️",
+    "🔥",
+    "✨",
+    "🌟",
+    "🚀",
+    "🎈",
+    "🌈",
+    "☀️",
+    "🌸",
+    "🎊",
+    "💫",
+    "🎯",
+    "🌺",
+  ];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,16 +64,16 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
       toast({
         title: "Error",
         description: "File size must be less than 5MB",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
         title: "Error",
         description: "Please upload an image file",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -56,10 +87,10 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
       });
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
@@ -69,20 +100,20 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
       toast({
         title: "Error",
         description: "Could not access camera",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext('2d');
+      const context = canvasRef.current.getContext("2d");
       if (context) {
         canvasRef.current.width = videoRef.current.videoWidth;
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
-        
-        const imageData = canvasRef.current.toDataURL('image/jpeg');
+
+        const imageData = canvasRef.current.toDataURL("image/jpeg");
         setSelectedImage(imageData);
         stopCamera();
       }
@@ -91,17 +122,20 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setIsUsingCamera(false);
   };
 
   const addEmoji = (emoji: string) => {
-    setText(prev => prev + emoji);
+    setText((prev) => prev + emoji);
   };
 
-  const handleLocationSelected = (selectedLocation: string, selectedTripId?: string) => {
+  const handleLocationSelected = (
+    selectedLocation: string,
+    selectedTripId?: string
+  ) => {
     setLocation(selectedLocation);
     setTripId(selectedTripId);
   };
@@ -111,7 +145,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
       toast({
         title: "Error",
         description: "Please select an image first",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -120,7 +154,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
       toast({
         title: "Error",
         description: "Please add a location for your photo",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -128,9 +162,11 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
     onAddInstaTripImage(selectedImage, text, location, tripId);
     toast({
       title: "Success",
-      description: tripId ? "Posted to InstanTrip and added to trip!" : "Posted to InstanTrip!"
+      description: tripId
+        ? "Posted to InstanTrip and added to trip!"
+        : "Posted to InstanTrip!",
     });
-    
+
     // Reset form
     setSelectedImage("");
     setText("");
@@ -156,7 +192,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
             Create InstanTrip Post
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 px-1">
           {!selectedImage && !isUsingCamera && (
             <div className="space-y-3">
@@ -168,16 +204,16 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
                 <Camera size={20} />
                 Take Photo
               </Button>
-              
+
               <Button
-                onClick={() => document.getElementById('file-upload')?.click()}
+                onClick={() => document.getElementById("file-upload")?.click()}
                 variant="outline"
                 className="w-full h-12 flex items-center justify-center gap-3 border-2 border-green-200 hover:bg-green-50 text-green-700"
               >
                 <ImageIcon size={20} />
                 Choose from Gallery
               </Button>
-              
+
               <input
                 id="file-upload"
                 type="file"
@@ -215,24 +251,26 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
                 alt="Selected"
                 className="w-full h-64 object-cover rounded-lg"
               />
-              
-              <LocationSelector
-                onLocationSelected={handleLocationSelected}
-              />
+
+              <LocationSelector onLocationSelected={handleLocationSelected} />
 
               {location && (
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Add a caption:</label>
+                    <label className="text-sm font-medium text-gray-700">
+                      Add a caption:
+                    </label>
                     <Textarea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       placeholder="Share your moment..."
                       className="min-h-[80px]"
                     />
-                    
+
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">Add emojis:</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Add emojis:
+                      </label>
                       <div className="grid grid-cols-8 gap-1">
                         {emojis.map((emoji, index) => (
                           <Button
@@ -248,14 +286,17 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button onClick={handlePost} className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500">
+                    <Button
+                      onClick={handlePost}
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500"
+                    >
                       <Send size={16} className="mr-2" />
                       Post to InstanTrip
                     </Button>
-                    <Button 
-                      onClick={() => setSelectedImage("")} 
+                    <Button
+                      onClick={() => setSelectedImage("")}
                       variant="outline"
                       className="sm:w-auto"
                     >
@@ -267,7 +308,7 @@ const InstaTripUploadModal = ({ isOpen, onClose, onAddInstaTripImage }: InstaTri
             </div>
           )}
         </div>
-        
+
         <canvas ref={canvasRef} className="hidden" />
       </DialogContent>
     </Dialog>

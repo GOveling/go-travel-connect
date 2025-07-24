@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MapPin, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,10 @@ interface LocationSelectorProps {
   trips?: Trip[];
 }
 
-const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorProps) => {
+const LocationSelector = ({
+  onLocationSelected,
+  trips = [],
+}: LocationSelectorProps) => {
   const [location, setLocation] = useState("");
   const [selectedTripId, setSelectedTripId] = useState<string | undefined>();
   const [showTripSelection, setShowTripSelection] = useState(false);
@@ -32,9 +34,13 @@ const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorPr
   };
 
   const defaultTrips = [
-    { id: "1", name: "European Adventure", destination: "Paris → Rome → Barcelona" },
+    {
+      id: "1",
+      name: "European Adventure",
+      destination: "Paris → Rome → Barcelona",
+    },
     { id: "2", name: "Tokyo Discovery", destination: "Tokyo, Japan" },
-    { id: "3", name: "Bali Retreat", destination: "Bali, Indonesia" }
+    { id: "3", name: "Bali Retreat", destination: "Bali, Indonesia" },
   ];
 
   const availableTrips = trips.length > 0 ? trips : defaultTrips;
@@ -57,7 +63,9 @@ const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorPr
       {location.trim() && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Add to trip (optional):</span>
+            <span className="text-sm text-gray-600">
+              Add to trip (optional):
+            </span>
             <Button
               variant="ghost"
               size="sm"
@@ -73,7 +81,9 @@ const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorPr
             <Card className="border-2 border-blue-100">
               <CardContent className="p-3">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">Select a trip:</p>
+                  <p className="text-sm font-medium text-gray-700">
+                    Select a trip:
+                  </p>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {availableTrips.map((trip) => (
                       <div
@@ -83,12 +93,18 @@ const LocationSelector = ({ onLocationSelected, trips = [] }: LocationSelectorPr
                             ? "border-blue-500 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
                         }`}
-                        onClick={() => setSelectedTripId(selectedTripId === trip.id ? undefined : trip.id)}
+                        onClick={() =>
+                          setSelectedTripId(
+                            selectedTripId === trip.id ? undefined : trip.id
+                          )
+                        }
                       >
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-sm font-medium">{trip.name}</p>
-                            <p className="text-xs text-gray-500">{trip.destination}</p>
+                            <p className="text-xs text-gray-500">
+                              {trip.destination}
+                            </p>
                           </div>
                           {selectedTripId === trip.id && (
                             <Badge variant="default" className="bg-blue-600">

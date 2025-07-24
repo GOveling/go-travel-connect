@@ -1,6 +1,25 @@
 import { useState } from "react";
-import { Star, MapPin, Clock, Globe, Phone, Plus, Edit3, X, ChevronDown, ChevronUp, Bot, ChevronLeft, ChevronRight } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Star,
+  MapPin,
+  Clock,
+  Globe,
+  Phone,
+  Plus,
+  Edit3,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Bot,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { usePlaceReviews } from "@/hooks/usePlaceReviews";
 import { useAuth } from "@/hooks/useAuth";
-import useEmblaCarousel from 'embla-carousel-react';
+import useEmblaCarousel from "embla-carousel-react";
 
 interface PlaceDetailModalProps {
   place: {
@@ -39,7 +58,14 @@ interface PlaceDetailModalProps {
   sourceTrip?: any;
 }
 
-const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, onAddToTrip, sourceTrip }: PlaceDetailModalProps) => {
+const PlaceDetailModal = ({
+  place,
+  isOpen,
+  onClose,
+  isFromSavedPlaces = false,
+  onAddToTrip,
+  sourceTrip,
+}: PlaceDetailModalProps) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showReviews, setShowReviews] = useState(false);
   const [reviewText, setReviewText] = useState("");
@@ -50,27 +76,31 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   const [emblaRef, emblaApi] = useEmblaCarousel();
 
   // Use the official Google place_id
-  const placeId = place?.id || place?.name?.toLowerCase().replace(/\s+/g, '-') || '';
-  const placeName = place?.name || '';
+  const placeId =
+    place?.id || place?.name?.toLowerCase().replace(/\s+/g, "-") || "";
+  const placeName = place?.name || "";
 
-  const { 
-    reviews, 
-    loading, 
-    submitting, 
+  const {
+    reviews,
+    loading,
+    submitting,
     currentPage,
     totalReviews,
     totalPages,
     submitReview,
     nextPage,
-    prevPage
+    prevPage,
   } = usePlaceReviews(placeId, placeName, place?.lat, place?.lng);
 
   if (!place) return null;
 
   // Get available photos for carousel
-  const availablePhotos = place.photos && place.photos.length > 0 
-    ? place.photos 
-    : place.image ? [place.image] : [];
+  const availablePhotos =
+    place.photos && place.photos.length > 0
+      ? place.photos
+      : place.image
+        ? [place.image]
+        : [];
 
   const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
   const scrollNext = () => emblaApi && emblaApi.scrollNext();
@@ -78,21 +108,24 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   // AI-generated recommended time based on place category and type
   const getAIRecommendedTime = () => {
     const category = place.category.toLowerCase();
-    if (category.includes('tourist') || category.includes('attraction')) {
+    if (category.includes("tourist") || category.includes("attraction")) {
       return "2-3 hours";
-    } else if (category.includes('park')) {
+    } else if (category.includes("park")) {
       return "1-2 hours";
-    } else if (category.includes('nature')) {
+    } else if (category.includes("nature")) {
       return "3-4 hours";
-    } else if (category.includes('museum')) {
+    } else if (category.includes("museum")) {
       return "5-6 hours";
-    } else if (category.includes('gallery')) {
+    } else if (category.includes("gallery")) {
       return "4-5 hours";
-    } else if (category.includes('beach') || category.includes('lake')) {
+    } else if (category.includes("beach") || category.includes("lake")) {
       return "4-5 hours";
-    } else if (category.includes('cafe') || category.includes('restaurant')) {
+    } else if (category.includes("cafe") || category.includes("restaurant")) {
       return "45-90 minutes";
-    } else if (category.includes('hotel') || category.includes('accommodation')) {
+    } else if (
+      category.includes("hotel") ||
+      category.includes("accommodation")
+    ) {
       return "Check-in experience";
     } else {
       return "1-2 hours";
@@ -124,18 +157,20 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
   // Calculate average rating - avoid artificial fallbacks
   const hasReviews = reviews.length > 0;
   const hasOriginalRating = place.rating && place.rating > 0;
-  
-  const displayRating = hasReviews 
-    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-    : hasOriginalRating 
+
+  const displayRating = hasReviews
+    ? (
+        reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+      ).toFixed(1)
+    : hasOriginalRating
       ? place.rating.toFixed(1)
       : null;
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -143,9 +178,11 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-gray-800">{place.name}</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-800">
+            {place.name}
+          </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {/* Source Trip Banner */}
           {sourceTrip && (
@@ -167,18 +204,21 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                   {availablePhotos.map((photo, index) => (
                     <div key={index} className="flex-shrink-0 w-full relative">
                       <div className="aspect-video bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg overflow-hidden">
-                        {typeof photo === 'string' && (photo.startsWith('http') || photo.startsWith('https')) ? (
-                          <img 
-                            src={photo} 
+                        {typeof photo === "string" &&
+                        (photo.startsWith("http") ||
+                          photo.startsWith("https")) ? (
+                          <img
+                            src={photo}
                             alt={`${place.name} - ${index + 1}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               // Fallback to emoji if image fails to load
                               const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
+                              target.style.display = "none";
                               const parent = target.parentElement;
                               if (parent) {
-                                parent.innerHTML = '<div class="flex items-center justify-center h-full"><span class="text-6xl">📍</span></div>';
+                                parent.innerHTML =
+                                  '<div class="flex items-center justify-center h-full"><span class="text-6xl">📍</span></div>';
                               }
                             }}
                           />
@@ -192,7 +232,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                   ))}
                 </div>
               </div>
-              
+
               {/* Carousel Controls */}
               {availablePhotos.length > 1 && (
                 <>
@@ -212,7 +252,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                   >
                     <ChevronRight size={16} />
                   </Button>
-                  
+
                   {/* Photo counter */}
                   <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
                     {availablePhotos.length} photos
@@ -230,16 +270,22 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               {displayRating ? (
-                <div 
+                <div
                   className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
                   onClick={handleRatingClick}
                 >
                   <Star size={16} className="text-yellow-500 fill-yellow-500" />
                   <span className="font-medium">{displayRating}</span>
                   <span className="text-sm text-gray-500">
-                    ({hasReviews ? `${reviews.length} reviews` : 'Google rating'})
+                    (
+                    {hasReviews ? `${reviews.length} reviews` : "Google rating"}
+                    )
                   </span>
-                  {showReviews ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+                  {showReviews ? (
+                    <ChevronUp size={16} className="text-gray-400" />
+                  ) : (
+                    <ChevronDown size={16} className="text-gray-400" />
+                  )}
                 </div>
               ) : (
                 <div className="text-sm text-gray-500 p-2">
@@ -271,42 +317,63 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
             <Card className="border-gray-200">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-semibold text-gray-800">Global Reviews</h4>
-                  <span className="text-sm text-gray-500">{totalReviews} reviews</span>
+                  <h4 className="font-semibold text-gray-800">
+                    Global Reviews
+                  </h4>
+                  <span className="text-sm text-gray-500">
+                    {totalReviews} reviews
+                  </span>
                 </div>
-                
+
                 {loading ? (
                   <div className="text-center py-4">
-                    <span className="text-sm text-gray-500">Loading reviews...</span>
+                    <span className="text-sm text-gray-500">
+                      Loading reviews...
+                    </span>
                   </div>
                 ) : reviews.length > 0 ? (
                   <>
                     <div className="space-y-4">
                       {reviews.map((review) => (
-                        <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0">
+                        <div
+                          key={review.id}
+                          className="border-b border-gray-100 last:border-b-0 pb-3 last:pb-0"
+                        >
                           <div className="flex items-start space-x-3">
-                            <span className="text-2xl">{review.user_avatar}</span>
+                            <span className="text-2xl">
+                              {review.user_avatar}
+                            </span>
                             <div className="flex-1">
                               <div className="flex items-center justify-between mb-1">
-                                <span className="font-medium text-sm">{review.user_name}</span>
-                                <span className="text-xs text-gray-500">{formatDate(review.created_at)}</span>
+                                <span className="font-medium text-sm">
+                                  {review.user_name}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {formatDate(review.created_at)}
+                                </span>
                               </div>
                               <div className="flex items-center space-x-1 mb-2">
                                 {[...Array(5)].map((_, i) => (
-                                  <Star 
+                                  <Star
                                     key={i}
                                     size={12}
-                                    className={i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                                    className={
+                                      i < review.rating
+                                        ? "text-yellow-500 fill-yellow-500"
+                                        : "text-gray-300"
+                                    }
                                   />
                                 ))}
                               </div>
-                              <p className="text-sm text-gray-700">{review.comment}</p>
+                              <p className="text-sm text-gray-700">
+                                {review.comment}
+                              </p>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    
+
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
@@ -320,11 +387,11 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                           <ChevronLeft size={14} />
                           Previous
                         </Button>
-                        
+
                         <span className="text-sm text-gray-500">
                           Page {currentPage} of {totalPages}
                         </span>
-                        
+
                         <Button
                           variant="outline"
                           size="sm"
@@ -340,7 +407,9 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                   </>
                 ) : (
                   <div className="text-center py-4">
-                    <span className="text-sm text-gray-500">No reviews yet. Be the first to review!</span>
+                    <span className="text-sm text-gray-500">
+                      No reviews yet. Be the first to review!
+                    </span>
                   </div>
                 )}
               </CardContent>
@@ -351,7 +420,8 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
           <div>
             <h4 className="font-semibold text-gray-800 mb-2">About</h4>
             <p className="text-gray-600 text-sm leading-relaxed">
-              {place.description || "A wonderful place to visit with amazing experiences and beautiful scenery. Perfect for travelers looking to explore and create memorable moments."}
+              {place.description ||
+                "A wonderful place to visit with amazing experiences and beautiful scenery. Perfect for travelers looking to explore and create memorable moments."}
             </p>
           </div>
 
@@ -361,7 +431,9 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
               <Clock size={16} className="text-gray-500" />
               <div>
                 <span className="font-medium text-sm">Hours</span>
-                <p className="text-gray-600 text-sm">{place.hours || "9:00 AM - 6:00 PM"}</p>
+                <p className="text-gray-600 text-sm">
+                  {place.hours || "9:00 AM - 6:00 PM"}
+                </p>
               </div>
             </div>
 
@@ -372,8 +444,12 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                   <div className="flex-1">
                     <span className="font-medium text-sm">Website</span>
                     <div className="mt-2">
-                      <a 
-                        href={place.website.startsWith('http') ? place.website : `https://${place.website}`}
+                      <a
+                        href={
+                          place.website.startsWith("http")
+                            ? place.website
+                            : `https://${place.website}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 text-sm hover:underline cursor-pointer block mb-2"
@@ -383,14 +459,18 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                       {/* Website Preview */}
                       <div className="border rounded-lg overflow-hidden bg-gray-50">
                         <iframe
-                          src={place.website.startsWith('http') ? place.website : `https://${place.website}`}
+                          src={
+                            place.website.startsWith("http")
+                              ? place.website
+                              : `https://${place.website}`
+                          }
                           className="w-full h-48 border-0"
                           title={`${place.name} website preview`}
                           loading="lazy"
                           sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                           onError={(e) => {
                             // Hide iframe if it fails to load
-                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.style.display = "none";
                           }}
                         />
                       </div>
@@ -404,7 +484,7 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
           {/* Action Buttons */}
           <div className="flex space-x-3 pt-2">
             {!isFromSavedPlaces && (
-              <Button 
+              <Button
                 onClick={handleAddToTrip}
                 className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
               >
@@ -412,10 +492,10 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                 Add to Trip
               </Button>
             )}
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setShowReviewForm(!showReviewForm)}
-              className={`${isFromSavedPlaces ? 'w-full' : 'flex-1'} border-purple-200 text-purple-700 hover:bg-purple-50`}
+              className={`${isFromSavedPlaces ? "w-full" : "flex-1"} border-purple-200 text-purple-700 hover:bg-purple-50`}
             >
               <Edit3 size={16} className="mr-2" />
               Write Review
@@ -427,10 +507,12 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
             <Card className="border-purple-200">
               <CardContent className="p-4 space-y-3">
                 <h4 className="font-semibold text-gray-800">Write a Review</h4>
-                
+
                 {!user && (
                   <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-                    <p className="text-sm text-yellow-800">Please sign in to write a review.</p>
+                    <p className="text-sm text-yellow-800">
+                      Please sign in to write a review.
+                    </p>
                   </div>
                 )}
 
@@ -444,9 +526,13 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
                           onClick={() => setUserRating(star)}
                           className="focus:outline-none"
                         >
-                          <Star 
+                          <Star
                             size={20}
-                            className={star <= userRating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}
+                            className={
+                              star <= userRating
+                                ? "text-yellow-500 fill-yellow-500"
+                                : "text-gray-300"
+                            }
                           />
                         </button>
                       ))}
@@ -472,15 +558,17 @@ const PlaceDetailModal = ({ place, isOpen, onClose, isFromSavedPlaces = false, o
 
                     {/* Submit Buttons */}
                     <div className="flex space-x-2">
-                      <Button 
+                      <Button
                         onClick={handleSubmitReview}
                         size="sm"
                         className="bg-gradient-to-r from-purple-600 to-orange-500"
-                        disabled={!reviewText.trim() || userRating === 0 || submitting}
+                        disabled={
+                          !reviewText.trim() || userRating === 0 || submitting
+                        }
                       >
                         {submitting ? "Submitting..." : "Submit Review"}
                       </Button>
-                      <Button 
+                      <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setShowReviewForm(false)}

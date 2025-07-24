@@ -1,4 +1,3 @@
-
 import { ArrowRight, Check } from "lucide-react";
 import PaymentRecordComponent from "./PaymentRecord";
 import PaymentSummary from "./PaymentSummary";
@@ -28,20 +27,21 @@ interface SettlementCardProps {
   deletePayment?: (paymentKey: string, timestamp: number) => void;
 }
 
-const SettlementCard = ({ 
-  settlement, 
-  index, 
-  participantName, 
-  getTotalPaid, 
-  paymentInputs, 
-  setPaymentInputs, 
+const SettlementCard = ({
+  settlement,
+  index,
+  participantName,
+  getTotalPaid,
+  paymentInputs,
+  setPaymentInputs,
   addPayment,
-  deletePayment
+  deletePayment,
 }: SettlementCardProps) => {
   const paymentKey = `${settlement.from}-${settlement.to}`;
   const totalPaid = getTotalPaid(paymentKey);
   const remainingAmount = settlement.amount - totalPaid;
-  const canEditPayment = settlement.from === participantName || settlement.from === "You";
+  const canEditPayment =
+    settlement.from === participantName || settlement.from === "You";
 
   return (
     <div key={index} className="border rounded-lg p-3 bg-gray-50">
@@ -56,15 +56,15 @@ const SettlementCard = ({
         </span>
       </div>
 
-      <PaymentRecordComponent 
-        payments={settlement.payments} 
+      <PaymentRecordComponent
+        payments={settlement.payments}
         paymentKey={paymentKey}
         onDeletePayment={deletePayment}
         canDelete={canEditPayment}
       />
-      
+
       <PaymentSummary totalPaid={totalPaid} remainingAmount={remainingAmount} />
-      
+
       {canEditPayment && (
         <PaymentInput
           paymentKey={paymentKey}
@@ -74,7 +74,7 @@ const SettlementCard = ({
           onAddPayment={addPayment}
         />
       )}
-      
+
       {remainingAmount <= 0.01 && (
         <div className="mt-2 text-xs text-green-600 font-medium flex items-center">
           <Check size={12} className="mr-1" />

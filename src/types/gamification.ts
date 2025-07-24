@@ -1,4 +1,3 @@
-
 export interface TravelerLevel {
   level: number;
   title: string;
@@ -21,20 +20,20 @@ export interface AchievementBadge {
   total: number;
   points: number;
   earnedDate?: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: "common" | "rare" | "epic" | "legendary";
   totalUsersEarned?: number;
   criteria: string;
 }
 
-export type AchievementCategory = 
-  | 'global-exploration'
-  | 'local-discoveries'
-  | 'food-nightlife'
-  | 'family-experience'
-  | 'contributions'
-  | 'special'
-  | 'publications'
-  | 'social';
+export type AchievementCategory =
+  | "global-exploration"
+  | "local-discoveries"
+  | "food-nightlife"
+  | "family-experience"
+  | "contributions"
+  | "special"
+  | "publications"
+  | "social";
 
 export interface GamificationProgress {
   level: TravelerLevel;

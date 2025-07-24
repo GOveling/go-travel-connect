@@ -1,12 +1,12 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 // Fix for default markers in React Leaflet
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 let DefaultIcon = L.divIcon({
   html: `<div style="
@@ -20,7 +20,7 @@ let DefaultIcon = L.divIcon({
   "></div>`,
   iconSize: [20, 20],
   iconAnchor: [10, 20],
-  className: 'custom-div-icon'
+  className: "custom-div-icon",
 });
 
 interface Place {
@@ -60,7 +60,7 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
           <MapContainer
             center={position}
             zoom={16}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: "100%", width: "100%" }}
             zoomControl={true}
             ref={mapRef}
           >
@@ -73,7 +73,9 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
                 <div className="text-center">
                   <h3 className="font-semibold text-sm">{place.name}</h3>
                   {place.address && (
-                    <p className="text-xs text-gray-600 mt-1">{place.address}</p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {place.address}
+                    </p>
                   )}
                 </div>
               </Popup>

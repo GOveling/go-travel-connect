@@ -1,6 +1,21 @@
 import { useState } from "react";
-import { MapPin, Calendar, Plus, Check, Plane, Search, X, Users, Clock } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  MapPin,
+  Calendar,
+  Plus,
+  Check,
+  Plane,
+  Search,
+  X,
+  Users,
+  Clock,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,30 +39,31 @@ interface ExploreAddToTripModalProps {
   } | null;
 }
 
-const ExploreAddToTripModal = ({ 
-  isOpen, 
-  onClose, 
-  selectedPlace
+const ExploreAddToTripModal = ({
+  isOpen,
+  onClose,
+  selectedPlace,
 }: ExploreAddToTripModalProps) => {
-  const { 
-    trips, 
-    loading, 
-    isAddingToTrip, 
-    searchQuery, 
-    setSearchQuery, 
-    categorizeTrips, 
+  const {
+    trips,
+    loading,
+    isAddingToTrip,
+    searchQuery,
+    setSearchQuery,
+    categorizeTrips,
     addPlaceToTrip,
-    getEstimatedTime
+    getEstimatedTime,
   } = useAddToTrip();
 
   const { createTrip } = useSupabaseTrips();
-  
+
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [showNewTripModal, setShowNewTripModal] = useState(false);
 
   if (!selectedPlace) return null;
 
-  const { matching: matchingTrips, other: otherTrips } = categorizeTrips(selectedPlace);
+  const { matching: matchingTrips, other: otherTrips } =
+    categorizeTrips(selectedPlace);
 
   const handleAddToExistingTrip = async () => {
     if (selectedTripId && selectedPlace) {
@@ -68,8 +84,8 @@ const ExploreAddToTripModal = ({
         {
           name: selectedPlace.location,
           lat: selectedPlace.lat || 0,
-          lng: selectedPlace.lng || 0
-        }
+          lng: selectedPlace.lng || 0,
+        },
       ],
       // Add the selected place directly to the trip data
       savedPlace: {
@@ -79,11 +95,11 @@ const ExploreAddToTripModal = ({
         image: selectedPlace.image || "📍",
         description: selectedPlace.description || "",
         estimated_time: getEstimatedTime(selectedPlace.category),
-        priority: 'medium',
+        priority: "medium",
         destination_name: selectedPlace.location,
         lat: selectedPlace.lat || null,
-        lng: selectedPlace.lng || null
-      }
+        lng: selectedPlace.lng || null,
+      },
     };
 
     const createdTrip = await createTrip(newTripWithPlace);
@@ -96,7 +112,7 @@ const ExploreAddToTripModal = ({
 
   const resetForm = () => {
     setSelectedTripId(null);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const getStatusColor = (status: string) => {
@@ -112,51 +128,63 @@ const ExploreAddToTripModal = ({
     }
   };
 
-  const TripCard = ({ trip, isMatching = false }: { trip: any; isMatching?: boolean }) => (
-    <Card 
+  const TripCard = ({
+    trip,
+    isMatching = false,
+  }: {
+    trip: any;
+    isMatching?: boolean;
+  }) => (
+    <Card
       className={`cursor-pointer transition-all duration-300 hover:shadow-md ${
-        isMatching 
-          ? 'border-emerald-200 hover:border-emerald-300' 
-          : 'border-slate-200 hover:border-slate-300'
+        isMatching
+          ? "border-emerald-200 hover:border-emerald-300"
+          : "border-slate-200 hover:border-slate-300"
       } ${
-        selectedTripId === trip.id 
-          ? isMatching 
-            ? 'border-emerald-500 bg-emerald-50 shadow-sm' 
-            : 'border-blue-500 bg-blue-50 shadow-sm'
-          : ''
+        selectedTripId === trip.id
+          ? isMatching
+            ? "border-emerald-500 bg-emerald-50 shadow-sm"
+            : "border-blue-500 bg-blue-50 shadow-sm"
+          : ""
       }`}
       onClick={() => setSelectedTripId(trip.id)}
     >
       <CardContent className="p-4">
         <div className="flex items-center space-x-3">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
-            isMatching 
-              ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
-              : 'bg-gradient-to-br from-blue-500 to-purple-500'
-          }`}>
+          <div
+            className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ${
+              isMatching
+                ? "bg-gradient-to-br from-emerald-500 to-teal-500"
+                : "bg-gradient-to-br from-blue-500 to-purple-500"
+            }`}
+          >
             <span className="text-lg">{trip.image || "✈️"}</span>
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-slate-800 truncate">{trip.name}</h4>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium capitalize border ${getStatusColor(trip.status)}`}>
+              <h4 className="font-semibold text-slate-800 truncate">
+                {trip.name}
+              </h4>
+              <span
+                className={`text-xs px-2 py-1 rounded-full font-medium capitalize border ${getStatusColor(trip.status)}`}
+              >
                 {trip.status}
               </span>
             </div>
-            
+
             <div className="space-y-1">
               <div className="flex items-center space-x-2 text-xs text-slate-600">
                 <MapPin size={12} />
                 <span className="truncate">{trip.destination}</span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 text-xs text-slate-600">
                   <Calendar size={12} />
                   <span>{trip.dates}</span>
                 </div>
-                
+
                 <div className="flex items-center space-x-1 text-xs text-slate-500">
                   <Users size={10} />
                   <span>{trip.travelers}</span>
@@ -164,11 +192,13 @@ const ExploreAddToTripModal = ({
               </div>
             </div>
           </div>
-          
+
           {selectedTripId === trip.id && (
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              isMatching ? 'bg-emerald-500' : 'bg-blue-500'
-            }`}>
+            <div
+              className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                isMatching ? "bg-emerald-500" : "bg-blue-500"
+              }`}
+            >
               <Check size={14} className="text-white" />
             </div>
           )}
@@ -209,14 +239,19 @@ const ExploreAddToTripModal = ({
                 <MapPin size={14} />
                 <span className="font-medium">{selectedPlace.name}</span>
               </p>
-              <p className="text-xs text-slate-500">in {selectedPlace.location}</p>
+              <p className="text-xs text-slate-500">
+                in {selectedPlace.location}
+              </p>
             </div>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-y-auto space-y-4">
             {/* Search Bar */}
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+              />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -227,7 +262,7 @@ const ExploreAddToTripModal = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSearchQuery('')}
+                  onClick={() => setSearchQuery("")}
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                 >
                   <X size={12} />
@@ -244,8 +279,12 @@ const ExploreAddToTripModal = ({
                   <Plane size={24} className="text-slate-400" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-slate-800 mb-1">No trips yet</h3>
-                  <p className="text-sm text-slate-600">Create your first trip to add places</p>
+                  <h3 className="font-medium text-slate-800 mb-1">
+                    No trips yet
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    Create your first trip to add places
+                  </p>
                 </div>
               </div>
             ) : (
@@ -272,7 +311,9 @@ const ExploreAddToTripModal = ({
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                      <h3 className="text-sm font-semibold text-slate-700">Other trips</h3>
+                      <h3 className="text-sm font-semibold text-slate-700">
+                        Other trips
+                      </h3>
                     </div>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                       {otherTrips.map((trip) => (
@@ -297,8 +338,12 @@ const ExploreAddToTripModal = ({
                       <Plus size={20} className="text-blue-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-slate-800">Create New Trip</h3>
-                      <p className="text-sm text-slate-600">Start planning your adventure</p>
+                      <h3 className="font-semibold text-slate-800">
+                        Create New Trip
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        Start planning your adventure
+                      </p>
                     </div>
                   </div>
                 </Button>
@@ -318,7 +363,7 @@ const ExploreAddToTripModal = ({
             >
               Cancel
             </Button>
-            
+
             {selectedTripId && (
               <Button
                 onClick={handleAddToExistingTrip}

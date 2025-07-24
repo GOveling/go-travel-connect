@@ -1,13 +1,16 @@
-
 import { MapPin, Camera, MessageSquare, UserPlus, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState } from "react";
 import ViewProfileModal from "@/components/modals/ViewProfileModal";
-import type { Traveler, Publication, TravelerCardProps } from '@/types';
+import type { Traveler, Publication, TravelerCardProps } from "@/types";
 
-const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) => {
+const TravelerCard = ({
+  traveler,
+  isFollowing,
+  onFollow,
+}: TravelerCardProps) => {
   const [isViewProfileModalOpen, setIsViewProfileModalOpen] = useState(false);
 
   // Enhanced traveler data with new features
@@ -19,15 +22,15 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
         images: ["/lovable-uploads/2e7d8d8c-8611-4e84-84a8-467fc6bcbdc7.png"],
         text: "Amazing sunset at the beach! Perfect end to a wonderful day exploring the coast.",
         location: "Santorini, Greece",
-        createdAt: "2 days ago"
+        createdAt: "2 days ago",
       },
       {
         id: "2",
         images: ["/lovable-uploads/3e9a8a6e-d543-437e-a44d-2f16fac6303f.png"],
         text: "Street food tour in Bangkok was incredible! So many flavors to discover.",
         location: "Bangkok, Thailand",
-        createdAt: "1 week ago"
-      }
+        createdAt: "1 week ago",
+      },
     ],
     achievements: traveler.achievements || [
       {
@@ -38,7 +41,7 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
         progress: 5,
         total: 5,
         points: 100,
-        earnedDate: "Dec 15, 2024"
+        earnedDate: "Dec 15, 2024",
       },
       {
         id: "2",
@@ -48,7 +51,7 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
         progress: 12,
         total: 10,
         points: 150,
-        earnedDate: "Nov 20, 2024"
+        earnedDate: "Nov 20, 2024",
       },
       {
         id: "3",
@@ -57,15 +60,15 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
         earned: false,
         progress: 8,
         total: 10,
-        points: 500
-      }
+        points: 500,
+      },
     ],
     travelLevel: traveler.travelLevel || {
       level: 5,
       title: "Explorer",
       currentXP: 1250,
-      nextLevelXP: 2000
-    }
+      nextLevelXP: 2000,
+    },
   };
 
   const handleAddToTrip = (publication: Publication) => {
@@ -96,9 +99,10 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
               <Button
                 size="sm"
                 variant={isFollowing ? "secondary" : "outline"}
-                className={isFollowing 
-                  ? "bg-white text-black hover:bg-gray-100 hover:text-black" 
-                  : "border-white text-black bg-white hover:bg-gray-100 hover:text-black"
+                className={
+                  isFollowing
+                    ? "bg-white text-black hover:bg-gray-100 hover:text-black"
+                    : "border-white text-black bg-white hover:bg-gray-100 hover:text-black"
                 }
                 onClick={() => onFollow(traveler.id)}
               >
@@ -134,11 +138,16 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
             <div>
               <div className="flex items-center space-x-2 mb-2">
                 <Camera size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Recent Photos</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Recent Photos
+                </span>
               </div>
               <div className="flex space-x-2">
                 {traveler.recentPhotos.map((photo, index) => (
-                  <div key={index} className="w-12 h-12 bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg flex items-center justify-center">
+                  <div
+                    key={index}
+                    className="w-12 h-12 bg-gradient-to-br from-purple-100 to-orange-100 rounded-lg flex items-center justify-center"
+                  >
                     <span className="text-lg">{photo}</span>
                   </div>
                 ))}
@@ -149,7 +158,9 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
             <div>
               <div className="flex items-center space-x-2 mb-2">
                 <MapPin size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Past Adventures</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Past Adventures
+                </span>
               </div>
               <div className="space-y-2">
                 {traveler.pastTrips.slice(0, 2).map((trip, index) => (
@@ -157,11 +168,18 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
                     <div className="flex justify-between items-start">
                       <div>
                         <h5 className="font-medium text-sm">{trip.name}</h5>
-                        <p className="text-xs text-gray-600">{trip.destinations} • {trip.year}</p>
+                        <p className="text-xs text-gray-600">
+                          {trip.destinations} • {trip.year}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                        <span className="text-xs font-medium">{trip.rating}</span>
+                        <Star
+                          size={12}
+                          className="text-yellow-500 fill-yellow-500"
+                        />
+                        <span className="text-xs font-medium">
+                          {trip.rating}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -173,7 +191,9 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
             <div>
               <div className="flex items-center space-x-2 mb-2">
                 <MessageSquare size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Recent Reviews</span>
+                <span className="text-sm font-medium text-gray-700">
+                  Recent Reviews
+                </span>
               </div>
               <div className="space-y-2">
                 {traveler.reviews.slice(0, 1).map((review, index) => (
@@ -181,8 +201,13 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
                     <div className="flex justify-between items-start mb-1">
                       <h5 className="font-medium text-sm">{review.place}</h5>
                       <div className="flex items-center space-x-1">
-                        <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                        <span className="text-xs font-medium">{review.rating}</span>
+                        <Star
+                          size={12}
+                          className="text-yellow-500 fill-yellow-500"
+                        />
+                        <span className="text-xs font-medium">
+                          {review.rating}
+                        </span>
                       </div>
                     </div>
                     <p className="text-xs text-gray-600">"{review.text}"</p>
@@ -193,13 +218,17 @@ const TravelerCard = ({ traveler, isFollowing, onFollow }: TravelerCardProps) =>
 
             {/* Actions */}
             <div className="flex space-x-2">
-              <Button size="sm" variant="outline" className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900">
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
+              >
                 <MessageSquare size={16} className="mr-1" />
                 Message
               </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
+              <Button
+                size="sm"
+                variant="outline"
                 className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
                 onClick={() => setIsViewProfileModalOpen(true)}
               >

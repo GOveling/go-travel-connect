@@ -1,7 +1,11 @@
-
 import { useState, useRef } from "react";
 import { Camera, Upload, Image as ImageIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,7 +15,11 @@ interface ImageUploadModalProps {
   onImageAdded: (imageSrc: string) => void;
 }
 
-const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalProps) => {
+const ImageUploadModal = ({
+  isOpen,
+  onClose,
+  onImageAdded,
+}: ImageUploadModalProps) => {
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [isUsingCamera, setIsUsingCamera] = useState(false);
@@ -27,16 +35,16 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
       toast({
         title: "Error",
         description: "File size must be less than 5MB",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
         title: "Error",
         description: "Please upload an image file",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -50,10 +58,10 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
       });
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
@@ -63,20 +71,20 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
       toast({
         title: "Error",
         description: "Could not access camera",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext('2d');
+      const context = canvasRef.current.getContext("2d");
       if (context) {
         canvasRef.current.width = videoRef.current.videoWidth;
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
-        
-        const imageData = canvasRef.current.toDataURL('image/jpeg');
+
+        const imageData = canvasRef.current.toDataURL("image/jpeg");
         setSelectedImage(imageData);
         stopCamera();
       }
@@ -85,7 +93,7 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setIsUsingCamera(false);
@@ -96,7 +104,7 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
       toast({
         title: "Error",
         description: "Please select an image first",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -104,9 +112,9 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
     onImageAdded(selectedImage);
     toast({
       title: "Success",
-      description: "Photo added to your photobook!"
+      description: "Photo added to your photobook!",
     });
-    
+
     handleClose();
   };
 
@@ -125,7 +133,7 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
             Add Image
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 px-1">
           {!selectedImage && !isUsingCamera && (
             <div className="space-y-3">
@@ -137,16 +145,16 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
                 <Camera size={24} />
                 <span className="text-lg">Take Photo</span>
               </Button>
-              
+
               <Button
-                onClick={() => document.getElementById('file-upload')?.click()}
+                onClick={() => document.getElementById("file-upload")?.click()}
                 variant="outline"
                 className="w-full h-16 flex items-center justify-center gap-3 border-2 border-green-200 hover:bg-green-50 text-green-700"
               >
                 <Upload size={24} />
                 <span className="text-lg">Upload from Device</span>
               </Button>
-              
+
               <input
                 id="file-upload"
                 type="file"
@@ -184,14 +192,17 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
                 alt="Selected"
                 className="w-full h-64 object-cover rounded-lg"
               />
-              
+
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button onClick={handleAddImage} className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500">
+                <Button
+                  onClick={handleAddImage}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500"
+                >
                   <ImageIcon size={16} className="mr-2" />
                   Add to Photobook
                 </Button>
-                <Button 
-                  onClick={() => setSelectedImage("")} 
+                <Button
+                  onClick={() => setSelectedImage("")}
                   variant="outline"
                   className="sm:w-auto"
                 >
@@ -201,7 +212,7 @@ const ImageUploadModal = ({ isOpen, onClose, onImageAdded }: ImageUploadModalPro
             </div>
           )}
         </div>
-        
+
         <canvas ref={canvasRef} className="hidden" />
       </DialogContent>
     </Dialog>

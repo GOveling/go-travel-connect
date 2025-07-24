@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -9,15 +8,15 @@ const RecentBookingsSection = () => {
       details: "NYC → Paris",
       date: "Dec 15, 2024",
       status: "Confirmed",
-      amount: "$542"
+      amount: "$542",
     },
     {
       type: "Hotel",
       details: "Hotel Le Marais",
       date: "Dec 15-20, 2024",
       status: "Confirmed",
-      amount: "$890"
-    }
+      amount: "$890",
+    },
   ];
 
   return (
@@ -27,7 +26,10 @@ const RecentBookingsSection = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {recentBookings.map((booking, index) => (
-          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div
+            key={index}
+            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+          >
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
                 <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -28,20 +27,22 @@ interface MultiCityFlight {
 }
 
 const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
-  const [tripType, setTripType] = useState<'round-trip' | 'one-way' | 'multi-city' | 'manual'>('round-trip');
+  const [tripType, setTripType] = useState<
+    "round-trip" | "one-way" | "multi-city" | "manual"
+  >("round-trip");
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
   const [isDepartDateOpen, setIsDepartDateOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    from: '',
-    to: '',
-    departDate: '',
-    returnDate: '',
+    from: "",
+    to: "",
+    departDate: "",
+    returnDate: "",
     passengers: 1,
-    class: 'economy'
+    class: "economy",
   });
   const [multiCityFlights, setMultiCityFlights] = useState<MultiCityFlight[]>([
-    { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
-    { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
+    { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
+    { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
   ]);
   const [selectedTrip, setSelectedTrip] = useState<number | null>(null);
   const [showAIRecommendation, setShowAIRecommendation] = useState(false);
@@ -61,18 +62,18 @@ const FlightBookingModal = ({ isOpen, onClose }: FlightBookingModalProps) => {
   };
 
   const resetForm = () => {
-    setTripType('round-trip');
+    setTripType("round-trip");
     setFormData({
-      from: '',
-      to: '',
-      departDate: '',
-      returnDate: '',
+      from: "",
+      to: "",
+      departDate: "",
+      returnDate: "",
       passengers: 1,
-      class: 'economy'
+      class: "economy",
     });
     setMultiCityFlights([
-      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' },
-      { from: '', to: '', departDate: '', passengers: 1, class: 'economy' }
+      { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
+      { from: "", to: "", departDate: "", passengers: 1, class: "economy" },
     ]);
     setSelectedTrip(null);
     setShowAIRecommendation(false);

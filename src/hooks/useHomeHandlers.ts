@@ -1,4 +1,3 @@
-
 import { useHomeState } from "./useHomeState";
 
 export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
@@ -7,7 +6,7 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     setIsNewTripModalOpen,
     setIsTripDetailModalOpen,
     setNotificationCount,
-    setTrips
+    setTrips,
   } = homeState;
 
   const handleNotificationClick = () => {
@@ -19,7 +18,7 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
   };
 
   const handleCreateTrip = (tripData: any) => {
-    setTrips(prev => [...prev, tripData]);
+    setTrips((prev) => [...prev, tripData]);
   };
 
   const handleViewCurrentTripDetail = () => {
@@ -32,7 +31,7 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
 
   const handleNavigateToTrips = () => {
     // Dispatch custom event to navigate to trips section
-    window.dispatchEvent(new CustomEvent('navigateToTrips'));
+    window.dispatchEvent(new CustomEvent("navigateToTrips"));
   };
 
   return {
@@ -41,6 +40,6 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     handleCreateTrip,
     handleViewCurrentTripDetail,
     handlePlanNewTrip,
-    handleNavigateToTrips
+    handleNavigateToTrips,
   };
 };

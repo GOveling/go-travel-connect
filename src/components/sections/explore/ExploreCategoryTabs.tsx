@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 
 interface ExploreCategoryTabsProps {
@@ -7,7 +6,11 @@ interface ExploreCategoryTabsProps {
   onCategoryClick: (category: string) => void;
 }
 
-const ExploreCategoryTabs = ({ categories, selectedCategory, onCategoryClick }: ExploreCategoryTabsProps) => {
+const ExploreCategoryTabs = ({
+  categories,
+  selectedCategory,
+  onCategoryClick,
+}: ExploreCategoryTabsProps) => {
   return (
     <div className="flex space-x-2 overflow-x-auto pb-2">
       {categories.map((category) => (

@@ -1,8 +1,7 @@
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface MyReview {
   id: string;
@@ -25,19 +24,19 @@ export const useMyReviews = () => {
   // Fetch user's reviews
   const fetchMyReviews = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('place_reviews')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .from("place_reviews")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setReviews(data || []);
     } catch (error) {
-      console.error('Error fetching my reviews:', error);
+      console.error("Error fetching my reviews:", error);
       toast({
         title: "Error loading reviews",
         description: "Could not load your reviews.",
@@ -49,28 +48,31 @@ export const useMyReviews = () => {
   };
 
   // Update a review
-  const updateReview = async (reviewId: string, updates: { rating?: number; comment?: string; anonymous?: boolean }) => {
+  const updateReview = async (
+    reviewId: string,
+    updates: { rating?: number; comment?: string; anonymous?: boolean }
+  ) => {
     if (!user) return false;
 
     try {
-      console.log('Updating review with:', updates);
-      
+      console.log("Updating review with:", updates);
+
       const { data, error } = await supabase
-        .from('place_reviews')
+        .from("place_reviews")
         .update({
           ...updates,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', reviewId)
-        .eq('user_id', user.id)
+        .eq("id", reviewId)
+        .eq("user_id", user.id)
         .select();
 
       if (error) {
-        console.error('Supabase update error:', error);
+        console.error("Supabase update error:", error);
         throw error;
       }
 
-      console.log('Review updated successfully:', data);
+      console.log("Review updated successfully:", data);
 
       toast({
         title: "Review updated!",
@@ -81,7 +83,7 @@ export const useMyReviews = () => {
       await fetchMyReviews();
       return true;
     } catch (error) {
-      console.error('Error updating review:', error);
+      console.error("Error updating review:", error);
       toast({
         title: "Error updating review",
         description: "Could not update your review. Please try again.",
@@ -97,10 +99,10 @@ export const useMyReviews = () => {
 
     try {
       const { error } = await supabase
-        .from('place_reviews')
+        .from("place_reviews")
         .delete()
-        .eq('id', reviewId)
-        .eq('user_id', user.id);
+        .eq("id", reviewId)
+        .eq("user_id", user.id);
 
       if (error) throw error;
 
@@ -113,7 +115,7 @@ export const useMyReviews = () => {
       await fetchMyReviews();
       return true;
     } catch (error) {
-      console.error('Error deleting review:', error);
+      console.error("Error deleting review:", error);
       toast({
         title: "Error deleting review",
         description: "Could not delete your review. Please try again.",
@@ -132,6 +134,6 @@ export const useMyReviews = () => {
     loading,
     updateReview,
     deleteReview,
-    refreshReviews: fetchMyReviews
+    refreshReviews: fetchMyReviews,
   };
 };

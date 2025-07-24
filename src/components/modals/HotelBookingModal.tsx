@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Building, X, Brain } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -11,7 +10,10 @@ import MultiDestinationBooking from "./hotel-booking/MultiDestinationBooking";
 import SingleDestinationForm from "./hotel-booking/SingleDestinationForm";
 import SpecialOfferCard from "./hotel-booking/SpecialOfferCard";
 import AIHotelPlan from "./hotel-booking/AIHotelPlan";
-import { getAIHotelBookingPlan, AIHotelBookingPlan } from "./hotel-booking/aiHotelDateUtils";
+import {
+  getAIHotelBookingPlan,
+  AIHotelBookingPlan,
+} from "./hotel-booking/aiHotelDateUtils";
 
 interface HotelBookingModalProps {
   isOpen: boolean;
@@ -28,30 +30,34 @@ interface DestinationBooking {
 
 const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
   const [formData, setFormData] = useState({
-    destination: '',
-    checkIn: '',
-    checkOut: '',
+    destination: "",
+    checkIn: "",
+    checkOut: "",
     guests: 2,
-    rooms: 1
+    rooms: 1,
   });
-  const [selectedTripId, setSelectedTripId] = useState<string>('manual');
-  const [multiDestinationBookings, setMultiDestinationBookings] = useState<DestinationBooking[]>([]);
+  const [selectedTripId, setSelectedTripId] = useState<string>("manual");
+  const [multiDestinationBookings, setMultiDestinationBookings] = useState<
+    DestinationBooking[]
+  >([]);
   const [isMultiDestination, setIsMultiDestination] = useState(false);
-  const [aiHotelPlan, setAiHotelPlan] = useState<AIHotelBookingPlan | null>(null);
+  const [aiHotelPlan, setAiHotelPlan] = useState<AIHotelBookingPlan | null>(
+    null
+  );
   const { toast } = useToast();
   const { trips } = useHomeState();
 
   const handleTripSelection = (tripId: string) => {
     setSelectedTripId(tripId);
-    
-    if (tripId === 'manual') {
+
+    if (tripId === "manual") {
       // Reset form when manual entry is selected
       setFormData({
-        destination: '',
-        checkIn: '',
-        checkOut: '',
+        destination: "",
+        checkIn: "",
+        checkOut: "",
         guests: 2,
-        rooms: 1
+        rooms: 1,
       });
       setMultiDestinationBookings([]);
       setIsMultiDestination(false);
@@ -59,7 +65,7 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
       return;
     }
 
-    const selectedTrip = trips.find(trip => trip.id.toString() === tripId);
+    const selectedTrip = trips.find((trip) => trip.id.toString() === tripId);
     if (selectedTrip) {
       // 🤖 AI Protocol: Generate hotel booking plan
       const aiPlan = getAIHotelBookingPlan(selectedTrip);
@@ -68,28 +74,30 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
       // Check if trip has multiple destinations using coordinates
       const destinations = selectedTrip.coordinates || [];
       const isMultiDest = destinations.length > 1;
-      
+
       setIsMultiDestination(isMultiDest);
 
       if (isMultiDest) {
         // Handle multi-destination trip with AI recommendations
-        const bookings: DestinationBooking[] = aiPlan.recommendations.map((rec) => ({
-          destination: rec.destination,
-          checkIn: rec.checkIn,
-          checkOut: rec.checkOut,
-          guests: selectedTrip.travelers || 2,
-          rooms: 1
-        }));
+        const bookings: DestinationBooking[] = aiPlan.recommendations.map(
+          (rec) => ({
+            destination: rec.destination,
+            checkIn: rec.checkIn,
+            checkOut: rec.checkOut,
+            guests: selectedTrip.travelers || 2,
+            rooms: 1,
+          })
+        );
 
         setMultiDestinationBookings(bookings);
-        
+
         // Clear single destination form
         setFormData({
-          destination: '',
-          checkIn: '',
-          checkOut: '',
+          destination: "",
+          checkIn: "",
+          checkOut: "",
           guests: 2,
-          rooms: 1
+          rooms: 1,
         });
 
         // Show AI automation toast for multi-destination
@@ -100,15 +108,15 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
       } else if (aiPlan.recommendations.length === 1) {
         // Handle single destination trip with AI optimization
         const rec = aiPlan.recommendations[0];
-        
-        setFormData(prev => ({
+
+        setFormData((prev) => ({
           ...prev,
           destination: rec.destination,
           checkIn: rec.checkIn,
           checkOut: rec.checkOut,
-          guests: selectedTrip.travelers || 2
+          guests: selectedTrip.travelers || 2,
         }));
-        
+
         setMultiDestinationBookings([]);
 
         // Show AI automation toast
@@ -120,9 +128,13 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
     }
   };
 
-  const updateMultiDestinationBooking = (index: number, field: keyof DestinationBooking, value: string | number) => {
-    setMultiDestinationBookings(prev => 
-      prev.map((booking, i) => 
+  const updateMultiDestinationBooking = (
+    index: number,
+    field: keyof DestinationBooking,
+    value: string | number
+  ) => {
+    setMultiDestinationBookings((prev) =>
+      prev.map((booking, i) =>
         i === index ? { ...booking, [field]: value } : booking
       )
     );
@@ -160,7 +172,9 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
             <Building size={24} />
             <div>
               <h2 className="text-xl font-bold">Reserva de Hoteles</h2>
-              <p className="text-sm opacity-90">IA optimiza tu estancia perfecta</p>
+              <p className="text-sm opacity-90">
+                IA optimiza tu estancia perfecta
+              </p>
             </div>
           </div>
         </div>
@@ -169,20 +183,20 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
           <SpecialOfferCard />
 
           <div className="space-y-4">
-            <TripSelectorWithAI 
+            <TripSelectorWithAI
               selectedTripId={selectedTripId}
               trips={trips}
               onTripSelection={handleTripSelection}
             />
 
             {/* AI Hotel Plan Display */}
-            {aiHotelPlan && selectedTripId !== 'manual' && (
+            {aiHotelPlan && selectedTripId !== "manual" && (
               <AIHotelPlan plan={aiHotelPlan} />
             )}
 
             {/* Multi-destination bookings */}
             {isMultiDestination && multiDestinationBookings.length > 0 && (
-              <MultiDestinationBooking 
+              <MultiDestinationBooking
                 bookings={multiDestinationBookings}
                 onUpdateBooking={updateMultiDestinationBooking}
               />
@@ -190,18 +204,20 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
 
             {/* Single destination form (only show when not multi-destination) */}
             {!isMultiDestination && (
-              <SingleDestinationForm 
+              <SingleDestinationForm
                 formData={formData}
                 onFormDataChange={setFormData}
               />
             )}
 
-            <Button 
+            <Button
               onClick={handleSearch}
               className="w-full bg-gradient-to-r from-green-500 to-green-600"
             >
               <Building size={16} className="mr-2" />
-              {isMultiDestination ? `Buscar Hoteles para ${multiDestinationBookings.length} Destinos` : 'Buscar Hoteles'}
+              {isMultiDestination
+                ? `Buscar Hoteles para ${multiDestinationBookings.length} Destinos`
+                : "Buscar Hoteles"}
             </Button>
           </div>
         </div>

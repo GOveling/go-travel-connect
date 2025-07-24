@@ -22,13 +22,13 @@ const ModalHeader = ({ onClose }: ModalHeaderProps) => {
       </Button>
       <div className="text-center">
         <div className="flex justify-center mb-4">
-          <img 
-            src="/lovable-uploads/eb9957ef-488c-422e-a254-6758c709a828.png" 
-            alt="GoVeling Logo" 
+          <img
+            src="/lovable-uploads/eb9957ef-488c-422e-a254-6758c709a828.png"
+            alt="GoVeling Logo"
             className="object-contain"
-            style={{ 
-              width: isMobile ? '300px' : '400px',
-              height: 'auto'
+            style={{
+              width: isMobile ? "300px" : "400px",
+              height: "auto",
             }}
           />
         </div>

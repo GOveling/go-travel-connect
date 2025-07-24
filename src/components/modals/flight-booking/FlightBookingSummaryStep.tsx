@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import FlightSummary from "./FlightSummary";
@@ -21,7 +20,7 @@ interface MultiCityFlight {
 }
 
 interface FlightBookingSummaryStepProps {
-  tripType: 'round-trip' | 'one-way' | 'multi-city' | 'manual';
+  tripType: "round-trip" | "one-way" | "multi-city" | "manual";
   formData: FormData;
   multiCityFlights: MultiCityFlight[];
   onComplete: () => void;
@@ -33,7 +32,7 @@ const FlightBookingSummaryStep = ({
   formData,
   multiCityFlights,
   onComplete,
-  onReset
+  onReset,
 }: FlightBookingSummaryStepProps) => {
   return (
     <div className="p-4 space-y-4">
@@ -42,20 +41,16 @@ const FlightBookingSummaryStep = ({
         formData={formData}
         multiCityFlights={multiCityFlights}
       />
-      
+
       <div className="space-y-2">
-        <Button 
+        <Button
           onClick={onComplete}
           className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium"
         >
           <Search size={16} className="mr-2" />
           Buscar Vuelos
         </Button>
-        <Button 
-          variant="outline"
-          onClick={onReset}
-          className="w-full"
-        >
+        <Button variant="outline" onClick={onReset} className="w-full">
           Nueva Búsqueda
         </Button>
       </div>

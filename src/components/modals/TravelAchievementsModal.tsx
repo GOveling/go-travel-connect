@@ -1,6 +1,10 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useSupabaseGamification } from "@/hooks/useSupabaseGamification";
 import LevelProgressCard from "@/components/gamification/LevelProgressCard";
 import CategoryTabs from "@/components/gamification/CategoryTabs";
@@ -14,7 +18,10 @@ interface TravelAchievementsModalProps {
   onClose: () => void;
 }
 
-const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalProps) => {
+const TravelAchievementsModal = ({
+  isOpen,
+  onClose,
+}: TravelAchievementsModalProps) => {
   const {
     gamificationProgress,
     getCategoryAchievements,
@@ -23,16 +30,18 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
     currentLevel,
     totalPoints,
     loading,
-    error
+    error,
   } = useSupabaseGamification();
 
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [selectedAchievement, setSelectedAchievement] = useState<AchievementBadge | null>(null);
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [selectedAchievement, setSelectedAchievement] =
+    useState<AchievementBadge | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  const filteredAchievements = activeCategory === 'all' 
-    ? gamificationProgress.achievements 
-    : getCategoryAchievements(activeCategory);
+  const filteredAchievements =
+    activeCategory === "all"
+      ? gamificationProgress.achievements
+      : getCategoryAchievements(activeCategory);
 
   const handleAchievementClick = (achievement: AchievementBadge) => {
     setSelectedAchievement(achievement);
@@ -89,7 +98,10 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
                 <div className="text-2xl font-bold text-blue-600">
-                  {gamificationProgress.achievements.filter(a => a.earned).length}
+                  {
+                    gamificationProgress.achievements.filter((a) => a.earned)
+                      .length
+                  }
                 </div>
                 <div className="text-sm text-blue-600">Earned</div>
               </div>
@@ -100,15 +112,17 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
                 <div className="text-sm text-purple-600">Complete</div>
               </div>
               <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4">
-                <div className="text-2xl font-bold text-orange-600">{totalPoints}</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {totalPoints}
+                </div>
                 <div className="text-sm text-orange-600">Total XP</div>
               </div>
             </div>
 
             {/* Category Filter */}
-            <CategoryTabs 
-              activeCategory={activeCategory} 
-              onCategoryChange={setActiveCategory} 
+            <CategoryTabs
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
             />
 
             {/* Achievements Grid */}
@@ -127,8 +141,12 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
             {filteredAchievements.length === 0 && (
               <div className="text-center py-8">
                 <div className="text-4xl mb-4">🎯</div>
-                <p className="text-gray-500">No achievements in this category yet</p>
-                <p className="text-sm text-gray-400">Start exploring to unlock badges!</p>
+                <p className="text-gray-500">
+                  No achievements in this category yet
+                </p>
+                <p className="text-sm text-gray-400">
+                  Start exploring to unlock badges!
+                </p>
               </div>
             )}
           </div>
@@ -140,7 +158,9 @@ const TravelAchievementsModal = ({ isOpen, onClose }: TravelAchievementsModalPro
         isOpen={isDetailModalOpen}
         onClose={handleDetailModalClose}
         achievement={selectedAchievement}
-        rarityColor={selectedAchievement ? getRarityColor(selectedAchievement.rarity) : ''}
+        rarityColor={
+          selectedAchievement ? getRarityColor(selectedAchievement.rarity) : ""
+        }
       />
     </>
   );

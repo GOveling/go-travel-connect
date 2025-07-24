@@ -1,7 +1,6 @@
-
 import { Camera } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
+import {
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -24,14 +23,20 @@ interface PhotoCarouselProps {
   onDownloadPhoto: (photoUrl: string, photoId: string) => void;
 }
 
-const PhotoCarousel = ({ photos, onDeletePhoto, onDownloadPhoto }: PhotoCarouselProps) => {
+const PhotoCarousel = ({
+  photos,
+  onDeletePhoto,
+  onDownloadPhoto,
+}: PhotoCarouselProps) => {
   return (
     <div className="flex-1 overflow-hidden">
       <Card className="h-full">
         <CardContent className="p-6 h-full flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-800">Trip Album</h3>
-            <span className="text-sm text-gray-600">{photos.length} photos</span>
+            <span className="text-sm text-gray-600">
+              {photos.length} photos
+            </span>
           </div>
 
           {photos.length > 0 ? (
@@ -60,7 +65,9 @@ const PhotoCarousel = ({ photos, onDeletePhoto, onDownloadPhoto }: PhotoCarousel
                 </div>
                 <div>
                   <p className="text-gray-600 mb-2">No photos yet</p>
-                  <p className="text-sm text-gray-500">Start building your trip memories by adding the first photo!</p>
+                  <p className="text-sm text-gray-500">
+                    Start building your trip memories by adding the first photo!
+                  </p>
                 </div>
               </div>
             </div>

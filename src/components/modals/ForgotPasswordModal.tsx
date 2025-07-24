@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,11 +13,11 @@ interface ForgotPasswordModalProps {
   isLoading?: boolean;
 }
 
-const ForgotPasswordModal = ({ 
-  isOpen, 
-  onClose, 
-  onResetPassword, 
-  isLoading = false 
+const ForgotPasswordModal = ({
+  isOpen,
+  onClose,
+  onResetPassword,
+  isLoading = false,
 }: ForgotPasswordModalProps) => {
   const [email, setEmail] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -41,7 +40,7 @@ const ForgotPasswordModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       setIsEmailValid(false);
       return;
@@ -71,7 +70,9 @@ const ForgotPasswordModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className={`${isMobile ? 'w-[95vw] max-w-[95vw] h-auto max-h-[90vh]' : 'max-w-md'} p-0 bg-white rounded-2xl overflow-hidden`}>
+      <DialogContent
+        className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div className="flex items-center space-x-3">
@@ -96,18 +97,25 @@ const ForgotPasswordModal = ({
               <Mail className="h-8 w-8 text-purple-600" />
             </div>
             <p className="text-gray-600">
-              Ingresa tu email y te enviaremos un enlace para recuperar tu contraseña
+              Ingresa tu email y te enviaremos un enlace para recuperar tu
+              contraseña
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="reset-email" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="reset-email"
+                className="text-sm font-medium text-gray-700"
+              >
                 Email
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Mail
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
                 <Input
                   id="reset-email"
                   type="email"
@@ -115,7 +123,9 @@ const ForgotPasswordModal = ({
                   onChange={handleEmailChange}
                   placeholder="Ingresa tu email"
                   className={`pl-10 h-12 text-base border-gray-300 focus:border-purple-500 focus:ring-purple-500 ${
-                    !isEmailValid && email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                    !isEmailValid && email
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                      : ""
                   }`}
                   required
                 />

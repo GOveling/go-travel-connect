@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MapPin, X, Route, Navigation, Clock, Zap } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -27,14 +26,14 @@ interface SavedPlacesRouteMapProps {
   totalDestinations?: number;
 }
 
-const SavedPlacesRouteMap = ({ 
-  isOpen, 
-  onClose, 
-  destinationName, 
-  places, 
-  tripDates, 
-  destinationIndex = 0, 
-  totalDestinations = 1 
+const SavedPlacesRouteMap = ({
+  isOpen,
+  onClose,
+  destinationName,
+  places,
+  tripDates,
+  destinationIndex = 0,
+  totalDestinations = 1,
 }: SavedPlacesRouteMapProps) => {
   const [isGeneratingRoute, setIsGeneratingRoute] = useState(false);
   const [routeGenerated, setRouteGenerated] = useState(false);
@@ -68,61 +67,106 @@ const SavedPlacesRouteMap = ({
       const today = new Date();
       const dateForPlace = new Date(today);
       dateForPlace.setDate(today.getDate() + placeIndex);
-      
+
       const formatDate = (date: Date) => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
         return `${months[date.getMonth()]} ${date.getDate()}`;
       };
-      
+
       return formatDate(dateForPlace);
     }
 
     try {
       // Parse dates like "Dec 15 - Dec 25, 2024"
-      const dateRange = tripDates.split(' - ');
+      const dateRange = tripDates.split(" - ");
       if (dateRange.length !== 2) return `Day ${placeIndex + 1}`;
-      
+
       const startDateStr = dateRange[0];
       const endDateStr = dateRange[1];
-      
+
       // Extract year from end date
-      const year = endDateStr.split(', ')[1] || new Date().getFullYear().toString();
-      
+      const year =
+        endDateStr.split(", ")[1] || new Date().getFullYear().toString();
+
       // Parse start date
-      const startMonth = startDateStr.split(' ')[0];
-      const startDay = parseInt(startDateStr.split(' ')[1]);
-      
+      const startMonth = startDateStr.split(" ")[0];
+      const startDay = parseInt(startDateStr.split(" ")[1]);
+
       // Parse end date
-      const endMonth = endDateStr.split(' ')[0];
-      const endDay = parseInt(endDateStr.split(' ')[1].split(',')[0]);
-      
+      const endMonth = endDateStr.split(" ")[0];
+      const endDay = parseInt(endDateStr.split(" ")[1].split(",")[0]);
+
       // Convert month names to numbers
       const monthMap: { [key: string]: number } = {
-        'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
-        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+        Jan: 0,
+        Feb: 1,
+        Mar: 2,
+        Apr: 3,
+        May: 4,
+        Jun: 5,
+        Jul: 6,
+        Aug: 7,
+        Sep: 8,
+        Oct: 9,
+        Nov: 10,
+        Dec: 11,
       };
-      
-      const startDate = new Date(parseInt(year), monthMap[startMonth], startDay);
+
+      const startDate = new Date(
+        parseInt(year),
+        monthMap[startMonth],
+        startDay
+      );
       const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
-      
+
       // Calculate days per destination
-      const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const totalDays = Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
       const daysPerDestination = Math.ceil(totalDays / totalDestinations);
-      
+
       // Calculate destination start date
       const destStartDate = new Date(startDate);
-      destStartDate.setDate(startDate.getDate() + (destinationIndex * daysPerDestination));
-      
+      destStartDate.setDate(
+        startDate.getDate() + destinationIndex * daysPerDestination
+      );
+
       // Calculate specific place date within the destination period
       const placeDate = new Date(destStartDate);
       placeDate.setDate(destStartDate.getDate() + placeIndex);
-      
+
       // Format date
       const formatDate = (date: Date) => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
         return `${months[date.getMonth()]} ${date.getDate()}`;
       };
-      
+
       return formatDate(placeDate);
     } catch (error) {
       // Fallback to day format if parsing fails
@@ -133,12 +177,18 @@ const SavedPlacesRouteMap = ({
   // Sort places by priority for optimal route
   const sortedPlaces = [...places].sort((a, b) => {
     const priorityOrder = { high: 3, medium: 2, low: 1 };
-    return priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder];
+    return (
+      priorityOrder[b.priority as keyof typeof priorityOrder] -
+      priorityOrder[a.priority as keyof typeof priorityOrder]
+    );
   });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto" style={{ zIndex: 9999 }}>
+      <DialogContent
+        className="max-w-5xl max-h-[90vh] overflow-y-auto"
+        style={{ zIndex: 9999 }}
+      >
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between border-b pb-4">
@@ -147,8 +197,12 @@ const SavedPlacesRouteMap = ({
                 <Route className="text-white" size={20} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">Optimal Route</h2>
-                <p className="text-gray-600">{destinationName} • {places.length} places</p>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Optimal Route
+                </h2>
+                <p className="text-gray-600">
+                  {destinationName} • {places.length} places
+                </p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -161,11 +215,15 @@ const SavedPlacesRouteMap = ({
             <CardContent className="h-full flex items-center justify-center">
               <div className="text-center">
                 <MapPin size={48} className="mx-auto text-blue-600 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">Interactive Route Map</h3>
-                <p className="text-gray-600 mb-4">Your optimal route will be displayed here</p>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Interactive Route Map
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Your optimal route will be displayed here
+                </p>
                 {!routeGenerated ? (
-                  <Button 
-                    onClick={generateOptimalRoute} 
+                  <Button
+                    onClick={generateOptimalRoute}
                     disabled={isGeneratingRoute}
                     className="bg-gradient-to-r from-blue-500 to-orange-500"
                   >
@@ -185,7 +243,9 @@ const SavedPlacesRouteMap = ({
                   <div className="space-y-3">
                     <div className="flex items-center justify-center space-x-2 text-green-600">
                       <Navigation size={16} />
-                      <span className="font-medium">Route Generated Successfully!</span>
+                      <span className="font-medium">
+                        Route Generated Successfully!
+                      </span>
                     </div>
                     <div className="flex items-center justify-center space-x-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
@@ -197,7 +257,7 @@ const SavedPlacesRouteMap = ({
                         <span>{places.length} stops</span>
                       </div>
                     </div>
-                    <Button 
+                    <Button
                       onClick={onClose}
                       variant="outline"
                       className="border-green-500 text-green-600 hover:bg-green-50"
@@ -215,10 +275,14 @@ const SavedPlacesRouteMap = ({
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Route size={20} className="text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-800">Optimized Route Order</h3>
-                <Badge className="bg-green-100 text-green-800">AI Generated</Badge>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Optimized Route Order
+                </h3>
+                <Badge className="bg-green-100 text-green-800">
+                  AI Generated
+                </Badge>
               </div>
-              
+
               <div className="grid gap-3">
                 {sortedPlaces.map((place, index) => (
                   <Card key={place.id} className="border-l-4 border-l-blue-500">
@@ -231,19 +295,29 @@ const SavedPlacesRouteMap = ({
                           <div className="flex items-center space-x-3">
                             <span className="text-2xl">{place.image}</span>
                             <div>
-                              <h4 className="font-medium text-gray-800">{place.name}</h4>
+                              <h4 className="font-medium text-gray-800">
+                                {place.name}
+                              </h4>
                               <div className="flex items-center space-x-3 text-sm text-gray-600">
-                                <span>{place.category} • {place.estimatedTime}</span>
-                                <span className="text-blue-600 font-medium">{getPlaceDate(index)}</span>
+                                <span>
+                                  {place.category} • {place.estimatedTime}
+                                </span>
+                                <span className="text-blue-600 font-medium">
+                                  {getPlaceDate(index)}
+                                </span>
                               </div>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Badge className={`text-xs ${getPriorityColor(place.priority)}`}>
+                          <Badge
+                            className={`text-xs ${getPriorityColor(place.priority)}`}
+                          >
                             {place.priority}
                           </Badge>
-                          <div className="text-sm text-gray-600">★ {place.rating}</div>
+                          <div className="text-sm text-gray-600">
+                            ★ {place.rating}
+                          </div>
                         </div>
                       </div>
                       {index < sortedPlaces.length - 1 && (

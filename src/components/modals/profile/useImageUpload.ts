@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,37 +10,35 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
 
   const uploadImageToSupabase = async (file: File): Promise<string | null> => {
     if (!user) {
-      console.error('No user found');
+      console.error("No user found");
       return null;
     }
 
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split(".").pop();
     const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 
     try {
-      console.log('Starting upload for user:', user.id);
-      console.log('Uploading file:', fileName);
-      
+      console.log("Starting upload for user:", user.id);
+      console.log("Uploading file:", fileName);
+
       const { error: uploadError } = await supabase.storage
-        .from('avatars')
+        .from("avatars")
         .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
+          cacheControl: "3600",
+          upsert: true,
         });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
+        console.error("Upload error:", uploadError);
         throw uploadError;
       }
 
-      const { data } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
 
-      console.log('Upload successful, public URL:', data.publicUrl);
+      console.log("Upload successful, public URL:", data.publicUrl);
       return data.publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
       return null;
     }
   };
@@ -51,16 +48,16 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
       toast({
         title: "Error",
         description: "El archivo debe ser menor a 5MB",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
         title: "Error",
         description: "Por favor selecciona un archivo de imagen",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -68,7 +65,7 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
     setIsUploading(true);
     try {
       const imageUrl = await uploadImageToSupabase(file);
-      
+
       if (imageUrl) {
         onImageChange(imageUrl);
         toast({
@@ -79,15 +76,15 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
         toast({
           title: "Error",
           description: "No se pudo subir la imagen",
-          variant: "destructive"
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error in handleFileSelect:', error);
+      console.error("Error in handleFileSelect:", error);
       toast({
         title: "Error",
         description: "Error al procesar la imagen",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsUploading(false);
@@ -96,6 +93,6 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
 
   return {
     isUploading,
-    handleFileSelect
+    handleFileSelect,
   };
 };

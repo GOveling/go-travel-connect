@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +41,10 @@ const SignUpForm = ({ onSubmit, isLoading }: SignUpFormProps) => {
           Full Name
         </Label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <User
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="name"
             type="text"
@@ -57,11 +59,17 @@ const SignUpForm = ({ onSubmit, isLoading }: SignUpFormProps) => {
 
       {/* Email Field */}
       <div className="space-y-2">
-        <Label htmlFor="signup-email" className="text-sm font-medium text-gray-700">
+        <Label
+          htmlFor="signup-email"
+          className="text-sm font-medium text-gray-700"
+        >
           Email Address
         </Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Mail
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="signup-email"
             type="email"
@@ -76,11 +84,17 @@ const SignUpForm = ({ onSubmit, isLoading }: SignUpFormProps) => {
 
       {/* Password Field */}
       <div className="space-y-2">
-        <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
+        <Label
+          htmlFor="signup-password"
+          className="text-sm font-medium text-gray-700"
+        >
           Password
         </Label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Lock
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="signup-password"
             type={showPassword ? "text" : "password"}
@@ -104,11 +118,17 @@ const SignUpForm = ({ onSubmit, isLoading }: SignUpFormProps) => {
 
       {/* Confirm Password Field */}
       <div className="space-y-2">
-        <Label htmlFor="confirm-password" className="text-sm font-medium text-gray-700">
+        <Label
+          htmlFor="confirm-password"
+          className="text-sm font-medium text-gray-700"
+        >
           Confirm Password
         </Label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Lock
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="confirm-password"
             type={showConfirmPassword ? "text" : "password"}
@@ -133,7 +153,14 @@ const SignUpForm = ({ onSubmit, isLoading }: SignUpFormProps) => {
       {/* Sign Up Button */}
       <Button
         type="submit"
-        disabled={isLoading || !name || !email || !password || !confirmPassword || password !== confirmPassword}
+        disabled={
+          isLoading ||
+          !name ||
+          !email ||
+          !password ||
+          !confirmPassword ||
+          password !== confirmPassword
+        }
         className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white h-12 text-base font-medium rounded-lg"
       >
         {isLoading ? "Creating account..." : "Create Account"}

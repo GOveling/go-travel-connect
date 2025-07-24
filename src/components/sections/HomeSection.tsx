@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import HomeHeader from "@/components/home/HomeHeader";
@@ -18,7 +17,7 @@ const HomeSection = () => {
   const homeState = useHomeState();
   const handlers = useHomeHandlers(homeState);
   const { toast } = useToast();
-  
+
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
   const [isNearbyPlacesModalOpen, setIsNearbyPlacesModalOpen] = useState(false);
@@ -30,12 +29,12 @@ const HomeSection = () => {
   // Listen for navigation to trips section
   useEffect(() => {
     const handleNavigateToTrips = () => {
-      window.dispatchEvent(new CustomEvent('navigateToTrips'));
+      window.dispatchEvent(new CustomEvent("navigateToTrips"));
     };
 
     // Override the handleNavigateToTrips to trigger the global navigation
     handlers.handleNavigateToTrips = () => {
-      window.dispatchEvent(new CustomEvent('navigateToTrips'));
+      window.dispatchEvent(new CustomEvent("navigateToTrips"));
     };
   }, []);
 
@@ -64,22 +63,22 @@ const HomeSection = () => {
 
   const handleAddToExistingTrip = (tripId: string, place: any) => {
     addPlaceToTrip(tripId, place);
-    const selectedTrip = trips.find(trip => trip.id === tripId);
-    
+    const selectedTrip = trips.find((trip) => trip.id === tripId);
+
     toast({
       title: "Added to Trip",
       description: `${place.name} has been saved to ${selectedTrip?.name}`,
     });
-    
+
     setIsAddToTripModalOpen(false);
     setSelectedPlace(null);
   };
 
   const handleCreateNewTrip = (tripData: any) => {
-    setTrips(prev => [...prev, tripData]);
+    setTrips((prev) => [...prev, tripData]);
     setIsAddToTripModalOpen(false);
     setSelectedPlace(null);
-    
+
     toast({
       title: "Trip Created!",
       description: `${tripData.name} has been created with ${selectedPlace?.name}`,
@@ -102,7 +101,7 @@ const HomeSection = () => {
       {/* Quick Stats */}
       <QuickStats />
 
-      <CurrentTrip 
+      <CurrentTrip
         currentTrip={homeState.currentTrip}
         travelingTrip={homeState.travelingTrip}
         nearestUpcomingTrip={homeState.nearestUpcomingTrip}
@@ -120,7 +119,7 @@ const HomeSection = () => {
       <HomeModals homeState={homeState} handlers={handlers} />
 
       {/* Place Detail Modal */}
-      <PlaceDetailModal 
+      <PlaceDetailModal
         place={selectedPlace}
         isOpen={isPlaceModalOpen}
         onClose={handleClosePlaceModal}

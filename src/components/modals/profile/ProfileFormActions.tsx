@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,9 +8,13 @@ interface ProfileFormActionsProps {
   isLoading: boolean;
 }
 
-const ProfileFormActions = ({ onCancel, onSave, isLoading }: ProfileFormActionsProps) => {
+const ProfileFormActions = ({
+  onCancel,
+  onSave,
+  isLoading,
+}: ProfileFormActionsProps) => {
   const { t } = useLanguage();
-  
+
   return (
     <div className="flex space-x-3 pt-4">
       <Button

@@ -1,4 +1,3 @@
-
 import { MapPin, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 

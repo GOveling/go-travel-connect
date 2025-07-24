@@ -1,4 +1,13 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
 
 interface DeleteTripConfirmationModalProps {
@@ -8,7 +17,12 @@ interface DeleteTripConfirmationModalProps {
   tripName: string;
 }
 
-const DeleteTripConfirmationModal = ({ isOpen, onClose, onConfirm, tripName }: DeleteTripConfirmationModalProps) => {
+const DeleteTripConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  tripName,
+}: DeleteTripConfirmationModalProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
@@ -18,15 +32,14 @@ const DeleteTripConfirmationModal = ({ isOpen, onClose, onConfirm, tripName }: D
             <span>Delete Trip</span>
           </AlertDialogTitle>
           <AlertDialogDescription className="text-sm text-gray-600">
-            Are you sure you want to delete <strong>"{tripName}"</strong>? 
-            This action cannot be undone and will permanently remove the trip and all its saved places.
+            Are you sure you want to delete <strong>"{tripName}"</strong>? This
+            action cannot be undone and will permanently remove the trip and all
+            its saved places.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={onConfirm}
             className="bg-red-600 hover:bg-red-700 text-white"
           >

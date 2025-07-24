@@ -1,9 +1,8 @@
-
-import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { getRedirectUrl, getEnvironmentConfig } from '@/utils/environment';
+import { useState, useEffect } from "react";
+import { User, Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { getRedirectUrl, getEnvironmentConfig } from "@/utils/environment";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,51 +11,61 @@ export const useAuth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log('🔄 useAuth: Initializing auth state...');
+    console.log("🔄 useAuth: Initializing auth state...");
     const config = getEnvironmentConfig();
-    console.log('🔧 useAuth: Environment config:', config);
-    
+    console.log("🔧 useAuth: Environment config:", config);
+
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔔 useAuth: Auth state changed:', { event, userEmail: session?.user?.email || 'no user', hasSession: !!session });
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_IN') {
-          console.log('✅ useAuth: User signed in successfully:', session?.user?.email);
-          toast({
-            title: "¡Bienvenido!",
-            description: "Has iniciado sesión exitosamente.",
-          });
-        } else if (event === 'SIGNED_OUT') {
-          console.log('👋 useAuth: User signed out');
-        } else if (event === 'TOKEN_REFRESHED') {
-          console.log('🔄 useAuth: Token refreshed for:', session?.user?.email);
-        }
-        
-        setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("🔔 useAuth: Auth state changed:", {
+        event,
+        userEmail: session?.user?.email || "no user",
+        hasSession: !!session,
+      });
+
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (event === "SIGNED_IN") {
+        console.log(
+          "✅ useAuth: User signed in successfully:",
+          session?.user?.email
+        );
+        toast({
+          title: "¡Bienvenido!",
+          description: "Has iniciado sesión exitosamente.",
+        });
+      } else if (event === "SIGNED_OUT") {
+        console.log("👋 useAuth: User signed out");
+      } else if (event === "TOKEN_REFRESHED") {
+        console.log("🔄 useAuth: Token refreshed for:", session?.user?.email);
       }
-    );
+
+      setLoading(false);
+    });
 
     // THEN check for existing session
     const initializeAuth = async () => {
       try {
-        console.log('🔍 useAuth: Checking for existing session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log("🔍 useAuth: Checking for existing session...");
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
         if (error) {
-          console.error('❌ useAuth: Error getting initial session:', error);
+          console.error("❌ useAuth: Error getting initial session:", error);
         } else {
-          console.log('🔍 useAuth: Initial session check:', { 
+          console.log("🔍 useAuth: Initial session check:", {
             hasSession: !!session,
-            userEmail: session?.user?.email || 'no session'
+            userEmail: session?.user?.email || "no session",
           });
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('❌ useAuth: Exception getting initial session:', error);
+        console.error("❌ useAuth: Exception getting initial session:", error);
       } finally {
         setLoading(false);
       }
@@ -65,18 +74,18 @@ export const useAuth = () => {
     initializeAuth();
 
     return () => {
-      console.log('🧹 useAuth: Cleaning up auth subscription');
+      console.log("🧹 useAuth: Cleaning up auth subscription");
       subscription.unsubscribe();
     };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
-      console.log('📝 useAuth: Attempting sign up for:', email);
-      
-      const redirectUrl = getRedirectUrl('/');
-      console.log('🔗 useAuth: Using redirect URL:', redirectUrl);
-      
+      console.log("📝 useAuth: Attempting sign up for:", email);
+
+      const redirectUrl = getRedirectUrl("/");
+      console.log("🔗 useAuth: Using redirect URL:", redirectUrl);
+
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -84,45 +93,48 @@ export const useAuth = () => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName.trim(),
-          }
-        }
+          },
+        },
       });
 
       if (error) {
-        console.error('❌ useAuth: Sign up error:', error);
-        
-        let errorMessage = 'Error al crear la cuenta';
-        if (error.message.includes('User already registered')) {
-          errorMessage = 'Este email ya está registrado. Intenta iniciar sesión.';
-        } else if (error.message.includes('Invalid email')) {
-          errorMessage = 'Por favor ingresa un email válido.';
-        } else if (error.message.includes('Password')) {
-          errorMessage = 'La contraseña debe tener al menos 6 caracteres.';
-        } else if (error.message.includes('Email rate limit exceeded')) {
-          errorMessage = 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.';
+        console.error("❌ useAuth: Sign up error:", error);
+
+        let errorMessage = "Error al crear la cuenta";
+        if (error.message.includes("User already registered")) {
+          errorMessage =
+            "Este email ya está registrado. Intenta iniciar sesión.";
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Por favor ingresa un email válido.";
+        } else if (error.message.includes("Password")) {
+          errorMessage = "La contraseña debe tener al menos 6 caracteres.";
+        } else if (error.message.includes("Email rate limit exceeded")) {
+          errorMessage =
+            "Demasiados intentos. Espera unos minutos antes de intentar nuevamente.";
         } else {
           errorMessage = error.message;
         }
-        
+
         toast({
           title: "Error al registrarse",
           description: errorMessage,
           variant: "destructive",
         });
-        
+
         return { error };
       }
 
-      console.log('✅ useAuth: Sign up successful:', { 
-        hasUser: !!data.user, 
+      console.log("✅ useAuth: Sign up successful:", {
+        hasUser: !!data.user,
         hasSession: !!data.session,
-        userEmail: data.user?.email 
+        userEmail: data.user?.email,
       });
 
       if (data.user && !data.session) {
         toast({
           title: "Revisa tu email",
-          description: "Te enviamos un enlace de confirmación para completar tu registro.",
+          description:
+            "Te enviamos un enlace de confirmación para completar tu registro.",
         });
       } else if (data.session) {
         toast({
@@ -133,7 +145,7 @@ export const useAuth = () => {
 
       return { error: null };
     } catch (error: any) {
-      console.error('❌ useAuth: Sign up exception:', error);
+      console.error("❌ useAuth: Sign up exception:", error);
       toast({
         title: "Error al registrarse",
         description: error.message || "Ocurrió un error inesperado",
@@ -145,43 +157,45 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('🔑 useAuth: Attempting sign in for:', email);
-      
+      console.log("🔑 useAuth: Attempting sign in for:", email);
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
       if (error) {
-        console.error('❌ useAuth: Sign in error:', error);
-        
-        let errorMessage = 'Error al iniciar sesión';
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Email o contraseña incorrectos. Verifica tus credenciales.';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Por favor verifica tu email y haz clic en el enlace de confirmación.';
+        console.error("❌ useAuth: Sign in error:", error);
+
+        let errorMessage = "Error al iniciar sesión";
+        if (error.message.includes("Invalid login credentials")) {
+          errorMessage =
+            "Email o contraseña incorrectos. Verifica tus credenciales.";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMessage =
+            "Por favor verifica tu email y haz clic en el enlace de confirmación.";
         } else {
           errorMessage = error.message;
         }
-        
+
         toast({
           title: "Error al iniciar sesión",
           description: errorMessage,
           variant: "destructive",
         });
-        
+
         return { error };
       }
 
-      console.log('✅ useAuth: Sign in successful:', { 
-        hasUser: !!data.user, 
+      console.log("✅ useAuth: Sign in successful:", {
+        hasUser: !!data.user,
         hasSession: !!data.session,
-        userEmail: data.user?.email 
+        userEmail: data.user?.email,
       });
 
       return { error: null };
     } catch (error: any) {
-      console.error('❌ useAuth: Sign in exception:', error);
+      console.error("❌ useAuth: Sign in exception:", error);
       toast({
         title: "Error al iniciar sesión",
         description: error.message || "Ocurrió un error inesperado",
@@ -193,22 +207,22 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      console.log('👋 useAuth: Attempting sign out');
-      
+      console.log("👋 useAuth: Attempting sign out");
+
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('❌ useAuth: Sign out error:', error);
+        console.error("❌ useAuth: Sign out error:", error);
         throw error;
       }
 
-      console.log('✅ useAuth: Sign out successful');
+      console.log("✅ useAuth: Sign out successful");
 
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión exitosamente.",
       });
     } catch (error: any) {
-      console.error('❌ useAuth: Sign out exception:', error);
+      console.error("❌ useAuth: Sign out exception:", error);
       toast({
         title: "Error al cerrar sesión",
         description: error.message || "Ocurrió un error al cerrar sesión",
@@ -219,38 +233,38 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     try {
-      console.log('🔍 useAuth: Attempting Google sign in');
-      
-      const redirectUrl = getRedirectUrl('/');
-      console.log('🔗 useAuth: Using Google redirect URL:', redirectUrl);
-      
+      console.log("🔍 useAuth: Attempting Google sign in");
+
+      const redirectUrl = getRedirectUrl("/");
+      console.log("🔗 useAuth: Using Google redirect URL:", redirectUrl);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           redirectTo: redirectUrl,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'select_account',
-          }
-        }
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
       });
 
       if (error) {
-        console.error('❌ useAuth: Google sign in error:', error);
-        
+        console.error("❌ useAuth: Google sign in error:", error);
+
         toast({
           title: "Error con Google",
           description: error.message || "Error al iniciar sesión con Google",
           variant: "destructive",
         });
-        
+
         return { error };
       }
 
-      console.log('✅ useAuth: Google sign in initiated:', data);
+      console.log("✅ useAuth: Google sign in initiated:", data);
       return { error: null };
     } catch (error: any) {
-      console.error('❌ useAuth: Google sign in exception:', error);
+      console.error("❌ useAuth: Google sign in exception:", error);
       toast({
         title: "Error con Google",
         description: error.message || "Ocurrió un error inesperado",
@@ -262,46 +276,51 @@ export const useAuth = () => {
 
   const resetPassword = async (email: string) => {
     try {
-      console.log('🔐 useAuth: Attempting password reset for:', email);
-      
-      const redirectUrl = getRedirectUrl('/');
-      console.log('🔗 useAuth: Using reset redirect URL:', redirectUrl);
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: redirectUrl
-      });
+      console.log("🔐 useAuth: Attempting password reset for:", email);
+
+      const redirectUrl = getRedirectUrl("/");
+      console.log("🔗 useAuth: Using reset redirect URL:", redirectUrl);
+
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        email.trim(),
+        {
+          redirectTo: redirectUrl,
+        }
+      );
 
       if (error) {
-        console.error('❌ useAuth: Password reset error:', error);
-        
-        let errorMessage = 'Error al enviar email de recuperación';
-        if (error.message.includes('Email rate limit exceeded')) {
-          errorMessage = 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.';
-        } else if (error.message.includes('Invalid email')) {
-          errorMessage = 'Por favor ingresa un email válido.';
+        console.error("❌ useAuth: Password reset error:", error);
+
+        let errorMessage = "Error al enviar email de recuperación";
+        if (error.message.includes("Email rate limit exceeded")) {
+          errorMessage =
+            "Demasiados intentos. Espera unos minutos antes de intentar nuevamente.";
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Por favor ingresa un email válido.";
         } else {
           errorMessage = error.message;
         }
-        
+
         toast({
           title: "Error al recuperar contraseña",
           description: errorMessage,
           variant: "destructive",
         });
-        
+
         return { error };
       }
 
-      console.log('✅ useAuth: Password reset email sent successfully');
-      
+      console.log("✅ useAuth: Password reset email sent successfully");
+
       toast({
         title: "Email enviado",
-        description: "Te enviamos un enlace para recuperar tu contraseña. Revisa tu email.",
+        description:
+          "Te enviamos un enlace para recuperar tu contraseña. Revisa tu email.",
       });
 
       return { error: null };
     } catch (error: any) {
-      console.error('❌ useAuth: Password reset exception:', error);
+      console.error("❌ useAuth: Password reset exception:", error);
       toast({
         title: "Error al recuperar contraseña",
         description: error.message || "Ocurrió un error inesperado",

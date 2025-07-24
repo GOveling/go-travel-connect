@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,11 @@ interface LoginFormProps {
   isLoading: boolean;
 }
 
-const LoginForm = ({ onSubmit, onForgotPassword, isLoading }: LoginFormProps) => {
+const LoginForm = ({
+  onSubmit,
+  onForgotPassword,
+  isLoading,
+}: LoginFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +37,10 @@ const LoginForm = ({ onSubmit, onForgotPassword, isLoading }: LoginFormProps) =>
           Email Address
         </Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Mail
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="email"
             type="email"
@@ -53,7 +59,10 @@ const LoginForm = ({ onSubmit, onForgotPassword, isLoading }: LoginFormProps) =>
           Password
         </Label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Lock
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             id="password"
             type={showPassword ? "text" : "password"}

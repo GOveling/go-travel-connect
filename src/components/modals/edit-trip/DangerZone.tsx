@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
@@ -20,8 +19,8 @@ const DangerZone = ({ onDelete }: DangerZoneProps) => {
         <p className="text-sm text-red-600 mb-3">
           Once you delete a trip, there is no going back. Please be certain.
         </p>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={onDelete}
           className="w-full border-red-300 text-red-600 hover:bg-red-50"
         >

@@ -1,15 +1,18 @@
-
 import { useState } from "react";
 
 export const useProfileModals = () => {
-  const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] = useState(false);
-  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false);
-  const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] = useState(false);
+  const [isTravelDocumentsModalOpen, setIsTravelDocumentsModalOpen] =
+    useState(false);
+  const [isNotificationsModalOpen, setIsNotificationsModalOpen] =
+    useState(false);
+  const [isTravelAchievementsModalOpen, setIsTravelAchievementsModalOpen] =
+    useState(false);
   const [isShareProfileModalOpen, setIsShareProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isMyReviewsModalOpen, setIsMyReviewsModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
-  const [isPersonalInformationModalOpen, setIsPersonalInformationModalOpen] = useState(false);
+  const [isPersonalInformationModalOpen, setIsPersonalInformationModalOpen] =
+    useState(false);
 
   return {
     isTravelDocumentsModalOpen,

@@ -1,8 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TripBasicInfoProps {
   tripName: string;
@@ -27,12 +32,14 @@ const TripBasicInfo = ({
   budget,
   onBudgetChange,
   description,
-  onDescriptionChange
+  onDescriptionChange,
 }: TripBasicInfoProps) => {
   return (
     <div className="space-y-3">
       <div>
-        <Label htmlFor="tripName" className="text-sm font-medium">Trip Name</Label>
+        <Label htmlFor="tripName" className="text-sm font-medium">
+          Trip Name
+        </Label>
         <Input
           id="tripName"
           placeholder="My Amazing Trip"
@@ -44,7 +51,9 @@ const TripBasicInfo = ({
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="travelers" className="text-sm font-medium">Travelers</Label>
+          <Label htmlFor="travelers" className="text-sm font-medium">
+            Travelers
+          </Label>
           <Input
             id="travelers"
             type="number"
@@ -55,7 +64,9 @@ const TripBasicInfo = ({
           />
         </div>
         <div>
-          <Label htmlFor="status" className="text-sm font-medium">Status</Label>
+          <Label htmlFor="status" className="text-sm font-medium">
+            Status
+          </Label>
           <Select value={status} onValueChange={onStatusChange}>
             <SelectTrigger className="mt-1">
               <SelectValue />
@@ -70,7 +81,9 @@ const TripBasicInfo = ({
       </div>
 
       <div>
-        <Label htmlFor="budget" className="text-sm font-medium">Budget</Label>
+        <Label htmlFor="budget" className="text-sm font-medium">
+          Budget
+        </Label>
         <Input
           id="budget"
           placeholder="$2,500 per person"
@@ -81,7 +94,9 @@ const TripBasicInfo = ({
       </div>
 
       <div>
-        <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+        <Label htmlFor="description" className="text-sm font-medium">
+          Description
+        </Label>
         <textarea
           id="description"
           className="w-full mt-1 p-2 border rounded-md text-sm resize-none"

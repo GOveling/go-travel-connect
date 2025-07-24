@@ -4,651 +4,654 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
-  }
+    PostgrestVersion: "12.2.3 (519615d)";
+  };
   public: {
     Tables: {
       achievements: {
         Row: {
-          category: string
-          created_at: string
-          criteria: string
-          description: string
-          icon: string
-          id: string
-          points: number
-          rarity: string
-          title: string
-          total_required: number
-          updated_at: string
-        }
+          category: string;
+          created_at: string;
+          criteria: string;
+          description: string;
+          icon: string;
+          id: string;
+          points: number;
+          rarity: string;
+          title: string;
+          total_required: number;
+          updated_at: string;
+        };
         Insert: {
-          category: string
-          created_at?: string
-          criteria: string
-          description: string
-          icon: string
-          id: string
-          points?: number
-          rarity?: string
-          title: string
-          total_required?: number
-          updated_at?: string
-        }
+          category: string;
+          created_at?: string;
+          criteria: string;
+          description: string;
+          icon: string;
+          id: string;
+          points?: number;
+          rarity?: string;
+          title: string;
+          total_required?: number;
+          updated_at?: string;
+        };
         Update: {
-          category?: string
-          created_at?: string
-          criteria?: string
-          description?: string
-          icon?: string
-          id?: string
-          points?: number
-          rarity?: string
-          title?: string
-          total_required?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          category?: string;
+          created_at?: string;
+          criteria?: string;
+          description?: string;
+          icon?: string;
+          id?: string;
+          points?: number;
+          rarity?: string;
+          title?: string;
+          total_required?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       ai_itineraries: {
         Row: {
-          generated_at: string
-          id: string
-          itinerary_data: Json
-          route_type: string
-          trip_id: string
-          updated_at: string
-          user_id: string
-        }
+          generated_at: string;
+          id: string;
+          itinerary_data: Json;
+          route_type: string;
+          trip_id: string;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          generated_at?: string
-          id?: string
-          itinerary_data: Json
-          route_type: string
-          trip_id: string
-          updated_at?: string
-          user_id: string
-        }
+          generated_at?: string;
+          id?: string;
+          itinerary_data: Json;
+          route_type: string;
+          trip_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          generated_at?: string
-          id?: string
-          itinerary_data?: Json
-          route_type?: string
-          trip_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          generated_at?: string;
+          id?: string;
+          itinerary_data?: Json;
+          route_type?: string;
+          trip_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       all_cities: {
         Row: {
-          admin_name: string | null
-          capital: string | null
-          city: string
-          city_ascii: string | null
-          country: string | null
-          created_at: string
-          id: string
-          iso2: string | null
-          iso3: string | null
-          lat: number | null
-          lng: number | null
-          population: number | null
-          updated_at: string
-        }
+          admin_name: string | null;
+          capital: string | null;
+          city: string;
+          city_ascii: string | null;
+          country: string | null;
+          created_at: string;
+          id: string;
+          iso2: string | null;
+          iso3: string | null;
+          lat: number | null;
+          lng: number | null;
+          population: number | null;
+          updated_at: string;
+        };
         Insert: {
-          admin_name?: string | null
-          capital?: string | null
-          city: string
-          city_ascii?: string | null
-          country?: string | null
-          created_at?: string
-          id?: string
-          iso2?: string | null
-          iso3?: string | null
-          lat?: number | null
-          lng?: number | null
-          population?: number | null
-          updated_at?: string
-        }
+          admin_name?: string | null;
+          capital?: string | null;
+          city: string;
+          city_ascii?: string | null;
+          country?: string | null;
+          created_at?: string;
+          id?: string;
+          iso2?: string | null;
+          iso3?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          population?: number | null;
+          updated_at?: string;
+        };
         Update: {
-          admin_name?: string | null
-          capital?: string | null
-          city?: string
-          city_ascii?: string | null
-          country?: string | null
-          created_at?: string
-          id?: string
-          iso2?: string | null
-          iso3?: string | null
-          lat?: number | null
-          lng?: number | null
-          population?: number | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          admin_name?: string | null;
+          capital?: string | null;
+          city?: string;
+          city_ascii?: string | null;
+          country?: string | null;
+          created_at?: string;
+          id?: string;
+          iso2?: string | null;
+          iso3?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          population?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       countries: {
         Row: {
-          created_at: string
-          flag_url: string | null
-          id: string
-          iso_code: string
-          name: string
-          phone_code: string
-          region: string | null
-          subregion: string | null
-          updated_at: string
-        }
+          created_at: string;
+          flag_url: string | null;
+          id: string;
+          iso_code: string;
+          name: string;
+          phone_code: string;
+          region: string | null;
+          subregion: string | null;
+          updated_at: string;
+        };
         Insert: {
-          created_at?: string
-          flag_url?: string | null
-          id?: string
-          iso_code: string
-          name: string
-          phone_code: string
-          region?: string | null
-          subregion?: string | null
-          updated_at?: string
-        }
+          created_at?: string;
+          flag_url?: string | null;
+          id?: string;
+          iso_code: string;
+          name: string;
+          phone_code: string;
+          region?: string | null;
+          subregion?: string | null;
+          updated_at?: string;
+        };
         Update: {
-          created_at?: string
-          flag_url?: string | null
-          id?: string
-          iso_code?: string
-          name?: string
-          phone_code?: string
-          region?: string | null
-          subregion?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
+          created_at?: string;
+          flag_url?: string | null;
+          id?: string;
+          iso_code?: string;
+          name?: string;
+          phone_code?: string;
+          region?: string | null;
+          subregion?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       place_reviews: {
         Row: {
-          anonymous: boolean | null
-          comment: string
-          created_at: string
-          id: string
-          lat: number | null
-          lng: number | null
-          place_id: string
-          place_name: string
-          rating: number
-          updated_at: string
-          user_id: string
-        }
+          anonymous: boolean | null;
+          comment: string;
+          created_at: string;
+          id: string;
+          lat: number | null;
+          lng: number | null;
+          place_id: string;
+          place_name: string;
+          rating: number;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          anonymous?: boolean | null
-          comment: string
-          created_at?: string
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          place_id: string
-          place_name: string
-          rating: number
-          updated_at?: string
-          user_id: string
-        }
+          anonymous?: boolean | null;
+          comment: string;
+          created_at?: string;
+          id?: string;
+          lat?: number | null;
+          lng?: number | null;
+          place_id: string;
+          place_name: string;
+          rating: number;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          anonymous?: boolean | null
-          comment?: string
-          created_at?: string
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          place_id?: string
-          place_name?: string
-          rating?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          anonymous?: boolean | null;
+          comment?: string;
+          created_at?: string;
+          id?: string;
+          lat?: number | null;
+          lng?: number | null;
+          place_id?: string;
+          place_name?: string;
+          rating?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
-          address: string | null
-          age: number | null
-          avatar_url: string | null
-          birth_date: string | null
-          city_state: string | null
-          country: string | null
-          country_code: string | null
-          created_at: string | null
-          description: string | null
-          email: string | null
-          full_name: string | null
-          gender: string | null
-          id: string
-          mobile_phone: string | null
-          updated_at: string | null
-        }
+          address: string | null;
+          age: number | null;
+          avatar_url: string | null;
+          birth_date: string | null;
+          city_state: string | null;
+          country: string | null;
+          country_code: string | null;
+          created_at: string | null;
+          description: string | null;
+          email: string | null;
+          full_name: string | null;
+          gender: string | null;
+          id: string;
+          mobile_phone: string | null;
+          updated_at: string | null;
+        };
         Insert: {
-          address?: string | null
-          age?: number | null
-          avatar_url?: string | null
-          birth_date?: string | null
-          city_state?: string | null
-          country?: string | null
-          country_code?: string | null
-          created_at?: string | null
-          description?: string | null
-          email?: string | null
-          full_name?: string | null
-          gender?: string | null
-          id: string
-          mobile_phone?: string | null
-          updated_at?: string | null
-        }
+          address?: string | null;
+          age?: number | null;
+          avatar_url?: string | null;
+          birth_date?: string | null;
+          city_state?: string | null;
+          country?: string | null;
+          country_code?: string | null;
+          created_at?: string | null;
+          description?: string | null;
+          email?: string | null;
+          full_name?: string | null;
+          gender?: string | null;
+          id: string;
+          mobile_phone?: string | null;
+          updated_at?: string | null;
+        };
         Update: {
-          address?: string | null
-          age?: number | null
-          avatar_url?: string | null
-          birth_date?: string | null
-          city_state?: string | null
-          country?: string | null
-          country_code?: string | null
-          created_at?: string | null
-          description?: string | null
-          email?: string | null
-          full_name?: string | null
-          gender?: string | null
-          id?: string
-          mobile_phone?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+          address?: string | null;
+          age?: number | null;
+          avatar_url?: string | null;
+          birth_date?: string | null;
+          city_state?: string | null;
+          country?: string | null;
+          country_code?: string | null;
+          created_at?: string | null;
+          description?: string | null;
+          email?: string | null;
+          full_name?: string | null;
+          gender?: string | null;
+          id?: string;
+          mobile_phone?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
       saved_places: {
         Row: {
-          category: string | null
-          created_at: string
-          description: string | null
-          destination_name: string | null
-          estimated_time: string | null
-          id: string
-          image: string | null
-          lat: number | null
-          lng: number | null
-          name: string
-          priority: string | null
-          rating: number | null
-          trip_id: string
-        }
+          category: string | null;
+          created_at: string;
+          description: string | null;
+          destination_name: string | null;
+          estimated_time: string | null;
+          id: string;
+          image: string | null;
+          lat: number | null;
+          lng: number | null;
+          name: string;
+          priority: string | null;
+          rating: number | null;
+          trip_id: string;
+        };
         Insert: {
-          category?: string | null
-          created_at?: string
-          description?: string | null
-          destination_name?: string | null
-          estimated_time?: string | null
-          id?: string
-          image?: string | null
-          lat?: number | null
-          lng?: number | null
-          name: string
-          priority?: string | null
-          rating?: number | null
-          trip_id: string
-        }
+          category?: string | null;
+          created_at?: string;
+          description?: string | null;
+          destination_name?: string | null;
+          estimated_time?: string | null;
+          id?: string;
+          image?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          name: string;
+          priority?: string | null;
+          rating?: number | null;
+          trip_id: string;
+        };
         Update: {
-          category?: string | null
-          created_at?: string
-          description?: string | null
-          destination_name?: string | null
-          estimated_time?: string | null
-          id?: string
-          image?: string | null
-          lat?: number | null
-          lng?: number | null
-          name?: string
-          priority?: string | null
-          rating?: number | null
-          trip_id?: string
-        }
+          category?: string | null;
+          created_at?: string;
+          description?: string | null;
+          destination_name?: string | null;
+          estimated_time?: string | null;
+          id?: string;
+          image?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          name?: string;
+          priority?: string | null;
+          rating?: number | null;
+          trip_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "saved_places_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
+            foreignKeyName: "saved_places_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       trip_collaborators: {
         Row: {
-          avatar: string | null
-          email: string | null
-          id: string
-          joined_at: string
-          name: string | null
-          role: string
-          trip_id: string
-          user_id: string
-        }
+          avatar: string | null;
+          email: string | null;
+          id: string;
+          joined_at: string;
+          name: string | null;
+          role: string;
+          trip_id: string;
+          user_id: string;
+        };
         Insert: {
-          avatar?: string | null
-          email?: string | null
-          id?: string
-          joined_at?: string
-          name?: string | null
-          role?: string
-          trip_id: string
-          user_id: string
-        }
+          avatar?: string | null;
+          email?: string | null;
+          id?: string;
+          joined_at?: string;
+          name?: string | null;
+          role?: string;
+          trip_id: string;
+          user_id: string;
+        };
         Update: {
-          avatar?: string | null
-          email?: string | null
-          id?: string
-          joined_at?: string
-          name?: string | null
-          role?: string
-          trip_id?: string
-          user_id?: string
-        }
+          avatar?: string | null;
+          email?: string | null;
+          id?: string;
+          joined_at?: string;
+          name?: string | null;
+          role?: string;
+          trip_id?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "trip_collaborators_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
+            foreignKeyName: "trip_collaborators_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       trip_coordinates: {
         Row: {
-          created_at: string
-          id: string
-          lat: number | null
-          lng: number | null
-          name: string
-          order_index: number | null
-          trip_id: string
-        }
+          created_at: string;
+          id: string;
+          lat: number | null;
+          lng: number | null;
+          name: string;
+          order_index: number | null;
+          trip_id: string;
+        };
         Insert: {
-          created_at?: string
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          name: string
-          order_index?: number | null
-          trip_id: string
-        }
+          created_at?: string;
+          id?: string;
+          lat?: number | null;
+          lng?: number | null;
+          name: string;
+          order_index?: number | null;
+          trip_id: string;
+        };
         Update: {
-          created_at?: string
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          name?: string
-          order_index?: number | null
-          trip_id?: string
-        }
+          created_at?: string;
+          id?: string;
+          lat?: number | null;
+          lng?: number | null;
+          name?: string;
+          order_index?: number | null;
+          trip_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "trip_coordinates_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
+            foreignKeyName: "trip_coordinates_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       trips: {
         Row: {
-          accommodation: string | null
-          budget: string | null
-          created_at: string
-          dates: string
-          description: string | null
-          destination: Json
-          id: string
-          image: string | null
-          is_group_trip: boolean | null
-          name: string
-          status: string
-          transportation: string | null
-          travelers: number | null
-          updated_at: string
-          user_id: string
-        }
+          accommodation: string | null;
+          budget: string | null;
+          created_at: string;
+          dates: string;
+          description: string | null;
+          destination: Json;
+          id: string;
+          image: string | null;
+          is_group_trip: boolean | null;
+          name: string;
+          status: string;
+          transportation: string | null;
+          travelers: number | null;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          accommodation?: string | null
-          budget?: string | null
-          created_at?: string
-          dates: string
-          description?: string | null
-          destination: Json
-          id?: string
-          image?: string | null
-          is_group_trip?: boolean | null
-          name: string
-          status?: string
-          transportation?: string | null
-          travelers?: number | null
-          updated_at?: string
-          user_id: string
-        }
+          accommodation?: string | null;
+          budget?: string | null;
+          created_at?: string;
+          dates: string;
+          description?: string | null;
+          destination: Json;
+          id?: string;
+          image?: string | null;
+          is_group_trip?: boolean | null;
+          name: string;
+          status?: string;
+          transportation?: string | null;
+          travelers?: number | null;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          accommodation?: string | null
-          budget?: string | null
-          created_at?: string
-          dates?: string
-          description?: string | null
-          destination?: Json
-          id?: string
-          image?: string | null
-          is_group_trip?: boolean | null
-          name?: string
-          status?: string
-          transportation?: string | null
-          travelers?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          accommodation?: string | null;
+          budget?: string | null;
+          created_at?: string;
+          dates?: string;
+          description?: string | null;
+          destination?: Json;
+          id?: string;
+          image?: string | null;
+          is_group_trip?: boolean | null;
+          name?: string;
+          status?: string;
+          transportation?: string | null;
+          travelers?: number | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_achievement_progress: {
         Row: {
-          achievement_id: string
-          completed_at: string | null
-          created_at: string
-          current_progress: number
-          id: string
-          is_completed: boolean
-          updated_at: string
-          user_id: string
-        }
+          achievement_id: string;
+          completed_at: string | null;
+          created_at: string;
+          current_progress: number;
+          id: string;
+          is_completed: boolean;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          achievement_id: string
-          completed_at?: string | null
-          created_at?: string
-          current_progress?: number
-          id?: string
-          is_completed?: boolean
-          updated_at?: string
-          user_id: string
-        }
+          achievement_id: string;
+          completed_at?: string | null;
+          created_at?: string;
+          current_progress?: number;
+          id?: string;
+          is_completed?: boolean;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          achievement_id?: string
-          completed_at?: string | null
-          created_at?: string
-          current_progress?: number
-          id?: string
-          is_completed?: boolean
-          updated_at?: string
-          user_id?: string
-        }
+          achievement_id?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          current_progress?: number;
+          id?: string;
+          is_completed?: boolean;
+          updated_at?: string;
+          user_id?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "user_achievement_progress_achievement_id_fkey"
-            columns: ["achievement_id"]
-            isOneToOne: false
-            referencedRelation: "achievements"
-            referencedColumns: ["id"]
+            foreignKeyName: "user_achievement_progress_achievement_id_fkey";
+            columns: ["achievement_id"];
+            isOneToOne: false;
+            referencedRelation: "achievements";
+            referencedColumns: ["id"];
           },
-        ]
-      }
+        ];
+      };
       user_achievements: {
         Row: {
-          achievement_id: string
-          earned_at: string
-          id: string
-          user_id: string
-        }
+          achievement_id: string;
+          earned_at: string;
+          id: string;
+          user_id: string;
+        };
         Insert: {
-          achievement_id: string
-          earned_at?: string
-          id?: string
-          user_id: string
-        }
+          achievement_id: string;
+          earned_at?: string;
+          id?: string;
+          user_id: string;
+        };
         Update: {
-          achievement_id?: string
-          earned_at?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          achievement_id?: string;
+          earned_at?: string;
+          id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_activities: {
         Row: {
-          activity_type: string
-          created_at: string
-          description: string
-          icon: string
-          id: string
-          user_id: string
-        }
+          activity_type: string;
+          created_at: string;
+          description: string;
+          icon: string;
+          id: string;
+          user_id: string;
+        };
         Insert: {
-          activity_type: string
-          created_at?: string
-          description: string
-          icon: string
-          id?: string
-          user_id: string
-        }
+          activity_type: string;
+          created_at?: string;
+          description: string;
+          icon: string;
+          id?: string;
+          user_id: string;
+        };
         Update: {
-          activity_type?: string
-          created_at?: string
-          description?: string
-          icon?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
+          activity_type?: string;
+          created_at?: string;
+          description?: string;
+          icon?: string;
+          id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_stats: {
         Row: {
-          achievement_points: number | null
-          cities_explored: number | null
-          countries_visited: number | null
-          created_at: string
-          id: string
-          level: number | null
-          places_visited: number | null
-          updated_at: string
-          user_id: string
-        }
+          achievement_points: number | null;
+          cities_explored: number | null;
+          countries_visited: number | null;
+          created_at: string;
+          id: string;
+          level: number | null;
+          places_visited: number | null;
+          updated_at: string;
+          user_id: string;
+        };
         Insert: {
-          achievement_points?: number | null
-          cities_explored?: number | null
-          countries_visited?: number | null
-          created_at?: string
-          id?: string
-          level?: number | null
-          places_visited?: number | null
-          updated_at?: string
-          user_id: string
-        }
+          achievement_points?: number | null;
+          cities_explored?: number | null;
+          countries_visited?: number | null;
+          created_at?: string;
+          id?: string;
+          level?: number | null;
+          places_visited?: number | null;
+          updated_at?: string;
+          user_id: string;
+        };
         Update: {
-          achievement_points?: number | null
-          cities_explored?: number | null
-          countries_visited?: number | null
-          created_at?: string
-          id?: string
-          level?: number | null
-          places_visited?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-    }
+          achievement_points?: number | null;
+          cities_explored?: number | null;
+          countries_visited?: number | null;
+          created_at?: string;
+          id?: string;
+          level?: number | null;
+          places_visited?: number | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
       calculate_age: {
-        Args: { birth_date: string }
-        Returns: number
-      }
+        Args: { birth_date: string };
+        Returns: number;
+      };
       extract_country_from_destination: {
-        Args: { destination_name: string }
-        Returns: string
-      }
+        Args: { destination_name: string };
+        Returns: string;
+      };
       get_user_achievements_with_progress: {
-        Args: { p_user_id: string }
+        Args: { p_user_id: string };
         Returns: {
-          achievement_id: string
-          title: string
-          description: string
-          category: string
-          icon: string
-          points: number
-          total_required: number
-          criteria: string
-          rarity: string
-          current_progress: number
-          is_completed: boolean
-          completed_at: string
-          progress_percentage: number
-        }[]
-      }
+          achievement_id: string;
+          title: string;
+          description: string;
+          category: string;
+          icon: string;
+          points: number;
+          total_required: number;
+          criteria: string;
+          rarity: string;
+          current_progress: number;
+          is_completed: boolean;
+          completed_at: string;
+          progress_percentage: number;
+        }[];
+      };
       update_achievement_progress: {
         Args: {
-          p_user_id: string
-          p_achievement_id: string
-          p_progress_increment?: number
-        }
-        Returns: undefined
-      }
-    }
+          p_user_id: string;
+          p_achievement_id: string;
+          p_progress_increment?: number;
+        };
+        Returns: undefined;
+      };
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
-}
+      [_ in never]: never;
+    };
+  };
+};
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  "public"
+>];
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
+      Row: infer R;
     }
     ? R
     : never
@@ -656,98 +659,98 @@ export type Tables<
         DefaultSchema["Views"])
     ? (DefaultSchema["Tables"] &
         DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
+        Row: infer R;
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
+      Insert: infer I;
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
+        Insert: infer I;
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
+      Update: infer U;
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
     ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
+        Update: infer U;
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof DatabaseWithoutInternals;
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof DatabaseWithoutInternals;
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+    : never;
 
 export const Constants = {
   public: {
     Enums: {},
   },
-} as const
+} as const;
