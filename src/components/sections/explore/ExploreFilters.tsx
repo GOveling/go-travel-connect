@@ -1,8 +1,18 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Filter, X, ChevronDown, ChevronUp } from "lucide-react";
-import { Landmark, Building2, TreePine, Waves, Mountain } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/hooks/useLanguage";
+import {
+  Building2,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Landmark,
+  Mountain,
+  TreePine,
+  Waves,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 
 interface ExploreFiltersProps {
   selectedCategories: string[];
@@ -99,7 +109,47 @@ const ExploreFilters = ({
   onCategoryToggle,
   onClearFilters,
 }: ExploreFiltersProps) => {
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const getMainCategories = () => [
+    {
+      id: "restaurant",
+      label: t("explore.categories.restaurants"),
+      icon: "🍴",
+      color: "bg-red-100 text-red-800",
+    },
+    {
+      id: "hotel",
+      label: t("explore.categories.hotels"),
+      icon: "🏨",
+      color: "bg-blue-100 text-blue-800",
+    },
+    {
+      id: "attraction",
+      label: t("explore.categories.attractions"),
+      icon: "🎭",
+      color: "bg-purple-100 text-purple-800",
+    },
+    {
+      id: "shopping",
+      label: t("explore.categories.shopping"),
+      icon: "🛍️",
+      color: "bg-green-100 text-green-800",
+    },
+    {
+      id: "entertainment",
+      label: t("explore.categories.nightlife"),
+      icon: "🎵",
+      color: "bg-yellow-100 text-yellow-800",
+    },
+    {
+      id: "activities",
+      label: t("explore.categories.activities"),
+      icon: "⚽",
+      color: "bg-indigo-100 text-indigo-800",
+    },
+  ];
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -112,10 +162,12 @@ const ExploreFilters = ({
         <Button
           variant="ghost"
           onClick={toggleExpanded}
-          className="flex items-center gap-2 p-3 border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 rounded-lg flex-1 justify-start transition-all duration-200 shadow-sm hover:shadow-md"
+          className="flex items-center gap-3 pl-3 pr-3 py-3 border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 rounded-xl flex-1 justify-start transition-all duration-200 shadow-sm hover:shadow-md h-12"
         >
           <Filter size={20} className="text-purple-600" />
-          <h3 className="font-semibold text-gray-800">Search Categories</h3>
+          <h3 className="font-semibold text-gray-800 text-base pl-1">
+            {t("explore.searchCategories")}
+          </h3>
           {isExpanded ? (
             <ChevronUp size={20} className="text-purple-600 ml-auto" />
           ) : (
@@ -155,7 +207,7 @@ const ExploreFilters = ({
                 General
               </h4>
               <div className="grid grid-cols-1 gap-2">
-                {mainCategories.map((category) => {
+                {getMainCategories().map((category) => {
                   const isSelected = selectedCategories.includes(category.id);
                   return (
                     <Button

@@ -125,9 +125,10 @@
     }
   },
   "explore": {
-    "title": "Explorar",
-    "subtitle": "Descubre lugares increíbles alrededor del mundo",
-    "searchPlaceholder": "Buscar destinos, actividades...",
+    "title": "Explorar Lugares",
+    "subtitle": "Descubre destinos de ensueño para tu próxima aventura",
+    "searchPlaceholder": "Buscar tu próximo destino...",
+    "searchCategories": "Buscar Categorías",
     "categories": {
       "all": "Todo",
       "attractions": "Atracciones",

@@ -1,13 +1,13 @@
-import { useState } from "react";
+import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import PlaceMapModal from "@/components/modals/PlaceMapModal";
 import { useToast } from "@/hooks/use-toast";
 import { useAddToTrip } from "@/hooks/useAddToTrip";
-import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
-import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useCallback, useState } from "react";
 import ExploreFilters from "./explore/ExploreFilters";
-import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreResults from "./explore/ExploreResults";
-import PlaceMapModal from "@/components/modals/PlaceMapModal";
-import { useCallback } from "react";
+import ExploreSearchBar from "./explore/ExploreSearchBar";
 
 interface Place {
   id: string;
@@ -44,6 +44,7 @@ const ExploreSection = ({
 }: ExploreSectionProps) => {
   const { toast } = useToast();
   const { addPlaceToTrip } = useAddToTrip();
+  const { t } = useLanguage();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);
@@ -211,31 +212,27 @@ const ExploreSection = ({
         <div className="p-4">
           <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Explorar Lugares
+              {t("explore.title")}
             </h1>
-            <p className="text-sm text-gray-600">
-              Descubre lugares increíbles con búsqueda mejorada por Google
-              Places API y georreferenciación precisa
-            </p>
+            <p className="text-sm text-gray-600">{t("explore.subtitle")}</p>
           </div>
 
-          {/* Filters */}
-          <div className="mb-4">
+          {/* Search Controls - Filtros y Búsqueda más juntos */}
+          <div className="space-y-2">
             <ExploreFilters
               selectedCategories={selectedCategories}
               onCategoryToggle={handleCategoryToggle}
               onClearFilters={handleClearFilters}
             />
-          </div>
 
-          {/* Enhanced Search Bar */}
-          <ExploreSearchBar
-            selectedCategories={selectedCategories}
-            onSearchSubmit={handleSearchSubmit}
-            onShowRelatedPlaces={handleShowRelatedPlaces}
-            onSearchResults={handleSearchResults}
-            onLoadingChange={handleLoadingChange}
-          />
+            <ExploreSearchBar
+              selectedCategories={selectedCategories}
+              onSearchSubmit={handleSearchSubmit}
+              onShowRelatedPlaces={handleShowRelatedPlaces}
+              onSearchResults={handleSearchResults}
+              onLoadingChange={handleLoadingChange}
+            />
+          </div>
         </div>
       </div>
 

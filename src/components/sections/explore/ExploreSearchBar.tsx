@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Search, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLanguage } from "@/hooks/useLanguage";
 import {
-  useGooglePlacesEnhanced,
   EnhancedPlace,
+  useGooglePlacesEnhanced,
 } from "@/hooks/useGooglePlacesEnhanced";
+import { useLanguage } from "@/hooks/useLanguage";
+import { Loader2, Search } from "lucide-react";
+import React, { useState } from "react";
 
 interface Place {
   id: string;
@@ -118,27 +118,14 @@ const ExploreSearchBar = ({
   };
 
   const getCategoryHint = () => {
-    if (selectedCategories.length === 0)
-      return "Buscar lugares con Google Places API - Datos precisos y verificados...";
-    if (selectedCategories.length === 1) {
-      const categoryNames: { [key: string]: string } = {
-        restaurant: "restaurantes",
-        hotel: "hoteles",
-        attraction: "atracciones",
-        shopping: "centros comerciales",
-        entertainment: "lugares de entretenimiento",
-        transport: "estaciones de transporte",
-        health: "centros de salud",
-        education: "instituciones educativas",
-        landmark: "puntos de referencia",
-        museum: "museos",
-        park: "parques",
-        beach: "playas",
-        lake: "lagos",
-      };
-      return `Buscar ${categoryNames[selectedCategories[0]] || "lugares"} con datos verificados de Google...`;
+    if (selectedCategories.length === 0) {
+      return t("explore.searchPlaceholder");
     }
-    return `Buscar en ${selectedCategories.length} categorías con Google Places API...`;
+    if (selectedCategories.length === 1) {
+      const categoryName = t(`explore.categories.${selectedCategories[0]}`);
+      return `${t("explore.searchPlaceholder")} en ${categoryName}...`;
+    }
+    return `${t("explore.searchPlaceholder")} en ${selectedCategories.length} categorías...`;
   };
 
   return (

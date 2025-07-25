@@ -1,8 +1,9 @@
 {
   "explore": {
-    "title": "Explore",
-    "subtitle": "Discover amazing places around the world",
-    "searchPlaceholder": "Search destinations, activities...",
+    "title": "Explore Places",
+    "subtitle": "Discover dream destinations for your next adventure",
+    "searchPlaceholder": "Search your next destination...",
+    "searchCategories": "Search Categories",
     "categories": {
       "all": "All",
       "attractions": "Attractions",
