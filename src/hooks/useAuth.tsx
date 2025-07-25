@@ -190,6 +190,9 @@ export const useAuth = () => {
         userEmail: data.user?.email,
       });
 
+      // Log simple para login exitoso
+      console.log("🎉 Usuario inició sesión exitosamente!");
+
       return { error: null };
     } catch (error: any) {
       console.error("❌ useAuth: Sign in exception:", error);
