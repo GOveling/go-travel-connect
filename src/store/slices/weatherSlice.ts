@@ -41,7 +41,7 @@ const weatherSlice = createSlice({
       state.error = null;
       state.lastUpdated = Date.now();
     },
-    setWeatherError: (state, action: PayloadAction<string>) => {
+    setWeatherError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
       state.isLoading = false;
     },

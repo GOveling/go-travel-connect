@@ -1,12 +1,21 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useReduxAuth } from "@/hooks/useReduxAuth";
 import { useWeatherData } from "@/hooks/useWeatherData";
-import { Cloud, CloudRain, MapPin, Sun, Thermometer } from "lucide-react";
+import {
+  Cloud,
+  CloudRain,
+  Coffee,
+  Compass,
+  Heart,
+  MapPin,
+  Sun,
+  Thermometer,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 const LocationWeatherWidget = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { weatherData, isLoading, fetchWeatherByLocation, isDataStale } =
+  const { weatherData, isLoading, fetchWeatherByLocation, isDataStale, error } =
     useWeatherData();
   const { isAuthenticated } = useReduxAuth();
 
@@ -48,9 +57,38 @@ const LocationWeatherWidget = () => {
       case "rainy":
       case "rain":
         return <CloudRain size={20} className="text-blue-500" />;
+      case "pleasant":
+        return <Heart size={20} className="text-pink-500" />;
       default:
         return <Cloud size={20} className="text-gray-500" />;
     }
+  };
+
+  // Función para determinar si estamos mostrando mensaje motivacional
+  const isMotivationalMessage = (cityName: string) => {
+    const motivationalKeywords = [
+      "excelente día",
+      "vamos de viaje",
+      "mundo está esperando",
+      "nueva aventura",
+      "destino te está llamando",
+      "experiencia inolvidable",
+      "momento para viajar",
+    ];
+    return motivationalKeywords.some((keyword) =>
+      cityName.toLowerCase().includes(keyword.toLowerCase())
+    );
+  };
+
+  // Función para obtener ícono motivacional
+  const getMotivationalIcon = () => {
+    const icons = [
+      <Heart size={12} className="text-pink-500" />,
+      <Coffee size={12} className="text-amber-500" />,
+      <Compass size={12} className="text-blue-500" />,
+      <Sun size={12} className="text-yellow-500" />,
+    ];
+    return icons[Math.floor(Math.random() * icons.length)];
   };
 
   if (isLoading || !weatherData) {
@@ -66,24 +104,47 @@ const LocationWeatherWidget = () => {
     );
   }
 
+  const isMotivational = isMotivationalMessage(weatherData.location.city);
+
   return (
-    <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
+    <Card
+      className={`${
+        isMotivational
+          ? "bg-gradient-to-r from-pink-500 to-orange-500"
+          : error
+            ? "bg-gradient-to-r from-amber-500 to-red-500"
+            : "bg-gradient-to-r from-blue-500 to-purple-600"
+      } text-white border-0 shadow-lg`}
+    >
       <CardContent className="p-2">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2 flex-1">
-            <MapPin size={12} />
-            <span className="font-medium">{weatherData.location.city}</span>
-            <span className="opacity-80">•</span>
-            <span>{formatDate(currentDate)}</span>
+            {isMotivational ? (
+              <>
+                {getMotivationalIcon()}
+                <span className="font-medium text-xs leading-tight">
+                  {weatherData.location.city}
+                </span>
+              </>
+            ) : (
+              <>
+                <MapPin size={12} />
+                <span className="font-medium">{weatherData.location.city}</span>
+                <span className="opacity-80">•</span>
+                <span>{formatDate(currentDate)}</span>
+              </>
+            )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            {getWeatherIcon(weatherData.condition)}
-            <div className="flex items-center">
-              <Thermometer size={12} className="mr-1" />
-              <span className="font-bold">{weatherData.temperature}°C</span>
+          {!isMotivational && (
+            <div className="flex items-center space-x-2">
+              {getWeatherIcon(weatherData.condition)}
+              <div className="flex items-center">
+                <Thermometer size={12} className="mr-1" />
+                <span className="font-bold">{weatherData.temperature}°C</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>
