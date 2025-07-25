@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, Sun, Moon } from "lucide-react";
 import ForgotPasswordModal from "@/components/modals/ForgotPasswordModal";
+import { Eye, EyeOff, Moon, Sun } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 interface AnimatedSignInProps {
   onLogin?: (email: string, password: string) => Promise<void>;
@@ -233,12 +233,6 @@ const AnimatedSignIn: React.FC<AnimatedSignInProps> = ({
                   className="auth-logo"
                 />
               </div>
-              <h1>{isSignUp ? "Create Account" : "Welcome"}</h1>
-              <p>
-                {isSignUp
-                  ? "Please sign up to get started"
-                  : "Please sign in to continue"}
-              </p>
             </div>
 
             <form className="login-form" onSubmit={handleSubmit}>
@@ -373,7 +367,7 @@ const AnimatedSignIn: React.FC<AnimatedSignInProps> = ({
             </form>
 
             <div className="separator">
-              <span>or use</span>
+              <span>or</span>
             </div>
 
             <div className="social-login">
