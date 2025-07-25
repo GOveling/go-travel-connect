@@ -1,25 +1,25 @@
-import { Plus, Map } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import TripMapInteractive from "@/components/maps/TripMapInteractive";
-import TripDetailModal from "@/components/modals/TripDetailModal";
-import NewTripModal from "@/components/modals/NewTripModal";
-import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
-import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
 import AISmartRouteModal from "@/components/modals/AISmartRouteModal";
-import BeachVacationModal from "@/components/modals/BeachVacationModal";
-import MountainTripModal from "@/components/modals/MountainTripModal";
-import CityBreakModal from "@/components/modals/CityBreakModal";
 import BackpackingModal from "@/components/modals/BackpackingModal";
-import EditTripModal from "@/components/modals/EditTripModal";
+import BeachVacationModal from "@/components/modals/BeachVacationModal";
+import CityBreakModal from "@/components/modals/CityBreakModal";
 import DeleteTripConfirmationModal from "@/components/modals/DeleteTripConfirmationModal";
-import { calculateTripStatus } from "@/utils/tripStatusUtils";
-import TripCard from "@/components/trips/TripCard";
+import EditTripModal from "@/components/modals/EditTripModal";
+import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
+import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
+import MountainTripModal from "@/components/modals/MountainTripModal";
+import NewTripModal from "@/components/modals/NewTripModal";
+import TripDetailModal from "@/components/modals/TripDetailModal";
 import QuickStats from "@/components/trips/QuickStats";
-import TripTemplates from "@/components/trips/TripTemplates";
 import ShareSection from "@/components/trips/ShareSection";
+import TripCard from "@/components/trips/TripCard";
+import TripTemplates from "@/components/trips/TripTemplates";
+import { Button } from "@/components/ui/button";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useLanguage } from "@/hooks/useLanguage";
+import { calculateTripStatus } from "@/utils/tripStatusUtils";
+import { Map, Plus } from "lucide-react";
+import { useState } from "react";
 
 const TripsSection = () => {
   const { t } = useLanguage();
@@ -147,7 +147,7 @@ const TripsSection = () => {
                 {t("trips.mapView")}
               </h2>
               <p className="text-gray-600 text-sm sm:text-base">
-                View all your trip destinations
+                {t("trips.mapViewSubtitle")}
               </p>
             </div>
             <Button
@@ -191,7 +191,7 @@ const TripsSection = () => {
               {t("trips.mapView")}
             </Button>
             <Button
-              className="bg-gradient-to-r from-blue-500 to-orange-500 border-0 w-full sm:w-auto"
+              className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 border-0 w-full sm:w-auto"
               onClick={() => setShowNewTripModal(true)}
             >
               <Plus size={20} className="mr-2" />
@@ -210,17 +210,17 @@ const TripsSection = () => {
           <div className="text-center py-20">
             <div className="text-6xl mb-4">✈️</div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              No trips yet
+              {t("trips.noTripsYet")}
             </h3>
             <p className="text-gray-600 mb-6">
-              Create your first trip to get started!
+              {t("trips.createFirstTripDescription")}
             </p>
             <Button
-              className="bg-gradient-to-r from-blue-500 to-orange-500"
+              className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
               onClick={() => setShowNewTripModal(true)}
             >
               <Plus size={20} className="mr-2" />
-              Create Your First Trip
+              {t("trips.createFirstTrip")}
             </Button>
           </div>
         ) : (

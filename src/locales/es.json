@@ -156,7 +156,11 @@
     "subtitle": "Planea y gestiona tus aventuras",
     "newTrip": "Nuevo Viaje",
     "mapView": "Vista de Mapa",
+    "mapViewSubtitle": "Ver todos los destinos de tus viajes",
     "backToList": "Volver a la Lista",
+    "noTripsYet": "Aún no hay viajes",
+    "createFirstTripDescription": "¡Crea tu primer viaje para comenzar!",
+    "createFirstTrip": "Crear Tu Primer Viaje",
     "quickStats": {
       "upcoming": "Próximos",
       "inProgress": "En Progreso",

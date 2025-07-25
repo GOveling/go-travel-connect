@@ -4,7 +4,11 @@
     "subtitle": "Plan and manage your adventures",
     "newTrip": "New Trip",
     "mapView": "Map View",
+    "mapViewSubtitle": "View all your trip destinations",
     "backToList": "Back to List",
+    "noTripsYet": "No trips yet",
+    "createFirstTripDescription": "Create your first trip to get started!",
+    "createFirstTrip": "Create Your First Trip",
     "quickStats": {
       "upcoming": "Upcoming",
       "inProgress": "In Progress",
