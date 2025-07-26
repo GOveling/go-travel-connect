@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useReduxAuth } from "@/hooks/useReduxAuth";
 import { useWeatherData } from "@/hooks/useWeatherData";
 import {
@@ -15,9 +16,16 @@ import { useEffect, useState } from "react";
 
 const LocationWeatherWidget = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { weatherData, isLoading, fetchWeatherByLocation, isDataStale, error } =
-    useWeatherData();
+  const {
+    weatherData,
+    isLoading,
+    fetchWeatherByLocation,
+    isDataStale,
+    error,
+    getRandomFallbackMessage,
+  } = useWeatherData();
   const { isAuthenticated } = useReduxAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -67,13 +75,13 @@ const LocationWeatherWidget = () => {
   // Función para determinar si estamos mostrando mensaje motivacional
   const isMotivationalMessage = (cityName: string) => {
     const motivationalKeywords = [
-      "excelente día",
-      "vamos de viaje",
-      "mundo está esperando",
-      "nueva aventura",
-      "destino te está llamando",
-      "experiencia inolvidable",
-      "momento para viajar",
+      t("home.weather.motivationalKeywords.excellentDay"),
+      t("home.weather.motivationalKeywords.letsTravel"),
+      t("home.weather.motivationalKeywords.worldWaiting"),
+      t("home.weather.motivationalKeywords.newAdventure"),
+      t("home.weather.motivationalKeywords.destinationCalling"),
+      t("home.weather.motivationalKeywords.unforgettableExperience"),
+      t("home.weather.motivationalKeywords.timeToTravel"),
     ];
     return motivationalKeywords.some((keyword) =>
       cityName.toLowerCase().includes(keyword.toLowerCase())
@@ -91,7 +99,7 @@ const LocationWeatherWidget = () => {
     return icons[Math.floor(Math.random() * icons.length)];
   };
 
-  if (isLoading || !weatherData) {
+  if (isLoading) {
     return (
       <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 shadow-lg">
         <CardContent className="p-2">
@@ -104,6 +112,47 @@ const LocationWeatherWidget = () => {
     );
   }
 
+  // Solo mostrar mensaje motivacional si hay error Y no hay datos en caché
+  if (error && !weatherData) {
+    const motivationalMessage = getRandomFallbackMessage();
+
+    return (
+      <Card className="bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0 shadow-lg">
+        <CardContent className="p-2">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center space-x-2 flex-1">
+              {getMotivationalIcon()}
+              <span className="font-medium text-xs leading-tight">
+                {motivationalMessage}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Si no hay datos de clima en absoluto (sin error específico), también mostrar fallback
+  if (!weatherData) {
+    const motivationalMessage = getRandomFallbackMessage();
+
+    return (
+      <Card className="bg-gradient-to-r from-pink-500 to-orange-500 text-white border-0 shadow-lg">
+        <CardContent className="p-2">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center space-x-2 flex-1">
+              {getMotivationalIcon()}
+              <span className="font-medium text-xs leading-tight">
+                {motivationalMessage}
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Si hay datos de clima válidos, mostrar información normal
   const isMotivational = isMotivationalMessage(weatherData.location.city);
 
   return (
@@ -111,9 +160,7 @@ const LocationWeatherWidget = () => {
       className={`${
         isMotivational
           ? "bg-gradient-to-r from-pink-500 to-orange-500"
-          : error
-            ? "bg-gradient-to-r from-amber-500 to-red-500"
-            : "bg-gradient-to-r from-blue-500 to-purple-600"
+          : "bg-gradient-to-r from-blue-500 to-purple-600"
       } text-white border-0 shadow-lg`}
     >
       <CardContent className="p-2">

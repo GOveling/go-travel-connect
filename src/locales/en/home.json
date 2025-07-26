@@ -28,6 +28,26 @@
     "popularPlaces": {
       "title": "Popular Places",
       "subtitle": "Discover amazing destinations around the world"
+    },
+    "weather": {
+      "fallbackMessages": {
+        "excellentDay": "Today is an excellent day to travel!",
+        "letsTravel": "How about we go on a trip?",
+        "worldWaiting": "The world is waiting to be explored",
+        "newAdventure": "Every day is perfect for a new adventure",
+        "destinationCalling": "Your next destination is calling you",
+        "unforgettableExperience": "Turn this day into an unforgettable experience",
+        "bestTime": "The best time to travel is now"
+      },
+      "motivationalKeywords": {
+        "excellentDay": "excellent day",
+        "letsTravel": "let's travel",
+        "worldWaiting": "world is waiting",
+        "newAdventure": "new adventure",
+        "destinationCalling": "destination is calling",
+        "unforgettableExperience": "unforgettable experience",
+        "timeToTravel": "time to travel"
+      }
     }
   }
 }

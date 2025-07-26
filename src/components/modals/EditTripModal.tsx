@@ -1,18 +1,18 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Edit3, Save } from "lucide-react";
-import { useState, useEffect } from "react";
 import { getDestinationDateRanges } from "@/utils/dateUtils";
 import { format } from "date-fns";
+import { Edit3, MapPin, Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import DangerZone from "./edit-trip/DangerZone";
 import DestinationForm from "./edit-trip/DestinationForm";
 import TripBasicInfo from "./edit-trip/TripBasicInfo";
-import DangerZone from "./edit-trip/DangerZone";
 
 interface EditTripModalProps {
   isOpen: boolean;
@@ -210,7 +210,7 @@ const EditTripModal = ({
             </Button>
             <Button
               onClick={handleSave}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
+              className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
             >
               <Save size={16} className="mr-2" />
               Save Changes

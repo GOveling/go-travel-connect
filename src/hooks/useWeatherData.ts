@@ -9,22 +9,27 @@ import {
   setWeatherLoading,
   updateLocation,
 } from "../store/slices/weatherSlice";
-
-// Mensajes motivacionales de fallback
-const FALLBACK_MESSAGES = [
-  "¡Hoy es un excelente día para viajar!",
-  "¿Qué te parece si nos vamos de viaje?",
-  "El mundo está esperando a ser explorado",
-  "Cada día es perfecto para una nueva aventura",
-  "Tu próximo destino te está llamando",
-  "Convierte este día en una experiencia inolvidable",
-  "El mejor momento para viajar es ahora",
-];
+import { useLanguage } from "./useLanguage";
 
 export const useWeatherData = () => {
   const dispatch = useDispatch();
   const weatherState = useSelector((state: RootState) => state.weather);
   const currentData = weatherState.data;
+  const { t } = useLanguage();
+
+  // Mensajes motivacionales de fallback usando i18n
+  const getFallbackMessages = useCallback(
+    () => [
+      t("home.weather.fallbackMessages.excellentDay"),
+      t("home.weather.fallbackMessages.letsTravel"),
+      t("home.weather.fallbackMessages.worldWaiting"),
+      t("home.weather.fallbackMessages.newAdventure"),
+      t("home.weather.fallbackMessages.destinationCalling"),
+      t("home.weather.fallbackMessages.unforgettableExperience"),
+      t("home.weather.fallbackMessages.bestTime"),
+    ],
+    [t]
+  );
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastAttemptRef = useRef<number>(0);
 
@@ -34,27 +39,11 @@ export const useWeatherData = () => {
   const MIN_RETRY_DELAY = 5 * 60 * 1000; // 5 minutos mínimo entre intentos
 
   // Función para obtener mensaje motivacional aleatorio
-  const getRandomFallbackMessage = () => {
-    const randomIndex = Math.floor(Math.random() * FALLBACK_MESSAGES.length);
-    return FALLBACK_MESSAGES[randomIndex];
-  };
-
-  // Función para crear datos de fallback
-  const createFallbackData = useCallback(
-    () => ({
-      temperature: 22,
-      condition: "Pleasant",
-      icon: "sun",
-      humidity: 65,
-      windSpeed: 10,
-      location: {
-        city: getRandomFallbackMessage(),
-        country: "",
-        region: "",
-      },
-    }),
-    []
-  );
+  const getRandomFallbackMessage = useCallback(() => {
+    const fallbackMessages = getFallbackMessages();
+    const randomIndex = Math.floor(Math.random() * fallbackMessages.length);
+    return fallbackMessages[randomIndex];
+  }, [getFallbackMessages]);
 
   const fetchWeather = useCallback(
     async (
@@ -124,11 +113,18 @@ export const useWeatherData = () => {
           dispatch(setWeatherError(errorMessage));
         }
 
-        // Si no hay datos en caché, mostrar datos de fallback
-        if (!currentData) {
-          console.log("🎯 WeatherData: Sin datos en caché, mostrando fallback");
-          const fallbackData = createFallbackData();
-          dispatch(setWeatherData(fallbackData));
+        // Si hay datos en caché, limpiar el error y continuar usando los datos en caché
+        if (currentData) {
+          console.log(
+            "🔄 WeatherData: Error en API pero usando datos en caché"
+          );
+          dispatch(setWeatherError(null)); // Limpiar error ya que tenemos datos válidos
+          dispatch(setWeatherLoading(false));
+        } else {
+          // Si no hay datos en caché, mantener el error marcado
+          console.log("🎯 WeatherData: Sin datos en caché y error en API");
+          dispatch(setWeatherError(errorMessage));
+          dispatch(setWeatherLoading(false));
         }
 
         // Programar reintento en 1 hora
@@ -149,14 +145,7 @@ export const useWeatherData = () => {
         throw error;
       }
     },
-    [
-      dispatch,
-      currentData,
-      weatherState.error,
-      MIN_RETRY_DELAY,
-      RETRY_INTERVAL,
-      createFallbackData,
-    ]
+    [dispatch, currentData, weatherState.error, MIN_RETRY_DELAY, RETRY_INTERVAL]
   );
 
   const fetchWeatherByLocation = useCallback(async () => {
@@ -208,5 +197,6 @@ export const useWeatherData = () => {
     fetchWeatherByLocation,
     updateWeatherLocation,
     isDataStale,
+    getRandomFallbackMessage,
   };
 };

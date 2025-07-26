@@ -1,5 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -7,8 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Filter, RotateCcw, Users, Calendar } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
+import { Calendar, Filter, RotateCcw, Users } from "lucide-react";
 
 interface MapFiltersProps {
   filters: {
@@ -38,50 +39,51 @@ const MapFilters = ({
   onUpdateFilters,
   onResetFilters,
 }: MapFiltersProps) => {
+  const { t } = useLanguage();
   const statusOptions = [
     {
       value: "upcoming",
-      label: "Próximos",
+      label: t("trips.map.upcoming"),
       color: "bg-green-500",
       count: stats.upcomingTrips,
     },
     {
       value: "planning",
-      label: "Planificando",
+      label: t("trips.map.planning"),
       color: "bg-purple-600",
       count: stats.planningTrips,
     },
     {
       value: "completed",
-      label: "Completados",
+      label: t("trips.map.completed"),
       color: "bg-gray-500",
       count: stats.completedTrips,
     },
   ];
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardContent className="p-4 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center space-x-2">
             <Filter size={20} className="text-gray-600" />
-            <h3 className="font-semibold">Filtros del Mapa</h3>
+            <h3 className="font-semibold">{t("trips.map.mapFilters")}</h3>
           </div>
           <Button
             size="sm"
             variant="outline"
             onClick={onResetFilters}
-            className="h-8"
+            className="h-8 self-start sm:self-auto"
           >
             <RotateCcw size={16} className="mr-1" />
-            Limpiar
+            {t("trips.map.clear")}
           </Button>
         </div>
 
         {/* Status Filters */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
-            Estado del Viaje
+            {t("trips.map.tripStatus")}
           </label>
           <div className="flex flex-wrap gap-2">
             {statusOptions.map((option) => (
@@ -90,7 +92,7 @@ const MapFilters = ({
                 variant={
                   filters.status.includes(option.value) ? "default" : "outline"
                 }
-                className={`cursor-pointer hover:opacity-80 ${
+                className={`cursor-pointer hover:opacity-80 flex-shrink-0 ${
                   filters.status.includes(option.value)
                     ? `${option.color} text-white`
                     : "border-gray-300"
@@ -98,9 +100,11 @@ const MapFilters = ({
                 onClick={() => onToggleStatus(option.value)}
               >
                 <div
-                  className={`w-2 h-2 rounded-full mr-2 ${option.color}`}
+                  className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${option.color}`}
                 ></div>
-                {option.label} ({option.count})
+                <span className="whitespace-nowrap">
+                  {option.label} ({option.count})
+                </span>
               </Badge>
             ))}
           </div>
@@ -109,37 +113,46 @@ const MapFilters = ({
         {/* Group Trip Filter */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
-            Tipo de Viaje
+            {t("trips.map.tripType")}
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Badge
               variant={filters.isGroupTrip === null ? "default" : "outline"}
-              className="cursor-pointer hover:opacity-80"
+              className="cursor-pointer hover:opacity-80 flex-shrink-0"
               onClick={() => onUpdateFilters({ isGroupTrip: null })}
             >
-              Todos ({stats.totalTrips})
+              <span className="whitespace-nowrap">
+                {t("trips.map.allTypes")} ({stats.totalTrips})
+              </span>
             </Badge>
             <Badge
               variant={filters.isGroupTrip === true ? "default" : "outline"}
-              className="cursor-pointer hover:opacity-80"
+              className="cursor-pointer hover:opacity-80 flex-shrink-0"
               onClick={() => onUpdateFilters({ isGroupTrip: true })}
             >
-              <Users size={12} className="mr-1" />
-              Grupales ({stats.groupTrips})
+              <Users size={12} className="mr-1 flex-shrink-0" />
+              <span className="whitespace-nowrap">
+                {t("trips.map.groupTrips")} ({stats.groupTrips})
+              </span>
             </Badge>
             <Badge
               variant={filters.isGroupTrip === false ? "default" : "outline"}
-              className="cursor-pointer hover:opacity-80"
+              className="cursor-pointer hover:opacity-80 flex-shrink-0"
               onClick={() => onUpdateFilters({ isGroupTrip: false })}
             >
-              Individuales ({stats.totalTrips - stats.groupTrips})
+              <span className="whitespace-nowrap">
+                {t("trips.map.individuals")} (
+                {stats.totalTrips - stats.groupTrips})
+              </span>
             </Badge>
           </div>
         </div>
 
         {/* Date Range Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Período</label>
+          <label className="text-sm font-medium text-gray-700">
+            {t("trips.map.period")}
+          </label>
           <Select
             value={filters.dateRange}
             onValueChange={(value) => onUpdateFilters({ dateRange: value })}
