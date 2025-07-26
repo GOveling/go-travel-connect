@@ -1,5 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -7,8 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Filter, RotateCcw, Users, Calendar } from "lucide-react";
+import { Calendar, Filter, RotateCcw, Users } from "lucide-react";
 
 interface MapFiltersProps {
   filters: {
@@ -60,9 +60,9 @@ const MapFilters = ({
   ];
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardContent className="p-4 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center space-x-2">
             <Filter size={20} className="text-gray-600" />
             <h3 className="font-semibold">Filtros del Mapa</h3>
@@ -71,7 +71,7 @@ const MapFilters = ({
             size="sm"
             variant="outline"
             onClick={onResetFilters}
-            className="h-8"
+            className="h-8 self-start sm:self-auto"
           >
             <RotateCcw size={16} className="mr-1" />
             Limpiar
@@ -90,7 +90,7 @@ const MapFilters = ({
                 variant={
                   filters.status.includes(option.value) ? "default" : "outline"
                 }
-                className={`cursor-pointer hover:opacity-80 ${
+                className={`cursor-pointer hover:opacity-80 flex-shrink-0 ${
                   filters.status.includes(option.value)
                     ? `${option.color} text-white`
                     : "border-gray-300"
@@ -98,9 +98,11 @@ const MapFilters = ({
                 onClick={() => onToggleStatus(option.value)}
               >
                 <div
-                  className={`w-2 h-2 rounded-full mr-2 ${option.color}`}
+                  className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${option.color}`}
                 ></div>
-                {option.label} ({option.count})
+                <span className="whitespace-nowrap">
+                  {option.label} ({option.count})
+                </span>
               </Badge>
             ))}
           </div>
@@ -111,28 +113,34 @@ const MapFilters = ({
           <label className="text-sm font-medium text-gray-700">
             Tipo de Viaje
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Badge
               variant={filters.isGroupTrip === null ? "default" : "outline"}
-              className="cursor-pointer hover:opacity-80"
+              className="cursor-pointer hover:opacity-80 flex-shrink-0"
               onClick={() => onUpdateFilters({ isGroupTrip: null })}
             >
-              Todos ({stats.totalTrips})
+              <span className="whitespace-nowrap">
+                Todos ({stats.totalTrips})
+              </span>
             </Badge>
             <Badge
               variant={filters.isGroupTrip === true ? "default" : "outline"}
-              className="cursor-pointer hover:opacity-80"
+              className="cursor-pointer hover:opacity-80 flex-shrink-0"
               onClick={() => onUpdateFilters({ isGroupTrip: true })}
             >
-              <Users size={12} className="mr-1" />
-              Grupales ({stats.groupTrips})
+              <Users size={12} className="mr-1 flex-shrink-0" />
+              <span className="whitespace-nowrap">
+                Grupales ({stats.groupTrips})
+              </span>
             </Badge>
             <Badge
               variant={filters.isGroupTrip === false ? "default" : "outline"}
-              className="cursor-pointer hover:opacity-80"
+              className="cursor-pointer hover:opacity-80 flex-shrink-0"
               onClick={() => onUpdateFilters({ isGroupTrip: false })}
             >
-              Individuales ({stats.totalTrips - stats.groupTrips})
+              <span className="whitespace-nowrap">
+                Individuales ({stats.totalTrips - stats.groupTrips})
+              </span>
             </Badge>
           </div>
         </div>

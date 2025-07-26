@@ -1,5 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -7,8 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Map, MapPin, Users, Calendar, Bookmark } from "lucide-react";
+import { Bookmark, Map, MapPin, Users } from "lucide-react";
 
 interface TripSelectorProps {
   trips: any[];
@@ -41,12 +41,12 @@ const TripSelector = ({
   };
 
   return (
-    <Card>
-      <CardContent className="p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Map size={20} className="text-purple-600" />
-            <h3 className="font-semibold">Selector de Viajes</h3>
+    <Card className="w-full min-w-0">
+      <CardContent className="p-4 space-y-4 min-w-0">
+        <div className="flex items-center justify-between min-w-0">
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <Map size={20} className="text-purple-600 flex-shrink-0" />
+            <h3 className="font-semibold truncate">Selector de Viajes</h3>
           </div>
           {selectedTripId && (
             <Button
@@ -71,17 +71,19 @@ const TripSelector = ({
               onSelectTrip(value === "all" ? null : value)
             }
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="w-full min-w-[280px] max-w-[90vw]">
               <SelectItem value="all">🗺️ Todos los Viajes</SelectItem>
               {trips.map((trip) => (
                 <SelectItem key={trip.id} value={trip.id}>
-                  <div className="flex items-center space-x-2">
-                    <span>{trip.image}</span>
-                    <span>{trip.name}</span>
-                    <Badge className={`text-xs ${getStatusColor(trip.status)}`}>
+                  <div className="flex items-center space-x-2 min-w-0">
+                    <span className="flex-shrink-0">{trip.image}</span>
+                    <span className="truncate flex-1">{trip.name}</span>
+                    <Badge
+                      className={`text-xs flex-shrink-0 ${getStatusColor(trip.status)}`}
+                    >
                       {trip.status}
                     </Badge>
                   </div>
@@ -93,31 +95,35 @@ const TripSelector = ({
 
         {/* Selected Trip Details */}
         {selectedTrip && (
-          <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-4 space-y-3">
-            <div className="flex items-start space-x-3">
-              <div className="text-2xl">{selectedTrip.image}</div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-lg">{selectedTrip.name}</h4>
-                <p className="text-sm text-gray-600 mb-2">
+          <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-4 space-y-3 min-w-0">
+            <div className="flex items-start space-x-3 min-w-0">
+              <div className="text-2xl flex-shrink-0">{selectedTrip.image}</div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-lg truncate">
+                  {selectedTrip.name}
+                </h4>
+                <p className="text-sm text-gray-600 mb-2 truncate">
                   {selectedTrip.dates}
                 </p>
-                <div className="flex items-center space-x-4 text-sm">
-                  <div className="flex items-center space-x-1">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
+                  <div className="flex items-center space-x-1 flex-shrink-0">
                     <MapPin size={14} className="text-gray-500" />
-                    <span>
+                    <span className="whitespace-nowrap">
                       {selectedTrip.coordinates?.length || 0} destinos
                     </span>
                   </div>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1 flex-shrink-0">
                     <Bookmark size={14} className="text-gray-500" />
-                    <span>
+                    <span className="whitespace-nowrap">
                       {selectedTrip.savedPlaces?.length || 0} lugares guardados
                     </span>
                   </div>
                   {selectedTrip.isGroupTrip && (
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1 flex-shrink-0">
                       <Users size={14} className="text-purple-600" />
-                      <span className="text-purple-600">Grupal</span>
+                      <span className="text-purple-600 whitespace-nowrap">
+                        Grupal
+                      </span>
                     </div>
                   )}
                 </div>

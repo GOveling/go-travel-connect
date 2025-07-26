@@ -1,28 +1,26 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useMapData } from "@/hooks/useMapData";
+import L from "leaflet";
+import {
+  Bookmark,
+  Eye,
+  Layers,
+  Mountain,
+  Navigation,
+  Satellite,
+  Users,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
-  TileLayer,
   Marker,
-  Popup,
   Polyline,
+  Popup,
+  TileLayer,
 } from "react-leaflet";
-import L from "leaflet";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  MapPin,
-  Users,
-  Eye,
-  Navigation,
-  ZoomIn,
-  ZoomOut,
-  Layers,
-  TrendingUp,
-  Bookmark,
-} from "lucide-react";
 import MapFilters from "./MapFilters";
 import TripSelector from "./TripSelector";
-import { useMapData } from "@/hooks/useMapData";
 
 // Configuración de iconos de Leaflet
 if (typeof window !== "undefined") {
@@ -168,41 +166,49 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
       {/* Map Controls */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-gray-800">Mapa Interactivo</h3>
-              <span className="text-sm text-gray-500">
-                {stats.totalTrips} viajes • {stats.totalDestinations} destinos
-              </span>
+          <div className="space-y-4">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center space-x-2 min-w-0">
+                <h3 className="font-semibold text-gray-800 truncate">
+                  Mapa Interactivo
+                </h3>
+                <span className="text-sm text-gray-500 whitespace-nowrap">
+                  {stats.totalTrips} viajes • {stats.totalDestinations} destinos
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            {/* Controls */}
+            <div className="flex flex-wrap items-center gap-2">
               {/* Map Style Selector */}
-              <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1 flex-shrink-0">
                 <Button
                   size="sm"
                   variant={mapStyle === "street" ? "default" : "ghost"}
                   onClick={() => setMapStyle("street")}
-                  className="h-8 px-3"
+                  className="h-8 px-2 sm:px-3"
                 >
                   <Layers size={16} className="mr-1" />
-                  Mapa
+                  <span className="hidden xs:inline">Mapa</span>
                 </Button>
                 <Button
                   size="sm"
                   variant={mapStyle === "satellite" ? "default" : "ghost"}
                   onClick={() => setMapStyle("satellite")}
-                  className="h-8 px-3"
+                  className="h-8 px-2 sm:px-3"
                 >
-                  Satélite
+                  <span className="hidden xs:inline">Satélite</span>
+                  <Satellite size={16} className="xs:hidden" />
                 </Button>
                 <Button
                   size="sm"
                   variant={mapStyle === "terrain" ? "default" : "ghost"}
                   onClick={() => setMapStyle("terrain")}
-                  className="h-8 px-3"
+                  className="h-8 px-2 sm:px-3"
                 >
-                  Terreno
+                  <span className="hidden xs:inline">Terreno</span>
+                  <Mountain size={16} className="xs:hidden" />
                 </Button>
               </div>
 
@@ -211,10 +217,10 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 size="sm"
                 variant={showRoutes ? "default" : "outline"}
                 onClick={() => setShowRoutes(!showRoutes)}
-                className="h-8"
+                className="h-8 flex-shrink-0"
               >
                 <Navigation size={16} className="mr-1" />
-                Rutas
+                <span className="hidden xs:inline">Rutas</span>
               </Button>
 
               {/* Saved Places Toggle */}
@@ -222,10 +228,10 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 size="sm"
                 variant={showSavedPlaces ? "default" : "outline"}
                 onClick={() => setShowSavedPlaces(!showSavedPlaces)}
-                className="h-8"
+                className="h-8 flex-shrink-0"
               >
                 <Bookmark size={16} className="mr-1" />
-                Lugares
+                <span className="hidden xs:inline">Lugares</span>
               </Button>
 
               {/* Fit to Bounds */}
@@ -233,10 +239,10 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 size="sm"
                 variant="outline"
                 onClick={fitMapToMarkers}
-                className="h-8"
+                className="h-8 flex-shrink-0"
               >
                 <Eye size={16} className="mr-1" />
-                Ver Todo
+                <span className="hidden xs:inline">Ver Todo</span>
               </Button>
             </div>
           </div>
