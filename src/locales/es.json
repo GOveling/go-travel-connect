@@ -122,6 +122,26 @@
     "popularPlaces": {
       "title": "Lugares Populares",
       "subtitle": "Descubre destinos increíbles alrededor del mundo"
+    },
+    "weather": {
+      "fallbackMessages": {
+        "excellentDay": "¡Hoy es un excelente día para viajar!",
+        "letsTravel": "¿Qué te parece si nos vamos de viaje?",
+        "worldWaiting": "El mundo está esperando a ser explorado",
+        "newAdventure": "Cada día es perfecto para una nueva aventura",
+        "destinationCalling": "Tu próximo destino te está llamando",
+        "unforgettableExperience": "Convierte este día en una experiencia inolvidable",
+        "bestTime": "El mejor momento para viajar es ahora"
+      },
+      "motivationalKeywords": {
+        "excellentDay": "excelente día",
+        "letsTravel": "vamos de viaje",
+        "worldWaiting": "mundo está esperando",
+        "newAdventure": "nueva aventura",
+        "destinationCalling": "destino te está llamando",
+        "unforgettableExperience": "experiencia inolvidable",
+        "timeToTravel": "momento para viajar"
+      }
     }
   },
   "explore": {

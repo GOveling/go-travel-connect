@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Calendar, Filter, RotateCcw, Users } from "lucide-react";
 
 interface MapFiltersProps {
@@ -38,22 +39,23 @@ const MapFilters = ({
   onUpdateFilters,
   onResetFilters,
 }: MapFiltersProps) => {
+  const { t } = useLanguage();
   const statusOptions = [
     {
       value: "upcoming",
-      label: "Próximos",
+      label: t("trips.map.upcoming"),
       color: "bg-green-500",
       count: stats.upcomingTrips,
     },
     {
       value: "planning",
-      label: "Planificando",
+      label: t("trips.map.planning"),
       color: "bg-purple-600",
       count: stats.planningTrips,
     },
     {
       value: "completed",
-      label: "Completados",
+      label: t("trips.map.completed"),
       color: "bg-gray-500",
       count: stats.completedTrips,
     },
@@ -65,7 +67,7 @@ const MapFilters = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center space-x-2">
             <Filter size={20} className="text-gray-600" />
-            <h3 className="font-semibold">Filtros del Mapa</h3>
+            <h3 className="font-semibold">{t("trips.map.mapFilters")}</h3>
           </div>
           <Button
             size="sm"
@@ -74,14 +76,14 @@ const MapFilters = ({
             className="h-8 self-start sm:self-auto"
           >
             <RotateCcw size={16} className="mr-1" />
-            Limpiar
+            {t("trips.map.clear")}
           </Button>
         </div>
 
         {/* Status Filters */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
-            Estado del Viaje
+            {t("trips.map.tripStatus")}
           </label>
           <div className="flex flex-wrap gap-2">
             {statusOptions.map((option) => (
@@ -111,7 +113,7 @@ const MapFilters = ({
         {/* Group Trip Filter */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
-            Tipo de Viaje
+            {t("trips.map.tripType")}
           </label>
           <div className="flex flex-wrap gap-2">
             <Badge
@@ -120,7 +122,7 @@ const MapFilters = ({
               onClick={() => onUpdateFilters({ isGroupTrip: null })}
             >
               <span className="whitespace-nowrap">
-                Todos ({stats.totalTrips})
+                {t("trips.map.allTypes")} ({stats.totalTrips})
               </span>
             </Badge>
             <Badge
@@ -130,7 +132,7 @@ const MapFilters = ({
             >
               <Users size={12} className="mr-1 flex-shrink-0" />
               <span className="whitespace-nowrap">
-                Grupales ({stats.groupTrips})
+                {t("trips.map.groupTrips")} ({stats.groupTrips})
               </span>
             </Badge>
             <Badge
@@ -139,7 +141,8 @@ const MapFilters = ({
               onClick={() => onUpdateFilters({ isGroupTrip: false })}
             >
               <span className="whitespace-nowrap">
-                Individuales ({stats.totalTrips - stats.groupTrips})
+                {t("trips.map.individuals")} (
+                {stats.totalTrips - stats.groupTrips})
               </span>
             </Badge>
           </div>
@@ -147,7 +150,9 @@ const MapFilters = ({
 
         {/* Date Range Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Período</label>
+          <label className="text-sm font-medium text-gray-700">
+            {t("trips.map.period")}
+          </label>
           <Select
             value={filters.dateRange}
             onValueChange={(value) => onUpdateFilters({ dateRange: value })}
