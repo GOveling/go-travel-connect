@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiService } from "@/services/apiService";
 
 export interface Country {
-  id: string;
-  iso_code: string;
-  name: string;
+  country_code: string;
+  country_name: string;
   phone_code: string;
-  region: string | null;
-  subregion: string | null;
-  flag_url: string | null;
 }
 
 export const useCountries = () => {
@@ -21,16 +17,17 @@ export const useCountries = () => {
       setLoading(true);
       setError(null);
 
-      const { data, error: fetchError } = await supabase
-        .from("countries")
-        .select("*")
-        .order("name");
-
-      if (fetchError) {
-        throw fetchError;
+      const response = await apiService.getCountries();
+      
+      if (response.success && response.data) {
+        // Sort countries by name
+        const sortedCountries = response.data.sort((a: Country, b: Country) => 
+          a.country_name.localeCompare(b.country_name)
+        );
+        setCountries(sortedCountries);
+      } else {
+        throw new Error(response.message || "Failed to fetch countries");
       }
-
-      setCountries(data || []);
     } catch (err) {
       console.error("Error fetching countries:", err);
       setError(
@@ -38,43 +35,6 @@ export const useCountries = () => {
       );
     } finally {
       setLoading(false);
-    }
-  };
-
-  const syncCountries = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(
-        "https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/countries-sync",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1aHR0ZnhjdXJndXJzaGxrY3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMjc4MTAsImV4cCI6MjA2NTYwMzgxMH0.2DLJSoUaSQel60qSaql3x9vRpO7LVXg3mu1qWdXo39g`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Sync failed: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || "Sync failed");
-      }
-
-      // Refresh the countries list
-      await fetchCountries();
-
-      return result;
-    } catch (err) {
-      console.error("Error syncing countries:", err);
-      setError(err instanceof Error ? err.message : "Failed to sync countries");
-      throw err;
     }
   };
 
@@ -87,6 +47,5 @@ export const useCountries = () => {
     loading,
     error,
     refetch: fetchCountries,
-    syncCountries,
   };
 };

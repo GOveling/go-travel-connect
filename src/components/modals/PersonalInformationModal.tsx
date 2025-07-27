@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, X, RefreshCw, Loader2 } from "lucide-react";
+import { CalendarIcon, X, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -47,17 +47,16 @@ const PersonalInformationModal = ({
   const {
     countries,
     loading: countriesLoading,
-    syncCountries,
   } = useCountries();
   const {
     cities,
-    searchCities,
+    loadCitiesForCountry,
+    filterCities,
     loading: citiesLoading,
     clearResults,
   } = useCitiesByCountry();
 
   const [loading, setLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [cityQuery, setCityQuery] = useState("");
   const [formData, setFormData] = useState({
     full_name: "",
@@ -110,33 +109,40 @@ const PersonalInformationModal = ({
   // Update country code when country changes
   useEffect(() => {
     if (formData.country) {
-      const country = countries.find((c) => c.iso_code === formData.country);
+      const country = countries.find((c) => c.country_code === formData.country);
       if (country) {
-        setFormData((prev) => ({ ...prev, country_code: country.phone_code }));
+        setFormData((prev) => ({ 
+          ...prev, 
+          country_code: `+${country.phone_code}` 
+        }));
       }
+    } else {
+      setFormData((prev) => ({ ...prev, country_code: "" }));
     }
   }, [formData.country, countries]);
 
-  // Clear city results when country changes
+  // Load cities when country changes
   useEffect(() => {
     if (formData.country) {
-      clearResults();
       setCityQuery("");
       setFormData((prev) => ({ ...prev, city_state: "" }));
+      loadCitiesForCountry(formData.country);
+    } else {
+      clearResults();
     }
-  }, [formData.country, clearResults]);
+  }, [formData.country, loadCitiesForCountry, clearResults]);
 
   // Handle city search with debounce
   useEffect(() => {
-    if (cityQuery.length > 2 && formData.country) {
+    if (cityQuery.length >= 2) {
       const timeoutId = setTimeout(() => {
-        searchCities(cityQuery, formData.country);
+        filterCities(cityQuery);
       }, 300);
       return () => clearTimeout(timeoutId);
-    } else if (cityQuery.length <= 2) {
-      clearResults();
+    } else if (cityQuery.length === 0) {
+      filterCities("");
     }
-  }, [cityQuery, formData.country, searchCities, clearResults]);
+  }, [cityQuery, filterCities]);
 
   // Handle city search input
   const handleCitySearch = (value: string) => {
@@ -148,27 +154,7 @@ const PersonalInformationModal = ({
   const handleCitySelect = (city: string) => {
     setFormData((prev) => ({ ...prev, city_state: city }));
     setCityQuery("");
-    clearResults();
-  };
-
-  // Handle sync countries
-  const handleSyncCountries = async () => {
-    try {
-      setIsSyncing(true);
-      await syncCountries();
-      toast({
-        title: "Base de datos actualizada",
-        description: "Los países se han sincronizado correctamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo sincronizar la base de datos de países.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSyncing(false);
-    }
+    filterCities("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -304,7 +290,7 @@ const PersonalInformationModal = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>País</Label>
-              <div className="flex gap-2">
+              <div>
                 <Select
                   value={formData.country}
                   onValueChange={(value) =>
@@ -312,7 +298,7 @@ const PersonalInformationModal = ({
                   }
                   disabled={countriesLoading}
                 >
-                  <SelectTrigger className="flex-1">
+                  <SelectTrigger>
                     <SelectValue
                       placeholder={
                         countriesLoading
@@ -324,35 +310,19 @@ const PersonalInformationModal = ({
                   <SelectContent>
                     {countries.map((country) => (
                       <SelectItem
-                        key={country.iso_code}
-                        value={country.iso_code}
+                        key={country.country_code}
+                        value={country.country_code}
                       >
                         <div className="flex items-center gap-2">
-                          {country.flag_url && (
-                            <img
-                              src={country.flag_url}
-                              alt={`${country.name} flag`}
-                              className="w-4 h-3 object-cover"
-                            />
-                          )}
-                          {country.name}
+                          <span className="text-sm text-muted-foreground">
+                            +{country.phone_code}
+                          </span>
+                          {country.country_name}
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleSyncCountries}
-                  disabled={isSyncing}
-                  title="Sincronizar base de datos de países"
-                >
-                  <RefreshCw
-                    className={cn("h-4 w-4", isSyncing && "animate-spin")}
-                  />
-                </Button>
               </div>
             </div>
 
@@ -381,17 +351,12 @@ const PersonalInformationModal = ({
                         key={index}
                         type="button"
                         className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        onClick={() => handleCitySelect(city.name)}
+                        onClick={() => handleCitySelect(city.city)}
                       >
                         <div className="flex flex-col">
-                          <span className="font-medium">{city.name}</span>
+                          <span className="font-medium">{city.city}</span>
                           <span className="text-sm text-muted-foreground">
-                            {city.type === "locality"
-                              ? "Ciudad"
-                              : "Estado/Provincia"}
-                            {city.admin_name &&
-                              city.admin_name !== city.name &&
-                              ` • ${city.admin_name}`}
+                            Población: {city.population.toLocaleString()}
                           </span>
                         </div>
                       </button>

@@ -134,6 +134,15 @@ class ApiService {
     );
   }
 
+  // Geo specific methods
+  async getCountries() {
+    return this.get('/geo/countries');
+  }
+
+  async getCitiesByCountry(countryCode: string) {
+    return this.get(`/geo/countries/${countryCode}/cities`);
+  }
+
   // User specific methods
   async getUserProfile(userId: string) {
     return this.get(`/users/${userId}`);
