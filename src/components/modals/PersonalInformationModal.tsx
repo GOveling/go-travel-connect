@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, X, Loader2 } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -51,13 +51,11 @@ const PersonalInformationModal = ({
   const {
     cities,
     loadCitiesForCountry,
-    filterCities,
     loading: citiesLoading,
     clearResults,
   } = useCitiesByCountry();
 
   const [loading, setLoading] = useState(false);
-  const [cityQuery, setCityQuery] = useState("");
   const [formData, setFormData] = useState({
     full_name: "",
     birth_date: null as Date | null,
@@ -124,7 +122,6 @@ const PersonalInformationModal = ({
   // Load cities when country changes
   useEffect(() => {
     if (formData.country) {
-      setCityQuery("");
       setFormData((prev) => ({ ...prev, city_state: "" }));
       loadCitiesForCountry(formData.country);
     } else {
@@ -132,30 +129,6 @@ const PersonalInformationModal = ({
     }
   }, [formData.country, loadCitiesForCountry, clearResults]);
 
-  // Handle city search with debounce
-  useEffect(() => {
-    if (cityQuery.length >= 2) {
-      const timeoutId = setTimeout(() => {
-        filterCities(cityQuery);
-      }, 300);
-      return () => clearTimeout(timeoutId);
-    } else if (cityQuery.length === 0) {
-      filterCities("");
-    }
-  }, [cityQuery, filterCities]);
-
-  // Handle city search input
-  const handleCitySearch = (value: string) => {
-    setCityQuery(value);
-    setFormData((prev) => ({ ...prev, city_state: value }));
-  };
-
-  // Handle city selection from dropdown
-  const handleCitySelect = (city: string) => {
-    setFormData((prev) => ({ ...prev, city_state: city }));
-    setCityQuery("");
-    filterCities("");
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,42 +301,37 @@ const PersonalInformationModal = ({
 
             <div className="space-y-2">
               <Label>Ciudad/Estado</Label>
-              <div className="relative">
-                <Input
-                  value={cityQuery || formData.city_state}
-                  onChange={(e) => handleCitySearch(e.target.value)}
-                  placeholder={
-                    formData.country
-                      ? "Buscar ciudad o estado..."
-                      : "Selecciona un país primero"
-                  }
-                  disabled={!formData.country || citiesLoading}
-                />
-                {citiesLoading && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  </div>
-                )}
-                {cities.length > 0 && cityQuery && (
-                  <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                    {cities.map((city, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        onClick={() => handleCitySelect(city.city)}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-medium">{city.city}</span>
-                          <span className="text-sm text-muted-foreground">
-                            Población: {city.population.toLocaleString()}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <Select
+                value={formData.city_state}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, city_state: value }))
+                }
+                disabled={!formData.country || citiesLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      !formData.country
+                        ? "Selecciona un país primero"
+                        : citiesLoading
+                        ? "Cargando ciudades..."
+                        : "Seleccionar ciudad o estado"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 bg-background border border-border">
+                  {cities.map((city, index) => (
+                    <SelectItem key={index} value={city.city}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{city.city}</span>
+                        <span className="text-sm text-muted-foreground">
+                          Población: {city.population.toLocaleString()}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

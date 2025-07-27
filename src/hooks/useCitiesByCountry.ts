@@ -30,21 +30,29 @@ export const useCitiesByCountry = () => {
         console.log("Loading cities for country:", countryCode);
 
         const response = await apiService.getCitiesByCountry(countryCode);
+        console.log("Cities API response:", response);
         
-        if (response.success && response.data) {
-          // Sort cities by population (descending) and then by name
-          const sortedCities = response.data.sort((a: CityResult, b: CityResult) => {
-            if (b.population !== a.population) {
-              return b.population - a.population;
-            }
-            return a.city.localeCompare(b.city);
-          });
-          
-          setAllCities(sortedCities);
-          setCities(sortedCities);
+        let cities = [];
+        if (response && Array.isArray(response)) {
+          // If response is directly an array
+          cities = response;
+        } else if (response && response.data && Array.isArray(response.data)) {
+          // If response has data property
+          cities = response.data;
         } else {
-          throw new Error(response.message || "Failed to load cities");
+          throw new Error("Invalid response format");
         }
+
+        // Sort cities by population (descending) and then by name
+        const sortedCities = cities.sort((a: CityResult, b: CityResult) => {
+          if (b.population !== a.population) {
+            return b.population - a.population;
+          }
+          return a.city.localeCompare(b.city);
+        });
+        
+        setAllCities(sortedCities);
+        setCities(sortedCities);
       } catch (err) {
         console.error("Error loading cities:", err);
         setError(

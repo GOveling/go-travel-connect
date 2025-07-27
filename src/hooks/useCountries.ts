@@ -17,16 +17,24 @@ export const useCountries = () => {
       setLoading(true);
       setError(null);
 
+      console.log("Fetching countries from API...");
       const response = await apiService.getCountries();
+      console.log("Countries API response:", response);
       
-      if (response.success && response.data) {
-        // Sort countries by name
+      if (response && Array.isArray(response)) {
+        // If response is directly an array
+        const sortedCountries = response.sort((a: Country, b: Country) => 
+          a.country_name.localeCompare(b.country_name)
+        );
+        setCountries(sortedCountries);
+      } else if (response && response.data && Array.isArray(response.data)) {
+        // If response has data property
         const sortedCountries = response.data.sort((a: Country, b: Country) => 
           a.country_name.localeCompare(b.country_name)
         );
         setCountries(sortedCountries);
       } else {
-        throw new Error(response.message || "Failed to fetch countries");
+        throw new Error("Invalid response format");
       }
     } catch (err) {
       console.error("Error fetching countries:", err);
