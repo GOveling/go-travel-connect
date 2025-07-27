@@ -460,12 +460,10 @@ const PersonalInformationModal = ({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[300px] sm:w-[400px] p-0">
-                  <Command>
+                <PopoverContent className="w-[300px] sm:w-[400px] p-0 max-h-[350px]">
+                  <Command className="h-full">
                     <CommandInput placeholder="Buscar país..." />
-                    <CommandList
-                      style={{ maxHeight: "300px", overflowY: "auto" }}
-                    >
+                    <CommandList className="max-h-[280px] overflow-y-scroll">
                       <CommandEmpty>No se encontró el país.</CommandEmpty>
                       <CommandGroup>
                         {countries.map((country) => (
@@ -518,12 +516,10 @@ const PersonalInformationModal = ({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[300px] sm:w-[400px] p-0">
-                  <Command>
+                <PopoverContent className="w-[300px] sm:w-[400px] p-0 max-h-[350px]">
+                  <Command className="h-full">
                     <CommandInput placeholder="Buscar ciudad..." />
-                    <CommandList
-                      style={{ maxHeight: "300px", overflowY: "auto" }}
-                    >
+                    <CommandList className="max-h-[280px] overflow-y-scroll">
                       <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
                       <CommandGroup>
                         {cities.map((city, index) => (
