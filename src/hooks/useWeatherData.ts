@@ -32,6 +32,7 @@ export const useWeatherData = () => {
   );
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastAttemptRef = useRef<number>(0);
+  const isRequestInProgressRef = useRef<boolean>(false);
 
   // Cache y configuración
   const CACHE_DURATION = 60 * 60 * 1000; // 1 hora en milisegundos
@@ -52,6 +53,12 @@ export const useWeatherData = () => {
       isRetry: boolean = false
     ) => {
       try {
+        // Prevenir múltiples requests simultáneos
+        if (isRequestInProgressRef.current && !isRetry) {
+          console.log("🚫 WeatherData: Request ya en progreso, saltando");
+          return;
+        }
+
         // Verificar si es muy pronto para un nuevo intento
         const now = Date.now();
         if (isRetry && now - lastAttemptRef.current < MIN_RETRY_DELAY) {
@@ -62,6 +69,7 @@ export const useWeatherData = () => {
         }
 
         lastAttemptRef.current = now;
+        isRequestInProgressRef.current = true;
 
         if (!isRetry) {
           dispatch(setWeatherLoading(true));
@@ -100,6 +108,9 @@ export const useWeatherData = () => {
           clearTimeout(retryTimeoutRef.current);
           retryTimeoutRef.current = null;
         }
+
+        // Limpiar flag de request en progreso
+        isRequestInProgressRef.current = false;
 
         return newWeatherData;
       } catch (error: unknown) {
@@ -142,7 +153,11 @@ export const useWeatherData = () => {
           dispatch(setWeatherLoading(false));
         }
 
-        throw error;
+        // Limpiar flag de request en progreso
+        isRequestInProgressRef.current = false;
+
+        // No re-lanzar el error, ya fue manejado
+        return null;
       }
     },
     [dispatch, currentData, weatherState.error, MIN_RETRY_DELAY, RETRY_INTERVAL]
@@ -157,11 +172,21 @@ export const useWeatherData = () => {
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
-        await fetchWeather({ lat: latitude, lng: longitude });
+        try {
+          const { latitude, longitude } = position.coords;
+          await fetchWeather({ lat: latitude, lng: longitude });
+        } catch (error) {
+          console.error("Error fetching weather by coordinates:", error);
+          // El error ya fue manejado en fetchWeather
+        }
       },
-      () => {
-        fetchWeather(undefined, "Paris, France");
+      async () => {
+        try {
+          await fetchWeather(undefined, "Paris, France");
+        } catch (error) {
+          console.error("Error fetching weather by city fallback:", error);
+          // El error ya fue manejado en fetchWeather
+        }
       }
     );
   }, [fetchWeather, dispatch]);
@@ -185,6 +210,8 @@ export const useWeatherData = () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
       }
+      // Limpiar flag de request en progreso
+      isRequestInProgressRef.current = false;
     };
   }, []);
 

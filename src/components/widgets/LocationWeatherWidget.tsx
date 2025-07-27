@@ -36,7 +36,12 @@ const LocationWeatherWidget = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && (!weatherData || isDataStale())) {
+    if (
+      !isLoading &&
+      isAuthenticated &&
+      (!weatherData || isDataStale()) &&
+      !error
+    ) {
       fetchWeatherByLocation();
     }
   }, [
@@ -45,6 +50,7 @@ const LocationWeatherWidget = () => {
     weatherData,
     isDataStale,
     fetchWeatherByLocation,
+    error,
   ]);
 
   const formatDate = (date: Date) => {
