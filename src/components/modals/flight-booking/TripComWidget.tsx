@@ -114,9 +114,6 @@ const TripComWidget = () => {
           minHeight: "400px",
         }}
       />
-      <p className="text-xs text-muted-foreground text-center">
-        Widget powered by Trip.com
-      </p>
     </div>
   );
 };
