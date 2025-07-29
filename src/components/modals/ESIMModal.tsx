@@ -66,7 +66,10 @@ const ESIMModal = ({
     if (step === 0) {
       openAffiliate();
     } else if (step === 2) {
-      // "He activado y funciona"
+      // "He activado y funciona" - ir al paso de consejos
+      setStep(3);
+    } else if (step === 3) {
+      // En el paso final, ejecutar onFinished y cerrar
       if (onFinished) {
         onFinished();
       } else {
@@ -79,8 +82,6 @@ const ESIMModal = ({
         });
         onClose();
       }
-    } else if (step === 3) {
-      onClose();
     } else {
       setStep((s) => Math.min(s + 1, STEPS.length - 1));
     }
