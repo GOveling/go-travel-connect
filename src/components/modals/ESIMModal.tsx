@@ -27,7 +27,7 @@ const ESIMModal = ({ isOpen, onClose }: ESIMModalProps) => {
       const script = document.createElement("script");
       script.async = true;
       script.charset = "utf-8";
-      script.src = "https://tpwdgt.com/content?trs=442255&shmarker=640483&locale=en&powered_by=true&color_button=%235C7DEC&color_focused=%235C7DEC&secondary=%23FFFFFF&dark=%2311100f&light=%23FFFFFF&special=%23C4C4C400&border_radius=5&plain=false&no_labels=true&promo_id=8588&campaign_id=541";
+      script.src = "https://tpwdgt.com/content?trs=442255&shmarker=640483&locale=en&powered_by=true&color_button=%232A7AE8ff&color_focused=%232A7AE8FF&secondary=%23FFFFFF&dark=%2311100f&light=%23FFFFFF&special=%23C4C4C4&border_radius=5&plain=false&no_labels=true&promo_id=8588&campaign_id=541";
       
       // Añadir el script después del contenedor
       container.appendChild(script);
