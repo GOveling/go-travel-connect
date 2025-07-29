@@ -69,8 +69,9 @@ const ESIMModal = ({
       // "He activado y funciona" - ir al paso de consejos
       setStep(3);
     } else if (step === 3) {
-      // En el paso final, regresar al inicio (Checklist)
+      // En el paso final, cerrar modal y resetear al inicio
       setStep(0);
+      onClose();
       if (onFinished) {
         onFinished();
       } else {
