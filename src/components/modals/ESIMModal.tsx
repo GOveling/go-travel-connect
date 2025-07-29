@@ -69,7 +69,8 @@ const ESIMModal = ({
       // "He activado y funciona" - ir al paso de consejos
       setStep(3);
     } else if (step === 3) {
-      // En el paso final, ejecutar onFinished y cerrar
+      // En el paso final, regresar al inicio (Checklist)
+      setStep(0);
       if (onFinished) {
         onFinished();
       } else {
@@ -80,7 +81,6 @@ const ESIMModal = ({
           title: "eSIM Configurada",
           description: "Tu eSIM ha sido activada correctamente",
         });
-        onClose();
       }
     } else {
       setStep((s) => Math.min(s + 1, STEPS.length - 1));
