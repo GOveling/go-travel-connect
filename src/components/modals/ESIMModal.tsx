@@ -17,43 +17,42 @@ const ESIMModal = ({ isOpen, onClose }: ESIMModalProps) => {
       // Clear any existing content
       widgetRef.current.innerHTML = "";
       
-      // Add a small delay to ensure the modal is fully rendered
-      const timer = setTimeout(() => {
-        if (widgetRef.current) {
-          // Create unique container ID
-          const containerId = "tpwidget-" + Date.now();
-          widgetRef.current.innerHTML = `<div id="${containerId}"></div>`;
-          
-          // Create the script element
-          const script = document.createElement("script");
+      // Create container with unique ID for the widget
+      const containerId = "esim-widget-container";
+      widgetRef.current.innerHTML = `<div id="${containerId}"></div>`;
+      
+      // Add the script directly to the widget container
+      const scriptElement = document.createElement("script");
+      scriptElement.innerHTML = `
+        (function() {
+          const script = document.createElement('script');
           script.async = true;
-          script.charset = "utf-8";
-          script.src = "https://tpwdgt.com/content?trs=442255&shmarker=640483&locale=en&powered_by=true&color_button=%232A7AE8ff&color_focused=%232A7AE8FF&secondary=%23FFFFFF&dark=%2311100f&light=%23FFFFFF&special=%23C4C4C4&border_radius=5&plain=false&no_labels=true&promo_id=8588&campaign_id=541";
-          
-          // Add onload handler to ensure script executes
-          script.onload = () => {
-            console.log("eSIM widget script loaded successfully");
-          };
-          
-          script.onerror = () => {
-            console.error("Failed to load eSIM widget script");
-          };
-          
-          // Append script to document head for better compatibility
-          document.head.appendChild(script);
+          script.charset = 'utf-8';
+          script.src = 'https://tpwdgt.com/content?trs=442255&shmarker=640483&locale=en&powered_by=true&color_button=%232A7AE8ff&color_focused=%232A7AE8FF&secondary=%23FFFFFF&dark=%2311100f&light=%23FFFFFF&special=%23C4C4C4&border_radius=5&plain=false&no_labels=true&promo_id=8588&campaign_id=541';
+          document.getElementById('${containerId}').appendChild(script);
+        })();
+      `;
+      
+      // Add a small delay to ensure modal is fully rendered
+      setTimeout(() => {
+        if (widgetRef.current) {
+          widgetRef.current.appendChild(scriptElement);
+          console.log("eSIM widget script added to container");
         }
-      }, 100);
+      }, 200);
       
       // Cleanup function
       return () => {
-        clearTimeout(timer);
-        // Remove script if it exists
-        const existingScripts = document.querySelectorAll('script[src*="tpwdgt.com"]');
-        existingScripts.forEach(script => script.remove());
-        
         if (widgetRef.current) {
           widgetRef.current.innerHTML = "";
         }
+        // Clean up any orphaned scripts
+        const orphanedScripts = document.querySelectorAll('script[src*="tpwdgt.com"]');
+        orphanedScripts.forEach(script => {
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+        });
       };
     }
   }, [isOpen]);
