@@ -173,6 +173,17 @@ export const useUnifiedNotifications = () => {
           description: "Te has unido al viaje exitosamente",
         });
         if (refetch) refetch();
+        
+        // Trigger custom event to refresh trips
+        window.dispatchEvent(new CustomEvent('tripInvitationAccepted', {
+          detail: { tripId: data.trip?.id }
+        }));
+      } else {
+        toast({
+          title: "Error",
+          description: error?.message || data?.error || "No se pudo aceptar la invitación",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error accepting invitation:', error);

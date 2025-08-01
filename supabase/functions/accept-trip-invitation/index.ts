@@ -49,6 +49,20 @@ serve(async (req) => {
       throw new Error('Unauthorized');
     }
 
+    // Get user profile to validate email
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('email')
+      .eq('id', user.id)
+      .single();
+
+    console.log('📧 Profile email validation:', {
+      profileEmail: profile?.email,
+      userEmail: user?.email,
+      emailsMatch: profile?.email === user?.email,
+      profileError: profileError?.message
+    });
+
     const { token }: AcceptInvitationRequest = await req.json();
 
     console.log('🎫 Processing invitation acceptance:', {

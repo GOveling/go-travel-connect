@@ -21,7 +21,7 @@ export const useSupabaseTrips = () => {
     try {
       setLoading(true);
 
-      // Fetch trips with their coordinates and collaborators
+      // Fetch trips where user is owner OR collaborator
       const { data: tripsData, error: tripsError } = await supabase
         .from("trips")
         .select(
@@ -58,7 +58,7 @@ export const useSupabaseTrips = () => {
           )
         `
         )
-        .eq("user_id", user.id)
+        .or(`user_id.eq.${user.id},trip_collaborators.user_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
 
       if (tripsError) {
@@ -363,6 +363,20 @@ export const useSupabaseTrips = () => {
   useEffect(() => {
     fetchTrips();
   }, [user]);
+
+  // Listen for invitation acceptance events to refresh trips
+  useEffect(() => {
+    const handleInvitationAccepted = () => {
+      console.log('Trip invitation accepted, refreshing trips...');
+      fetchTrips();
+    };
+
+    window.addEventListener('tripInvitationAccepted', handleInvitationAccepted);
+    
+    return () => {
+      window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
+    };
+  }, []);
 
   return {
     trips,
