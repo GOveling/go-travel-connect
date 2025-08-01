@@ -36,9 +36,6 @@ export const useCitiesByCountry = () => {
         if (response && Array.isArray(response)) {
           // If response is directly an array
           cities = response;
-        } else if (response && response.data && Array.isArray(response.data)) {
-          // If response has data property
-          cities = response.data;
         } else {
           throw new Error("Invalid response format");
         }

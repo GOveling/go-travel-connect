@@ -34,10 +34,20 @@ export const useWelcomeFlow = () => {
           return;
         }
 
-        // Only show welcome if:
-        // 1. This is a new signup (flag exists)
+        // Check if this is a new user by comparing creation times
+        let isNewUser = false;
+        if (profile && (profile as any).created_at) {
+          const profileCreatedAt = new Date((profile as any).created_at);
+          const userCreatedAt = new Date(user.created_at);
+          const timeDiff = Math.abs(profileCreatedAt.getTime() - userCreatedAt.getTime());
+          // If profile was created within 30 seconds of user creation, it's a new user
+          isNewUser = timeDiff < 30000;
+        }
+
+        // Show welcome if:
+        // 1. This is a new signup (session flag OR recently created user)
         // 2. Welcome hasn't been shown this session
-        const shouldShowWelcome = !!isNewSignup && !welcomeShownThisSession;
+        const shouldShowWelcome = (!!isNewSignup || isNewUser) && !welcomeShownThisSession;
 
         // Show personal info modal if onboarding not completed
         const shouldShowPersonalInfo = !profile || !(profile as any).onboarding_completed;
@@ -45,6 +55,7 @@ export const useWelcomeFlow = () => {
         console.log('Welcome flow check:', {
           hasProfile: !!profile,
           isNewSignup: !!isNewSignup,
+          isNewUser,
           onboardingCompleted: (profile as any)?.onboarding_completed,
           welcomeShownThisSession: !!welcomeShownThisSession,
           shouldShowWelcome,

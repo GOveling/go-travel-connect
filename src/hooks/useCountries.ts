@@ -27,12 +27,6 @@ export const useCountries = () => {
           a.country_name.localeCompare(b.country_name)
         );
         setCountries(sortedCountries);
-      } else if (response && response.data && Array.isArray(response.data)) {
-        // If response has data property
-        const sortedCountries = response.data.sort((a: Country, b: Country) => 
-          a.country_name.localeCompare(b.country_name)
-        );
-        setCountries(sortedCountries);
       } else {
         throw new Error("Invalid response format");
       }

@@ -86,6 +86,7 @@ const PersonalInformationModal = ({
 
   // Initialize form with profile data
   useEffect(() => {
+    console.log('PersonalInformationModal: Initializing form with profile:', profile);
     if (profile) {
       setFormData({
         full_name: profile.full_name || "",
@@ -100,6 +101,8 @@ const PersonalInformationModal = ({
           : "",
         gender: profile.gender || "",
       });
+
+      console.log('PersonalInformationModal: Form initialized with full_name:', profile.full_name);
 
       // Si el perfil tiene un país seleccionado, cargar las ciudades
       if (profile.country) {

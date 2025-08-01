@@ -35,6 +35,7 @@ export const useProfileData = () => {
       // Si no existe perfil, crear uno automáticamente
       if (!data) {
         console.log("No profile found, creating one...");
+        console.log("User metadata:", user.user_metadata);
         const { data: newProfile, error: insertError } = await supabase
           .from("profiles")
           .insert({
@@ -55,6 +56,7 @@ export const useProfileData = () => {
         console.log("Profile created:", newProfile);
         setProfile(newProfile as ProfileData);
       } else {
+        console.log("Profile found:", data);
         setProfile(data as ProfileData);
       }
     } catch (err) {
