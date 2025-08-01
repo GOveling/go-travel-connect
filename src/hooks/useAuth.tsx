@@ -98,6 +98,11 @@ export const useAuth = () => {
   }, []);
 
   const handlePostAuthInvitation = async (user: User) => {
+    // Skip auto-processing if user is on accept-invitation page
+    if (window.location.pathname === '/accept-invitation') {
+      return;
+    }
+    
     const invitationToken = localStorage.getItem('invitation_token');
     if (invitationToken) {
       try {

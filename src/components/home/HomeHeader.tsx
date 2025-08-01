@@ -1,20 +1,17 @@
-import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useInvitationNotifications } from "@/hooks/useInvitationNotifications";
+import InvitationNotificationBell from "../navigation/InvitationNotificationBell";
+
 interface HomeHeaderProps {
   notificationCount: number;
   onNotificationClick: () => void;
 }
+
 const HomeHeader = ({
   notificationCount,
   onNotificationClick,
 }: HomeHeaderProps) => {
   const { t } = useLanguage();
-  const { totalCount: invitationCount } = useInvitationNotifications();
   
-  const totalNotifications = notificationCount + invitationCount;
   return (
     <div className="pb-4">
       <div className="flex justify-between items-center mb-2 mx-0 px-0">
@@ -29,24 +26,7 @@ const HomeHeader = ({
 
         {/* Notification bell on the right */}
         <div className="flex-1 flex justify-end mx-[37px]">
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onNotificationClick}
-              className="relative p-2 hover:bg-gray-100 rounded-full"
-            >
-              <Bell size={24} className="text-gray-600" />
-              {totalNotifications > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 min-w-[20px]"
-                >
-                  {totalNotifications > 9 ? "9+" : totalNotifications}
-                </Badge>
-              )}
-            </Button>
-          </div>
+          <InvitationNotificationBell />
         </div>
       </div>
       <p className="mt-1 text-center">
@@ -61,4 +41,5 @@ const HomeHeader = ({
     </div>
   );
 };
+
 export default HomeHeader;

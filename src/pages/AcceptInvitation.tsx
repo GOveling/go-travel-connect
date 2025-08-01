@@ -31,7 +31,6 @@ interface InvitationDetails {
 }
 
 const AcceptInvitation = () => {
-  const { tripId } = useParams<{ tripId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -46,16 +45,16 @@ const AcceptInvitation = () => {
   const token = searchParams.get('token');
 
   useEffect(() => {
-    if (!token || !tripId) {
+    if (!token) {
       setInvitationStatus('invalid');
       return;
     }
 
     fetchInvitationDetails();
-  }, [token, tripId]);
+  }, [token]);
 
   const fetchInvitationDetails = async () => {
-    if (!token || !tripId) return;
+    if (!token) return;
 
     try {
       // Fetch invitation details
@@ -63,7 +62,6 @@ const AcceptInvitation = () => {
         .from('trip_invitations')
         .select('*')
         .eq('token', token)
-        .eq('trip_id', tripId)
         .single();
 
       if (invitationError || !invitationData) {
@@ -102,7 +100,7 @@ const AcceptInvitation = () => {
       const { data: tripData, error: tripError } = await supabase
         .from('trips')
         .select('*')
-        .eq('id', tripId)
+        .eq('id', invitationData.trip_id)
         .single();
 
       if (tripError || !tripData) {
