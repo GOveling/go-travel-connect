@@ -212,22 +212,27 @@ const AcceptInvitation = () => {
   };
 
   const handleDeclineInvitation = async () => {
-    if (!invitation) return;
+    if (!token) return;
 
     try {
-      const { error } = await supabase
-        .from('trip_invitations')
-        .update({ status: 'declined' })
-        .eq('id', invitation.id);
-
-      if (error) throw error;
-
-      toast({
-        title: t("invitations.declined") || "Invitación rechazada",
-        description: t("invitations.declinedMessage") || "Has rechazado la invitación al viaje",
+      const { data, error } = await supabase.functions.invoke('decline-trip-invitation', {
+        body: { token }
       });
 
-      navigate('/');
+      if (!error && data.success) {
+        toast({
+          title: t("invitations.declined") || "Invitación rechazada",
+          description: t("invitations.declinedMessage") || "Has rechazado la invitación al viaje",
+        });
+
+        navigate('/');
+      } else {
+        toast({
+          title: "Error",
+          description: error?.message || data?.error || t("common.genericError") || "Error al procesar la invitación",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('Error declining invitation:', error);
       toast({

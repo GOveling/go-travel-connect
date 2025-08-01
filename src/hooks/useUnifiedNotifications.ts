@@ -195,13 +195,37 @@ export const useUnifiedNotifications = () => {
     }
   };
 
-  const handleDeclinePendingInvitation = () => {
-    localStorage.removeItem('invitation_token');
-    setPendingInvitation(null);
-    toast({
-      title: "Invitación rechazada",
-      description: "Has rechazado la invitación al viaje",
-    });
+  const handleDeclinePendingInvitation = async () => {
+    if (!pendingInvitation?.token) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('decline-trip-invitation', {
+        body: { token: pendingInvitation.token }
+      });
+
+      if (!error && data.success) {
+        localStorage.removeItem('invitation_token');
+        setPendingInvitation(null);
+        toast({
+          title: "Invitación rechazada",
+          description: "Has rechazado la invitación al viaje",
+        });
+        if (refetch) refetch();
+      } else {
+        toast({
+          title: "Error",
+          description: error?.message || data?.error || "No se pudo rechazar la invitación",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error declining invitation:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo rechazar la invitación",
+        variant: "destructive",
+      });
+    }
   };
 
   const markAllNotificationsAsRead = useCallback(() => {
