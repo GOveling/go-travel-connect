@@ -350,6 +350,20 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                       >
                         <Popup>
                           <div className="p-2 min-w-[200px]">
+                            {/* Image section */}
+                            {place.image && place.image.startsWith('http') && (
+                              <div className="mb-3">
+                                <img 
+                                  src={place.image} 
+                                  alt={place.name}
+                                  className="w-full h-24 object-cover rounded-lg"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                            
                             <div className="flex items-center space-x-2 mb-2">
                               <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                                 {place.positionOrder || index + 1}
