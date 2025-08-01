@@ -53,7 +53,8 @@ export const useSupabaseTrips = () => {
             priority,
             destination_name,
             lat,
-            lng
+            lng,
+            position_order
           )
         `
         )
@@ -104,19 +105,22 @@ export const useSupabaseTrips = () => {
               role: collab.role || "editor",
             })) || [],
           savedPlaces:
-            trip.saved_places?.map((place: any) => ({
-              id: place.id,
-              name: place.name,
-              category: place.category || "attraction",
-              rating: place.rating || 4.5,
-              image: place.image || "📍",
-              description: place.description || "",
-              estimatedTime: place.estimated_time || "2-3 hours",
-              priority: place.priority || "medium",
-              destinationName: place.destination_name || "",
-              lat: place.lat || 0,
-              lng: place.lng || 0,
-            })) || [],
+            trip.saved_places
+              ?.sort((a: any, b: any) => (a.position_order || 0) - (b.position_order || 0))
+              ?.map((place: any) => ({
+                id: place.id,
+                name: place.name,
+                category: place.category || "attraction",
+                rating: place.rating || 4.5,
+                image: place.image || "📍",
+                description: place.description || "",
+                estimatedTime: place.estimated_time || "2-3 hours",
+                priority: place.priority || "medium",
+                destinationName: place.destination_name || "",
+                lat: place.lat || 0,
+                lng: place.lng || 0,
+                positionOrder: place.position_order || 0,
+              })) || [],
         })) || [];
 
       setTrips(transformedTrips);

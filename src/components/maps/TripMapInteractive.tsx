@@ -65,7 +65,8 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
   const createCustomIcon = (
     status: string,
     emoji: string,
-    type: "destination" | "savedPlace" = "destination"
+    type: "destination" | "savedPlace" = "destination",
+    positionNumber?: number
   ) => {
     const color =
       status === "upcoming"
@@ -92,7 +93,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
           box-shadow: 0 2px 10px rgba(0,0,0,0.3);
           ${type === "savedPlace" ? "opacity: 0.9;" : ""}
         ">
-          ${type === "savedPlace" ? "📍" : emoji}
+          ${type === "savedPlace" && positionNumber ? positionNumber : (type === "savedPlace" ? "📍" : emoji)}
         </div>
       `,
       className: "custom-marker",
@@ -343,14 +344,20 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                         icon={createCustomIcon(
                           trip.status,
                           place.image || "📍",
-                          "savedPlace"
+                          "savedPlace",
+                          place.positionOrder || index + 1
                         )}
                       >
                         <Popup>
                           <div className="p-2 min-w-[200px]">
-                            <h4 className="font-semibold text-lg mb-2">
-                              {place.name}
-                            </h4>
+                            <div className="flex items-center space-x-2 mb-2">
+                              <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                                {place.positionOrder || index + 1}
+                              </span>
+                              <h4 className="font-semibold text-lg">
+                                {place.name}
+                              </h4>
+                            </div>
                             <p className="text-sm text-gray-600 mb-2">
                               {place.destinationName}
                             </p>
