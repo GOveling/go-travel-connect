@@ -110,21 +110,6 @@ const TripDetailModal = ({
     "arrival" | "departure" | "between"
   >("arrival");
 
-  // Listen for the custom event to open saved-places tab
-  useEffect(() => {
-    const handleOpenSavedPlacesTab = () => {
-      setActiveTab("saved-places");
-    };
-
-    window.addEventListener("openSavedPlacesTab", handleOpenSavedPlacesTab);
-
-    return () => {
-      window.removeEventListener(
-        "openSavedPlacesTab",
-        handleOpenSavedPlacesTab
-      );
-    };
-  }, []);
 
   // Function to navigate to explore section
   const handleNavigateToExplore = () => {
@@ -550,7 +535,7 @@ const TripDetailModal = ({
               onValueChange={setActiveTab}
               className="flex-1 flex flex-col overflow-hidden"
             >
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-1 mb-4 flex-shrink-0">
+              <TabsList className="grid w-full grid-cols-3 h-auto p-1 mb-4 flex-shrink-0">
                 <TabsTrigger
                   value="overview"
                   className="text-xs md:text-sm px-2 py-2"
@@ -562,13 +547,6 @@ const TripDetailModal = ({
                   className="text-xs md:text-sm px-2 py-2"
                 >
                   Itinerary
-                </TabsTrigger>
-                <TabsTrigger
-                  value="saved-places"
-                  className="text-xs md:text-sm px-2 py-2"
-                >
-                  <span className="hidden md:inline">Saved Places</span>
-                  <span className="md:hidden">Places</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="collaborators"
@@ -880,153 +858,6 @@ const TripDetailModal = ({
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="saved-places" className="space-y-4 mt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <h4 className="font-semibold text-gray-800 flex items-center space-x-2">
-                        <Heart size={18} className="text-red-500" />
-                        <span>Saved Places</span>
-                      </h4>
-                      <Badge variant="secondary" className="text-xs">
-                        {totalSavedPlaces} place
-                        {totalSavedPlaces !== 1 ? "s" : ""}
-                      </Badge>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                      onClick={handleNavigateToExplore}
-                    >
-                      <MapPin size={14} className="mr-1" />
-                      Add Place
-                    </Button>
-                  </div>
-
-                  {Object.entries(savedPlacesByCountry).map(
-                    ([country, places]) => (
-                      <div key={country} className="space-y-3">
-                        <div className="flex items-center border-b pb-2">
-                          <div className="flex items-center space-x-2">
-                            <MapPin size={16} className="text-red-500" />
-                            <h5 className="font-medium text-gray-800">
-                              {country}
-                            </h5>
-                            <Badge variant="outline" className="text-xs">
-                              {places.length} place
-                              {places.length !== 1 ? "s" : ""}
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-3">
-                          {places.map((place) => (
-                            <Card
-                              key={place.id}
-                              className="border-l-4 border-l-red-400"
-                            >
-                              <CardContent className="p-4">
-                                <div className="space-y-3">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex items-center space-x-3 flex-1">
-                                      {renderPlaceImage(place.image)}
-                                      <div className="flex-1">
-                                        <h6 className="font-medium text-gray-800">
-                                          {place.name}
-                                        </h6>
-                                        <p className="text-xs text-gray-600">
-                                          {place.category || "Place"}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <Badge
-                                      className={`text-xs px-2 py-1 ${getPriorityColor(place.priority || "medium")}`}
-                                    >
-                                      {place.priority || "medium"}
-                                    </Badge>
-                                  </div>
-
-                                  <div className="flex items-center space-x-2">
-                                    <div className="flex items-center space-x-1">
-                                      <Star
-                                        size={12}
-                                        className="text-yellow-500 fill-current"
-                                      />
-                                      <span className="text-xs text-gray-600">
-                                        {place.rating || 0}
-                                      </span>
-                                    </div>
-                                    <span className="text-xs text-gray-400">
-                                      •
-                                    </span>
-                                    <span className="text-xs text-gray-600">
-                                      {place.estimatedTime || "N/A"}
-                                    </span>
-                                  </div>
-
-                                  <p className="text-xs text-gray-600 leading-relaxed">
-                                    {place.description ||
-                                      "No description available"}
-                                  </p>
-
-                                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="flex-1 text-xs"
-                                      onClick={() =>
-                                        handleViewPlaceDetails(place)
-                                      }
-                                    >
-                                      View Details
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="destructive"
-                                      className="flex-1 text-xs"
-                                      onClick={() => handleRemovePlace(place)}
-                                      disabled={isRemoving === place.id}
-                                    >
-                                      <Trash2 size={12} className="mr-1" />
-                                      {isRemoving === place.id
-                                        ? "Removing..."
-                                        : "Remove"}
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  )}
-
-                  {totalSavedPlaces === 0 && (
-                    <Card className="border-dashed border-2 border-gray-200">
-                      <CardContent className="p-6 text-center">
-                        <MapPin
-                          size={32}
-                          className="mx-auto mb-2 text-gray-300"
-                        />
-                        <p className="text-gray-500 text-sm">
-                          No places saved yet
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          Explore and save places you want to visit
-                        </p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="mt-3"
-                          onClick={handleNavigateToExplore}
-                        >
-                          Browse Places
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
-                </TabsContent>
 
                 <TabsContent value="collaborators" className="space-y-4 mt-0">
                   <div className="flex items-center justify-between">

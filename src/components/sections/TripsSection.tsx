@@ -9,6 +9,7 @@ import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
 import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
 import MountainTripModal from "@/components/modals/MountainTripModal";
 import NewTripModal from "@/components/modals/NewTripModal";
+import SavedPlacesModal from "@/components/modals/SavedPlacesModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import QuickStats from "@/components/trips/QuickStats";
 import ShareSection from "@/components/trips/ShareSection";
@@ -36,6 +37,7 @@ const TripsSection = () => {
   const [showBackpackingModal, setShowBackpackingModal] = useState(false);
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [showSavedPlacesModal, setShowSavedPlacesModal] = useState(false);
   const [tripToDelete, setTripToDelete] = useState(null);
 
   // Use Supabase trips instead of local state
@@ -92,12 +94,7 @@ const TripsSection = () => {
 
   const handleViewSavedPlaces = (trip: any) => {
     setSelectedTrip(trip);
-    setShowTripDetail(true);
-    // We'll use a custom event to tell the TripDetailModal to show the saved-places tab
-    setTimeout(() => {
-      const event = new CustomEvent("openSavedPlacesTab");
-      window.dispatchEvent(event);
-    }, 100);
+    setShowSavedPlacesModal(true);
   };
 
   const handleDeleteTripRequest = (trip: any) => {
@@ -328,6 +325,16 @@ const TripsSection = () => {
         }}
         onUpdateTrip={handleUpdateTrip}
         onDeleteTrip={handleDeleteTripRequest}
+      />
+
+      <SavedPlacesModal
+        trip={selectedTrip}
+        isOpen={showSavedPlacesModal}
+        onClose={() => {
+          setShowSavedPlacesModal(false);
+          setSelectedTrip(null);
+        }}
+        onUpdateTrip={handleUpdateTripData}
       />
 
       <DeleteTripConfirmationModal
