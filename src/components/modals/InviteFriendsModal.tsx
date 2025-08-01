@@ -259,7 +259,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge className={`${config.color} text-xs`}>{config.label}</Badge>;
+    return <Badge className={`${config.color} text-xs rounded-lg`}>{config.label}</Badge>;
   };
 
   const isExpired = (expiresAt: string) => {
@@ -270,74 +270,89 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-4xl mx-auto max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2 text-lg sm:text-xl">
-            <Users className="text-primary" size={20} />
-            <span>Gestionar Colaboración - {trip.name}</span>
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[95vh] overflow-hidden flex flex-col rounded-xl">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="flex items-center justify-center space-x-2 text-lg font-semibold text-center">
+            <Users className="text-primary" size={22} />
+            <span className="truncate">{trip.name}</span>
           </DialogTitle>
         </DialogHeader>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 bg-muted p-1 rounded-lg mb-6">
+        {/* Tab Navigation - Mobile optimized */}
+        <div className="flex bg-muted/50 p-1 rounded-lg mb-4 mx-1">
           {[
-            { id: "invite", label: "Invitar Amigos", icon: UserPlus },
+            { id: "invite", label: "Invitar", icon: UserPlus },
             { id: "team", label: "Equipo", icon: Users },
             { id: "share", label: "Compartir", icon: Share2 },
           ].map((tab) => (
             <Button
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "ghost"}
-              className={`flex-1 text-xs sm:text-sm ${
-                activeTab === tab.id ? "bg-primary text-primary-foreground" : ""
+              className={`flex-1 h-11 text-sm font-medium rounded-lg transition-all ${
+                activeTab === tab.id 
+                  ? "bg-background text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setActiveTab(tab.id)}
             >
-              <tab.icon size={16} className="mr-2" />
-              {tab.label}
+              <tab.icon size={18} className="mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">{tab.label}</span>
             </Button>
           ))}
         </div>
 
-        {/* Invite Tab */}
+        {/* Invite Tab - Mobile optimized */}
         {activeTab === "invite" && (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail size={18} />
+          <div className="flex-1 overflow-y-auto space-y-4 px-1">
+            <Card className="rounded-xl border-0 bg-muted/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Mail size={16} className="text-primary" />
+                  </div>
                   Invitar por Email
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="email">Email del invitado</Label>
+                    <Label htmlFor="email" className="text-sm font-medium">Email del invitado</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="amigo@ejemplo.com"
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
+                      className="h-12 rounded-lg mt-2 text-base"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="role">Rol</Label>
+                    <Label htmlFor="role" className="text-sm font-medium">Rol</Label>
                     <Select value={inviteRole} onValueChange={(value: "editor" | "viewer") => setInviteRole(value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-lg mt-2">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="viewer">
-                          <div className="flex items-center gap-2">
-                            <Eye size={16} />
-                            Visualizador - Solo puede ver
+                      <SelectContent className="rounded-lg">
+                        <SelectItem value="viewer" className="h-12 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="p-1.5 rounded-lg bg-secondary">
+                              <Eye size={14} />
+                            </div>
+                            <div>
+                              <div className="font-medium">Visualizador</div>
+                              <div className="text-xs text-muted-foreground">Solo puede ver</div>
+                            </div>
                           </div>
                         </SelectItem>
-                        <SelectItem value="editor">
-                          <div className="flex items-center gap-2">
-                            <Edit3 size={16} />
-                            Editor - Puede editar
+                        <SelectItem value="editor" className="h-12 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <Edit3 size={14} className="text-primary" />
+                            </div>
+                            <div>
+                              <div className="font-medium">Editor</div>
+                              <div className="text-xs text-muted-foreground">Puede editar</div>
+                            </div>
                           </div>
                         </SelectItem>
                       </SelectContent>
@@ -346,10 +361,10 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 </div>
                 
                 <div>
-                  <Label htmlFor="message">Mensaje personalizado (opcional)</Label>
+                  <Label htmlFor="message" className="text-sm font-medium">Mensaje personalizado (opcional)</Label>
                   <textarea
                     id="message"
-                    className="w-full mt-1 p-2 border rounded-md text-sm resize-none"
+                    className="w-full mt-2 p-3 border rounded-lg text-base resize-none bg-background"
                     rows={3}
                     placeholder="Añade un mensaje personal para la invitación..."
                     value={customMessage}
@@ -360,62 +375,71 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 <Button 
                   onClick={handleSendInvitation} 
                   disabled={!inviteEmail.trim() || loading}
-                  className="w-full"
+                  className="w-full h-12 rounded-lg text-base font-medium"
                 >
                   {loading ? (
-                    <RefreshCw size={16} className="mr-2 animate-spin" />
+                    <RefreshCw size={18} className="mr-2 animate-spin" />
                   ) : (
-                    <Send size={16} className="mr-2" />
+                    <Send size={18} className="mr-2" />
                   )}
                   Enviar Invitación
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Link size={18} />
+            <Card className="rounded-xl border-0 bg-muted/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Link size={16} className="text-primary" />
+                  </div>
                   Enlace de Invitación
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-2">
-                  <Input
-                    value={`${window.location.origin}/trips/${trip.id}/join`}
-                    readOnly
-                    className="flex-1 bg-muted text-sm"
-                  />
-                  <Button onClick={handleCopyInviteLink} variant="outline">
-                    {linkCopied ? <Check size={16} /> : <Copy size={16} />}
-                    {linkCopied ? "¡Copiado!" : "Copiar"}
-                  </Button>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={`${window.location.origin}/trips/${trip.id}/join`}
+                      readOnly
+                      className="flex-1 bg-background text-sm rounded-lg"
+                    />
+                    <Button 
+                      onClick={handleCopyInviteLink} 
+                      variant="outline"
+                      className="h-12 px-4 rounded-lg"
+                    >
+                      {linkCopied ? <Check size={16} /> : <Copy size={16} />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Cualquiera con este enlace puede unirse a tu viaje.
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Cualquiera con este enlace puede unirse a tu viaje.
-                </p>
               </CardContent>
             </Card>
 
             {/* Pending Invitations */}
             {invitations.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock size={18} />
+              <Card className="rounded-xl border-0 bg-muted/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <div className="p-2 rounded-lg bg-orange-500/10">
+                      <Clock size={16} className="text-orange-500" />
+                    </div>
                     Invitaciones Pendientes
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {invitations.map((invitation) => (
-                      <div key={invitation.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{invitation.email}</p>
-                          <div className="flex items-center gap-2 mt-1">
+                      <div key={invitation.id} className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{invitation.email}</p>
+                          <div className="flex items-center gap-2 mt-2">
                             {getStatusBadge(isExpired(invitation.expires_at) ? 'expired' : invitation.status)}
                             <span className="text-xs text-muted-foreground">
-                              Rol: {invitation.role}
+                              {invitation.role}
                             </span>
                           </div>
                         </div>
@@ -424,7 +448,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                             size="sm"
                             variant="outline"
                             onClick={() => cancelInvitation(invitation.id)}
-                            className="text-destructive hover:text-destructive"
+                            className="ml-3 h-9 w-9 p-0 rounded-lg text-destructive hover:text-destructive"
                           >
                             <X size={16} />
                           </Button>
@@ -438,154 +462,183 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
           </div>
         )}
 
-        {/* Team Tab */}
+        {/* Team Tab - Mobile optimized */}
         {activeTab === "team" && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users size={18} />
-                Colaboradores Actuales
-                {loadingCollaborators && <RefreshCw size={16} className="animate-spin" />}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {collaborators.map((collaborator) => (
-                  <div key={collaborator.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-primary-foreground text-sm font-medium">
-                        {collaborator.avatar ? (
-                          <img src={collaborator.avatar} alt={collaborator.name} className="w-full h-full rounded-full object-cover" />
+          <div className="flex-1 overflow-y-auto px-1">
+            <Card className="rounded-xl border-0 bg-muted/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Users size={16} className="text-primary" />
+                  </div>
+                  Colaboradores ({collaborators.length})
+                  {loadingCollaborators && <RefreshCw size={16} className="animate-spin ml-2" />}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {collaborators.map((collaborator) => (
+                    <div key={collaborator.id} className="flex items-center p-4 bg-background rounded-lg shadow-sm">
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground text-base font-medium flex-shrink-0">
+                          {collaborator.avatar ? (
+                            <img src={collaborator.avatar} alt={collaborator.name} className="w-full h-full rounded-xl object-cover" />
+                          ) : (
+                            collaborator.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-base truncate">{collaborator.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{collaborator.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-2 ml-3">
+                        {collaborator.role === "owner" ? (
+                          <Badge className="bg-yellow-100 text-yellow-800 rounded-lg px-3 py-1">
+                            <Crown size={12} className="mr-1" />
+                            Propietario
+                          </Badge>
                         ) : (
-                          collaborator.name.charAt(0).toUpperCase()
+                          <>
+                            <Select
+                              value={collaborator.role}
+                              onValueChange={(value) => handleUpdateCollaboratorRole(collaborator.id, value)}
+                            >
+                              <SelectTrigger className="w-28 h-9 rounded-lg text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-lg">
+                                <SelectItem value="editor" className="rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <Edit3 size={12} />
+                                    Editor
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="viewer" className="rounded-lg">
+                                  <div className="flex items-center gap-2">
+                                    <Eye size={12} />
+                                    Visualizador
+                                  </div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" className="h-9 w-9 p-0 rounded-lg text-destructive hover:text-destructive">
+                                  <X size={14} />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="rounded-xl">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Eliminar colaborador</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    ¿Estás seguro de que quieres eliminar a {collaborator.name} del viaje? Esta acción no se puede deshacer.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="rounded-lg">Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleRemoveCollaborator(collaborator.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
+                                  >
+                                    Eliminar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </>
                         )}
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">{collaborator.name}</p>
-                        <p className="text-xs text-muted-foreground">{collaborator.email}</p>
+                    </div>
+                  ))}
+                  {collaborators.length === 0 && !loadingCollaborators && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <div className="p-4 rounded-xl bg-muted/50 inline-block mb-4">
+                        <Users size={32} className="opacity-50" />
                       </div>
+                      <p className="text-sm">No hay colaboradores en este viaje aún.</p>
+                      <p className="text-xs mt-1">Invita a amigos para compartir la experiencia.</p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      {collaborator.role === "owner" ? (
-                        <Badge className="bg-yellow-100 text-yellow-800">
-                          <Crown size={12} className="mr-1" />
-                          Propietario
-                        </Badge>
-                      ) : (
-                        <>
-                          <Select
-                            value={collaborator.role}
-                            onValueChange={(value) => handleUpdateCollaboratorRole(collaborator.id, value)}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="editor">
-                                <div className="flex items-center gap-2">
-                                  <Edit3 size={12} />
-                                  Editor
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="viewer">
-                                <div className="flex items-center gap-2">
-                                  <Eye size={12} />
-                                  Visualizador
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
-                                <X size={16} />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Eliminar Colaborador</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  ¿Estás seguro de que quieres eliminar a {collaborator.name} de este viaje? 
-                                  Esta acción no se puede deshacer.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleRemoveCollaborator(collaborator.id)}
-                                  className="bg-destructive hover:bg-destructive/90"
-                                >
-                                  Eliminar
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {collaborators.length === 0 && !loadingCollaborators && (
-                  <p className="text-center text-muted-foreground py-8">
-                    Aún no hay colaboradores en este viaje
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Share Tab */}
-        {activeTab === "share" && (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Información del Viaje</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Destino</p>
-                    <p className="text-sm text-muted-foreground">
-                      {Array.isArray(trip.destination) ? trip.destination.join(', ') : trip.destination}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Fechas</p>
-                    <p className="text-sm text-muted-foreground">{trip.dates}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Viajeros</p>
-                    <p className="text-sm text-muted-foreground">{trip.travelers} personas</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Presupuesto</p>
-                    <p className="text-sm text-muted-foreground">{trip.budget || 'No especificado'}</p>
-                  </div>
+                  )}
                 </div>
-                {trip.description && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Descripción</p>
-                    <p className="text-sm text-muted-foreground">{trip.description}</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
+          </div>
+        )}
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Opciones de Compartir</CardTitle>
+        {/* Share Tab - Mobile optimized */}
+        {activeTab === "share" && (
+          <div className="flex-1 overflow-y-auto px-1">
+            <Card className="rounded-xl border-0 bg-muted/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Share2 size={16} className="text-primary" />
+                  </div>
+                  Compartir Viaje
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button className="w-full">
-                    <Share2 size={16} className="mr-2" />
-                    Compartir por Email
+                <div>
+                  <Label className="text-sm font-medium">Enlace público del viaje</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      value={`${window.location.origin}/trips/${trip.id}/view`}
+                      readOnly
+                      className="flex-1 bg-background text-sm rounded-lg"
+                    />
+                    <Button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/trips/${trip.id}/view`);
+                        toast({ title: "Enlace copiado", description: "El enlace ha sido copiado al portapapeles" });
+                      }}
+                      variant="outline"
+                      className="h-12 px-4 rounded-lg"
+                    >
+                      <Copy size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col rounded-xl border-2 border-dashed hover:border-solid transition-all"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: `Viaje: ${trip.name}`,
+                          text: `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}!`,
+                          url: `${window.location.origin}/trips/${trip.id}/view`
+                        });
+                      }
+                    }}
+                  >
+                    <div className="p-2 rounded-lg bg-primary/10 mb-2">
+                      <Share2 size={18} className="text-primary" />
+                    </div>
+                    <span className="text-sm font-medium">Compartir</span>
                   </Button>
-                  <Button variant="outline" className="w-full">
-                    <Copy size={16} className="mr-2" />
-                    Copiar Enlace del Itinerario
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col rounded-xl border-2 border-dashed hover:border-solid transition-all"
+                    onClick={() => {
+                      const text = `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}! ${window.location.origin}/trips/${trip.id}/view`;
+                      navigator.clipboard.writeText(text);
+                      toast({ title: "Texto copiado", description: "El texto ha sido copiado al portapapeles" });
+                    }}
+                  >
+                    <div className="p-2 rounded-lg bg-primary/10 mb-2">
+                      <Copy size={18} className="text-primary" />
+                    </div>
+                    <span className="text-sm font-medium">Copiar texto</span>
                   </Button>
+                </div>
+
+                <div className="text-center text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
+                  Comparte tu viaje con amigos y familiares para que puedan seguir tu aventura.
                 </div>
               </CardContent>
             </Card>
