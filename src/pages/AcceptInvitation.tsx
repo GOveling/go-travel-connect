@@ -42,19 +42,37 @@ const AcceptInvitation = () => {
   const [invitationStatus, setInvitationStatus] = useState<'loading' | 'valid' | 'expired' | 'invalid' | 'accepted' | 'error'>('loading');
   const [isAccepting, setIsAccepting] = useState(false);
 
+  // Get token from URL params (handle both 'token' and 'code' for backward compatibility)
   const token = searchParams.get('token') || searchParams.get('code');
 
   useEffect(() => {
+    console.log('AcceptInvitation component loaded with params:', {
+      token: token,
+      allParams: Object.fromEntries(searchParams.entries()),
+      fullURL: window.location.href
+    });
+
     if (!token) {
+      console.log('No token found in URL parameters');
       setInvitationStatus('invalid');
       return;
     }
 
+    // Clean up URL by removing the code parameter if it exists
+    if (searchParams.get('code') && !searchParams.get('token')) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('code');
+      newSearchParams.set('token', token);
+      navigate(`/accept-invitation?${newSearchParams.toString()}`, { replace: true });
+    }
+
     fetchInvitationDetails();
-  }, [token]);
+  }, [token, searchParams, navigate]);
 
   const fetchInvitationDetails = async () => {
     if (!token) return;
+
+    console.log('Fetching invitation details for token:', token);
 
     try {
       // Fetch invitation details
@@ -64,7 +82,10 @@ const AcceptInvitation = () => {
         .eq('token', token)
         .single();
 
+      console.log('Invitation query result:', { invitationData, invitationError });
+
       if (invitationError || !invitationData) {
+        console.log('Invalid invitation:', invitationError?.message || 'No data found');
         setInvitationStatus('invalid');
         return;
       }

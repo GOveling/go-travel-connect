@@ -29,7 +29,21 @@ serve(async (req) => {
 
     console.log('Sending invitation email:', { invitationId, tripName, inviterName, email, role });
 
-    const invitationLink = `https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/accept-invitation?token=${token}`;
+    // Get correct domain from request headers or use production default
+    const origin = req.headers.get('origin') || req.headers.get('referer');
+    let baseUrl = 'https://go-travel-connect.vercel.app'; // Default production URL
+    
+    if (origin) {
+      try {
+        const url = new URL(origin);
+        baseUrl = url.origin;
+      } catch (e) {
+        console.log('Invalid origin URL, using default:', origin);
+      }
+    }
+    
+    const invitationLink = `${baseUrl}/accept-invitation?token=${token}`;
+    console.log('Generated invitation link for email:', invitationLink);
 
     const roleText = role === 'editor' ? 'colaborador con permisos de edición' : 'observador';
 

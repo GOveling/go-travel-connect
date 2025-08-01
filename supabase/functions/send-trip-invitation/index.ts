@@ -126,9 +126,21 @@ serve(async (req) => {
       trip: tripData.name
     });
 
-    // Create invitation link
-    const baseUrl = req.headers.get('origin') || 'https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com';
+    // Create invitation link with correct domain
+    const origin = req.headers.get('origin') || req.headers.get('referer');
+    let baseUrl = 'https://go-travel-connect.vercel.app'; // Default production URL
+    
+    if (origin) {
+      try {
+        const url = new URL(origin);
+        baseUrl = url.origin;
+      } catch (e) {
+        console.log('Invalid origin URL, using default:', origin);
+      }
+    }
+    
     const invitationLink = `${baseUrl}/accept-invitation?token=${invitationToken}`;
+    console.log('Generated invitation link:', invitationLink);
 
     // Email content
     const destinations = Array.isArray(tripData.destination) 
