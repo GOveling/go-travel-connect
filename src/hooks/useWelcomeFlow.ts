@@ -17,6 +17,9 @@ export const useWelcomeFlow = () => {
       }
 
       try {
+        // Check if there's a pending invitation to prioritize onboarding flow
+        const hasInvitationToken = localStorage.getItem('invitation_token');
+        
         // Check if this is a new signup and welcome hasn't been shown this session
         const isNewSignup = sessionStorage.getItem(`new_signup_${user.id}`);
         const welcomeShownThisSession = sessionStorage.getItem(`welcome_shown_${user.id}`);
@@ -56,11 +59,17 @@ export const useWelcomeFlow = () => {
           hasProfile: !!profile,
           isNewSignup: !!isNewSignup,
           isNewUser,
+          hasInvitationToken: !!hasInvitationToken,
           onboardingCompleted: (profile as any)?.onboarding_completed,
           welcomeShownThisSession: !!welcomeShownThisSession,
           shouldShowWelcome,
           shouldShowPersonalInfo
         });
+
+        // Ensure onboarding happens BEFORE processing any invitations
+        if (hasInvitationToken && shouldShowPersonalInfo) {
+          console.log('User has invitation but needs onboarding first - prioritizing welcome flow');
+        }
 
         setIsNewUser(shouldShowWelcome);
         setShowWelcome(shouldShowWelcome);
@@ -106,6 +115,12 @@ export const useWelcomeFlow = () => {
       setIsNewUser(false);
       
       console.log('Onboarding completed successfully');
+      
+      // Check if there's a pending invitation to process after onboarding
+      const invitationToken = localStorage.getItem('invitation_token');
+      if (invitationToken) {
+        console.log('Onboarding complete, invitation will now appear in notifications');
+      }
     } catch (error) {
       console.error('Error completing onboarding:', error);
     }

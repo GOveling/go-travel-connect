@@ -29,10 +29,23 @@ export const useUnifiedNotifications = () => {
     refetch
   } = useInvitationNotifications();
   
-  // Check for pending invitation in localStorage
+  // Check for pending invitation in localStorage - only after onboarding is complete
   useEffect(() => {
     const checkPendingInvitation = async () => {
       if (!user) return;
+      
+      // First check if user has completed onboarding
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      // Only process invitation if onboarding is completed
+      if (!profile?.onboarding_completed) {
+        console.log('Onboarding not completed, skipping invitation processing');
+        return;
+      }
       
       const invitationToken = localStorage.getItem('invitation_token');
       if (invitationToken) {
@@ -63,6 +76,7 @@ export const useUnifiedNotifications = () => {
             .single();
 
           if (!error && invitation) {
+            console.log('Pending invitation found and onboarding complete, showing in notifications');
             setPendingInvitation(invitation);
           }
         } catch (error) {
