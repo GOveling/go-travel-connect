@@ -348,58 +348,73 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                           place.positionOrder || index + 1
                         )}
                       >
-                        <Popup>
-                          <div className="p-2 min-w-[200px]">
-                            {/* Image section */}
-                            {place.image && place.image.startsWith('http') && (
-                              <div className="mb-3">
+                        <Popup className="mobile-optimized-popup">
+                          <div className="p-3 max-w-[280px] sm:min-w-[300px]">
+                            {/* Image section - mejorada detección URLs */}
+                            {place.image && (
+                              place.image.includes('http') || 
+                              place.image.includes('maps.googleapis.com') || 
+                              place.image.includes('places.googleapis.com') ||
+                              place.image.includes('googleusercontent.com')
+                            ) && (
+                              <div className="mb-3 relative">
                                 <img 
                                   src={place.image} 
                                   alt={place.name}
-                                  className="w-full h-24 object-cover rounded-lg"
+                                  className="w-full h-20 sm:h-24 object-cover rounded-lg shadow-sm"
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                   }}
+                                  loading="lazy"
                                 />
                               </div>
                             )}
                             
-                            <div className="flex items-center space-x-2 mb-2">
-                              <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                            {/* Header con número y nombre */}
+                            <div className="flex items-start space-x-2 mb-2">
+                              <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 {place.positionOrder || index + 1}
                               </span>
-                              <h4 className="font-semibold text-lg">
-                                {place.name}
-                              </h4>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-base sm:text-lg leading-tight text-gray-900 break-words">
+                                  {place.name}
+                                </h4>
+                                <p className="text-xs sm:text-sm text-gray-600 mt-0.5">
+                                  📍 {place.destinationName}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {place.destinationName}
-                            </p>
-                            <div className="flex items-center space-x-2 mb-2">
-                              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            
+                            {/* Tags compactos para móvil */}
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                                 {place.category}
                               </span>
-                              <span className="text-sm">⭐ {place.rating}</span>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {place.description}
-                            </p>
-                            <div className="flex items-center justify-between text-xs text-gray-500">
-                              <span>⏱️ {place.estimatedTime}</span>
-                              <span
-                                className={`px-2 py-1 rounded ${
-                                  place.priority === "high"
-                                    ? "bg-red-100 text-red-800"
-                                    : place.priority === "medium"
-                                      ? "bg-yellow-100 text-yellow-800"
-                                      : "bg-green-100 text-green-800"
-                                }`}
-                              >
+                              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                                ⭐ {place.rating}
+                              </span>
+                              <span className={`text-xs px-2 py-1 rounded-full ${
+                                place.priority === "high"
+                                  ? "bg-red-100 text-red-800"
+                                  : place.priority === "medium"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : "bg-green-100 text-green-800"
+                              }`}>
                                 {place.priority}
                               </span>
                             </div>
-                            <div className="mt-2 text-xs text-purple-600">
-                              📅 {trip.name}
+                            
+                            {/* Descripción limitada para móviles */}
+                            {place.description && place.description.length > 0 && (
+                              <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
+                                {place.description}
+                              </p>
+                            )}
+                            
+                            {/* Información adicional compacta */}
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              <span>⏱️ {place.estimatedTime}</span>
+                              <span className="text-purple-600">📅 {trip.name}</span>
                             </div>
                           </div>
                         </Popup>
