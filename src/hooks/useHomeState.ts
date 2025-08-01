@@ -1,13 +1,11 @@
 import { useSupabaseTrips } from "./useSupabaseTrips";
 import { useModalState } from "./state/useModalState";
-import { useNotifications } from "./state/useNotifications";
 import { useTripCalculations } from "./state/useTripCalculations";
 
 export const useHomeState = () => {
   const { trips, loading, createTrip, updateTrip, deleteTrip, refetchTrips } =
     useSupabaseTrips();
   const modalState = useModalState();
-  const notifications = useNotifications();
 
   // Calculate trip states (current, traveling, upcoming)
   const { currentTrip, travelingTrip, nearestUpcomingTrip } =
@@ -41,6 +39,5 @@ export const useHomeState = () => {
     nearestUpcomingTrip,
     addPlaceToTrip,
     ...modalState,
-    ...notifications,
   };
 };

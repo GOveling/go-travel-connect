@@ -5,7 +5,6 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
     setIsNotificationModalOpen,
     setIsNewTripModalOpen,
     setIsTripDetailModalOpen,
-    setNotificationCount,
     setTrips,
   } = homeState;
 
@@ -14,7 +13,7 @@ export const useHomeHandlers = (homeState: ReturnType<typeof useHomeState>) => {
   };
 
   const handleMarkAllNotificationsRead = () => {
-    setNotificationCount(0);
+    // This is now handled by the unified notifications system
   };
 
   const handleCreateTrip = (tripData: any) => {

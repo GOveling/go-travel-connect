@@ -69,7 +69,7 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       <NotificationAlertsModal
         isOpen={homeState.isNotificationModalOpen}
         onClose={() => homeState.setIsNotificationModalOpen(false)}
-        notificationCount={homeState.notificationCount}
+        notificationCount={0}
         onMarkAllRead={handlers.handleMarkAllNotificationsRead}
       />
 

@@ -92,10 +92,7 @@ const HomeSection = () => {
         <div className="flex-1">
           <LocationWeatherWidget />
         </div>
-        <NotificationBell
-          notificationCount={homeState.notificationCount}
-          onNotificationClick={handlers.handleNotificationClick}
-        />
+        <NotificationBell />
       </div>
 
       {/* Quick Stats */}
