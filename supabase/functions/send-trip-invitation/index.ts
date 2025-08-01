@@ -133,6 +133,30 @@ serve(async (req) => {
 
     console.log('Email data prepared:', emailData);
 
+    // Send the invitation email
+    try {
+      const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-email', {
+        body: {
+          invitationId: invitationId,
+          tripName: emailData.tripName,
+          inviterName: emailData.inviterName,
+          email: emailData.to,
+          role: role,
+          token: invitationToken
+        }
+      });
+
+      if (emailError) {
+        console.error('Error sending invitation email:', emailError);
+        // Don't fail the whole operation - invitation is already created
+      } else {
+        console.log('Invitation email sent successfully');
+      }
+    } catch (emailError) {
+      console.error('Error invoking send-invitation-email function:', emailError);
+      // Don't fail the whole operation - invitation is already created
+    }
+
     // Return success response
     return new Response(
       JSON.stringify({
