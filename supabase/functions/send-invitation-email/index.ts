@@ -34,7 +34,7 @@ serve(async (req) => {
     const roleText = role === 'editor' ? 'colaborador con permisos de edición' : 'observador';
 
     const emailResponse = await resend.emails.send({
-      from: "GoVeling <onboarding@resend.dev>",
+      from: "GoVeling <info@goveling.com>",
       to: [email],
       subject: `Invitación a ${tripName} - GoVeling`,
       html: `
