@@ -584,7 +584,14 @@ export type Database = {
         }[]
       }
       send_trip_invitation: {
-        Args: { p_trip_id: string; p_email: string; p_role?: string }
+        Args:
+          | { p_trip_id: string; p_email: string; p_role?: string }
+          | {
+              p_trip_id: string
+              p_email: string
+              p_role?: string
+              p_token?: string
+            }
         Returns: string
       }
       update_achievement_progress: {

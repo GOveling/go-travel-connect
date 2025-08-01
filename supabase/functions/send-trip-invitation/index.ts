@@ -70,12 +70,23 @@ serve(async (req) => {
 
     console.log('Trip ownership verified for user:', user.id);
 
+    // Generate secure token using crypto API (base64url encoding)
+    const tokenBytes = new Uint8Array(32);
+    crypto.getRandomValues(tokenBytes);
+    const invitationToken = btoa(String.fromCharCode(...tokenBytes))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+
+    console.log('Generated invitation token');
+
     // Call the database function to create invitation using user client
     const { data: invitationId, error: invitationError } = await supabaseUser
       .rpc('send_trip_invitation', {
         p_trip_id: tripId,
         p_email: email,
-        p_role: role
+        p_role: role,
+        p_token: invitationToken
       });
 
     if (invitationError) {
