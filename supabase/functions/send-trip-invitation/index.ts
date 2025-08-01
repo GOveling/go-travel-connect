@@ -58,7 +58,7 @@ serve(async (req) => {
     // Verify user is trip owner first
     const { data: tripData, error: tripError } = await supabaseUser
       .from('trips')
-      .select('user_id, name')
+      .select('user_id, name, destination')
       .eq('id', tripId)
       .eq('user_id', user.id)
       .single();
@@ -94,46 +94,41 @@ serve(async (req) => {
       throw new Error(`Failed to create invitation: ${invitationError.message}`);
     }
 
-    // Get invitation details for email
-    const { data: invitation, error: getError } = await supabaseAdmin
-      .from('trip_invitations')
-      .select(`
-        *,
-        trips:trip_id (name, destination),
-        inviter:inviter_id (full_name)
-      `)
-      .eq('id', invitationId)
+    // Get user profile for inviter name
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
       .single();
 
-    if (getError || !invitation) {
-      console.error('Error getting invitation details:', getError);
-      throw new Error('Failed to get invitation details');
+    if (profileError) {
+      console.error('Error getting user profile:', profileError);
     }
 
     console.log('Invitation created successfully:', {
-      id: invitation.id,
-      token: invitation.token,
-      trip: invitation.trips?.name
+      id: invitationId,
+      token: invitationToken,
+      trip: tripData.name
     });
 
     // Create invitation link
     const baseUrl = req.headers.get('origin') || 'https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com';
-    const invitationLink = `${baseUrl}/accept-invitation?token=${invitation.token}`;
+    const invitationLink = `${baseUrl}/accept-invitation?token=${invitationToken}`;
 
     // Email content
-    const destinations = Array.isArray(invitation.trips?.destination) 
-      ? invitation.trips.destination.join(', ')
-      : invitation.trips?.destination || 'Various destinations';
+    const destinations = Array.isArray(tripData.destination) 
+      ? tripData.destination.join(', ')
+      : tripData.destination || 'Various destinations';
 
     const emailData = {
       to: email,
-      inviterName: invitation.inviter?.full_name || 'Someone',
-      tripName: invitation.trips?.name || 'Trip',
+      inviterName: profile?.full_name || 'Someone',
+      tripName: tripData.name || 'Trip',
       destinations,
       role: role === 'editor' ? 'edit and collaborate on' : 'view',
       invitationLink,
       customMessage: message || '',
-      expiresAt: new Date(invitation.expires_at).toLocaleDateString()
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()
     };
 
     console.log('Email data prepared:', emailData);
@@ -142,7 +137,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        invitationId: invitation.id,
+        invitationId: invitationId,
         invitationLink,
         message: 'Invitation sent successfully'
       }),
