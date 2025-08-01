@@ -35,14 +35,21 @@ export const useUnifiedNotifications = () => {
       if (!user) return;
       
       // First check if user has completed onboarding
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_completed')
         .eq('id', user.id)
         .maybeSingle();
 
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Error checking profile:', profileError);
+        return;
+      }
+
       // Only process invitation if onboarding is completed
-      if (!profile?.onboarding_completed) {
+      // Type assertion since we know the column exists
+      const profileWithOnboarding = profile as { onboarding_completed?: boolean } | null;
+      if (!profileWithOnboarding?.onboarding_completed) {
         console.log('Onboarding not completed, skipping invitation processing');
         return;
       }
