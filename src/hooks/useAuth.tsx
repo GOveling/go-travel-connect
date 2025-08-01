@@ -34,14 +34,29 @@ export const useAuth = () => {
           session?.user?.email
         );
         
-        // Handle auto-acceptance of invitation after login/signup
+        // For Google OAuth, check if this is a new user by looking at created_at
         if (session?.user) {
+          // Check if user was created very recently (within 10 seconds) - indicates new signup
+          const userCreatedAt = new Date(session.user.created_at);
+          const now = new Date();
+          const timeDiff = now.getTime() - userCreatedAt.getTime();
+          
+          if (timeDiff < 10000) { // Less than 10 seconds = new signup
+            sessionStorage.setItem(`new_signup_${session.user.id}`, 'true');
+            console.log('🆕 Detected new Google signup:', session.user.email);
+          }
+          
           setTimeout(() => {
             handlePostAuthInvitation(session.user);
           }, 0);
         }
       } else if (event === "SIGNED_OUT") {
         console.log("👋 useAuth: User signed out");
+        // Clear signup and welcome flags on logout (using current user before it's cleared)
+        if (user) {
+          sessionStorage.removeItem(`new_signup_${user.id}`);
+          sessionStorage.removeItem(`welcome_shown_${user.id}`);
+        }
       } else if (event === "TOKEN_REFRESHED") {
         console.log("🔄 useAuth: Token refreshed for:", session?.user?.email);
       }
@@ -171,6 +186,10 @@ export const useAuth = () => {
             "Te enviamos un enlace de confirmación para completar tu registro.",
         });
       } else if (data.session) {
+        // Mark this as a new signup for welcome flow
+        if (data.user) {
+          sessionStorage.setItem(`new_signup_${data.user.id}`, 'true');
+        }
         toast({
           title: "¡Cuenta creada exitosamente!",
           description: "¡Bienvenido a la plataforma!",

@@ -10,13 +10,17 @@ export const useWelcomeFlow = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkIfNewUser = async () => {
+    const checkWelcomeFlow = async () => {
       if (!user) {
         setLoading(false);
         return;
       }
 
       try {
+        // Check if this is a new signup and welcome hasn't been shown this session
+        const isNewSignup = sessionStorage.getItem(`new_signup_${user.id}`);
+        const welcomeShownThisSession = sessionStorage.getItem(`welcome_shown_${user.id}`);
+        
         // Check if user has completed onboarding
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -30,18 +34,26 @@ export const useWelcomeFlow = () => {
           return;
         }
 
-        // If no profile exists or onboarding not completed, treat as new user
-        const userIsNew = !profile || !(profile as any).onboarding_completed;
-        
-        // Also check if user was created recently (within last 5 minutes)
-        const recentlyCreated = (profile as any)?.created_at 
-          ? (Date.now() - new Date((profile as any).created_at).getTime()) < 5 * 60 * 1000
-          : false;
+        // Only show welcome if:
+        // 1. This is a new signup (flag exists)
+        // 2. Welcome hasn't been shown this session
+        const shouldShowWelcome = !!isNewSignup && !welcomeShownThisSession;
 
-        const shouldShowWelcome = userIsNew || recentlyCreated;
+        // Show personal info modal if onboarding not completed
+        const shouldShowPersonalInfo = !profile || !(profile as any).onboarding_completed;
+
+        console.log('Welcome flow check:', {
+          hasProfile: !!profile,
+          isNewSignup: !!isNewSignup,
+          onboardingCompleted: (profile as any)?.onboarding_completed,
+          welcomeShownThisSession: !!welcomeShownThisSession,
+          shouldShowWelcome,
+          shouldShowPersonalInfo
+        });
 
         setIsNewUser(shouldShowWelcome);
         setShowWelcome(shouldShowWelcome);
+        setShowPersonalInfo(shouldShowPersonalInfo && !shouldShowWelcome); // Don't show both at once
         setLoading(false);
       } catch (error) {
         console.error('Error in welcome flow check:', error);
@@ -49,10 +61,14 @@ export const useWelcomeFlow = () => {
       }
     };
 
-    checkIfNewUser();
+    checkWelcomeFlow();
   }, [user]);
 
   const completeWelcome = () => {
+    // Mark welcome as shown for this session
+    if (user) {
+      sessionStorage.setItem(`welcome_shown_${user.id}`, 'true');
+    }
     setShowWelcome(false);
     setShowPersonalInfo(true);
   };
@@ -61,13 +77,24 @@ export const useWelcomeFlow = () => {
     if (!user) return;
 
     try {
-      await supabase
+      // Update or insert the profile with onboarding completed
+      const { error: upsertError } = await supabase
         .from('profiles')
-        .update({ onboarding_completed: true } as any)
-        .eq('id', user.id);
+        .upsert({ 
+          id: user.id,
+          email: user.email,
+          onboarding_completed: true 
+        } as any);
+
+      if (upsertError) {
+        console.error('Error completing onboarding:', upsertError);
+        return;
+      }
 
       setShowPersonalInfo(false);
       setIsNewUser(false);
+      
+      console.log('Onboarding completed successfully');
     } catch (error) {
       console.error('Error completing onboarding:', error);
     }
