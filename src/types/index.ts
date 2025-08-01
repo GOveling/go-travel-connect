@@ -33,6 +33,7 @@ export interface SavedPlace {
   destinationName: string;
   lat?: number;
   lng?: number;
+  position_order?: number;
 }
 
 export interface Trip {

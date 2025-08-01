@@ -95,11 +95,18 @@ const SavedPlacesModal = ({
     setShowPlaceDetailModal(true);
   };
 
-  // Group saved places by country from destination_name
+  // Group saved places by country from destination_name and sort by position_order
   const savedPlacesByCountry = useMemo(() => {
     if (!trip?.savedPlaces) return {};
 
-    return trip.savedPlaces.reduce(
+    // First sort all places by position_order
+    const sortedPlaces = [...trip.savedPlaces].sort((a, b) => {
+      const posA = a.position_order || 0;
+      const posB = b.position_order || 0;
+      return posA - posB;
+    });
+
+    return sortedPlaces.reduce(
       (acc, place) => {
         // Extract country from destination_name (assuming format like "City, Country")
         const destinationName = place.destinationName || "Other";
@@ -238,33 +245,34 @@ const SavedPlacesModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <Heart className="text-red-500" size={24} />
-              <span>Saved Places - {trip.name}</span>
-              <Badge variant="secondary" className="ml-2">
-                {totalSavedPlaces} places
+            <DialogTitle className="flex items-center justify-center space-x-2 text-lg sm:text-xl px-2">
+              <Heart className="text-red-500" size={20} />
+              <span className="truncate">Saved Places - {trip.name}</span>
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {totalSavedPlaces}
               </Badge>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-4 px-2 sm:px-0">
             {/* Header with Add Places Button */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                   Your Saved Places
                 </h3>
-                <p className="text-sm text-gray-600">
-                  Places you've saved for this trip, organized by destination
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Places numbered for map reference
                 </p>
               </div>
               <Button
                 onClick={handleNavigateToExplore}
-                className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 w-full sm:w-auto"
+                size="sm"
               >
-                <Plus size={16} className="mr-2" />
+                <Plus size={14} className="mr-2" />
                 Add Places
               </Button>
             </div>
@@ -301,30 +309,37 @@ const SavedPlacesModal = ({
                       </Badge>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {places.map((place) => (
                         <Card
                           key={place.id}
-                          className="cursor-pointer hover:shadow-lg transition-shadow"
+                          className="cursor-pointer hover:shadow-lg transition-shadow relative"
                           onClick={() => handleViewPlaceDetails(place)}
                         >
-                          <CardContent className="p-4">
+                          <CardContent className="p-3 sm:p-4">
+                            {/* Position number badge */}
+                            <div className="absolute -top-2 -left-2 w-6 h-6 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-10">
+                              {place.position_order || 0}
+                            </div>
+                            
                             <div className="flex items-start space-x-3">
-                              {renderPlaceImage(place.image)}
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
+                                {renderPlaceImage(place.image)}
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
-                                    <h5 className="font-semibold text-gray-800 truncate">
+                                    <h5 className="text-sm sm:text-base font-semibold text-gray-800 truncate">
                                       {place.name}
                                     </h5>
-                                    <p className="text-sm text-gray-600 mb-2">
+                                    <p className="text-xs sm:text-sm text-gray-600 mb-2">
                                       {place.category}
                                     </p>
                                   </div>
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 sm:h-8 sm:w-8 p-0 ml-2"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleRemovePlace(place);
@@ -332,9 +347,9 @@ const SavedPlacesModal = ({
                                     disabled={isRemoving === place.id}
                                   >
                                     {isRemoving === place.id ? (
-                                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-500 border-t-transparent" />
+                                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-red-500 border-t-transparent" />
                                     ) : (
-                                      <Trash2 size={14} />
+                                      <Trash2 size={12} className="sm:w-4 sm:h-4" />
                                     )}
                                   </Button>
                                 </div>
