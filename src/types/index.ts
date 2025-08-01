@@ -45,6 +45,7 @@ export interface Trip {
   travelers: number;
   image: string;
   isGroupTrip: boolean;
+  user_id?: string; // Trip owner ID
   collaborators?: Collaborator[];
   coordinates: TripCoordinate[];
   description?: string;

@@ -320,6 +320,51 @@ export type Database = {
           },
         ]
       }
+      trip_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          inviter_id: string
+          role: string
+          status: string
+          token: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          inviter_id: string
+          role?: string
+          status?: string
+          token: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          inviter_id?: string
+          role?: string
+          status?: string
+          token?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           accommodation: string | null
@@ -504,12 +549,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_trip_invitation: {
+        Args: { p_token: string }
+        Returns: boolean
+      }
       calculate_age: {
         Args: { birth_date: string }
         Returns: number
       }
       extract_country_from_destination: {
         Args: { destination_name: string }
+        Returns: string
+      }
+      generate_invitation_token: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_user_achievements_with_progress: {
@@ -529,6 +582,10 @@ export type Database = {
           completed_at: string
           progress_percentage: number
         }[]
+      }
+      send_trip_invitation: {
+        Args: { p_trip_id: string; p_email: string; p_role?: string }
+        Returns: string
       }
       update_achievement_progress: {
         Args: {

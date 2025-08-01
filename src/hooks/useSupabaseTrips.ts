@@ -82,6 +82,7 @@ export const useSupabaseTrips = () => {
           travelers: trip.travelers || 1,
           image: trip.image || "✈️",
           isGroupTrip: trip.is_group_trip || false,
+          user_id: trip.user_id,
           description: trip.description || "",
           budget: trip.budget || "",
           accommodation: trip.accommodation || "",

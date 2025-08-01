@@ -40,6 +40,12 @@ verify_jwt = false
 [functions.google-places-enhanced]
 verify_jwt = false
 
+[functions.send-trip-invitation]
+verify_jwt = true
+
+[functions.accept-trip-invitation]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324
