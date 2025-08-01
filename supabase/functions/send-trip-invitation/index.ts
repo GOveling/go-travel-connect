@@ -55,16 +55,27 @@ serve(async (req) => {
 
     console.log('Sending invitation:', { tripId, email, role, user: user.id });
 
-    // Call the database function to create invitation using admin client but with user context
-    const { data: invitationId, error: invitationError } = await supabaseAdmin
+    // Verify user is trip owner first
+    const { data: tripData, error: tripError } = await supabaseUser
+      .from('trips')
+      .select('user_id, name')
+      .eq('id', tripId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (tripError || !tripData) {
+      console.error('Trip ownership verification failed:', tripError);
+      throw new Error('Only trip owners can send invitations');
+    }
+
+    console.log('Trip ownership verified for user:', user.id);
+
+    // Call the database function to create invitation using user client
+    const { data: invitationId, error: invitationError } = await supabaseUser
       .rpc('send_trip_invitation', {
         p_trip_id: tripId,
         p_email: email,
         p_role: role
-      }, {
-        headers: {
-          Authorization: authHeader
-        }
       });
 
     if (invitationError) {
