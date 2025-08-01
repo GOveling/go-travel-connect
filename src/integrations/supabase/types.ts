@@ -144,6 +144,7 @@ export type Database = {
           gender: string | null
           id: string
           mobile_phone: string | null
+          onboarding_completed: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -161,6 +162,7 @@ export type Database = {
           gender?: string | null
           id: string
           mobile_phone?: string | null
+          onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -178,6 +180,7 @@ export type Database = {
           gender?: string | null
           id?: string
           mobile_phone?: string | null
+          onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -582,6 +585,10 @@ export type Database = {
           completed_at: string
           progress_percentage: number
         }[]
+      }
+      is_trip_collaborator: {
+        Args: { trip_id: string; user_id: string }
+        Returns: boolean
       }
       send_trip_invitation: {
         Args:
