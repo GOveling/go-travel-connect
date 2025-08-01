@@ -10,6 +10,29 @@ interface AcceptInvitationRequest {
   token: string;
 }
 
+const isValidInvitation = async (supabaseClient: any, token: string) => {
+  const { data: invitation } = await supabaseClient
+    .from('trip_invitations')
+    .select('*')
+    .eq('token', token)
+    .single();
+
+  if (!invitation) return false;
+
+  const now = new Date();
+  const expiresAt = new Date(invitation.expires_at);
+  
+  if (now > expiresAt) {
+    await supabaseClient
+      .from('trip_invitations')
+      .update({ status: 'expired' })
+      .eq('token', token);
+    return false;
+  }
+
+  return true;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -70,6 +93,13 @@ serve(async (req) => {
       userEmail: user.email,
       userId: user.id.substring(0, 8) + "..."
     });
+
+    // Validate invitation before accepting
+    const isValid = await isValidInvitation(supabaseClient, token);
+    if (!isValid) {
+      console.log('❌ Invalid or expired invitation');
+      throw new Error('Invalid or expired invitation token');
+    }
 
     // First, let's check the invitation details before accepting
     const { data: invitationCheck, error: checkError } = await supabaseClient

@@ -61,6 +61,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   const [linkCopied, setLinkCopied] = useState(false);
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [loadingCollaborators, setLoadingCollaborators] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const { toast } = useToast();
   const { 
@@ -76,6 +77,24 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     if (isOpen && trip?.id) {
       fetchCollaborators();
       fetchInvitations(trip.id);
+    }
+  }, [isOpen, trip?.id, refreshKey]);
+
+  // Real-time subscription for invitation changes
+  useEffect(() => {
+    if (isOpen && trip?.id) {
+      const subscription = supabase
+        .channel('invitation-changes')
+        .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'trip_invitations' },
+            (payload) => {
+          setRefreshKey(prev => prev + 1);
+        })
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
     }
   }, [isOpen, trip?.id]);
 

@@ -26,7 +26,17 @@ export const useInvitations = () => {
   const sendInvitation = async ({ tripId, email, role, message }: SendInvitationParams) => {
     setLoading(true);
     try {
-      // First create the invitation
+      // Validate permissions first
+      const { data: permissions } = await supabase
+        .from('trips')
+        .select('user_id, is_group_trip')
+        .eq('id', tripId)
+        .single();
+        
+      if (!permissions) {
+        throw new Error('No tienes permisos para invitar');
+      }
+
       const { data, error } = await supabase.functions.invoke('send-trip-invitation', {
         body: {
           tripId,
@@ -44,12 +54,14 @@ export const useInvitations = () => {
         throw new Error(data?.error || 'Failed to send invitation');
       }
 
-
       toast({
         title: "Invitación enviada",
         description: `Invitación enviada a ${email} exitosamente`,
       });
 
+      // Update local state and emit event
+      window.dispatchEvent(new CustomEvent('invitationSent'));
+      
       // Refresh invitations list
       await fetchInvitations(tripId);
 

@@ -98,73 +98,67 @@ export const useInvitationNotifications = () => {
     });
   }, [toast]);
 
-  // Real-time subscription for new invitations
-  useEffect(() => {
-    if (!user) return;
-
+  const setupInvitationListener = useCallback((userId: string) => {
     const channel = supabase
-      .channel('invitation-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'trip_invitations',
-          filter: `status=eq.pending`
-        },
-        async (payload) => {
-          // Check if this invitation is for the current user
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('id', user.id)
+      .channel(`invitation-notifications-${userId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'trip_invitations',
+        filter: `email=eq.${user?.email || ''}`
+      }, async (payload) => {
+        if (payload.new.email === user?.email) {
+          // Fetch the full invitation details
+          const { data: invitationData } = await supabase
+            .from('trip_invitations')
+            .select('*')
+            .eq('id', payload.new.id)
             .single();
 
-          if (profileData?.email === payload.new.email) {
-            // Fetch the full invitation details
-            const { data: invitationData } = await supabase
-              .from('trip_invitations')
-              .select('*')
-              .eq('id', payload.new.id)
+          if (invitationData) {
+            // Fetch trip and inviter details
+            const { data: tripData } = await supabase
+              .from('trips')
+              .select('name')
+              .eq('id', invitationData.trip_id)
+              .single();
+              
+            const { data: inviterData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', invitationData.inviter_id)
               .single();
 
-            if (invitationData) {
-              // Fetch trip and inviter details
-              const { data: tripData } = await supabase
-                .from('trips')
-                .select('name')
-                .eq('id', invitationData.trip_id)
-                .single();
-                
-              const { data: inviterData } = await supabase
-                .from('profiles')
-                .select('full_name')
-                .eq('id', invitationData.inviter_id)
-                .single();
+            const newInvitation: InvitationNotification = {
+              id: invitationData.id,
+              trip_id: invitationData.trip_id,
+              trip_name: tripData?.name || 'Unknown Trip',
+              inviter_name: inviterData?.full_name || 'Unknown User',
+              role: invitationData.role,
+              created_at: invitationData.created_at,
+              expires_at: invitationData.expires_at,
+              token: invitationData.token
+            };
 
-              const newInvitation: InvitationNotification = {
-                id: invitationData.id,
-                trip_id: invitationData.trip_id,
-                trip_name: tripData?.name || 'Unknown Trip',
-                inviter_name: inviterData?.full_name || 'Unknown User',
-                role: invitationData.role,
-                created_at: invitationData.created_at,
-                expires_at: invitationData.expires_at,
-                token: invitationData.token
-              };
-
-              setInvitations(prev => [newInvitation, ...prev]);
-              showInvitationToast(newInvitation);
-            }
+            setInvitations(prev => [newInvitation, ...prev]);
+            showInvitationToast(newInvitation);
           }
         }
-      )
+      })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
   }, [user, showInvitationToast]);
+
+  // Real-time subscription for new invitations
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const cleanup = setupInvitationListener(user.id);
+    return cleanup;
+  }, [user?.id, setupInvitationListener]);
 
   // Initial fetch
   useEffect(() => {
