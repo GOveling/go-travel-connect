@@ -88,7 +88,7 @@ export const useInvitationNotifications = () => {
   }, []);
 
   const getInvitationLink = useCallback((invitation: InvitationNotification) => {
-    return `/trips/${invitation.trip_id}/join?token=${invitation.token}`;
+    return `/accept-invitation?token=${invitation.token}`;
   }, []);
 
   const showInvitationToast = useCallback((invitation: InvitationNotification) => {

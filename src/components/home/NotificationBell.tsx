@@ -33,8 +33,7 @@ const NotificationBell = () => {
   } = useUnifiedNotifications();
 
   const handleAcceptInvitation = (token: string, invitationId: string) => {
-    const invitationLink = `/invitation/${token}`;
-    navigate(invitationLink);
+    navigate(`/accept-invitation?token=${token}`);
     markInvitationAsRead(invitationId);
   };
 
