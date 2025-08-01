@@ -34,6 +34,19 @@ export const useUnifiedNotifications = () => {
     const checkPendingInvitation = async () => {
       if (!user) return;
       
+      // Check for invitation token in URL parameters first
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeFromUrl = urlParams.get('code');
+      
+      if (codeFromUrl && !localStorage.getItem('invitation_token')) {
+        console.log('Found invitation code in URL, storing as token');
+        localStorage.setItem('invitation_token', codeFromUrl);
+        // Clean the URL
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('code');
+        window.history.replaceState({}, document.title, newUrl.toString());
+      }
+      
       // First check if user has completed onboarding
       const { data: profile, error: profileError } = await supabase
         .from('profiles')

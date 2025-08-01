@@ -42,7 +42,7 @@ const AcceptInvitation = () => {
   const [invitationStatus, setInvitationStatus] = useState<'loading' | 'valid' | 'expired' | 'invalid' | 'accepted' | 'error'>('loading');
   const [isAccepting, setIsAccepting] = useState(false);
 
-  const token = searchParams.get('token');
+  const token = searchParams.get('token') || searchParams.get('code');
 
   useEffect(() => {
     if (!token) {
