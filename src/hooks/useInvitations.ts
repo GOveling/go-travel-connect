@@ -108,6 +108,7 @@ export const useInvitations = () => {
         .from('trip_invitations')
         .select('*')
         .eq('trip_id', tripId)
+        .in('status', ['pending', 'accepted'])
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -136,13 +137,9 @@ export const useInvitations = () => {
         description: "La invitación ha sido cancelada exitosamente",
       });
 
-      // Update local state
+      // Remove cancelled invitation from local state (since we only show active ones)
       setInvitations(prev => 
-        prev.map(inv => 
-          inv.id === invitationId 
-            ? { ...inv, status: 'cancelled' } 
-            : inv
-        )
+        prev.filter(inv => inv.id !== invitationId)
       );
     } catch (error: any) {
       console.error('Error cancelling invitation:', error);

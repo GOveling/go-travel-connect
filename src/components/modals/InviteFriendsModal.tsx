@@ -427,7 +427,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     <div className="p-2 rounded-lg bg-orange-500/10">
                       <Clock size={16} className="text-orange-500" />
                     </div>
-                    Invitaciones Pendientes
+                    Invitaciones Activas
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -80,6 +80,21 @@ serve(async (req) => {
 
     console.log('Generated invitation token');
 
+    // Cancel any existing pending invitations for the same email and trip
+    const { error: cancelError } = await supabaseUser
+      .from('trip_invitations')
+      .update({ status: 'cancelled' })
+      .eq('trip_id', tripId)
+      .eq('email', email.toLowerCase().trim())
+      .eq('status', 'pending');
+
+    if (cancelError) {
+      console.error('Error cancelling existing invitations:', cancelError);
+      // Don't fail the operation, just log the error
+    } else {
+      console.log('Cancelled existing pending invitations for email:', email);
+    }
+
     // Call the database function to create invitation using user client
     const { data: invitationId, error: invitationError } = await supabaseUser
       .rpc('send_trip_invitation', {
