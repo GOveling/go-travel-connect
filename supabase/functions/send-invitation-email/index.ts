@@ -25,25 +25,11 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-
-    // Get the authorization header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    // Set the auth header for supabase
-    supabase.auth.setAuth(authHeader.replace('Bearer ', ''));
-
     const { invitationId, tripName, inviterName, email, role, token }: SendInvitationEmailRequest = await req.json();
 
     console.log('Sending invitation email:', { invitationId, tripName, inviterName, email, role });
 
-    const invitationLink = `${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'vercel.app') || 'http://localhost:5173'}/join/${token}`;
+    const invitationLink = `https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/accept-invitation?token=${token}`;
 
     const roleText = role === 'editor' ? 'colaborador con permisos de edición' : 'observador';
 
