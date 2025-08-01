@@ -46,6 +46,9 @@ verify_jwt = true
 [functions.accept-trip-invitation]
 verify_jwt = true
 
+[functions.send-invitation-email]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324

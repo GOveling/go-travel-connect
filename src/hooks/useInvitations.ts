@@ -26,6 +26,7 @@ export const useInvitations = () => {
   const sendInvitation = async ({ tripId, email, role, message }: SendInvitationParams) => {
     setLoading(true);
     try {
+      // First create the invitation
       const { data, error } = await supabase.functions.invoke('send-trip-invitation', {
         body: {
           tripId,
@@ -41,6 +42,38 @@ export const useInvitations = () => {
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to send invitation');
+      }
+
+      // Get trip and inviter details for email
+      const { data: tripData, error: tripError } = await supabase
+        .from('trips')
+        .select('name, user_id')
+        .eq('id', tripId)
+        .single();
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', tripData?.user_id)
+        .single();
+
+      if (!tripError && tripData) {
+        // Send invitation email
+        const emailResult = await supabase.functions.invoke('send-invitation-email', {
+          body: {
+            invitationId: data.invitationId,
+            tripName: tripData.name,
+            inviterName: profileData?.full_name || 'Usuario',
+            email: email.toLowerCase().trim(),
+            role,
+            token: data.token
+          }
+        });
+
+        if (emailResult.error) {
+          console.error('Error sending email:', emailResult.error);
+          // Don't fail the whole operation if email fails
+        }
       }
 
       toast({
