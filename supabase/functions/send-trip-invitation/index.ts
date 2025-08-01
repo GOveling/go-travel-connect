@@ -20,8 +20,8 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client
-    const supabaseClient = createClient(
+    // Create Supabase client with service role key for database operations
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
@@ -32,11 +32,21 @@ serve(async (req) => {
       throw new Error('No authorization header');
     }
 
-    // Set auth for service role client
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
+    // Create client with user token for auth verification
+    const supabaseUser = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader
+          }
+        }
+      }
     );
 
+    // Verify user authentication
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
     if (authError || !user) {
       throw new Error('Unauthorized');
     }
@@ -45,12 +55,16 @@ serve(async (req) => {
 
     console.log('Sending invitation:', { tripId, email, role, user: user.id });
 
-    // Call the database function to create invitation
-    const { data: invitationId, error: invitationError } = await supabaseClient
+    // Call the database function to create invitation using admin client but with user context
+    const { data: invitationId, error: invitationError } = await supabaseAdmin
       .rpc('send_trip_invitation', {
         p_trip_id: tripId,
         p_email: email,
         p_role: role
+      }, {
+        headers: {
+          Authorization: authHeader
+        }
       });
 
     if (invitationError) {
@@ -59,7 +73,7 @@ serve(async (req) => {
     }
 
     // Get invitation details for email
-    const { data: invitation, error: getError } = await supabaseClient
+    const { data: invitation, error: getError } = await supabaseAdmin
       .from('trip_invitations')
       .select(`
         *,

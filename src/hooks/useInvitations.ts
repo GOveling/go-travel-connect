@@ -40,8 +40,8 @@ export const useInvitations = () => {
         throw new Error(error.message);
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to send invitation');
+      if (!data || !data.success) {
+        throw new Error(data?.error || 'Failed to send invitation');
       }
 
       // Get trip and inviter details for email
@@ -58,6 +58,10 @@ export const useInvitations = () => {
         .single();
 
       if (!tripError && tripData) {
+        // Extract token from invitation link if needed
+        const tokenMatch = data.invitationLink?.match(/token=([^&]+)/);
+        const invitationToken = tokenMatch ? tokenMatch[1] : data.token;
+
         // Send invitation email
         const emailResult = await supabase.functions.invoke('send-invitation-email', {
           body: {
@@ -66,7 +70,7 @@ export const useInvitations = () => {
             inviterName: profileData?.full_name || 'Usuario',
             email: email.toLowerCase().trim(),
             role,
-            token: data.token
+            token: invitationToken
           }
         });
 
