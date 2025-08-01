@@ -12,13 +12,23 @@ import AuthDebug from "./components/debug/AuthDebug";
 import { useAuth } from "./hooks/useAuth";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ReduxProvider } from "./providers/ReduxProvider";
+import { useWelcomeFlow } from "./hooks/useWelcomeFlow";
+import WelcomeModal from "./components/modals/WelcomeModal";
+import NewUserPersonalInfoModal from "./components/modals/NewUserPersonalInfoModal";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const { user, loading, signOut } = useAuth();
+  const { 
+    showWelcome, 
+    showPersonalInfo, 
+    loading: welcomeLoading,
+    completeWelcome,
+    completeOnboarding 
+  } = useWelcomeFlow();
 
-  if (loading) {
+  if (loading || welcomeLoading) {
     return (
       <ReduxProvider>
         <LanguageProvider>
@@ -64,6 +74,18 @@ const App = () => {
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            
+            {/* Welcome Flow Modals */}
+            <WelcomeModal 
+              isOpen={showWelcome} 
+              onClose={completeWelcome} 
+            />
+            <NewUserPersonalInfoModal
+              isOpen={showPersonalInfo}
+              onClose={() => {}}
+              onComplete={completeOnboarding}
+            />
+            
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index onSignOut={signOut} />} />

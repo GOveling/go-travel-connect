@@ -14,6 +14,7 @@ export interface ProfileData {
   mobile_phone: string | null;
   country_code: string | null;
   gender: "male" | "female" | "prefer_not_to_say" | null;
+  onboarding_completed: boolean | null;
 }
 
 export interface TravelStats {

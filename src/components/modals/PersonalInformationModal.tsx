@@ -217,6 +217,19 @@ const PersonalInformationModal = ({
       <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Información Personal</DialogTitle>
+          <div className="bg-gradient-to-r from-purple-50 to-orange-50 dark:from-purple-950/20 dark:to-orange-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800 mt-4">
+            <div className="flex items-start gap-3">
+              <div className="text-green-500 text-xl">🎯</div>
+              <div className="space-y-1">
+                <h3 className="font-medium text-green-800 dark:text-green-300">
+                  ¡Último paso para comenzar!
+                </h3>
+                <p className="text-sm text-green-700 dark:text-green-400">
+                  Completa tu información para obtener recomendaciones personalizadas y conectar con otros viajeros.
+                </p>
+              </div>
+            </div>
+          </div>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 p-1">
@@ -606,10 +619,10 @@ const PersonalInformationModal = ({
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
+              Completar después
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Guardando..." : "Guardar Información"}
+              {loading ? "Guardando..." : "¡Comenzar mi aventura!"}
             </Button>
           </div>
         </form>

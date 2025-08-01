@@ -22,7 +22,7 @@ export const useWelcomeFlow = () => {
           .from('profiles')
           .select('id, onboarding_completed, created_at')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error checking user profile:', error);
@@ -31,11 +31,11 @@ export const useWelcomeFlow = () => {
         }
 
         // If no profile exists or onboarding not completed, treat as new user
-        const userIsNew = !profile || !profile.onboarding_completed;
+        const userIsNew = !profile || !(profile as any).onboarding_completed;
         
         // Also check if user was created recently (within last 5 minutes)
-        const recentlyCreated = profile?.created_at 
-          ? (Date.now() - new Date(profile.created_at).getTime()) < 5 * 60 * 1000
+        const recentlyCreated = (profile as any)?.created_at 
+          ? (Date.now() - new Date((profile as any).created_at).getTime()) < 5 * 60 * 1000
           : false;
 
         const shouldShowWelcome = userIsNew || recentlyCreated;
@@ -63,7 +63,7 @@ export const useWelcomeFlow = () => {
     try {
       await supabase
         .from('profiles')
-        .update({ onboarding_completed: true })
+        .update({ onboarding_completed: true } as any)
         .eq('id', user.id);
 
       setShowPersonalInfo(false);
