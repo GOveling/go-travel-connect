@@ -46,9 +46,6 @@ export const useAuth = () => {
             console.log('🆕 Detected new Google signup:', session.user.email);
           }
           
-          setTimeout(() => {
-            handlePostAuthInvitation(session.user);
-          }, 0);
         }
       } else if (event === "SIGNED_OUT") {
         console.log("👋 useAuth: User signed out");
@@ -97,41 +94,6 @@ export const useAuth = () => {
     };
   }, []);
 
-  const handlePostAuthInvitation = async (user: User) => {
-    // Skip auto-processing if user is on accept-invitation page
-    if (window.location.pathname === '/accept-invitation') {
-      return;
-    }
-    
-    const invitationToken = localStorage.getItem('invitation_token');
-    if (invitationToken) {
-      try {
-        console.log("🎫 useAuth: Processing invitation token after auth");
-        const { data, error } = await supabase.functions.invoke('accept-trip-invitation', {
-          body: { token: invitationToken }
-        });
-
-        if (!error && data.success) {
-          localStorage.removeItem('invitation_token');
-          toast({
-            title: "¡Bienvenido!",
-            description: "Te has unido al viaje exitosamente",
-          });
-          
-          // Redirect to home page after a short delay
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 2000);
-        } else {
-          console.error("❌ useAuth: Error accepting invitation:", error || data.error);
-          localStorage.removeItem('invitation_token');
-        }
-      } catch (error) {
-        console.error('❌ useAuth: Exception accepting invitation:', error);
-        localStorage.removeItem('invitation_token');
-      }
-    }
-  };
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {

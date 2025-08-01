@@ -26,7 +26,10 @@ const NotificationBell = () => {
     markInvitationAsRead,
     markGeneralNotificationAsRead,
     markAllNotificationsAsRead,
-    getInvitationLink
+    getInvitationLink,
+    pendingInvitation,
+    handleAcceptPendingInvitation,
+    handleDeclinePendingInvitation
   } = useUnifiedNotifications();
 
   const handleAcceptInvitation = (token: string, invitationId: string) => {
@@ -90,6 +93,47 @@ const NotificationBell = () => {
               </div>
             ) : (
               <div className="space-y-1">
+                {/* Pending Invitation from localStorage */}
+                {pendingInvitation && (
+                  <>
+                    <div className="px-4 py-2 bg-blue-50">
+                      <h4 className="text-sm font-medium text-blue-700">Invitación pendiente</h4>
+                    </div>
+                    <div className="p-3 hover:bg-gray-50">
+                      <Card className="border-l-4 border-l-blue-500 bg-blue-50">
+                        <CardContent className="p-3">
+                          <div className="space-y-2">
+                            <div>
+                              <p className="font-medium text-sm">{pendingInvitation.trips?.name}</p>
+                              <p className="text-xs text-gray-600">
+                                Invitado por {pendingInvitation.inviter?.full_name} como {pendingInvitation.role}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={handleAcceptPendingInvitation}
+                                className="flex-1 h-7 text-xs"
+                              >
+                                Aceptar
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleDeclinePendingInvitation}
+                                className="flex-1 h-7 text-xs"
+                              >
+                                Rechazar
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    {(invitations.length > 0 || generalNotifications.filter(n => !n.isRead).length > 0) && <Separator />}
+                  </>
+                )}
+
                 {/* Invitations Section */}
                 {invitations.length > 0 && (
                   <>

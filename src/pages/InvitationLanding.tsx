@@ -241,7 +241,7 @@ const InvitationLanding = () => {
                   Registrarse y Unirse al Viaje
                 </Button>
                 <p className="text-sm text-gray-500 mt-3">
-                  Al hacer clic, serás redirigido a crear tu cuenta y automáticamente te unirás al viaje
+                  Al hacer clic, serás redirigido a crear tu cuenta. Luego podrás aceptar la invitación desde tus notificaciones.
                 </p>
               </div>
             </Card>
