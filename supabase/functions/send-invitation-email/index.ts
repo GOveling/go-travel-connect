@@ -29,14 +29,15 @@ serve(async (req) => {
 
     console.log('Sending invitation email:', { invitationId, tripName, inviterName, email, role });
 
-    // Get correct domain from request headers or use production default
+    // Get correct domain from request headers or use current Lovable domain
     const origin = req.headers.get('origin') || req.headers.get('referer');
-    let baseUrl = 'https://go-travel-connect.vercel.app'; // Default production URL
+    let baseUrl = 'https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com'; // Current Lovable domain
     
     if (origin) {
       try {
         const url = new URL(origin);
         baseUrl = url.origin;
+        console.log('Using origin from request:', baseUrl);
       } catch (e) {
         console.log('Invalid origin URL, using default:', origin);
       }
