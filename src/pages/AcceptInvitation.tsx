@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useInvitations } from "@/hooks/useInvitations";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useAuth } from "@/hooks/useAuth";
 import { MapPin, Users, Calendar, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
 
 interface TripDetails {
@@ -36,6 +37,7 @@ const AcceptInvitation = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { acceptInvitation, loading } = useInvitations();
+  const { user, session } = useAuth();
 
   const [invitation, setInvitation] = useState<InvitationDetails | null>(null);
   const [tripDetails, setTripDetails] = useState<TripDetails | null>(null);
@@ -46,10 +48,16 @@ const AcceptInvitation = () => {
   const token = searchParams.get('token') || searchParams.get('code');
 
   useEffect(() => {
-    console.log('AcceptInvitation component loaded with params:', {
+    console.log('🔍 AcceptInvitation: Component loaded with full context:', {
       token: token,
       allParams: Object.fromEntries(searchParams.entries()),
-      fullURL: window.location.href
+      fullURL: window.location.href,
+      authState: {
+        hasUser: !!user,
+        hasSession: !!session,
+        userEmail: user?.email,
+        userId: user?.id?.substring(0, 8) + "...",
+      }
     });
 
     if (!token) {
@@ -82,10 +90,33 @@ const AcceptInvitation = () => {
         .eq('token', token)
         .single();
 
-      console.log('Invitation query result:', { invitationData, invitationError });
+      console.log('📧 Invitation query result:', { invitationData, invitationError });
 
       if (invitationError || !invitationData) {
-        console.log('Invalid invitation:', invitationError?.message || 'No data found');
+        console.log('❌ Invalid invitation:', invitationError?.message || 'No data found');
+        setInvitationStatus('invalid');
+        return;
+      }
+
+      // Check email match with current user
+      const currentUserEmail = user?.email;
+      const invitationEmail = invitationData.email;
+      
+      console.log('📨 Email validation:', {
+        currentUserEmail,
+        invitationEmail,
+        emailsMatch: currentUserEmail === invitationEmail,
+        userAuthenticated: !!user
+      });
+
+      if (!user) {
+        console.log('❌ User not authenticated');
+        setInvitationStatus('invalid');
+        return;
+      }
+
+      if (currentUserEmail !== invitationEmail) {
+        console.log('❌ Email mismatch - invitation is for different user');
         setInvitationStatus('invalid');
         return;
       }
@@ -152,6 +183,13 @@ const AcceptInvitation = () => {
 
   const handleAcceptInvitation = async () => {
     if (!token) return;
+
+    console.log('🚀 Starting invitation acceptance process:', {
+      token,
+      userEmail: user?.email,
+      invitationEmail: invitation?.email,
+      hasSession: !!session
+    });
 
     setIsAccepting(true);
     try {
@@ -249,6 +287,16 @@ const AcceptInvitation = () => {
             <p className="text-muted-foreground text-center max-w-md">
               {t("invitations.invalidMessage") || "Esta invitación no es válida o ya no existe."}
             </p>
+            {/* Debug information in development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg max-w-lg">
+                <p><strong>Debug Info:</strong></p>
+                <p>Token: {token}</p>
+                <p>User Email: {user?.email || 'No user'}</p>
+                <p>User ID: {user?.id || 'No ID'}</p>
+                <p>Has Session: {session ? 'Yes' : 'No'}</p>
+              </div>
+            )}
             <Button onClick={() => navigate('/')} variant="outline">
               {t("common.backToHome") || "Volver al Inicio"}
             </Button>

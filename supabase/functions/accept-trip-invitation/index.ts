@@ -25,7 +25,10 @@ serve(async (req) => {
 
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
+    console.log('🔐 Authorization header present:', !!authHeader);
+    
     if (!authHeader) {
+      console.log('❌ No authorization header provided');
       throw new Error('No authorization header');
     }
 
@@ -34,13 +37,42 @@ serve(async (req) => {
       authHeader.replace('Bearer ', '')
     );
 
+    console.log('👤 User authentication result:', {
+      hasUser: !!user,
+      userEmail: user?.email,
+      userId: user?.id?.substring(0, 8) + "...",
+      authError: authError?.message
+    });
+
     if (authError || !user) {
+      console.log('❌ Authentication failed:', authError?.message || 'No user');
       throw new Error('Unauthorized');
     }
 
     const { token }: AcceptInvitationRequest = await req.json();
 
-    console.log('Accepting invitation with token:', token);
+    console.log('🎫 Processing invitation acceptance:', {
+      token,
+      userEmail: user.email,
+      userId: user.id.substring(0, 8) + "..."
+    });
+
+    // First, let's check the invitation details before accepting
+    const { data: invitationCheck, error: checkError } = await supabaseClient
+      .from('trip_invitations')
+      .select('*')
+      .eq('token', token)
+      .single();
+
+    console.log('📋 Invitation check result:', {
+      found: !!invitationCheck,
+      email: invitationCheck?.email,
+      status: invitationCheck?.status,
+      expired: invitationCheck ? new Date(invitationCheck.expires_at) < new Date() : 'unknown',
+      userEmail: user.email,
+      emailMatch: invitationCheck?.email === user.email,
+      checkError: checkError?.message
+    });
 
     // Call the database function to accept invitation
     const { data: success, error: acceptError } = await supabaseClient
@@ -48,16 +80,24 @@ serve(async (req) => {
         p_token: token
       });
 
+    console.log('🔄 Database function result:', {
+      success,
+      error: acceptError?.message,
+      details: acceptError?.details,
+      hint: acceptError?.hint
+    });
+
     if (acceptError) {
-      console.error('Error accepting invitation:', acceptError);
+      console.error('❌ Error accepting invitation:', acceptError);
       throw new Error(`Failed to accept invitation: ${acceptError.message}`);
     }
 
     if (!success) {
+      console.log('❌ Database function returned false - invitation invalid/expired');
       throw new Error('Invalid or expired invitation token');
     }
 
-    console.log('Invitation accepted successfully');
+    console.log('✅ Invitation accepted successfully');
 
     // Get the trip details for the response
     const { data: invitation, error: getError } = await supabaseClient
