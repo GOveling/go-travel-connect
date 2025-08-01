@@ -2,6 +2,7 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useInvitationNotifications } from "@/hooks/useInvitationNotifications";
 interface HomeHeaderProps {
   notificationCount: number;
   onNotificationClick: () => void;
@@ -11,6 +12,9 @@ const HomeHeader = ({
   onNotificationClick,
 }: HomeHeaderProps) => {
   const { t } = useLanguage();
+  const { totalCount: invitationCount } = useInvitationNotifications();
+  
+  const totalNotifications = notificationCount + invitationCount;
   return (
     <div className="pb-4">
       <div className="flex justify-between items-center mb-2 mx-0 px-0">
@@ -33,12 +37,12 @@ const HomeHeader = ({
               className="relative p-2 hover:bg-gray-100 rounded-full"
             >
               <Bell size={24} className="text-gray-600" />
-              {notificationCount > 0 && (
+              {totalNotifications > 0 && (
                 <Badge
                   variant="destructive"
                   className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0 min-w-[20px]"
                 >
-                  {notificationCount > 9 ? "9+" : notificationCount}
+                  {totalNotifications > 9 ? "9+" : totalNotifications}
                 </Badge>
               )}
             </Button>

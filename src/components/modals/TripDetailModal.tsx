@@ -919,19 +919,39 @@ const TripDetailModal = ({
               </div>
             </Tabs>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Conditional based on active tab */}
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t flex-shrink-0">
-              <Button
-                className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                onClick={handleEditTrip}
-              >
-                <Edit3 size={16} className="mr-2" />
-                Edit Trip
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <Share2 size={16} className="mr-2" />
-                Share
-              </Button>
+              {activeTab === "collaborators" ? (
+                // Team management actions
+                <>
+                  <Button
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                    onClick={handleInviteFriends}
+                  >
+                    <UserPlus size={16} className="mr-2" />
+                    Manage Team
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    <Share2 size={16} className="mr-2" />
+                    Share Trip
+                  </Button>
+                </>
+              ) : (
+                // General trip actions
+                <>
+                  <Button
+                    className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                    onClick={handleEditTrip}
+                  >
+                    <Edit3 size={16} className="mr-2" />
+                    Edit Trip
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    <Share2 size={16} className="mr-2" />
+                    Share
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </DialogContent>

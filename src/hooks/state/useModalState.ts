@@ -14,6 +14,7 @@ export const useModalState = () => {
   const [isFlightBookingModalOpen, setIsFlightBookingModalOpen] =
     useState(false);
   const [isManualFlightModalOpen, setIsManualFlightModalOpen] = useState(false);
+  const [isInvitationNotificationsModalOpen, setIsInvitationNotificationsModalOpen] = useState(false);
 
   return {
     isNotificationModalOpen,
@@ -38,5 +39,7 @@ export const useModalState = () => {
     setIsFlightBookingModalOpen,
     isManualFlightModalOpen,
     setIsManualFlightModalOpen,
+    isInvitationNotificationsModalOpen,
+    setIsInvitationNotificationsModalOpen,
   };
 };

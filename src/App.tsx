@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import AcceptInvitation from "./pages/AcceptInvitation";
 import AuthGate from "./components/auth/AuthGate";
 import AuthDebug from "./components/debug/AuthDebug";
 import { useAuth } from "./hooks/useAuth";
@@ -60,6 +61,7 @@ const App = () => {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index onSignOut={signOut} />} />
+                <Route path="/trips/:tripId/join" element={<AcceptInvitation />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
