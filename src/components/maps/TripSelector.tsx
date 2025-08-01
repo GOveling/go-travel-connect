@@ -29,6 +29,27 @@ const TripSelector = ({
   const { t } = useLanguage();
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
 
+  const renderPlaceImage = (imageUrl: string) => {
+    if (!imageUrl) return null;
+    
+    // Check if it's a URL (Google Places API image)
+    if (imageUrl.startsWith('http') || imageUrl.includes('googleusercontent') || imageUrl.includes('maps.googleapis.com')) {
+      return (
+        <img 
+          src={imageUrl} 
+          alt="Place" 
+          className="w-4 h-4 rounded object-cover flex-shrink-0"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      );
+    }
+    
+    // Otherwise, treat as emoji
+    return <span className="flex-shrink-0">{imageUrl}</span>;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -83,7 +104,7 @@ const TripSelector = ({
               {trips.map((trip) => (
                 <SelectItem key={trip.id} value={trip.id}>
                   <div className="flex items-center space-x-2 min-w-0">
-                    <span className="flex-shrink-0">{trip.image}</span>
+                    {renderPlaceImage(trip.image)}
                     <span className="truncate flex-1">{trip.name}</span>
                     <Badge
                       className={`text-xs flex-shrink-0 ${getStatusColor(trip.status)}`}
@@ -101,7 +122,20 @@ const TripSelector = ({
         {selectedTrip && (
           <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-4 space-y-3 min-w-0">
             <div className="flex items-start space-x-3 min-w-0">
-              <div className="text-2xl flex-shrink-0">{selectedTrip.image}</div>
+              <div className="flex-shrink-0">
+                {selectedTrip.image && selectedTrip.image.startsWith('http') ? (
+                  <img 
+                    src={selectedTrip.image} 
+                    alt="Trip" 
+                    className="w-8 h-8 rounded object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="text-2xl">{selectedTrip.image}</div>
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-lg truncate">
                   {selectedTrip.name}
@@ -188,7 +222,7 @@ const TripSelector = ({
                           key={index}
                           className="flex items-center space-x-1 bg-white rounded p-2"
                         >
-                          <span>{place.image}</span>
+                          {renderPlaceImage(place.image)}
                           <span className="truncate">{place.name}</span>
                         </div>
                       ))}
