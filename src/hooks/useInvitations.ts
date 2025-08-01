@@ -44,41 +44,6 @@ export const useInvitations = () => {
         throw new Error(data?.error || 'Failed to send invitation');
       }
 
-      // Get trip and inviter details for email
-      const { data: tripData, error: tripError } = await supabase
-        .from('trips')
-        .select('name, user_id')
-        .eq('id', tripId)
-        .single();
-
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', tripData?.user_id)
-        .single();
-
-      if (!tripError && tripData) {
-        // Extract token from invitation link if needed
-        const tokenMatch = data.invitationLink?.match(/token=([^&]+)/);
-        const invitationToken = tokenMatch ? tokenMatch[1] : data.token;
-
-        // Send invitation email
-        const emailResult = await supabase.functions.invoke('send-invitation-email', {
-          body: {
-            invitationId: data.invitationId,
-            tripName: tripData.name,
-            inviterName: profileData?.full_name || 'Usuario',
-            email: email.toLowerCase().trim(),
-            role,
-            token: invitationToken
-          }
-        });
-
-        if (emailResult.error) {
-          console.error('Error sending email:', emailResult.error);
-          // Don't fail the whole operation if email fails
-        }
-      }
 
       toast({
         title: "Invitación enviada",
