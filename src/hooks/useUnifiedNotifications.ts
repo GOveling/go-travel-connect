@@ -63,7 +63,7 @@ export const useUnifiedNotifications = () => {
       // Type assertion since we know the column exists
       const profileWithOnboarding = profile as { onboarding_completed?: boolean } | null;
       if (!profileWithOnboarding?.onboarding_completed) {
-        console.log('Onboarding not completed, skipping invitation processing');
+        console.log('Onboarding not completed, invitation will be processed after onboarding');
         return;
       }
       

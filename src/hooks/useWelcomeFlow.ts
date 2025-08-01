@@ -17,9 +17,6 @@ export const useWelcomeFlow = () => {
       }
 
       try {
-        // Check if there's a pending invitation to prioritize onboarding flow
-        const hasInvitationToken = localStorage.getItem('invitation_token');
-        
         // Check if this is a new signup and welcome hasn't been shown this session
         const isNewSignup = sessionStorage.getItem(`new_signup_${user.id}`);
         const welcomeShownThisSession = sessionStorage.getItem(`welcome_shown_${user.id}`);
@@ -37,9 +34,12 @@ export const useWelcomeFlow = () => {
           return;
         }
 
-        // Check if this is a new user by comparing creation times
+        // Check if this is a new user by comparing creation times or if no profile exists
         let isNewUser = false;
-        if (profile && (profile as any).created_at) {
+        if (!profile) {
+          // No profile means new user
+          isNewUser = true;
+        } else if ((profile as any).created_at) {
           const profileCreatedAt = new Date((profile as any).created_at);
           const userCreatedAt = new Date(user.created_at);
           const timeDiff = Math.abs(profileCreatedAt.getTime() - userCreatedAt.getTime());
@@ -47,28 +47,34 @@ export const useWelcomeFlow = () => {
           isNewUser = timeDiff < 30000;
         }
 
+        // For users with invitation token, ALWAYS show complete onboarding flow first
+        const hasInvitationToken = localStorage.getItem('invitation_token');
+        const onboardingCompleted = (profile as any)?.onboarding_completed;
+        
         // Show welcome if:
-        // 1. This is a new signup (session flag OR recently created user)
+        // 1. This is a new signup (session flag OR recently created user OR no profile)
         // 2. Welcome hasn't been shown this session
-        const shouldShowWelcome = (!!isNewSignup || isNewUser) && !welcomeShownThisSession;
+        // 3. OR if there's an invitation token and onboarding isn't complete (force complete flow)
+        const shouldShowWelcome = ((!!isNewSignup || isNewUser || !profile) && !welcomeShownThisSession) || 
+                                  (hasInvitationToken && !onboardingCompleted && !welcomeShownThisSession);
 
         // Show personal info modal if onboarding not completed
-        const shouldShowPersonalInfo = !profile || !(profile as any).onboarding_completed;
+        const shouldShowPersonalInfo = !profile || !onboardingCompleted;
 
         console.log('Welcome flow check:', {
           hasProfile: !!profile,
           isNewSignup: !!isNewSignup,
           isNewUser,
           hasInvitationToken: !!hasInvitationToken,
-          onboardingCompleted: (profile as any)?.onboarding_completed,
+          onboardingCompleted: onboardingCompleted,
           welcomeShownThisSession: !!welcomeShownThisSession,
           shouldShowWelcome,
           shouldShowPersonalInfo
         });
 
         // Ensure onboarding happens BEFORE processing any invitations
-        if (hasInvitationToken && shouldShowPersonalInfo) {
-          console.log('User has invitation but needs onboarding first - prioritizing welcome flow');
+        if (hasInvitationToken && !onboardingCompleted) {
+          console.log('User has invitation but needs complete onboarding first - prioritizing welcome flow');
         }
 
         setIsNewUser(shouldShowWelcome);
