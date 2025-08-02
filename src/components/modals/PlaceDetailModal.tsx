@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { usePlaceReviews } from "@/hooks/usePlaceReviews";
 import { useAuth } from "@/hooks/useAuth";
 import useEmblaCarousel from "embla-carousel-react";
+import PlaceMapModal from "./PlaceMapModal";
 
 interface PlaceDetailModalProps {
   place: {
@@ -71,6 +72,7 @@ const PlaceDetailModal = ({
   const [reviewText, setReviewText] = useState("");
   const [userRating, setUserRating] = useState(0);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
   const { user } = useAuth();
 
   const [emblaRef, emblaApi] = useEmblaCarousel();
@@ -152,6 +154,12 @@ const PlaceDetailModal = ({
 
   const handleRatingClick = () => {
     setShowReviews(!showReviews);
+  };
+
+  const handleShowLocationMap = () => {
+    if (place.lat && place.lng) {
+      setShowLocationModal(true);
+    }
   };
 
   // Calculate average rating - avoid artificial fallbacks
@@ -482,7 +490,7 @@ const PlaceDetailModal = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3 pt-2">
+          <div className="flex space-x-2 pt-2">
             {!isFromSavedPlaces && (
               <Button
                 onClick={handleAddToTrip}
@@ -495,11 +503,21 @@ const PlaceDetailModal = ({
             <Button
               variant="outline"
               onClick={() => setShowReviewForm(!showReviewForm)}
-              className={`${isFromSavedPlaces ? "w-full" : "flex-1"} border-purple-200 text-purple-700 hover:bg-purple-50`}
+              className={`${isFromSavedPlaces ? "flex-1" : "flex-1"} border-purple-200 text-purple-700 hover:bg-purple-50`}
             >
               <Edit3 size={16} className="mr-2" />
               Write Review
             </Button>
+            {place.lat && place.lng && (
+              <Button
+                variant="outline"
+                onClick={handleShowLocationMap}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50 px-3"
+                size="sm"
+              >
+                <MapPin size={16} />
+              </Button>
+            )}
           </div>
 
           {/* Review Form */}
@@ -584,6 +602,19 @@ const PlaceDetailModal = ({
           )}
         </div>
       </DialogContent>
+      
+      {/* Place Map Modal */}
+      <PlaceMapModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        place={place ? {
+          id: place.id || place.name,
+          name: place.name,
+          lat: place.lat,
+          lng: place.lng,
+          address: place.location
+        } : null}
+      />
     </Dialog>
   );
 };

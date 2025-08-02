@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import PlaceDetailModal from "./PlaceDetailModal";
+import PlaceMapModal from "./PlaceMapModal";
 import { Trip, SavedPlace } from "@/types";
 import {
   DndContext,
@@ -79,10 +80,11 @@ interface SortablePlaceItemProps {
   index: number;
   onViewDetails: (place: SavedPlace) => void;
   onRemove: (place: SavedPlace) => void;
+  onShowLocation: (place: SavedPlace) => void;
   isRemoving: string | null;
 }
 
-const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, isRemoving }: SortablePlaceItemProps) => {
+const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocation, isRemoving }: SortablePlaceItemProps) => {
   const {
     attributes,
     listeners,
@@ -220,6 +222,21 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, isRemoving }
             </p>
           </div>
         </div>
+        
+        {/* Location button - bottom right corner */}
+        {place.lat && place.lng && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute bottom-2 right-2 h-6 w-6 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full z-20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onShowLocation(place);
+            }}
+          >
+            <MapPin size={12} />
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
@@ -238,6 +255,8 @@ const SavedPlacesModal = ({
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
   const [draggedPlace, setDraggedPlace] = useState<SavedPlace | null>(null);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [selectedPlaceForMap, setSelectedPlaceForMap] = useState<SavedPlace | null>(null);
   const { isReordering, reorderPlaces } = usePlaceReordering();
 
   // Configure sensors for better mobile experience
@@ -276,6 +295,14 @@ const SavedPlacesModal = ({
     };
     setSelectedPlace(placeForModal);
     setShowPlaceDetailModal(true);
+  };
+
+  // Function to handle showing location on map
+  const handleShowLocationMap = (place: SavedPlace) => {
+    if (place.lat && place.lng) {
+      setSelectedPlaceForMap(place);
+      setShowLocationModal(true);
+    }
   };
 
   // Group saved places by country and sort by position_order
@@ -514,6 +541,7 @@ const SavedPlacesModal = ({
                                 index={globalIndex}
                                 onViewDetails={handleViewPlaceDetails}
                                 onRemove={handleRemovePlace}
+                                onShowLocation={handleShowLocationMap}
                                 isRemoving={isRemoving}
                               />
                             );
@@ -559,6 +587,22 @@ const SavedPlacesModal = ({
           setShowPlaceDetailModal(false);
           setSelectedPlace(null);
         }}
+      />
+
+      {/* Place Map Modal */}
+      <PlaceMapModal
+        isOpen={showLocationModal}
+        onClose={() => {
+          setShowLocationModal(false);
+          setSelectedPlaceForMap(null);
+        }}
+        place={selectedPlaceForMap ? {
+          id: selectedPlaceForMap.id,
+          name: selectedPlaceForMap.name,
+          lat: selectedPlaceForMap.lat,
+          lng: selectedPlaceForMap.lng,
+          address: selectedPlaceForMap.destinationName || selectedPlaceForMap.category
+        } : null}
       />
 
       {/* Remove Confirmation Dialog */}
