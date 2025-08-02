@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -56,6 +56,10 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl w-full h-[60vh] p-0 border-0 rounded-[5px]">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{place.name}</DialogTitle>
+          <DialogDescription>Ubicación en el mapa</DialogDescription>
+        </DialogHeader>
         <div className="w-full h-full rounded-[5px] overflow-hidden">
           <MapContainer
             center={position}
