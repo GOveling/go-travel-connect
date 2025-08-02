@@ -55,8 +55,8 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full h-[80vh] p-0 border-0">
-        <div className="w-full h-full rounded-lg overflow-hidden">
+      <DialogContent className="max-w-2xl w-full h-[60vh] p-0 border-0 rounded-[5px]">
+        <div className="w-full h-full rounded-[5px] overflow-hidden">
           <MapContainer
             center={position}
             zoom={16}
