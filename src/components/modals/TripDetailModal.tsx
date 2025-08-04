@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import {
   Calendar,
   MapPin,
@@ -18,7 +19,11 @@ import {
   Heart,
   Map,
   Trash2,
+  CreditCard,
+  Hotel,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { format, isPast, isFuture } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -82,6 +87,7 @@ const TripDetailModal = ({
   onDeleteTrip,
 }: TripDetailModalProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [showRouteMap, setShowRouteMap] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>("");
@@ -97,6 +103,9 @@ const TripDetailModal = ({
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
+  const [userRole, setUserRole] = useState<string>('viewer');
+  const [memberCount, setMemberCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   // New modal states
   const [showFlightSearchModal, setShowFlightSearchModal] = useState(false);
@@ -109,6 +118,49 @@ const TripDetailModal = ({
   const [transferType, setTransferType] = useState<
     "arrival" | "departure" | "between"
   >("arrival");
+
+  // Fetch user role and member count
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (!trip || !user || !isOpen) return;
+      
+      try {
+        setLoading(true);
+        
+        // Determine user role
+        let role = 'viewer';
+        if (trip.user_id === user.id) {
+          role = 'owner';
+        } else {
+          const { data: memberData } = await supabase
+            .from('trip_collaborators')
+            .select('role')
+            .eq('trip_id', trip.id)
+            .eq('user_id', user.id)
+            .single();
+          
+          if (memberData) {
+            role = memberData.role;
+          }
+        }
+        setUserRole(role);
+        
+        // Get member count
+        const { count } = await supabase
+          .from('trip_collaborators')
+          .select('id', { count: 'exact', head: true })
+          .eq('trip_id', trip.id);
+        
+        setMemberCount(count || 0);
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserRole();
+  }, [trip, user, isOpen]);
 
 
   // Function to navigate to explore section
@@ -468,6 +520,69 @@ const TripDetailModal = ({
     }
   };
 
+  // Get trip status based on dates
+  const getTripStatus = () => {
+    if (!trip?.dates) return 'Planning';
+    
+    try {
+      // Parse the dates string like "Dec 15 - Dec 25, 2024"
+      const dateRange = trip.dates.split(" - ");
+      if (dateRange.length !== 2) return 'Planning';
+      
+      const endDateStr = dateRange[1];
+      const year = endDateStr.split(", ")[1] || new Date().getFullYear().toString();
+      const endMonth = endDateStr.split(" ")[0];
+      const endDay = parseInt(endDateStr.split(" ")[1].split(",")[0]);
+      
+      const monthMap: { [key: string]: number } = {
+        Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+        Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
+      };
+      
+      const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
+      
+      if (isPast(endDate)) return 'Complete';
+      return 'Upcoming';
+    } catch {
+      return 'Planning';
+    }
+  };
+  
+  // Get traveler count
+  const getTravelerCount = () => {
+    return trip?.isGroupTrip ? memberCount + 1 : 1; // +1 for owner
+  };
+  
+  // Get badge color based on status
+  const getStatusBadgeColor = () => {
+    const status = getTripStatus();
+    switch(status) {
+      case 'Complete':
+        return 'default';
+      case 'Upcoming':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+  
+  // Get user role badge props
+  const getUserRoleBadgeProps = () => {
+    switch(userRole) {
+      case 'owner':
+        return { variant: 'default' as const, label: 'Owner' };
+      case 'editor':
+        return { variant: 'secondary' as const, label: 'Editor' };
+      default:
+        return { variant: 'outline' as const, label: 'Viewer' };
+    }
+  };
+
+  // Format date range
+  const getDateRange = () => {
+    return trip?.dates || 'No dates set';
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
@@ -486,16 +601,19 @@ const TripDetailModal = ({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col">
           <DialogHeader className="flex-shrink-0 pb-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <DialogTitle className="text-xl md:text-2xl font-bold text-gray-800 flex items-center space-x-2 md:space-x-3">
                 <span className="text-2xl md:text-3xl">{trip.image}</span>
                 <span className="truncate">{trip.name}</span>
               </DialogTitle>
-              <Badge
-                className={`text-xs px-2 py-1 rounded-full capitalize ${getStatusColor(trip.status)}`}
-              >
-                {trip.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={getUserRoleBadgeProps().variant}>
+                  {getUserRoleBadgeProps().label}
+                </Badge>
+                <Badge variant={getStatusBadgeColor()}>
+                  {getTripStatus()}
+                </Badge>
+              </div>
             </div>
           </DialogHeader>
 
@@ -518,13 +636,13 @@ const TripDetailModal = ({
               )}
               <div className="flex items-center space-x-2 text-gray-600 text-sm">
                 <Calendar size={14} />
-                <span className="truncate">{trip.dates}</span>
+                <span className="truncate">{getDateRange()}</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-600 text-sm">
                 <Users size={14} />
                 <span>
-                  {getTotalTravelers()} traveler
-                  {getTotalTravelers() > 1 ? "s" : ""}
+                  {getTravelerCount()} traveler
+                  {getTravelerCount() > 1 ? "s" : ""}
                 </span>
               </div>
             </div>
@@ -559,50 +677,77 @@ const TripDetailModal = ({
 
               <div className="flex-1 overflow-y-auto">
                 <TabsContent value="overview" className="space-y-4 mt-0">
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-2">
-                      About This Trip
-                    </h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {trip.description ||
-                        "An amazing journey through beautiful destinations with unforgettable experiences and wonderful memories to be made."}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <h5 className="font-medium text-gray-800 mb-1">
-                          Budget
-                        </h5>
-                        <p className="text-gray-600 text-sm">
-                          {trip.budget || "$2,500 per person"}
+                  <div className="space-y-4">
+                    <div className="flex items-start space-x-3">
+                      <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="font-medium">Dates</p>
+                        <p className="text-sm text-muted-foreground">{getDateRange()}</p>
+                      </div>
+                    </div>
+                    
+                    {trip.destination && (
+                      <div className="flex items-start space-x-3">
+                        <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="font-medium">Destination</p>
+                          <p className="text-sm text-muted-foreground">
+                            {Array.isArray(trip.destination) ? trip.destination.join(', ') : trip.destination}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-start space-x-3">
+                      <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="font-medium">Travelers</p>
+                        <p className="text-sm text-muted-foreground">
+                          {getTravelerCount()} {getTravelerCount() === 1 ? 'traveler' : 'travelers'}
                         </p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <h5 className="font-medium text-gray-800 mb-1">
-                          Accommodation
-                        </h5>
-                        <p className="text-gray-600 text-sm">
-                          {trip.accommodation || "Hotels & Airbnb"}
+                      </div>
+                    </div>
+                    
+                    {trip.budget && (
+                      <div className="flex items-start space-x-3">
+                        <CreditCard className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="font-medium">Budget</p>
+                          <p className="text-sm text-muted-foreground">{trip.budget}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {trip.accommodation && (
+                      <div className="flex items-start space-x-3">
+                        <Hotel className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="font-medium">Accommodation</p>
+                          <p className="text-sm text-muted-foreground">{trip.accommodation}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {trip.transportation && (
+                      <div className="flex items-start space-x-3">
+                        <Plane className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="font-medium">Transportation</p>
+                          <p className="text-sm text-muted-foreground">{trip.transportation}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Description section */}
+                    {trip.description && (
+                      <div className="mt-6 pt-4 border-t">
+                        <h4 className="font-medium mb-2">Description</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">
+                          {trip.description}
                         </p>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    )}
                   </div>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <h5 className="font-medium text-gray-800 mb-1">
-                        Transportation
-                      </h5>
-                      <p className="text-gray-600 text-sm">
-                        {trip.transportation ||
-                          "Flights, trains, and local transport"}
-                      </p>
-                    </CardContent>
-                  </Card>
                 </TabsContent>
 
                 <TabsContent value="itinerary" className="space-y-6 mt-0">
@@ -937,15 +1082,19 @@ const TripDetailModal = ({
                   </Button>
                 </>
               ) : (
-                // General trip actions
+                 // General trip actions
                 <>
-                  <Button
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                    onClick={handleEditTrip}
-                  >
-                    <Edit3 size={16} className="mr-2" />
-                    Edit Trip
-                  </Button>
+                  {(userRole === 'owner' || userRole === 'editor') && (
+                    <Link to={`/trips/${trip.id}/edit`} className="flex-1">
+                      <Button
+                        className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                        onClick={onClose}
+                      >
+                        <Edit3 size={16} className="mr-2" />
+                        Edit Trip
+                      </Button>
+                    </Link>
+                  )}
                   <Button variant="outline" className="flex-1">
                     <Share2 size={16} className="mr-2" />
                     Share
