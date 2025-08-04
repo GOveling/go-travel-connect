@@ -37,9 +37,12 @@ export const useInvitationNotifications = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trip:trip_id (
+          trips:trip_id (
             id,
             name
+          ),
+          inviter:inviter_id (
+            full_name
           )
         `)
         .eq('email', profileData.email)
@@ -53,9 +56,14 @@ export const useInvitationNotifications = () => {
       }
 
       const formattedInvitations = (data || []).map(invitation => ({
-        ...invitation,
-        trip_name: invitation.trip?.name || 'Unknown Trip',
-        inviter_name: 'Unknown User' // We'll need to fetch this separately if needed
+        id: invitation.id,
+        trip_id: invitation.trip_id,
+        trip_name: invitation.trips?.name || 'Unknown Trip',
+        inviter_name: invitation.inviter?.full_name || 'Unknown User',
+        role: invitation.role,
+        created_at: invitation.created_at,
+        expires_at: invitation.expires_at,
+        token: invitation.token
       }));
 
       setInvitations(formattedInvitations);
@@ -98,9 +106,12 @@ export const useInvitationNotifications = () => {
             .from('trip_invitations')
             .select(`
               *,
-              trip:trip_id (
+              trips:trip_id (
                 id,
                 name
+              ),
+              inviter:inviter_id (
+                full_name
               )
             `)
             .eq('id', payload.new.id)
@@ -108,9 +119,14 @@ export const useInvitationNotifications = () => {
 
           if (invitationData) {
             const newInvitation = {
-              ...invitationData,
-              trip_name: invitationData.trip?.name || 'Unknown Trip',
-              inviter_name: 'Unknown User' // We'll need to fetch this separately if needed
+              id: invitationData.id,
+              trip_id: invitationData.trip_id,
+              trip_name: invitationData.trips?.name || 'Unknown Trip',
+              inviter_name: invitationData.inviter?.full_name || 'Unknown User',
+              role: invitationData.role,
+              created_at: invitationData.created_at,
+              expires_at: invitationData.expires_at,
+              token: invitationData.token
             };
 
             setInvitations(prev => [newInvitation, ...prev]);
