@@ -59,24 +59,15 @@ export const useInvitationNotifications = () => {
         console.log('Trip data:', data[0]?.trip);
       }
 
-      // Fetch inviter names separately
-      const formattedInvitations = await Promise.all((data || []).map(async invitation => {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', invitation.inviter_id)
-          .single();
-
-        return {
-          id: invitation.id,
-          trip_id: invitation.trip_id,
-          trip_name: invitation.trip?.name || 'Unknown Trip',
-          inviter_name: profileData?.full_name || 'Unknown User',
-          role: invitation.role,
-          created_at: invitation.created_at,
-          expires_at: invitation.expires_at,
-          token: invitation.token
-        };
+      const formattedInvitations = (data || []).map(invitation => ({
+        id: invitation.id,
+        trip_id: invitation.trip_id,
+        trip_name: invitation.trip?.name || 'Unknown Trip',
+        inviter_name: 'Unknown User',
+        role: invitation.role,
+        created_at: invitation.created_at,
+        expires_at: invitation.expires_at,
+        token: invitation.token
       }));
 
       setInvitations(formattedInvitations);
