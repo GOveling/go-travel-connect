@@ -40,9 +40,6 @@ export const useInvitationNotifications = () => {
           trips:trip_id (
             id,
             name
-          ),
-          profiles:inviter_id (
-            full_name
           )
         `)
         .eq('email', profileData.email)
@@ -60,18 +57,26 @@ export const useInvitationNotifications = () => {
       if (data && data.length > 0) {
         console.log('First invitation data:', JSON.stringify(data[0], null, 2));
         console.log('Trip data:', data[0]?.trips);
-        console.log('Profile data:', data[0]?.profiles);
       }
 
-      const formattedInvitations = (data || []).map(invitation => ({
-        id: invitation.id,
-        trip_id: invitation.trip_id,
-        trip_name: invitation.trips?.name || 'Unknown Trip',
-        inviter_name: invitation.profiles?.full_name || 'Unknown User',
-        role: invitation.role,
-        created_at: invitation.created_at,
-        expires_at: invitation.expires_at,
-        token: invitation.token
+      // Fetch inviter names separately
+      const formattedInvitations = await Promise.all((data || []).map(async invitation => {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', invitation.inviter_id)
+          .single();
+
+        return {
+          id: invitation.id,
+          trip_id: invitation.trip_id,
+          trip_name: invitation.trips?.name || 'Unknown Trip',
+          inviter_name: profileData?.full_name || 'Unknown User',
+          role: invitation.role,
+          created_at: invitation.created_at,
+          expires_at: invitation.expires_at,
+          token: invitation.token
+        };
       }));
 
       setInvitations(formattedInvitations);
@@ -117,20 +122,24 @@ export const useInvitationNotifications = () => {
               trips:trip_id (
                 id,
                 name
-              ),
-              profiles:inviter_id (
-                full_name
               )
             `)
             .eq('id', payload.new.id)
             .single();
 
           if (invitationData) {
+            // Fetch inviter name separately
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', invitationData.inviter_id)
+              .single();
+
             const newInvitation = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
               trip_name: invitationData.trips?.name || 'Unknown Trip',
-              inviter_name: invitationData.profiles?.full_name || 'Unknown User',
+              inviter_name: profileData?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
