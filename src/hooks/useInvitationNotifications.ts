@@ -60,12 +60,8 @@ export const useInvitationNotifications = () => {
       const formattedInvitations = (data || []).map(invitation => ({
         id: invitation.id,
         trip_id: invitation.trip_id,
-        trip_name: invitation.trip?.name 
-          || invitation.trip_id 
-          || 'Unknown Trip',
-        inviter_name: invitation.inviter?.full_name 
-          || invitation.inviter_id 
-          || 'Unknown User',
+        trip_name: invitation.trip?.name || 'Unknown Trip',
+        inviter_name: invitation.inviter?.full_name || 'Unknown User',
         role: invitation.role,
         created_at: invitation.created_at,
         expires_at: invitation.expires_at,
