@@ -67,16 +67,7 @@ export const ActiveInvitations = ({
         throw new Error('Esta invitación no corresponde a tu cuenta');
       }
 
-      // PASO 2: Obtener información del viaje
-      const { data: tripData, error: tripError } = await supabase
-        .from('trips')
-        .select('id, name')
-        .eq('id', basicInvitation.trip_id)
-        .single();
-
-      console.log('Trip data:', tripData);
-
-      // PASO 3: Actualizar el estado de la invitación
+      // PASO 2: Actualizar el estado de la invitación
       const { error: updateError } = await supabase
         .from('trip_invitations')
         .update({ 
@@ -125,15 +116,37 @@ export const ActiveInvitations = ({
         }
       }
 
-      // PASO 5: CRUCIAL - Llamar a la función RPC para otorgar acceso completo
-      const { error: accessError } = await supabase.rpc('grant_trip_member_access', {
-        p_trip_id: basicInvitation.trip_id,
-        p_user_id: user.id
-      });
+      // PASO 4: IMPORTANTE - Actualizar el tipo de viaje a "group"
+      const { error: updateTripError } = await supabase
+        .from('trips')
+        .update({ is_group_trip: true })
+        .eq('id', basicInvitation.trip_id);
 
-      if (accessError) {
-        console.error('Error granting access:', accessError);
-        // No lanzar error aquí porque la invitación ya fue aceptada
+      if (updateTripError) {
+        console.error('Error updating trip type:', updateTripError);
+      }
+
+      // PASO 5: Obtener información del viaje para la redirección
+      const { data: tripData } = await supabase
+        .from('trips')
+        .select('name')
+        .eq('id', basicInvitation.trip_id)
+        .single();
+
+      // PASO 6: Configurar permisos de acceso (si existe la función RPC)
+      try {
+        const { error: accessError } = await supabase.rpc('grant_trip_member_access', {
+          p_trip_id: basicInvitation.trip_id,
+          p_user_id: user.id
+        });
+
+        if (accessError) {
+          console.error('Error granting access:', accessError);
+          // No lanzar error aquí porque la invitación ya fue aceptada
+        }
+      } catch (rpcError) {
+        // Si la función RPC no existe, solo logueamos el error pero continuamos
+        console.warn('RPC function not available:', rpcError);
       }
 
       // Éxito
