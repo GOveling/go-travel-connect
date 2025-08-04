@@ -131,20 +131,29 @@ const PersonalInformationModal = ({
     }
   }, [formData.birth_date]);
 
-  // Update country code when country changes
+  // Update country code and phone code when country changes
   useEffect(() => {
     if (formData.country) {
       const country = countries.find(
         (c) => c.country_code === formData.country
       );
       if (country) {
+        const phoneCode = normalizePhoneCode(country.phone_code);
         setFormData((prev) => ({
           ...prev,
-          country_code: normalizePhoneCode(country.phone_code),
+          country_code: phoneCode,
+          // Auto-update phone prefix when country changes
+          mobile_phone: prev.mobile_phone 
+            ? `${phoneCode} ${prev.mobile_phone.replace(/^\+?\d+\s*/, '')}`
+            : phoneCode + ' '
         }));
       }
     } else {
-      setFormData((prev) => ({ ...prev, country_code: "" }));
+      setFormData((prev) => ({ 
+        ...prev, 
+        country_code: "",
+        mobile_phone: ""
+      }));
     }
   }, [formData.country, countries]);
 
