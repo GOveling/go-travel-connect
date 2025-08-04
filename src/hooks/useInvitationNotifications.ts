@@ -68,13 +68,20 @@ export const useInvitationNotifications = () => {
         console.log('Processing invitation:', invitation.id, 'trip_id:', invitation.trip_id);
         
         // Fetch trip name
+        console.log('🔍 About to fetch trip with ID:', invitation.trip_id);
+        
         const { data: tripData, error: tripError } = await supabase
           .from('trips')
           .select('name')
           .eq('id', invitation.trip_id)
           .single();
         
-        console.log('Trip query result:', { tripData, tripError });
+        console.log('🏖️ Trip query result:', { 
+          tripId: invitation.trip_id,
+          tripData, 
+          tripError,
+          tripName: tripData?.name 
+        });
         
         // Fetch inviter name
         const { data: inviterData, error: inviterError } = await supabase
