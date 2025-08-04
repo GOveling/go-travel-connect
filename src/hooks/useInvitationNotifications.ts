@@ -35,7 +35,16 @@ export const useInvitationNotifications = () => {
 
       const { data, error } = await supabase
         .from('trip_invitations')
-        .select('*')
+        .select(`
+          *,
+          trips:trip_id (
+            id,
+            name
+          ),
+          profiles:inviter_id (
+            full_name
+          )
+        `)
         .eq('email', profileData.email)
         .eq('status', 'pending')
         .gt('expires_at', new Date().toISOString())
@@ -46,38 +55,22 @@ export const useInvitationNotifications = () => {
         return;
       }
 
-      // Get unique trip and inviter IDs
-      const tripIds = [...new Set((data || []).map(inv => inv.trip_id))];
-      const inviterIds = [...new Set((data || []).map(inv => inv.inviter_id))];
-
-      // Batch fetch trip details
-      const { data: tripsData } = await supabase
-        .from('trips')
-        .select('id, name')
-        .in('id', tripIds);
-
-      // Batch fetch inviter details
-      const { data: invitersData } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', inviterIds);
-
-      // Create lookup maps
-      const tripsMap = new Map(tripsData?.map(trip => [trip.id, trip.name]) || []);
-      const invitersMap = new Map(invitersData?.map(profile => [profile.id, profile.full_name]) || []);
-
-      const formattedInvitations: InvitationNotification[] = (data || []).map(inv => ({
-        id: inv.id,
-        trip_id: inv.trip_id,
-        trip_name: tripsMap.get(inv.trip_id) || 'Unknown Trip',
-        inviter_name: invitersMap.get(inv.inviter_id) || 'Unknown User',
-        role: inv.role,
-        created_at: inv.created_at,
-        expires_at: inv.expires_at,
-        token: inv.token
-      }));
+      // Transform data to include trip name
+      const formattedInvitations = data?.map(invitation => ({
+        id: invitation.id,
+        trip_id: invitation.trip_id,
+        trip_name: invitation.trips?.name || 'Unknown Trip',
+        inviter_name: invitation.profiles?.full_name || 'Unknown User',
+        role: invitation.role,
+        created_at: invitation.created_at,
+        expires_at: invitation.expires_at,
+        token: invitation.token
+      })) || [];
 
       setInvitations(formattedInvitations);
+      
+      // Debug log
+      console.log('Formatted invitations:', formattedInvitations);
     } catch (error) {
       console.error('Error fetching invitations:', error);
     } finally {
