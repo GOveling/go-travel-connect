@@ -1,153 +1,150 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Plus, MapPin, Star, Clock, Trash2, Edit } from 'lucide-react';
+import { MapPin, PlusCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { SavedPlaceCard } from '../places/SavedPlaceCard';
+import { Loader } from '@/components/ui/loader';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-interface TripSavedPlacesProps {
+export const TripSavedPlaces = ({ 
+  places = [],
+  tripId,
+  userRole,
+  onUpdate
+}: {
   places: any[];
   tripId: string;
   userRole: string;
   onUpdate: () => void;
-}
-
-export const TripSavedPlaces = ({ 
-  places, 
-  tripId, 
-  userRole, 
-  onUpdate 
-}: TripSavedPlacesProps) => {
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
-
+}) => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [orderedPlaces, setOrderedPlaces] = useState(places);
+  
+  useEffect(() => {
+    setOrderedPlaces(places);
+  }, [places]);
+  
+  const handleReorder = async (result: any) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(orderedPlaces);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    setOrderedPlaces(items);
+    
+    // Solo guardar si el usuario tiene permisos
+    if (userRole === 'owner' || userRole === 'editor') {
+      try {
+        setLoading(true);
+        
+        // Actualizar posiciones en la base de datos
+        const updates = items.map((item, index) => ({
+          id: item.id,
+          position_order: index + 1
+        }));
+        
+        for (const update of updates) {
+          await supabase
+            .from('saved_places')
+            .update({ position_order: update.position_order })
+            .eq('id', update.id);
+        }
+        
+        toast({
+          title: "Orden actualizado",
+          description: "Se ha actualizado el orden de los lugares"
+        });
+      } catch (error) {
+        console.error("Error reordering places:", error);
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar el orden",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  
   const canEdit = userRole === 'owner' || userRole === 'editor';
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getPriorityText = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'Alta';
-      case 'medium': return 'Media';
-      case 'low': return 'Baja';
-      default: return 'Sin definir';
-    }
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={`h-4 w-4 ${
-          i < rating 
-            ? 'text-yellow-400 fill-yellow-400' 
-            : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
-
+  
+  if (loading) {
+    return <Loader />;
+  }
+  
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Lugares guardados</h3>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">Lugares guardados ({places.length})</h2>
         {canEdit && (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar lugar
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={() => {/* Navegar a buscar lugares */}}
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span>Añadir lugar</span>
           </Button>
         )}
       </div>
-
+      
       {places.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No hay lugares guardados</h3>
-            <p className="text-muted-foreground mb-4">
-              Aún no has guardado ningún lugar para este viaje.
-            </p>
-            {canEdit && (
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar primer lugar
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {places.map((place: any) => (
-            <Card key={place.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-1">{place.name}</h4>
-                    <p className="text-muted-foreground text-sm mb-2">
-                      {place.destination_name}
-                    </p>
-                    {place.description && (
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {place.description}
-                      </p>
-                    )}
-                  </div>
-                  {place.image && (
-                    <img
-                      src={place.image}
-                      alt={place.name}
-                      className="w-20 h-20 object-cover rounded-lg ml-4"
-                    />
-                  )}
-                </div>
-
-                <div className="flex items-center space-x-4 mb-4">
-                  {place.rating > 0 && (
-                    <div className="flex items-center space-x-1">
-                      {renderStars(place.rating)}
-                      <span className="text-sm text-muted-foreground ml-1">
-                        ({place.rating})
-                      </span>
-                    </div>
-                  )}
-                  
-                  <Badge className={getPriorityColor(place.priority)}>
-                    {getPriorityText(place.priority)}
-                  </Badge>
-                  
-                  {place.category && (
-                    <Badge variant="outline">{place.category}</Badge>
-                  )}
-                </div>
-
-                {place.estimated_time && (
-                  <div className="flex items-center text-sm text-muted-foreground mb-4">
-                    <Clock className="h-4 w-4 mr-1" />
-                    Tiempo estimado: {place.estimated_time}
-                  </div>
-                )}
-
-                {canEdit && (
-                  <div className="flex space-x-2 pt-4 border-t">
-                    <Button size="sm" variant="outline">
-                      <Edit className="h-4 w-4 mr-1" />
-                      Editar
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Eliminar
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+        <div className="text-center py-12 border rounded-lg">
+          <MapPin className="h-12 w-12 mx-auto text-gray-400" />
+          <h3 className="mt-4 text-lg font-medium">No hay lugares guardados</h3>
+          <p className="text-gray-500 mt-2">
+            Añade lugares desde la sección de exploración
+          </p>
+          {canEdit && (
+            <Button 
+              className="mt-4" 
+              onClick={() => {/* Navegar a explorar */}}
+            >
+              Explorar lugares
+            </Button>
+          )}
         </div>
+      ) : (
+        <DragDropContext onDragEnd={handleReorder}>
+          <Droppable droppableId="places">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="space-y-4"
+              >
+                {orderedPlaces.map((place, index) => (
+                  <Draggable 
+                    key={place.id} 
+                    draggableId={place.id} 
+                    index={index}
+                    isDragDisabled={!canEdit}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <SavedPlaceCard 
+                          place={place}
+                          canEdit={canEdit}
+                          onDelete={canEdit ? onUpdate : undefined}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );
