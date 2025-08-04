@@ -40,13 +40,10 @@ export const useCitiesByCountry = () => {
           throw new Error("Invalid response format");
         }
 
-        // Sort cities by population (descending) and then by name
-        const sortedCities = cities.sort((a: CityResult, b: CityResult) => {
-          if (b.population !== a.population) {
-            return b.population - a.population;
-          }
-          return a.city.localeCompare(b.city);
-        });
+        // Sort cities alphabetically
+        const sortedCities = cities.sort((a: CityResult, b: CityResult) => 
+          a.city.localeCompare(b.city)
+        );
         
         setAllCities(sortedCities);
         setCities(sortedCities);

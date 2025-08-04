@@ -501,7 +501,7 @@ const PersonalInformationModal = ({
                         placeholder="Buscar país..." 
                         className="border-none h-12 text-base"
                       />
-                      <div className="max-h-[300px] overflow-y-auto">
+                      <ScrollArea className="h-[300px]">
                         <CommandList>
                           <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
                           <CommandGroup>
@@ -530,9 +530,9 @@ const PersonalInformationModal = ({
                                   {country.country_name}
                                 </CommandItem>
                               ))}
-                            </CommandGroup>
+                          </CommandGroup>
                         </CommandList>
-                      </div>
+                      </ScrollArea>
                     </Command>
                   </PopoverContent>
                 </Popover>
@@ -564,7 +564,7 @@ const PersonalInformationModal = ({
                         placeholder="Buscar ciudad..." 
                         className="border-none h-12 text-base"
                       />
-                      <div className="max-h-[300px] overflow-y-auto">
+                      <ScrollArea className="h-[300px]">
                         <CommandList>
                           <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
                           <CommandGroup>
@@ -592,9 +592,9 @@ const PersonalInformationModal = ({
                                   {city.city}
                                 </CommandItem>
                               ))}
-                            </CommandGroup>
+                             </CommandGroup>
                          </CommandList>
-                      </div>
+                      </ScrollArea>
                     </Command>
                   </PopoverContent>
                 </Popover>
