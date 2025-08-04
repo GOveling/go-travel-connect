@@ -23,6 +23,14 @@ interface Invitation {
   };
 }
 
+interface AcceptInvitationResult {
+  success: boolean;
+  error?: string;
+  trip_id?: string;
+  trip_name?: string;
+  role?: string;
+}
+
 export const useInvitations = () => {
   const [loading, setLoading] = useState(false);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -162,40 +170,10 @@ export const useInvitations = () => {
 
   const acceptInvitation = async (token: string) => {
     try {
-      console.log("🎫 Aceptando invitación con token:", token.substring(0, 10) + '...');
+      console.log("🎫 Aceptando invitación con token optimizado:", token.substring(0, 10) + '...');
       setLoading(true);
 
-      // 1. Buscar la invitación por token
-      const { data: invitation, error: fetchError } = await supabase
-        .from('trip_invitations')
-        .select(`
-          *,
-          trips!trip_invitations_trip_id_fkey (
-            id,
-            name,
-            destination,
-            dates,
-            status,
-            is_group_trip
-          )
-        `)
-        .eq('token', token)
-        .single();
-
-      console.log("📋 Invitación encontrada:", invitation);
-      console.log("❌ Error al buscar invitación:", fetchError);
-
-      if (fetchError || !invitation) {
-        console.error("Error fetching invitation:", fetchError);
-        toast({
-          title: "Error",
-          description: "No se encontró la invitación",
-          variant: "destructive",
-        });
-        return { success: false, error: "No se encontró la invitación" };
-      }
-
-      // 2. Verificar que el usuario actual corresponde al destinatario
+      // Obtener datos del usuario actual
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) {
         toast({
@@ -211,9 +189,6 @@ export const useInvitations = () => {
         .select('email, onboarding_completed, full_name')
         .eq('id', userData.user.id)
         .single();
-
-      console.log("👤 Email del usuario:", profileData?.email);
-      console.log("📧 Email en la invitación:", invitation.email);
 
       if (!profileData) {
         return { 
@@ -232,105 +207,56 @@ export const useInvitations = () => {
         };
       }
 
-      if (profileData.email?.toLowerCase() !== invitation.email?.toLowerCase()) {
-        console.error("❌ Email mismatch:", {
-          userEmail: profileData.email,
-          invitationEmail: invitation.email
+      console.log("🚀 Usando función RPC optimizada para aceptar invitación");
+      
+      // Usar la función RPC optimizada
+      const { data: result, error: rpcError } = await supabase
+        .rpc('accept_invitation_optimized', {
+          invitation_token: token,
+          user_email: profileData.email,
+          user_id: userData.user.id
         });
+
+      console.log("✅ RPC Result:", result);
+      console.log("❌ RPC Error:", rpcError);
+
+      if (rpcError) {
+        console.error("❌ Error RPC:", rpcError);
         toast({
           title: "Error",
-          description: "Esta invitación no fue enviada a tu cuenta",
+          description: "Error al procesar la invitación",
           variant: "destructive",
         });
-        return { success: false, error: "Esta invitación no fue enviada a tu cuenta" };
+        return { success: false, error: rpcError.message };
       }
 
-      // 3. Verificar que la invitación está pendiente
-      if (invitation.status !== 'pending') {
-        console.error("❌ Invitación ya respondida:", invitation.status);
-        const message = invitation.status === 'accepted' ? 
-          "Esta invitación ya fue aceptada" : 
-          "Esta invitación ya fue procesada";
+      // Hacer type assertion para el resultado de la función RPC
+      const acceptResult = result as unknown as AcceptInvitationResult;
+
+      if (!acceptResult || !acceptResult.success) {
+        const errorMessage = acceptResult?.error || "Error desconocido al aceptar la invitación";
+        console.error("❌ RPC failed:", errorMessage);
         toast({
           title: "Error",
-          description: message,
+          description: errorMessage,
           variant: "destructive",
         });
-        return { success: false, error: message };
+        return { success: false, error: errorMessage };
       }
 
-      // 4. Verificar que la invitación no ha expirado
-      const now = new Date();
-      const expiresAt = new Date(invitation.expires_at);
-      if (now > expiresAt) {
-        console.error("❌ Invitación expirada:", { expiresAt, now });
-        toast({
-          title: "Error",
-          description: "Esta invitación ha expirado",
-          variant: "destructive",
-        });
-        return { success: false, error: "Esta invitación ha expirado" };
-      }
-
-      // 5. Actualizar la invitación a accepted
-      const { error: updateError } = await supabase
-        .from('trip_invitations')
-        .update({
-          status: 'accepted',
-          accepted_at: new Date().toISOString(),
-          accepted_by: userData.user.id
-        })
-        .eq('id', invitation.id);
-
-      if (updateError) {
-        console.error("❌ Error updating invitation:", updateError);
-        toast({
-          title: "Error",
-          description: "Error al actualizar la invitación",
-          variant: "destructive",
-        });
-        return { success: false, error: "Error al actualizar la invitación" };
-      }
-
-      // 6. Agregar al usuario como colaborador del viaje
-      const { error: collaboratorError } = await supabase
-        .from('trip_collaborators')
-        .insert({
-          trip_id: invitation.trip_id,
-          user_id: userData.user.id,
-          role: invitation.role,
-          email: profileData.email,
-          name: profileData.full_name
-        });
-
-      if (collaboratorError) {
-        console.error("❌ Error adding collaborator:", collaboratorError);
-        toast({
-          title: "Error",
-          description: "Error al agregarte como colaborador",
-          variant: "destructive",
-        });
-        return { success: false, error: "Error al agregarte como colaborador" };
-      }
-
-      // 7. Actualizar el viaje a grupo si es necesario
-      if (!invitation.trips?.is_group_trip) {
-        await supabase
-          .from('trips')
-          .update({ is_group_trip: true })
-          .eq('id', invitation.trip_id);
-      }
-
-      console.log("✅ Invitación aceptada exitosamente");
+      console.log("✅ Invitación aceptada exitosamente con RPC");
       toast({
         title: "Invitación aceptada",
-        description: `¡Te has unido al viaje "${invitation.trips?.name || 'Viaje'}"!`,
+        description: `¡Te has unido al viaje "${acceptResult.trip_name || 'Viaje'}"!`,
       });
 
       return {
         success: true,
-        trip: invitation.trips,
-        userRole: invitation.role,
+        trip: {
+          id: acceptResult.trip_id || '',
+          name: acceptResult.trip_name || ''
+        },
+        userRole: acceptResult.role || '',
         onboardingCompleted: true
       };
 

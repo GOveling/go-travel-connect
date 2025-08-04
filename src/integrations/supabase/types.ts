@@ -581,6 +581,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation_optimized: {
+        Args: { invitation_token: string; user_email: string; user_id: string }
+        Returns: Json
+      }
       accept_trip_invitation: {
         Args: { p_token: string }
         Returns: boolean
@@ -596,6 +600,19 @@ export type Database = {
       generate_invitation_token: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_pending_invitations: {
+        Args: { user_email: string }
+        Returns: {
+          id: string
+          token: string
+          trip_id: string
+          trip_name: string
+          inviter_name: string
+          role: string
+          created_at: string
+          expires_at: string
+        }[]
       }
       get_user_achievements_with_progress: {
         Args: { p_user_id: string }

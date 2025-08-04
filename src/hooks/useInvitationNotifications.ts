@@ -22,7 +22,7 @@ export const useInvitationNotifications = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchInvitations = useCallback(async () => {
-    console.log('=== Starting fetchInvitations ===');
+    console.log('=== Starting optimized fetchInvitations ===');
     if (!user) {
       console.log('No user found, returning');
       return;
@@ -43,85 +43,37 @@ export const useInvitationNotifications = () => {
         return;
       }
 
-      console.log('Executing query with email:', profileData.email);
-      console.log('Current time:', new Date().toISOString());
+      console.log('🚀 Using optimized RPC function with email:', profileData.email);
       
+      // Usar la función RPC optimizada
       const { data, error } = await supabase
-        .from('trip_invitations')
-        .select('*')
-        .eq('email', profileData.email)
-        .in('status', ['pending', 'accepted', 'declined'])
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false });
+        .rpc('get_pending_invitations', { user_email: profileData.email });
 
-      console.log('Query executed - Error:', error);
-      console.log('Query executed - Data:', data);
+      console.log('✅ RPC Query executed - Error:', error);
+      console.log('✅ RPC Query executed - Data:', data);
 
       if (error) {
-        console.error('Error fetching invitations:', error);
+        console.error('❌ Error fetching invitations:', error);
         return;
       }
 
-      console.log('Raw invitation data:', data);
-
-      // First get the basic invitation data, then fetch related data separately
-      const formattedInvitations = await Promise.all((data || []).map(async (invitation) => {
-        console.log('Processing invitation:', invitation.id, 'trip_id:', invitation.trip_id);
-        
-        // Fetch trip name using a different approach due to RLS issues
-        console.log('🔍 About to fetch trip with ID:', invitation.trip_id);
-        
-        const { data: tripData, error: tripError } = await supabase
-          .from('trip_invitations')
-          .select(`
-            trip_id,
-            trips!trip_invitations_trip_id_fkey (
-              name,
-              destination
-            )
-          `)
-          .eq('id', invitation.id)
-          .single();
-        
-        console.log('🏖️ Trip query result:', { 
-          tripId: invitation.trip_id,
-          tripData, 
-          tripError,
-          tripName: tripData?.trips?.name 
-        });
-
-        // Extract trip name from the nested query result
-        const tripName = tripData?.trips?.name || 'Unknown Trip';
-        
-        // Fetch inviter name
-        const { data: inviterData, error: inviterError } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', invitation.inviter_id)
-          .single();
-
-        console.log('Inviter query result:', { inviterData, inviterError });
-
-        const result = {
-          id: invitation.id,
-          trip_id: invitation.trip_id,
-          trip_name: tripName,
-          inviter_name: inviterData?.full_name || 'Unknown User',
-          role: invitation.role,
-          created_at: invitation.created_at,
-          expires_at: invitation.expires_at,
-          token: invitation.token,
-          status: invitation.status
-        };
-
-        console.log('Final invitation result:', result);
-        return result;
+      // Los datos ya vienen formateados de la función RPC
+      const formattedInvitations = (data || []).map(invitation => ({
+        id: invitation.id,
+        trip_id: invitation.trip_id,
+        trip_name: invitation.trip_name || 'Unknown Trip',
+        inviter_name: invitation.inviter_name || 'Unknown User',
+        role: invitation.role,
+        created_at: invitation.created_at,
+        expires_at: invitation.expires_at,
+        token: invitation.token,
+        status: 'pending' // Solo devolvemos pending invitations
       }));
 
       setInvitations(formattedInvitations);
-      console.log('Formatted invitations:', formattedInvitations);
+      console.log('✅ Optimized formatted invitations:', formattedInvitations);
     } catch (error) {
-      console.error('Error fetching invitations:', error);
+      console.error('❌ Error fetching invitations:', error);
     } finally {
       setLoading(false);
     }
