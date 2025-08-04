@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { EditTripModal } from "./EditTripModal";
 import { Link } from "react-router-dom";
 import {
   Calendar,
@@ -48,7 +49,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import SavedPlacesRouteMap from "./SavedPlacesRouteMap";
 import InviteFriendsModal from "./InviteFriendsModal";
-import EditTripModal from "./EditTripModal";
+
 import PlaceDetailModal from "./PlaceDetailModal";
 import FlightSearchModal from "./itinerary/FlightSearchModal";
 import HotelSearchModal from "./itinerary/HotelSearchModal";
@@ -106,6 +107,7 @@ const TripDetailModal = ({
   const [userRole, setUserRole] = useState<string>('viewer');
   const [memberCount, setMemberCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // New modal states
   const [showFlightSearchModal, setShowFlightSearchModal] = useState(false);
@@ -1085,15 +1087,13 @@ const TripDetailModal = ({
                  // General trip actions
                 <>
                   {(userRole === 'owner' || userRole === 'editor') && (
-                    <Link to={`/trips/${trip.id}/edit`} className="flex-1">
-                      <Button
-                        className="w-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                        onClick={onClose}
-                      >
-                        <Edit3 size={16} className="mr-2" />
-                        Edit Trip
-                      </Button>
-                    </Link>
+                    <Button
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                      onClick={() => setShowEditModal(true)}
+                    >
+                      <Edit3 size={16} className="mr-2" />
+                      Edit Trip
+                    </Button>
                   )}
                   <Button variant="outline" className="flex-1">
                     <Share2 size={16} className="mr-2" />
@@ -1113,14 +1113,6 @@ const TripDetailModal = ({
         onClose={() => setShowInviteFriendsModal(false)}
       />
 
-      {/* EditTripModal */}
-      <EditTripModal
-        trip={trip}
-        isOpen={showEditTripModal}
-        onClose={() => setShowEditTripModal(false)}
-        onUpdateTrip={onUpdateTrip}
-        onDeleteTrip={onDeleteTrip}
-      />
 
       {/* PlaceDetailModal */}
       <PlaceDetailModal
@@ -1216,6 +1208,20 @@ const TripDetailModal = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* Edit Trip Modal */}
+      {trip && (
+        <EditTripModal
+          trip={trip}
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onUpdate={(updatedTrip) => {
+            // Update the trip data if onUpdateTrip callback is provided
+            if (onUpdateTrip) {
+              onUpdateTrip(updatedTrip);
+            }
+          }}
+        />
+      )}
     </>
   );
 };

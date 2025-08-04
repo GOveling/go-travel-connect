@@ -4,7 +4,7 @@ import BackpackingModal from "@/components/modals/BackpackingModal";
 import BeachVacationModal from "@/components/modals/BeachVacationModal";
 import CityBreakModal from "@/components/modals/CityBreakModal";
 import DeleteTripConfirmationModal from "@/components/modals/DeleteTripConfirmationModal";
-import EditTripModal from "@/components/modals/EditTripModal";
+import { EditTripModal } from "@/components/modals/EditTripModal";
 import GroupOptionsModal from "@/components/modals/GroupOptionsModal";
 import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
 import MountainTripModal from "@/components/modals/MountainTripModal";
@@ -323,8 +323,7 @@ const TripsSection = () => {
           setShowEditTripModal(false);
           setSelectedTrip(null);
         }}
-        onUpdateTrip={handleUpdateTrip}
-        onDeleteTrip={handleDeleteTripRequest}
+        onUpdate={handleUpdateTrip}
       />
 
       <SavedPlacesModal
