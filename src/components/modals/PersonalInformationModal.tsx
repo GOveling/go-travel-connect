@@ -225,7 +225,7 @@ const PersonalInformationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-2xl overflow-hidden" style={{ touchAction: 'manipulation' }}>
+      <DialogContent className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-2xl flex flex-col" style={{ touchAction: 'manipulation' }}>
         {/* Mobile Header */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-6 py-4">
           <div className="flex items-center justify-between">
@@ -259,7 +259,7 @@ const PersonalInformationModal = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto" style={{ touchAction: 'pan-y' }}>
+        <div className="flex-1 overflow-y-auto min-h-0" style={{ touchAction: 'pan-y', scrollBehavior: 'smooth' }}>
           <div className="p-6 pb-24">
             <form onSubmit={handleSubmit} className="space-y-8">
             {/* Full Name */}
