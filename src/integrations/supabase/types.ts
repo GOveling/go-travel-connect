@@ -615,6 +615,10 @@ export type Database = {
           progress_percentage: number
         }[]
       }
+      has_pending_invitation: {
+        Args: { trip_id: string; user_id: string }
+        Returns: boolean
+      }
       is_trip_collaborator: {
         Args: { trip_id: string; user_id: string }
         Returns: boolean
