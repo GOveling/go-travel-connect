@@ -37,7 +37,7 @@ export const useInvitationNotifications = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trips:trip_id (
+          trip:trip_id (
             id,
             name
           )
@@ -56,7 +56,7 @@ export const useInvitationNotifications = () => {
       console.log('Data length:', data?.length);
       if (data && data.length > 0) {
         console.log('First invitation data:', JSON.stringify(data[0], null, 2));
-        console.log('Trip data:', data[0]?.trips);
+        console.log('Trip data:', data[0]?.trip);
       }
 
       // Fetch inviter names separately
@@ -70,7 +70,7 @@ export const useInvitationNotifications = () => {
         return {
           id: invitation.id,
           trip_id: invitation.trip_id,
-          trip_name: invitation.trips?.name || 'Unknown Trip',
+          trip_name: invitation.trip?.name || 'Unknown Trip',
           inviter_name: profileData?.full_name || 'Unknown User',
           role: invitation.role,
           created_at: invitation.created_at,
@@ -119,7 +119,7 @@ export const useInvitationNotifications = () => {
             .from('trip_invitations')
             .select(`
               *,
-              trips:trip_id (
+              trip:trip_id (
                 id,
                 name
               )
@@ -138,7 +138,7 @@ export const useInvitationNotifications = () => {
             const newInvitation = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
-              trip_name: invitationData.trips?.name || 'Unknown Trip',
+              trip_name: invitationData.trip?.name || 'Unknown Trip',
               inviter_name: profileData?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
