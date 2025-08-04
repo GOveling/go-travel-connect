@@ -496,13 +496,13 @@ const PersonalInformationModal = ({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-background border rounded-2xl shadow-lg">
-                    <Command className="w-full h-[400px] flex flex-col">
+                    <Command className="w-full">
                       <CommandInput 
                         placeholder="Buscar país..." 
-                        className="border-none h-12 text-base flex-shrink-0"
+                        className="border-none h-12 text-base"
                       />
-                      <div className="flex-1 overflow-y-auto min-h-0">
-                        <CommandList className="max-h-none">
+                      <div className="max-h-[300px] overflow-y-auto">
+                        <CommandList>
                           <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
                           <CommandGroup>
                               {countries.map((country) => (
