@@ -37,44 +37,44 @@ export const ActiveInvitations = ({
     try {
       console.log('Accepting invitation', { token, userEmail: user.email });
 
-      // Paso 1: Verificar que la invitación existe y corresponde al usuario
-      const { data: invitation, error: fetchError } = await supabase
+      // CAMBIO CLAVE: Primero busca la invitación sin JOINs para verificar que existe
+      const { data: basicInvitation, error: basicError } = await supabase
         .from('trip_invitations')
-        .select(`
-          id, 
-          trip_id,
-          role,
-          email,
-          status,
-          expires_at,
-          trips:trip_id (
-            id,
-            name
-          )
-        `)
+        .select('id, trip_id, role, email, status, expires_at')
         .eq('token', token)
         .single();
 
-      console.log('Invitation data:', invitation);
-      console.log('Fetch error:', fetchError);
+      console.log('Basic invitation data:', basicInvitation);
+      console.log('Basic fetch error:', basicError);
 
-      // Validación exhaustiva
-      if (fetchError || !invitation) {
+      // Validar si la invitación existe
+      if (basicError || !basicInvitation) {
+        console.error('No invitation found with token:', token);
         throw new Error('No se encontró la invitación');
       }
 
-      if (invitation.status !== 'pending') {
+      // Validaciones de estado y email
+      if (basicInvitation.status !== 'pending') {
         throw new Error('La invitación ya fue respondida');
       }
 
       // Verificar que no haya expirado
-      if (new Date(invitation.expires_at) < new Date()) {
+      if (new Date(basicInvitation.expires_at) < new Date()) {
         throw new Error('La invitación ha expirado');
       }
 
-      if (invitation.email?.toLowerCase() !== user.email?.toLowerCase()) {
+      if (basicInvitation.email?.toLowerCase() !== user.email?.toLowerCase()) {
         throw new Error('Esta invitación no corresponde a tu cuenta');
       }
+
+      // Ahora que sabemos que la invitación existe, buscar información del viaje
+      const { data: tripData, error: tripError } = await supabase
+        .from('trips')
+        .select('id, name')
+        .eq('id', basicInvitation.trip_id)
+        .single();
+
+      console.log('Trip data:', tripData);
 
       // Paso 2: Actualizar el estado de la invitación
       const { error: updateError } = await supabase
@@ -84,49 +84,60 @@ export const ActiveInvitations = ({
           accepted_at: new Date().toISOString(),
           accepted_by: user.id
         })
-        .eq('id', invitation.id);
+        .eq('id', basicInvitation.id);
 
       if (updateError) {
         console.error('Error updating invitation:', updateError);
         throw new Error('Error al actualizar la invitación');
       }
 
-      // Paso 3: Obtener el nombre del perfil del usuario
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
+      // Paso 3: Verificar si el usuario ya es colaborador para evitar duplicados
+      const { data: existingCollaborator } = await supabase
+        .from('trip_collaborators')
+        .select('id')
+        .eq('trip_id', basicInvitation.trip_id)
+        .eq('user_id', user.id)
         .single();
 
-      // Agregar el usuario como colaborador del trip
-      const { error: collaboratorError } = await supabase
-        .from('trip_collaborators')
-        .insert({
-          trip_id: invitation.trip_id,
-          user_id: user.id,
-          role: invitation.role,
-          email: user.email,
-          name: profile?.full_name || user.email || 'Usuario'
-        });
+      // Solo agregar si no es colaborador
+      if (!existingCollaborator) {
+        // Obtener el nombre del perfil del usuario
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
 
-      if (collaboratorError) {
-        console.error('Error adding collaborator:', collaboratorError);
-        throw new Error('Error al agregarte como colaborador');
+        // Agregar el usuario como colaborador del trip
+        const { error: collaboratorError } = await supabase
+          .from('trip_collaborators')
+          .insert({
+            trip_id: basicInvitation.trip_id,
+            user_id: user.id,
+            role: basicInvitation.role,
+            email: user.email,
+            name: profile?.full_name || user.email || 'Usuario'
+          });
+
+        if (collaboratorError) {
+          console.error('Error adding collaborator:', collaboratorError);
+          throw new Error('Error al agregarte como colaborador');
+        }
       }
 
       // Paso 4: Actualizar el tipo de viaje a "group"
       await supabase
         .from('trips')
         .update({ is_group_trip: true })
-        .eq('id', invitation.trip_id);
+        .eq('id', basicInvitation.trip_id);
 
       // Éxito
       toast({
         title: "¡Te has unido al viaje!",
-        description: `Ahora eres colaborador de "${tripName}"`,
+        description: `Ahora eres colaborador de "${tripData?.name || tripName}"`,
       });
 
-      if (onAccepted) onAccepted(invitation.trip_id);
+      if (onAccepted) onAccepted(basicInvitation.trip_id);
       
       // Redireccionar al usuario al viaje
       navigate(`/?tab=trips`);
