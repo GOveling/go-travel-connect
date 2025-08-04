@@ -244,6 +244,35 @@ export type Database = {
           },
         ]
       }
+      trip_access_log: {
+        Row: {
+          granted_at: string
+          id: string
+          trip_id: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          id?: string
+          trip_id: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          id?: string
+          trip_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_access_log_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_collaborators: {
         Row: {
           avatar: string | null
@@ -401,6 +430,7 @@ export type Database = {
         Row: {
           accommodation: string | null
           budget: string | null
+          collaborators_count: number | null
           created_at: string
           dates: string
           description: string | null
@@ -418,6 +448,7 @@ export type Database = {
         Insert: {
           accommodation?: string | null
           budget?: string | null
+          collaborators_count?: number | null
           created_at?: string
           dates: string
           description?: string | null
@@ -435,6 +466,7 @@ export type Database = {
         Update: {
           accommodation?: string | null
           budget?: string | null
+          collaborators_count?: number | null
           created_at?: string
           dates?: string
           description?: string | null
@@ -631,6 +663,10 @@ export type Database = {
           completed_at: string
           progress_percentage: number
         }[]
+      }
+      grant_trip_member_access: {
+        Args: { p_trip_id: string; p_user_id: string }
+        Returns: undefined
       }
       has_pending_invitation: {
         Args: { trip_id: string; user_id: string }

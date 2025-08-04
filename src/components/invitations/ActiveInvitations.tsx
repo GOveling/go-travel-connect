@@ -37,7 +37,7 @@ export const ActiveInvitations = ({
     try {
       console.log('Accepting invitation', { token, userEmail: user.email });
 
-      // CAMBIO CLAVE: Primero busca la invitación sin JOINs para verificar que existe
+      // PASO 1: Verificar que la invitación existe y corresponde al usuario
       const { data: basicInvitation, error: basicError } = await supabase
         .from('trip_invitations')
         .select('id, trip_id, role, email, status, expires_at')
@@ -67,7 +67,7 @@ export const ActiveInvitations = ({
         throw new Error('Esta invitación no corresponde a tu cuenta');
       }
 
-      // Ahora que sabemos que la invitación existe, buscar información del viaje
+      // PASO 2: Obtener información del viaje
       const { data: tripData, error: tripError } = await supabase
         .from('trips')
         .select('id, name')
@@ -76,7 +76,7 @@ export const ActiveInvitations = ({
 
       console.log('Trip data:', tripData);
 
-      // Paso 2: Actualizar el estado de la invitación
+      // PASO 3: Actualizar el estado de la invitación
       const { error: updateError } = await supabase
         .from('trip_invitations')
         .update({ 
@@ -91,13 +91,13 @@ export const ActiveInvitations = ({
         throw new Error('Error al actualizar la invitación');
       }
 
-      // Paso 3: Verificar si el usuario ya es colaborador para evitar duplicados
+      // PASO 4: Verificar si el usuario ya es colaborador para evitar duplicados
       const { data: existingCollaborator } = await supabase
         .from('trip_collaborators')
         .select('id')
         .eq('trip_id', basicInvitation.trip_id)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       // Solo agregar si no es colaborador
       if (!existingCollaborator) {
@@ -125,11 +125,16 @@ export const ActiveInvitations = ({
         }
       }
 
-      // Paso 4: Actualizar el tipo de viaje a "group"
-      await supabase
-        .from('trips')
-        .update({ is_group_trip: true })
-        .eq('id', basicInvitation.trip_id);
+      // PASO 5: CRUCIAL - Llamar a la función RPC para otorgar acceso completo
+      const { error: accessError } = await supabase.rpc('grant_trip_member_access', {
+        p_trip_id: basicInvitation.trip_id,
+        p_user_id: user.id
+      });
+
+      if (accessError) {
+        console.error('Error granting access:', accessError);
+        // No lanzar error aquí porque la invitación ya fue aceptada
+      }
 
       // Éxito
       toast({
@@ -138,6 +143,11 @@ export const ActiveInvitations = ({
       });
 
       if (onAccepted) onAccepted(basicInvitation.trip_id);
+      
+      // Forzar refresco de datos para actualizar la UI
+      window.dispatchEvent(new CustomEvent('tripDataRefresh', { 
+        detail: { tripId: basicInvitation.trip_id } 
+      }));
       
       // Redireccionar al usuario al viaje
       navigate(`/?tab=trips`);
