@@ -142,10 +142,6 @@ const PersonalInformationModal = ({
         setFormData((prev) => ({
           ...prev,
           country_code: phoneCode,
-          // Auto-update phone prefix when country changes
-          mobile_phone: prev.mobile_phone 
-            ? `${phoneCode} ${prev.mobile_phone.replace(/^\+?\d+\s*/, '')}`
-            : phoneCode + ' '
         }));
       }
     } else {
