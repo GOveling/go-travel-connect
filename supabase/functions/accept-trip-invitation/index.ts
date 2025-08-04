@@ -55,12 +55,6 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
     // Get authorization header
     const authHeader = req.headers.get('Authorization');
     console.log('🔐 Authorization header present:', !!authHeader);
@@ -73,10 +67,21 @@ serve(async (req) => {
       );
     }
 
-    // Set auth for service role client
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
+    // Create authenticated Supabase client with user context
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: {
+            Authorization: authHeader
+          }
+        }
+      }
     );
+
+    // Get user from the authenticated client
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
 
     console.log('👤 User authentication result:', {
       hasUser: !!user,
