@@ -480,35 +480,37 @@ const PersonalInformationModal = ({
                 <PopoverContent className="w-[300px] sm:w-[400px] p-0 z-50 bg-popover border">
                   <Command className="w-full">
                     <CommandInput placeholder="Buscar país..." className="border-none" />
-                    <CommandEmpty>No se encontró el país.</CommandEmpty>
-                    <ScrollArea className="h-[280px] w-full">
-                      <CommandGroup>
-                        {countries.map((country) => (
-                          <CommandItem
-                            key={country.country_code}
-                            value={country.country_name}
-                            onSelect={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                country: country.country_code,
-                              }));
-                              setCountryComboOpen(false);
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                formData.country === country.country_code
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {country.country_name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </ScrollArea>
+                    <CommandList>
+                      <CommandEmpty>No se encontró el país.</CommandEmpty>
+                      <ScrollArea className="h-[280px] w-full">
+                        <CommandGroup>
+                          {countries.map((country) => (
+                            <CommandItem
+                              key={country.country_code}
+                              value={country.country_name}
+                              onSelect={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  country: country.country_code,
+                                }));
+                                setCountryComboOpen(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  formData.country === country.country_code
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {country.country_name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </ScrollArea>
+                    </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>
@@ -537,35 +539,37 @@ const PersonalInformationModal = ({
                 <PopoverContent className="w-[300px] sm:w-[400px] p-0 z-50 bg-popover border">
                   <Command className="w-full">
                     <CommandInput placeholder="Buscar ciudad..." className="border-none" />
-                    <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
-                    <ScrollArea className="h-[280px] w-full">
-                      <CommandGroup>
-                        {cities.map((city, index) => (
-                          <CommandItem
-                            key={index}
-                            value={city.city}
-                            onSelect={() => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                city_state: city.city,
-                              }));
-                              setCityComboOpen(false);
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                formData.city_state === city.city
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {city.city}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </ScrollArea>
+                    <CommandList>
+                      <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
+                      <ScrollArea className="h-[280px] w-full">
+                        <CommandGroup>
+                          {cities.map((city, index) => (
+                            <CommandItem
+                              key={index}
+                              value={city.city}
+                              onSelect={() => {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  city_state: city.city,
+                                }));
+                                setCityComboOpen(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  formData.city_state === city.city
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {city.city}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </ScrollArea>
+                    </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>
