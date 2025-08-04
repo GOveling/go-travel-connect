@@ -32,15 +32,12 @@ export const useCitiesByCountry = () => {
         const response = await apiService.getCitiesByCountry(countryCode);
         console.log("Cities API response:", response);
         
-        let cities: CityResult[] = [];
+        let cities = [];
         if (response && Array.isArray(response)) {
-          cities = response.map((city: any) => ({
-            city: city.city || city.name,
-            latitude: city.latitude || city.lat || 0,
-            longitude: city.longitude || city.lon || 0,
-            population: city.population || 0,
-            country_code: city.country_code || countryCode
-          }));
+          // If response is directly an array
+          cities = response;
+        } else {
+          throw new Error("Invalid response format");
         }
 
         // Sort cities by population (descending) and then by name

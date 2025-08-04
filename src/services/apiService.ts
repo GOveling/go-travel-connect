@@ -120,18 +120,6 @@ class ApiService {
     return this.get(`/weather/city?city=${encodeURIComponent(city)}`);
   }
 
-  // Weather API location search methods
-  async searchLocations(query: string, countryCode?: string) {
-    try {
-      const searchQuery = countryCode ? `${query} ${countryCode}` : query;
-      const response = await this.get(`/weather/search?q=${encodeURIComponent(searchQuery)}`);
-      return response.data || response;
-    } catch (error) {
-      console.error("Error searching locations:", error);
-      throw error;
-    }
-  }
-
   // Places specific methods
   async getPlacesByCategory(category: string) {
     return this.get(`/places/category/${category}`);
@@ -147,64 +135,9 @@ class ApiService {
     );
   }
 
-  // Geo specific methods using WeatherAPI
+  // Geo specific methods with static data (fallback)
   async getCountries() {
-    try {
-      // Use WeatherAPI to get comprehensive country list from major cities
-      const majorCities = [
-        "New York,US", "London,GB", "Paris,FR", "Tokyo,JP", "Sydney,AU",
-        "Toronto,CA", "Berlin,DE", "Rome,IT", "Madrid,ES", "Amsterdam,NL",
-        "Stockholm,SE", "Oslo,NO", "Copenhagen,DK", "Helsinki,FI", "Dublin,IE",
-        "Zurich,CH", "Vienna,AT", "Brussels,BE", "Prague,CZ", "Warsaw,PL",
-        "Budapest,HU", "Bucharest,RO", "Sofia,BG", "Zagreb,HR", "Ljubljana,SI",
-        "Mexico City,MX", "São Paulo,BR", "Buenos Aires,AR", "Lima,PE", "Bogotá,CO"
-      ];
-
-      const countries = [];
-      const seenCountries = new Set();
-
-      for (const cityQuery of majorCities) {
-        try {
-          const response = await this.searchLocations(cityQuery);
-          if (response && Array.isArray(response) && response.length > 0) {
-            const location = response[0];
-            const countryName = location.country;
-            const countryCode = cityQuery.split(',')[1];
-            
-            if (countryName && !seenCountries.has(countryCode)) {
-              countries.push({
-                country_code: countryCode,
-                country_name: countryName,
-                phone_code: this.getPhoneCodeForCountry(countryCode)
-              });
-              seenCountries.add(countryCode);
-            }
-          }
-        } catch (error) {
-          console.warn(`Failed to fetch data for ${cityQuery}:`, error);
-        }
-      }
-
-      return countries.length > 0 ? countries.sort((a, b) => a.country_name.localeCompare(b.country_name)) : this.getStaticCountries();
-    } catch (error) {
-      console.error("Error getting countries list:", error);
-      return this.getStaticCountries();
-    }
-  }
-
-  private getPhoneCodeForCountry(countryCode: string): string {
-    const phoneCodes: { [key: string]: string } = {
-      'US': '+1', 'CA': '+1', 'GB': '+44', 'FR': '+33', 'DE': '+49', 'IT': '+39',
-      'ES': '+34', 'NL': '+31', 'SE': '+46', 'NO': '+47', 'DK': '+45', 'FI': '+358',
-      'IE': '+353', 'CH': '+41', 'AT': '+43', 'BE': '+32', 'CZ': '+420', 'PL': '+48',
-      'HU': '+36', 'RO': '+40', 'BG': '+359', 'HR': '+385', 'SI': '+386', 'SK': '+421',
-      'MX': '+52', 'BR': '+55', 'AR': '+54', 'PE': '+51', 'CO': '+57', 'CL': '+56',
-      'JP': '+81', 'AU': '+61', 'CN': '+86', 'IN': '+91'
-    };
-    return phoneCodes[countryCode] || '+1';
-  }
-
-  private getStaticCountries() {
+    // Return static list of common countries
     return [
       { country_code: 'US', country_name: 'United States', phone_code: '+1' },
       { country_code: 'GB', country_name: 'United Kingdom', phone_code: '+44' },
@@ -227,27 +160,7 @@ class ApiService {
   }
 
   async getCitiesByCountry(countryCode: string) {
-    try {
-      // Use WeatherAPI to search for cities in the specified country
-      const response = await this.searchLocations(`cities in ${countryCode}`, countryCode);
-      
-      if (response && Array.isArray(response)) {
-        return response.map((location: any) => ({
-          city: location.name,
-          latitude: location.lat,
-          longitude: location.lon,
-          population: 0, // WeatherAPI doesn't provide population data
-          country_code: countryCode
-        }));
-      }
-      return this.getStaticCitiesForCountry(countryCode);
-    } catch (error) {
-      console.error("Error getting cities for country:", error);
-      return this.getStaticCitiesForCountry(countryCode);
-    }
-  }
-
-  private getStaticCitiesForCountry(countryCode: string) {
+    // Return static cities based on country code
     const citiesByCountry: Record<string, any[]> = {
       'US': [
         { city: 'New York', latitude: 40.7128, longitude: -74.0060, population: 8000000, country_code: 'US' },
