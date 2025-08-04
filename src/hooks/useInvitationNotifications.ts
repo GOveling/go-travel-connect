@@ -37,12 +37,11 @@ export const useInvitationNotifications = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trips:trip_id (
+          trip:trip_id (
             id,
             name
           ),
           inviter:inviter_id (
-            id,
             full_name
           )
         `)
@@ -59,7 +58,7 @@ export const useInvitationNotifications = () => {
       const formattedInvitations = (data || []).map(invitation => ({
         id: invitation.id,
         trip_id: invitation.trip_id,
-        trip_name: invitation.trips?.name || 'Unknown Trip',
+        trip_name: invitation.trip?.name || 'Unknown Trip',
         inviter_name: invitation.inviter?.full_name || 'Unknown User',
         role: invitation.role,
         created_at: invitation.created_at,
@@ -107,12 +106,11 @@ export const useInvitationNotifications = () => {
             .from('trip_invitations')
             .select(`
               *,
-              trips:trip_id (
+              trip:trip_id (
                 id,
                 name
               ),
               inviter:inviter_id (
-                id,
                 full_name
               )
             `)
@@ -123,7 +121,7 @@ export const useInvitationNotifications = () => {
             const newInvitation = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
-              trip_name: invitationData.trips?.name || 'Unknown Trip',
+              trip_name: invitationData.trip?.name || 'Unknown Trip',
               inviter_name: invitationData.inviter?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
