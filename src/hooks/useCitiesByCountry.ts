@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { apiService } from "@/services/apiService";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface CityResult {
   city: string;
@@ -29,13 +29,29 @@ export const useCitiesByCountry = () => {
       try {
         console.log("Loading cities for country:", countryCode);
 
-        const response = await apiService.getCitiesByCountry(countryCode);
+        const { data: response, error: functionError } = await supabase.functions.invoke('cities-by-country', {
+          body: { 
+            query: "", // Empty query to get all cities for the country
+            countryCode: countryCode 
+          }
+        });
+
+        if (functionError) {
+          throw new Error(functionError.message || "Failed to fetch cities");
+        }
+
         console.log("Cities API response:", response);
         
-        let cities = [];
+        let cities: CityResult[] = [];
         if (response && Array.isArray(response)) {
-          // If response is directly an array
-          cities = response;
+          // Map the edge function response format to our expected format
+          cities = response.map((city: any) => ({
+            city: city.name || city.city,
+            latitude: city.coordinates?.lat || city.latitude || 0,
+            longitude: city.coordinates?.lng || city.longitude || 0,
+            population: city.population || 0,
+            country_code: city.country_code || countryCode
+          }));
         } else {
           throw new Error("Invalid response format");
         }
