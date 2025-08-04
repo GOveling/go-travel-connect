@@ -295,7 +295,16 @@ export default function EditTrip() {
       <div className="max-w-3xl mx-auto">
         <Button 
           variant="ghost" 
-          onClick={() => navigate(`/trips/${tripId}`)}
+          onClick={() => {
+            navigate('/');
+            // Delay to ensure navigation completes before dispatching event
+            setTimeout(() => {
+              const event = new CustomEvent('openTripDetailModal', {
+                detail: { tripId }
+              });
+              window.dispatchEvent(event);
+            }, 100);
+          }}
           className="mb-6"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to trip

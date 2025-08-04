@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import NotificationAlertsModal from "@/components/modals/NotificationAlertsModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
@@ -16,6 +17,24 @@ interface HomeModalsProps {
 const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
   const { signIn, signUp, signInWithGoogle } = useAuth();
   const { isAuthenticated } = useReduxAuth();
+  const [modalTrip, setModalTrip] = useState<any>(null);
+
+  // Listen for custom event to open trip detail modal
+  useEffect(() => {
+    const handleOpenTripDetailModal = (event: CustomEvent) => {
+      const { tripId } = event.detail;
+      const trip = homeState.trips.find(t => t.id === tripId);
+      if (trip) {
+        setModalTrip(trip);
+        homeState.setIsTripDetailModalOpen(true);
+      }
+    };
+
+    window.addEventListener('openTripDetailModal', handleOpenTripDetailModal as EventListener);
+    return () => {
+      window.removeEventListener('openTripDetailModal', handleOpenTripDetailModal as EventListener);
+    };
+  }, [homeState]);
 
   const handleSwitchToSignUp = () => {
     homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
@@ -81,8 +100,11 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
 
       <TripDetailModal
         isOpen={homeState.isTripDetailModalOpen}
-        onClose={() => homeState.setIsTripDetailModalOpen(false)}
-        trip={homeState.currentTrip}
+        onClose={() => {
+          homeState.setIsTripDetailModalOpen(false);
+          setModalTrip(null);
+        }}
+        trip={modalTrip || homeState.currentTrip}
         onUpdateTrip={handleUpdateTrip}
       />
 
