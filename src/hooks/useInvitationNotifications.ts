@@ -29,30 +29,32 @@ export const useInvitationNotifications = () => {
 
     setLoading(true);
     try {
+      console.log('Fetching profile for user:', user.id);
       const { data: profileData } = await supabase
         .from('profiles')
         .select('email')
         .eq('id', user.id)
         .single();
 
-      if (!profileData?.email) return;
+      console.log('Profile data:', profileData);
+      if (!profileData?.email) {
+        console.log('No email found in profile');
+        return;
+      }
 
+      console.log('Executing query with email:', profileData.email);
+      console.log('Current time:', new Date().toISOString());
+      
       const { data, error } = await supabase
         .from('trip_invitations')
-        .select(`
-          *,
-          trips!trip_id (
-            id,
-            name
-          ),
-          profiles!inviter_id (
-            full_name
-          )
-        `)
+        .select('*')
         .eq('email', profileData.email)
         .eq('status', 'pending')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false });
+
+      console.log('Query executed - Error:', error);
+      console.log('Query executed - Data:', data);
 
       if (error) {
         console.error('Error fetching invitations:', error);
@@ -61,15 +63,32 @@ export const useInvitationNotifications = () => {
 
       console.log('Raw invitation data:', data);
 
-      const formattedInvitations = (data || []).map(invitation => ({
-        id: invitation.id,
-        trip_id: invitation.trip_id,
-        trip_name: invitation.trips?.name || 'Unknown Trip',
-        inviter_name: invitation.profiles?.full_name || 'Unknown User',
-        role: invitation.role,
-        created_at: invitation.created_at,
-        expires_at: invitation.expires_at,
-        token: invitation.token
+      // First get the basic invitation data, then fetch related data separately
+      const formattedInvitations = await Promise.all((data || []).map(async (invitation) => {
+        // Fetch trip name
+        const { data: tripData } = await supabase
+          .from('trips')
+          .select('name')
+          .eq('id', invitation.trip_id)
+          .single();
+        
+        // Fetch inviter name
+        const { data: inviterData } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', invitation.inviter_id)
+          .single();
+
+        return {
+          id: invitation.id,
+          trip_id: invitation.trip_id,
+          trip_name: tripData?.name || 'Unknown Trip',
+          inviter_name: inviterData?.full_name || 'Unknown User',
+          role: invitation.role,
+          created_at: invitation.created_at,
+          expires_at: invitation.expires_at,
+          token: invitation.token
+        };
       }));
 
       setInvitations(formattedInvitations);
@@ -110,25 +129,30 @@ export const useInvitationNotifications = () => {
         if (payload.new.email === user?.email) {
           const { data: invitationData } = await supabase
             .from('trip_invitations')
-            .select(`
-              *,
-              trips!trip_id (
-                id,
-                name
-              ),
-              profiles!inviter_id (
-                full_name
-              )
-            `)
+            .select('*')
             .eq('id', payload.new.id)
             .single();
 
           if (invitationData) {
+            // Fetch trip name
+            const { data: tripData } = await supabase
+              .from('trips')
+              .select('name')
+              .eq('id', invitationData.trip_id)
+              .single();
+            
+            // Fetch inviter name
+            const { data: inviterData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', invitationData.inviter_id)
+              .single();
+
             const newInvitation = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
-              trip_name: invitationData.trips?.name || 'Unknown Trip',
-              inviter_name: invitationData.profiles?.full_name || 'Unknown User',
+              trip_name: tripData?.name || 'Unknown Trip',
+              inviter_name: inviterData?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
