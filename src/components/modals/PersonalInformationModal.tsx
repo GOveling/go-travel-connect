@@ -225,7 +225,7 @@ const PersonalInformationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-2xl overflow-hidden">
+      <DialogContent className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-2xl overflow-hidden" style={{ touchAction: 'manipulation' }}>
         {/* Mobile Header */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-6 py-4">
           <div className="flex items-center justify-between">
@@ -258,8 +258,8 @@ const PersonalInformationModal = ({
           </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Scrollable Content with improved scroll behavior */}
+        <div className="flex-1 overflow-y-auto overscroll-contain" style={{ scrollBehavior: 'smooth', touchAction: 'pan-y' }}>
           <form onSubmit={handleSubmit} className="space-y-8 p-6 pb-24">
             {/* Full Name */}
             <div className="space-y-3">
@@ -502,19 +502,20 @@ const PersonalInformationModal = ({
                       />
                       <CommandList>
                         <CommandEmpty>No se encontró el país.</CommandEmpty>
-                        <ScrollArea className="h-[280px] w-full">
+                         <ScrollArea className="h-[280px] w-full" style={{ touchAction: 'pan-y' }}>
                           <CommandGroup>
                             {countries.map((country) => (
                               <CommandItem
                                 key={country.country_code}
                                 value={country.country_name}
-                                onSelect={() => {
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    country: country.country_code,
-                                  }));
-                                  setCountryComboOpen(false);
-                                }}
+                                 onSelect={() => {
+                                   console.log('Selected country:', country.country_name, 'Code:', country.country_code);
+                                   setFormData((prev) => ({
+                                     ...prev,
+                                     country: country.country_code,
+                                   }));
+                                   setCountryComboOpen(false);
+                                 }}
                                 className="cursor-pointer text-base py-3"
                               >
                                 <Check
@@ -564,7 +565,7 @@ const PersonalInformationModal = ({
                       />
                       <CommandList>
                         <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
-                        <ScrollArea className="h-[280px] w-full">
+                        <ScrollArea className="h-[280px] w-full" style={{ touchAction: 'pan-y' }}>
                           <CommandGroup>
                             {cities.map((city, index) => (
                               <CommandItem
