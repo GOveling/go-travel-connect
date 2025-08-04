@@ -44,6 +44,22 @@ export const InviteCollaboratorModal = ({
 
       if (error) throw error;
 
+      // CRUCIAL: Actualizar el tipo de viaje a "group" al enviar la primera invitación
+      const { error: typeUpdateError } = await supabase
+        .from('trips')
+        .update({ 
+          type: 'group',
+          is_group_trip: true
+        })
+        .eq('id', tripId);
+
+      if (typeUpdateError) {
+        console.error('Error updating trip type to group:', typeUpdateError);
+        // No lanzar error porque la invitación ya se envió exitosamente
+      } else {
+        console.log('✅ Trip type updated to "group" after sending invitation');
+      }
+
       toast({
         title: "Invitación enviada",
         description: `Se ha enviado una invitación a ${email}`,

@@ -116,14 +116,22 @@ export const ActiveInvitations = ({
         }
       }
 
-      // PASO 4: IMPORTANTE - Actualizar el tipo de viaje a "group"
-      const { error: updateTripError } = await supabase
+      // PASO 4: CRÍTICO - Actualizar el tipo de viaje a "group" - ASEGURAR QUE ESTO SE EJECUTE
+      const { error: typeUpdateError } = await supabase
         .from('trips')
-        .update({ is_group_trip: true })
+        .update({ 
+          type: 'group',
+          is_group_trip: true // Mantener ambos campos por compatibilidad
+        })
         .eq('id', basicInvitation.trip_id);
 
-      if (updateTripError) {
-        console.error('Error updating trip type:', updateTripError);
+      if (typeUpdateError) {
+        console.error('Error updating trip type:', typeUpdateError);
+        // Log detallado del error pero no interrumpir el flujo
+        console.error('Trip ID:', basicInvitation.trip_id);
+        console.error('Error details:', typeUpdateError);
+      } else {
+        console.log('✅ Trip type successfully updated to "group" for trip:', basicInvitation.trip_id);
       }
 
       // PASO 5: Obtener información del viaje para la redirección

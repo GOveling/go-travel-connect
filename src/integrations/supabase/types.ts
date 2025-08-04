@@ -445,6 +445,7 @@ export type Database = {
           status: string
           transportation: string | null
           travelers: number | null
+          type: string | null
           updated_at: string
           user_id: string
         }
@@ -466,6 +467,7 @@ export type Database = {
           status?: string
           transportation?: string | null
           travelers?: number | null
+          type?: string | null
           updated_at?: string
           user_id: string
         }
@@ -487,6 +489,7 @@ export type Database = {
           status?: string
           transportation?: string | null
           travelers?: number | null
+          type?: string | null
           updated_at?: string
           user_id?: string
         }
