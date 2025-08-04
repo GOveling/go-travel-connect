@@ -90,9 +90,12 @@ export const useInvitations = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trips!trip_id(
+          trips!trip_invitations_trip_id_fkey(
             id,
             name
+          ),
+          profiles!trip_invitations_inviter_id_fkey(
+            full_name
           )
         `)
         .eq('trip_id', tripId)
@@ -103,16 +106,19 @@ export const useInvitations = () => {
         throw error;
       }
 
+      console.log('Raw invitations data from useInvitations:', data);
+
       // Transform the data to ensure trip name is available
       const processedInvitations = (data || []).map((invitation: any) => ({
         ...invitation,
-        trip: invitation.trips || { id: tripId, name: 'Unknown Trip' }
+        trip: invitation.trips || { id: tripId, name: 'Unknown Trip' },
+        inviter_name: invitation.profiles?.full_name || 'Unknown User'
       }));
 
       setInvitations(processedInvitations);
       
       // Log for debugging
-      console.log('Fetched invitations:', processedInvitations);
+      console.log('Processed invitations from useInvitations:', processedInvitations);
       
     } catch (error: any) {
       console.error('Error fetching invitations:', error);
