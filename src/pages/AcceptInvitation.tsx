@@ -151,8 +151,9 @@ const AcceptInvitation = () => {
         hasAccessToken: !!session?.access_token
       });
 
-      if (!session || !session.user) {
-        console.log('❌ No valid session found');
+      // Session should already be validated above, but double-check for safety
+      if (!normalizedCurrentEmail || !invitationEmail) {
+        console.log('❌ Missing email information');
         setInvitationStatus('invalid');
         return;
       }

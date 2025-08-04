@@ -68,21 +68,30 @@ export const useInvitationNotifications = () => {
       const formattedInvitations = await Promise.all((data || []).map(async (invitation) => {
         console.log('Processing invitation:', invitation.id, 'trip_id:', invitation.trip_id);
         
-        // Fetch trip name
+        // Fetch trip name using a different approach due to RLS issues
         console.log('🔍 About to fetch trip with ID:', invitation.trip_id);
         
         const { data: tripData, error: tripError } = await supabase
-          .from('trips')
-          .select('name')
-          .eq('id', invitation.trip_id)
+          .from('trip_invitations')
+          .select(`
+            trip_id,
+            trips!trip_invitations_trip_id_fkey (
+              name,
+              destination
+            )
+          `)
+          .eq('id', invitation.id)
           .single();
         
         console.log('🏖️ Trip query result:', { 
           tripId: invitation.trip_id,
           tripData, 
           tripError,
-          tripName: tripData?.name 
+          tripName: tripData?.trips?.name 
         });
+
+        // Extract trip name from the nested query result
+        const tripName = tripData?.trips?.name || 'Unknown Trip';
         
         // Fetch inviter name
         const { data: inviterData, error: inviterError } = await supabase
@@ -96,7 +105,7 @@ export const useInvitationNotifications = () => {
         const result = {
           id: invitation.id,
           trip_id: invitation.trip_id,
-          trip_name: tripData?.name || 'Unknown Trip',
+          trip_name: tripName,
           inviter_name: inviterData?.full_name || 'Unknown User',
           role: invitation.role,
           created_at: invitation.created_at,

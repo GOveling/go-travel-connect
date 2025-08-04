@@ -2,6 +2,10 @@
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
-    "noNotifications": "No notifications yet"
+    "noNotifications": "No notifications yet",
+    "achievement": "Achievement unlocked!",
+    "explorerBadge": "Explorer Badge earned!",
+    "recommendation": "New recommendation",
+    "restaurantSuggestion": "Restaurant suggestion"
   }
 }
