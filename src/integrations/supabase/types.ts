@@ -622,7 +622,44 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      trip_members: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string | null
+          name: string | null
+          role: string | null
+          trip_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          name?: string | null
+          role?: string | null
+          trip_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string | null
+          name?: string | null
+          role?: string | null
+          trip_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_collaborators_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_invitation_optimized: {
@@ -636,6 +673,10 @@ export type Database = {
       calculate_age: {
         Args: { birth_date: string }
         Returns: number
+      }
+      can_edit_trip: {
+        Args: { p_trip_id: string; p_user_id: string }
+        Returns: boolean
       }
       extract_country_from_destination: {
         Args: { destination_name: string }
