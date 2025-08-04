@@ -16,11 +16,11 @@ interface Invitation {
   status: string;
   created_at: string;
   expires_at: string;
+  trip_id: string;
   trip: {
     id: string;
     name: string;
   };
-  trip_name?: string;
 }
 
 export const useInvitations = () => {
@@ -90,7 +90,7 @@ export const useInvitations = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trips (
+          trips!trip_id(
             id,
             name
           )
@@ -103,14 +103,17 @@ export const useInvitations = () => {
         throw error;
       }
 
-      // Ensure we have the trip name
-      const invitationsWithTrip = data?.map((invitation: any) => ({
+      // Transform the data to ensure trip name is available
+      const processedInvitations = (data || []).map((invitation: any) => ({
         ...invitation,
-        trip: invitation.trips || { id: tripId, name: 'Unknown Trip' },
-        trip_name: invitation.trips?.name || 'Unknown Trip'
-      })) || [];
+        trip: invitation.trips || { id: tripId, name: 'Unknown Trip' }
+      }));
 
-      setInvitations(invitationsWithTrip);
+      setInvitations(processedInvitations);
+      
+      // Log for debugging
+      console.log('Fetched invitations:', processedInvitations);
+      
     } catch (error: any) {
       console.error('Error fetching invitations:', error);
       toast({
