@@ -40,6 +40,9 @@ export const useInvitationNotifications = () => {
           trip:trip_id (
             id,
             name
+          ),
+          inviter:inviter_id (
+            full_name
           )
         `)
         .eq('email', profileData.email)
@@ -52,18 +55,17 @@ export const useInvitationNotifications = () => {
         return;
       }
 
-      console.log('Raw invitations data:', data);
-      console.log('Data length:', data?.length);
-      if (data && data.length > 0) {
-        console.log('First invitation data:', JSON.stringify(data[0], null, 2));
-        console.log('Trip data:', data[0]?.trip);
-      }
+      console.log('Raw invitation data:', data);
 
       const formattedInvitations = (data || []).map(invitation => ({
         id: invitation.id,
         trip_id: invitation.trip_id,
-        trip_name: invitation.trip?.name || 'Unknown Trip',
-        inviter_name: 'Unknown User',
+        trip_name: invitation.trip?.name 
+          || invitation.trip_id 
+          || 'Unknown Trip',
+        inviter_name: invitation.inviter?.full_name 
+          || invitation.inviter_id 
+          || 'Unknown User',
         role: invitation.role,
         created_at: invitation.created_at,
         expires_at: invitation.expires_at,
