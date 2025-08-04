@@ -272,7 +272,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     const statusConfig = {
       pending: { color: "bg-yellow-100 text-yellow-800", label: "Pendiente" },
       accepted: { color: "bg-green-100 text-green-800", label: "Aceptado" },
-      declined: { color: "bg-red-100 text-red-800", label: "Rechazado" },
+      declined: { color: "bg-orange-100 text-orange-800", label: "Rechazada" },
       cancelled: { color: "bg-gray-100 text-gray-800", label: "Cancelado" },
       expired: { color: "bg-red-100 text-red-800", label: "Expirado" }
     };

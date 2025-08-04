@@ -99,7 +99,7 @@ export const useInvitations = () => {
           )
         `)
         .eq('trip_id', tripId)
-        .in('status', ['pending', 'accepted'])
+        .in('status', ['pending', 'accepted', 'declined'])
         .order('created_at', { ascending: false });
 
       if (error) {
