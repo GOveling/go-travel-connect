@@ -105,25 +105,28 @@ export const useInvitationNotifications = () => {
         filter: `email=eq.${user?.email || ''}`
       }, async (payload) => {
         if (payload.new.email === user?.email) {
-          // Fetch the full invitation details
+          // Fetch the full invitation details with trip info
           const { data: invitationData } = await supabase
             .from('trip_invitations')
-            .select('*')
+            .select(`
+              *,
+              trips:trip_id (
+                id,
+                name
+              ),
+              profiles:inviter_id (
+                full_name
+              )
+            `)
             .eq('id', payload.new.id)
             .single();
 
           if (invitationData) {
-            // Fetch trip and inviter details
-            const [tripResult, inviterResult] = await Promise.all([
-              supabase.from('trips').select('name').eq('id', invitationData.trip_id).single(),
-              supabase.from('profiles').select('full_name').eq('id', invitationData.inviter_id).single()
-            ]);
-
             const newInvitation: InvitationNotification = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
-              trip_name: tripResult.data?.name || 'Unknown Trip',
-              inviter_name: inviterResult.data?.full_name || 'Unknown User',
+              trip_name: invitationData.trips?.name || 'Unknown Trip',
+              inviter_name: invitationData.profiles?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
