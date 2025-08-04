@@ -259,7 +259,7 @@ const PersonalInformationModal = ({
         </div>
 
         {/* Scrollable Content */}
-        <ScrollArea className="flex-1 h-full" style={{ touchAction: 'pan-y' }}>
+        <div className="flex-1 overflow-y-auto" style={{ touchAction: 'pan-y' }}>
           <div className="p-6 pb-24">
             <form onSubmit={handleSubmit} className="space-y-8">
             {/* Full Name */}
@@ -647,7 +647,7 @@ const PersonalInformationModal = ({
             </div>
            </form>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Fixed Bottom Actions for Mobile */}
         <div className="sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t p-6">
