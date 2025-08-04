@@ -16,6 +16,11 @@ interface Invitation {
   status: string;
   created_at: string;
   expires_at: string;
+  trip: {
+    id: string;
+    name: string;
+  };
+  trip_name?: string;
 }
 
 export const useInvitations = () => {
@@ -83,7 +88,13 @@ export const useInvitations = () => {
     try {
       const { data, error } = await supabase
         .from('trip_invitations')
-        .select('*')
+        .select(`
+          *,
+          trips (
+            id,
+            name
+          )
+        `)
         .eq('trip_id', tripId)
         .in('status', ['pending', 'accepted'])
         .order('created_at', { ascending: false });
@@ -92,9 +103,21 @@ export const useInvitations = () => {
         throw error;
       }
 
-      setInvitations(data || []);
+      // Ensure we have the trip name
+      const invitationsWithTrip = data?.map((invitation: any) => ({
+        ...invitation,
+        trip: invitation.trips || { id: tripId, name: 'Unknown Trip' },
+        trip_name: invitation.trips?.name || 'Unknown Trip'
+      })) || [];
+
+      setInvitations(invitationsWithTrip);
     } catch (error: any) {
       console.error('Error fetching invitations:', error);
+      toast({
+        title: "Error",
+        description: "Error al cargar las invitaciones",
+        variant: "destructive",
+      });
     }
   };
 
