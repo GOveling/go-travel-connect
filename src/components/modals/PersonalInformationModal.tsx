@@ -258,9 +258,10 @@ const PersonalInformationModal = ({
           </div>
         </div>
 
-        {/* Scrollable Content with improved scroll behavior */}
-        <div className="flex-1 overflow-y-auto overscroll-contain" style={{ scrollBehavior: 'smooth', touchAction: 'pan-y' }}>
-          <form onSubmit={handleSubmit} className="space-y-8 p-6 pb-24">
+        {/* Scrollable Content */}
+        <ScrollArea className="flex-1 h-full" style={{ touchAction: 'pan-y' }}>
+          <div className="p-6 pb-24">
+            <form onSubmit={handleSubmit} className="space-y-8">
             {/* Full Name */}
             <div className="space-y-3">
               <Label htmlFor="full_name" className="text-base font-medium">
@@ -494,16 +495,15 @@ const PersonalInformationModal = ({
                       <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-popover border rounded-2xl">
+                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-popover border rounded-2xl max-h-[400px] overflow-hidden">
                     <Command className="w-full">
                       <CommandInput 
                         placeholder="Buscar país..." 
                         className="border-none h-12 text-base"
                       />
-                      <CommandList>
+                      <CommandList className="max-h-[280px] overflow-y-auto">
                         <CommandEmpty>No se encontró el país.</CommandEmpty>
-                         <ScrollArea className="h-[280px] w-full" style={{ touchAction: 'pan-y' }}>
-                          <CommandGroup>
+                        <CommandGroup>
                             {countries.map((country) => (
                               <CommandItem
                                 key={country.country_code}
@@ -530,8 +530,7 @@ const PersonalInformationModal = ({
                               </CommandItem>
                             ))}
                           </CommandGroup>
-                        </ScrollArea>
-                      </CommandList>
+                       </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
@@ -557,16 +556,15 @@ const PersonalInformationModal = ({
                       <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-popover border rounded-2xl">
+                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-popover border rounded-2xl max-h-[400px] overflow-hidden">
                     <Command className="w-full">
                       <CommandInput 
                         placeholder="Buscar ciudad..." 
                         className="border-none h-12 text-base"
                       />
-                      <CommandList>
+                      <CommandList className="max-h-[280px] overflow-y-auto">
                         <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
-                        <ScrollArea className="h-[280px] w-full" style={{ touchAction: 'pan-y' }}>
-                          <CommandGroup>
+                        <CommandGroup>
                             {cities.map((city, index) => (
                               <CommandItem
                                 key={index}
@@ -592,8 +590,7 @@ const PersonalInformationModal = ({
                               </CommandItem>
                             ))}
                           </CommandGroup>
-                        </ScrollArea>
-                      </CommandList>
+                       </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
@@ -648,8 +645,9 @@ const PersonalInformationModal = ({
                 </SelectContent>
               </Select>
             </div>
-          </form>
-        </div>
+           </form>
+          </div>
+        </ScrollArea>
 
         {/* Fixed Bottom Actions for Mobile */}
         <div className="sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t p-6">
