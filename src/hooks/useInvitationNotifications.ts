@@ -37,11 +37,11 @@ export const useInvitationNotifications = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trips!trip_id (
+          trips!trip_invitations_trip_id_fkey (
             id,
             name
           ),
-          profiles!inviter_id (
+          profiles!trip_invitations_inviter_id_fkey (
             full_name
           )
         `)
@@ -108,11 +108,11 @@ export const useInvitationNotifications = () => {
             .from('trip_invitations')
             .select(`
               *,
-              trips!trip_id (
+              trips!trip_invitations_trip_id_fkey (
                 id,
                 name
               ),
-              profiles!inviter_id (
+              profiles!trip_invitations_inviter_id_fkey (
                 full_name
               )
             `)
