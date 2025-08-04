@@ -41,7 +41,8 @@ export const useInvitationNotifications = () => {
             id,
             name
           ),
-          profiles:inviter_id (
+          inviter:inviter_id (
+            id,
             full_name
           )
         `)
@@ -55,21 +56,18 @@ export const useInvitationNotifications = () => {
         return;
       }
 
-      // Transform data to include trip name
-      const formattedInvitations = data?.map(invitation => ({
+      const formattedInvitations = (data || []).map(invitation => ({
         id: invitation.id,
         trip_id: invitation.trip_id,
         trip_name: invitation.trips?.name || 'Unknown Trip',
-        inviter_name: invitation.profiles?.full_name || 'Unknown User',
+        inviter_name: invitation.inviter?.full_name || 'Unknown User',
         role: invitation.role,
         created_at: invitation.created_at,
         expires_at: invitation.expires_at,
         token: invitation.token
-      })) || [];
+      }));
 
       setInvitations(formattedInvitations);
-      
-      // Debug log
       console.log('Formatted invitations:', formattedInvitations);
     } catch (error) {
       console.error('Error fetching invitations:', error);
@@ -105,7 +103,6 @@ export const useInvitationNotifications = () => {
         filter: `email=eq.${user?.email || ''}`
       }, async (payload) => {
         if (payload.new.email === user?.email) {
-          // Fetch the full invitation details with trip info
           const { data: invitationData } = await supabase
             .from('trip_invitations')
             .select(`
@@ -114,7 +111,8 @@ export const useInvitationNotifications = () => {
                 id,
                 name
               ),
-              profiles:inviter_id (
+              inviter:inviter_id (
+                id,
                 full_name
               )
             `)
@@ -122,11 +120,11 @@ export const useInvitationNotifications = () => {
             .single();
 
           if (invitationData) {
-            const newInvitation: InvitationNotification = {
+            const newInvitation = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
               trip_name: invitationData.trips?.name || 'Unknown Trip',
-              inviter_name: invitationData.profiles?.full_name || 'Unknown User',
+              inviter_name: invitationData.inviter?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
