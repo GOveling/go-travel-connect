@@ -29,7 +29,8 @@ const NotificationBell = () => {
     getInvitationLink,
     pendingInvitation,
     handleAcceptPendingInvitation,
-    handleDeclinePendingInvitation
+    handleDeclinePendingInvitation,
+    handleDeclineInvitation
   } = useUnifiedNotifications();
 
   const handleAcceptInvitation = (token: string, invitationId: string) => {
@@ -164,10 +165,10 @@ const NotificationBell = () => {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => markInvitationAsRead(invitation.id)}
+                                  onClick={() => handleDeclineInvitation(invitation.token, invitation.id)}
                                   className="flex-1 h-7 text-xs"
                                 >
-                                  Descartar
+                                  Rechazar
                                 </Button>
                               </div>
                             </div>

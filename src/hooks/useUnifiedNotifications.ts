@@ -228,6 +228,36 @@ export const useUnifiedNotifications = () => {
     }
   };
 
+  const handleDeclineInvitation = async (token: string, invitationId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('decline-trip-invitation', {
+        body: { token }
+      });
+
+      if (!error && data.success) {
+        markInvitationAsRead(invitationId);
+        toast({
+          title: "Invitación rechazada",
+          description: "Has rechazado la invitación al viaje",
+        });
+        if (refetch) refetch();
+      } else {
+        toast({
+          title: "Error",
+          description: error?.message || data?.error || "No se pudo rechazar la invitación",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error declining invitation:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo rechazar la invitación",
+        variant: "destructive",
+      });
+    }
+  };
+
   const markAllNotificationsAsRead = useCallback(() => {
     markAllGeneralNotificationsAsRead();
     // Note: Invitations don't have a "mark all as read" - they are dismissed individually
@@ -247,6 +277,7 @@ export const useUnifiedNotifications = () => {
     pendingInvitation,
     handleAcceptPendingInvitation,
     handleDeclinePendingInvitation,
+    handleDeclineInvitation,
     
     // General notifications
     generalNotifications,
