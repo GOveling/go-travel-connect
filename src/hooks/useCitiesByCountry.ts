@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { apiService } from "@/services/apiService";
 
 export interface CityResult {
   city: string;
@@ -29,31 +29,18 @@ export const useCitiesByCountry = () => {
       try {
         console.log("Loading cities for country:", countryCode);
 
-        const { data: response, error: functionError } = await supabase.functions.invoke('cities-by-country', {
-          body: { 
-            query: "", // Empty query to get all cities for the country
-            countryCode: countryCode 
-          }
-        });
-
-        if (functionError) {
-          throw new Error(functionError.message || "Failed to fetch cities");
-        }
-
+        const response = await apiService.getCitiesByCountry(countryCode);
         console.log("Cities API response:", response);
         
         let cities: CityResult[] = [];
         if (response && Array.isArray(response)) {
-          // Map the edge function response format to our expected format
           cities = response.map((city: any) => ({
-            city: city.name || city.city,
-            latitude: city.coordinates?.lat || city.latitude || 0,
-            longitude: city.coordinates?.lng || city.longitude || 0,
+            city: city.city || city.name,
+            latitude: city.latitude || city.lat || 0,
+            longitude: city.longitude || city.lon || 0,
             population: city.population || 0,
             country_code: city.country_code || countryCode
           }));
-        } else {
-          throw new Error("Invalid response format");
         }
 
         // Sort cities by population (descending) and then by name
