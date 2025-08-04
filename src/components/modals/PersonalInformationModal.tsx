@@ -194,6 +194,7 @@ const PersonalInformationModal = ({
           mobile_phone: formData.mobile_phone,
           country_code: formData.country_code,
           gender: formData.gender || null,
+          onboarding_completed: true, // Mark onboarding as completed
         })
         .eq("id", profile.id);
 

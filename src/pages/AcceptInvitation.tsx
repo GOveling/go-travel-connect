@@ -8,7 +8,9 @@ import { useInvitations } from "@/hooks/useInvitations";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfileValidation } from "@/hooks/useProfileValidation";
 import { MapPin, Users, Calendar, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
+import NewUserPersonalInfoModal from "@/components/modals/NewUserPersonalInfoModal";
 
 interface TripDetails {
   id: string;
@@ -43,6 +45,10 @@ const AcceptInvitation = () => {
   const [tripDetails, setTripDetails] = useState<TripDetails | null>(null);
   const [invitationStatus, setInvitationStatus] = useState<'loading' | 'valid' | 'expired' | 'invalid' | 'accepted' | 'error'>('loading');
   const [isAccepting, setIsAccepting] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [pendingInvitationToken, setPendingInvitationToken] = useState<string | null>(null);
+
+  const { isValid: isProfileValid, requiresOnboarding, validateForInvitation } = useProfileValidation();
 
   // Get token from URL params (handle both 'token' and 'code' for backward compatibility)
   const token = searchParams.get('token') || searchParams.get('code');
@@ -191,10 +197,38 @@ const AcceptInvitation = () => {
       hasSession: !!session
     });
 
+    // Validate profile before attempting to accept
+    const validation = validateForInvitation();
+    if (!validation.canAccept && validation.requiresOnboarding) {
+      console.log('⚠️ User needs to complete onboarding first');
+      setPendingInvitationToken(token);
+      setShowOnboardingModal(true);
+      return;
+    }
+
     setIsAccepting(true);
     try {
-      await acceptInvitation(token);
+      const result = await acceptInvitation(token);
       
+      // Handle onboarding requirement response
+      if (result && !result.success && result.requiresOnboarding) {
+        console.log('⚠️ Backend requires onboarding, showing modal');
+        setPendingInvitationToken(result.token || token);
+        setShowOnboardingModal(true);
+        return;
+      }
+
+      // Handle profile requirement response  
+      if (result && !result.success && result.requiresProfile) {
+        console.log('⚠️ Backend requires profile creation');
+        toast({
+          title: "Perfil requerido",
+          description: "Necesitas crear tu perfil antes de aceptar la invitación",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: t("invitations.acceptedSuccessfully") || "¡Invitación aceptada!",
         description: t("invitations.welcomeToTrip") || "Te has unido al viaje exitosamente",
@@ -208,6 +242,41 @@ const AcceptInvitation = () => {
       console.error('Error accepting invitation:', error);
     } finally {
       setIsAccepting(false);
+    }
+  };
+
+  const handleOnboardingComplete = async () => {
+    setShowOnboardingModal(false);
+    
+    if (pendingInvitationToken) {
+      console.log('🔄 Continuing invitation acceptance after onboarding');
+      
+      // Small delay to ensure profile is updated
+      setTimeout(async () => {
+        setIsAccepting(true);
+        try {
+          await acceptInvitation(pendingInvitationToken);
+          
+          toast({
+            title: t("invitations.acceptedSuccessfully") || "¡Invitación aceptada!",
+            description: t("invitations.welcomeToTrip") || "Te has unido al viaje exitosamente",
+          });
+
+          setTimeout(() => {
+            navigate('/');
+          }, 2000);
+        } catch (error) {
+          console.error('Error accepting invitation after onboarding:', error);
+          toast({
+            title: "Error",
+            description: "Error al completar la aceptación de la invitación",
+            variant: "destructive",
+          });
+        } finally {
+          setIsAccepting(false);
+          setPendingInvitationToken(null);
+        }
+      }, 1000);
     }
   };
 
@@ -478,6 +547,13 @@ const AcceptInvitation = () => {
           {renderContent()}
         </div>
       </div>
+
+      {/* Onboarding Modal */}
+      <NewUserPersonalInfoModal
+        isOpen={showOnboardingModal}
+        onClose={() => setShowOnboardingModal(false)}
+        onComplete={handleOnboardingComplete}
+      />
     </div>
   );
 };

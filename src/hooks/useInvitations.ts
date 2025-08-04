@@ -140,6 +140,24 @@ export const useInvitations = () => {
       }
 
       if (!data.success) {
+        // Handle specific error cases
+        if (data.requiresOnboarding) {
+          return {
+            success: false,
+            requiresOnboarding: true,
+            token: data.token,
+            error: data.error
+          };
+        }
+
+        if (data.requiresProfile) {
+          return {
+            success: false,
+            requiresProfile: true,
+            error: data.error
+          };
+        }
+
         throw new Error(data.error || 'Failed to accept invitation');
       }
 
@@ -151,11 +169,16 @@ export const useInvitations = () => {
       return data;
     } catch (error: any) {
       console.error('Error accepting invitation:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Error al aceptar la invitación",
-        variant: "destructive",
-      });
+      
+      // Don't show toast for onboarding/profile issues - let UI handle it
+      if (!error.message?.includes('onboarding') && !error.message?.includes('profile')) {
+        toast({
+          title: "Error",
+          description: error.message || "Error al aceptar la invitación",
+          variant: "destructive",
+        });
+      }
+      
       throw error;
     } finally {
       setLoading(false);

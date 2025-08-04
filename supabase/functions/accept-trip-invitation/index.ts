@@ -52,7 +52,10 @@ serve(async (req) => {
     
     if (!authHeader) {
       console.log('❌ No authorization header provided');
-      throw new Error('No authorization header');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Set auth for service role client
@@ -69,24 +72,20 @@ serve(async (req) => {
 
     if (authError || !user) {
       console.log('❌ Authentication failed:', authError?.message || 'No user');
-      throw new Error('Unauthorized');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid user token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Get user profile to validate email
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('email')
-      .eq('id', user.id)
-      .single();
-
-    console.log('📧 Profile email validation:', {
-      profileEmail: profile?.email,
-      userEmail: user?.email,
-      emailsMatch: profile?.email === user?.email,
-      profileError: profileError?.message
-    });
-
     const { token }: AcceptInvitationRequest = await req.json();
+    if (!token) {
+      console.log('❌ Missing invitation token');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing invitation token' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     console.log('🎫 Processing invitation acceptance:', {
       token,
@@ -94,31 +93,83 @@ serve(async (req) => {
       userId: user.id.substring(0, 8) + "..."
     });
 
+    // Get user profile with onboarding status
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('email, onboarding_completed, full_name')
+      .eq('id', user.id)
+      .single();
+
+    console.log('👤 Profile validation:', {
+      profileEmail: profile?.email,
+      userEmail: user?.email,
+      onboardingCompleted: profile?.onboarding_completed,
+      fullName: profile?.full_name,
+      profileError: profileError?.message
+    });
+
+    if (profileError || !profile) {
+      console.log('❌ Profile not found');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'User profile not found',
+          requiresProfile: true 
+        }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate email match
+    if (profile.email !== user.email) {
+      console.log('❌ Email mismatch:', { profileEmail: profile.email, userEmail: user.email });
+      return new Response(
+        JSON.stringify({ success: false, error: 'Email mismatch' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if onboarding is completed
+    if (!profile.onboarding_completed) {
+      console.log('⚠️ User needs to complete onboarding');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Profile onboarding not completed',
+          requiresOnboarding: true,
+          token: token // Return token to continue flow after onboarding
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Validate invitation before accepting
     const isValid = await isValidInvitation(supabaseClient, token);
     if (!isValid) {
       console.log('❌ Invalid or expired invitation');
-      throw new Error('Invalid or expired invitation token');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid or expired invitation' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // First, let's check the invitation details before accepting
+    // Check invitation details for logging
     const { data: invitationCheck, error: checkError } = await supabaseClient
       .from('trip_invitations')
       .select('*')
       .eq('token', token)
       .single();
 
-    console.log('📋 Invitation check result:', {
+    console.log('📋 Invitation details:', {
       found: !!invitationCheck,
       email: invitationCheck?.email,
       status: invitationCheck?.status,
       expired: invitationCheck ? new Date(invitationCheck.expires_at) < new Date() : 'unknown',
       userEmail: user.email,
-      emailMatch: invitationCheck?.email === user.email,
-      checkError: checkError?.message
+      emailMatch: invitationCheck?.email === user.email
     });
 
-    // Call the database function to accept invitation
+    // Call the database function to accept invitation (atomic transaction)
     const { data: success, error: acceptError } = await supabaseClient
       .rpc('accept_trip_invitation', {
         p_token: token
@@ -133,31 +184,40 @@ serve(async (req) => {
 
     if (acceptError) {
       console.error('❌ Error accepting invitation:', acceptError);
-      throw new Error(`Failed to accept invitation: ${acceptError.message}`);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to accept invitation' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     if (!success) {
       console.log('❌ Database function returned false - invitation invalid/expired');
-      throw new Error('Invalid or expired invitation token');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invitation could not be accepted' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-
-    console.log('✅ Invitation accepted successfully');
 
     // Get the trip details for the response
     const { data: invitation, error: getError } = await supabaseClient
       .from('trip_invitations')
       .select(`
-        trips:trip_id (id, name, destination)
+        role,
+        trips:trip_id (id, name, destination, dates, status, is_group_trip)
       `)
       .eq('token', token)
       .eq('status', 'accepted')
       .single();
 
+    console.log('✅ Invitation accepted successfully for trip:', invitation?.trips?.name);
+
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Invitation accepted successfully',
-        trip: invitation?.trips || null
+        trip: invitation?.trips || null,
+        userRole: invitation?.role,
+        onboardingCompleted: true
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
