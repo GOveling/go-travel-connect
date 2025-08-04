@@ -22,7 +22,9 @@ import {
   Edit3,
   Eye,
   Mail,
-  Link
+  Link,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useInvitations } from "@/hooks/useInvitations";
@@ -51,6 +53,7 @@ interface Invitation {
   status: string;
   created_at: string;
   expires_at: string;
+  updated_at?: string;
 }
 
 const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) => {
@@ -71,6 +74,10 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     fetchInvitations, 
     cancelInvitation 
   } = useInvitations();
+
+  // Separate invitations by status
+  const activeInvitations = invitations.filter(inv => inv.status === 'pending');
+  const completedInvitations = invitations.filter(inv => ['accepted', 'declined'].includes(inv.status));
 
   // Fetch collaborators and invitations
   useEffect(() => {
@@ -438,8 +445,8 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               </CardContent>
             </Card>
 
-            {/* Pending Invitations */}
-            {invitations.length > 0 && (
+            {/* Active Invitations */}
+            {activeInvitations.length > 0 && (
               <Card className="rounded-xl border-0 bg-muted/30">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -451,7 +458,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {invitations.map((invitation) => (
+                    {activeInvitations.map((invitation) => (
                       <div key={invitation.id} className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm">
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{invitation.email}</p>
@@ -582,6 +589,47 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 </div>
               </CardContent>
             </Card>
+
+            {/* Completed Invitations Section */}
+            {completedInvitations.length > 0 && (
+              <Card className="rounded-xl border-0 bg-muted/30 mt-4">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <div className="p-2 rounded-lg bg-green-500/10">
+                      <CheckCircle size={16} className="text-green-500" />
+                    </div>
+                    Invitaciones Completadas ({completedInvitations.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {completedInvitations.map((invitation) => (
+                      <div key={invitation.id} className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{invitation.email}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            {getStatusBadge(invitation.status)}
+                            <span className="text-xs text-muted-foreground">
+                              {invitation.role}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {invitation.status === 'accepted' ? 'Aceptada' : 'Rechazada'} • {new Date(invitation.created_at).toLocaleDateString('es-ES')}
+                          </p>
+                        </div>
+                        <div className="ml-3">
+                          {invitation.status === 'accepted' ? (
+                            <CheckCircle size={20} className="text-green-500" />
+                          ) : (
+                            <XCircle size={20} className="text-orange-500" />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
