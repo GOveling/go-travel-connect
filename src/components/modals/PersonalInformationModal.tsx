@@ -611,13 +611,15 @@ const PersonalInformationModal = ({
                 />
                 <Input
                   id="mobile_phone"
+                  type="tel"
                   value={formData.mobile_phone}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9\s]/g, '');
                     setFormData((prev) => ({
                       ...prev,
-                      mobile_phone: e.target.value,
-                    }))
-                  }
+                      mobile_phone: value,
+                    }));
+                  }}
                   placeholder="123 456 7890"
                   className="flex-1 h-12 text-base rounded-2xl border-2 focus:border-primary"
                 />
