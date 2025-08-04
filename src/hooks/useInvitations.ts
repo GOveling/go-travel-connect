@@ -166,6 +166,9 @@ export const useInvitations = () => {
         description: "Te has unido al viaje exitosamente",
       });
 
+      // Note: fetchInvitations refresh will be handled by the parent component
+      // that manages the invitation acceptance flow
+
       return data;
     } catch (error: any) {
       console.error('Error accepting invitation:', error);

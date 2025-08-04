@@ -85,7 +85,9 @@ export const useInvitationNotifications = () => {
 
   const markAsRead = useCallback(async (invitationId: string) => {
     setInvitations(prev => prev.filter(inv => inv.id !== invitationId));
-  }, []);
+    // Trigger refetch to ensure notifications are updated
+    setTimeout(() => fetchInvitations(), 1000);
+  }, [fetchInvitations]);
 
   const getInvitationLink = useCallback((invitation: InvitationNotification) => {
     return `/accept-invitation?token=${invitation.token}`;

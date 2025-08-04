@@ -10,19 +10,25 @@ interface AcceptInvitationRequest {
   token: string;
 }
 
-const isValidInvitation = async (supabaseClient: any, token: string) => {
+const isValidInvitation = async (supabaseClient: any, token: string, userEmail: string) => {
   const { data: invitation } = await supabaseClient
     .from('trip_invitations')
     .select('*')
     .eq('token', token)
+    .eq('email', userEmail)
+    .eq('status', 'pending')
     .single();
 
-  if (!invitation) return false;
+  if (!invitation) {
+    console.log('❌ No invitation found with token and email:', { token: token.substring(0, 10) + '...', userEmail });
+    return false;
+  }
 
   const now = new Date();
   const expiresAt = new Date(invitation.expires_at);
   
   if (now > expiresAt) {
+    console.log('❌ Invitation expired:', { expiresAt, now });
     await supabaseClient
       .from('trip_invitations')
       .update({ status: 'expired' })
@@ -30,6 +36,7 @@ const isValidInvitation = async (supabaseClient: any, token: string) => {
     return false;
   }
 
+  console.log('✅ Valid invitation found:', { invitationId: invitation.id, status: invitation.status });
   return true;
 };
 
@@ -144,11 +151,11 @@ serve(async (req) => {
     }
 
     // Validate invitation before accepting
-    const isValid = await isValidInvitation(supabaseClient, token);
+    const isValid = await isValidInvitation(supabaseClient, token, user.email);
     if (!isValid) {
       console.log('❌ Invalid or expired invitation');
       return new Response(
-        JSON.stringify({ success: false, error: 'Invalid or expired invitation' }),
+        JSON.stringify({ success: false, error: 'invitation.invalid' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
