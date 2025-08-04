@@ -435,10 +435,13 @@ export type Database = {
           dates: string
           description: string | null
           destination: Json
+          end_date: string | null
           id: string
           image: string | null
           is_group_trip: boolean | null
+          location: string | null
           name: string
+          start_date: string | null
           status: string
           transportation: string | null
           travelers: number | null
@@ -453,10 +456,13 @@ export type Database = {
           dates: string
           description?: string | null
           destination: Json
+          end_date?: string | null
           id?: string
           image?: string | null
           is_group_trip?: boolean | null
+          location?: string | null
           name: string
+          start_date?: string | null
           status?: string
           transportation?: string | null
           travelers?: number | null
@@ -471,10 +477,13 @@ export type Database = {
           dates?: string
           description?: string | null
           destination?: Json
+          end_date?: string | null
           id?: string
           image?: string | null
           is_group_trip?: boolean | null
+          location?: string | null
           name?: string
+          start_date?: string | null
           status?: string
           transportation?: string | null
           travelers?: number | null
