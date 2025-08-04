@@ -612,7 +612,6 @@ const PersonalInformationModal = ({
                 <Input
                   id="mobile_phone"
                   type="tel"
-                  autoComplete="off"
                   value={formData.mobile_phone}
                   onChange={(e) => {
                     const value = e.target.value.replace(/[^0-9\s]/g, '');
