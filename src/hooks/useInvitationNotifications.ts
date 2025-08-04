@@ -40,9 +40,6 @@ export const useInvitationNotifications = () => {
           trip:trip_id (
             id,
             name
-          ),
-          inviter:inviter_id (
-            full_name
           )
         `)
         .eq('email', profileData.email)
@@ -56,14 +53,9 @@ export const useInvitationNotifications = () => {
       }
 
       const formattedInvitations = (data || []).map(invitation => ({
-        id: invitation.id,
-        trip_id: invitation.trip_id,
+        ...invitation,
         trip_name: invitation.trip?.name || 'Unknown Trip',
-        inviter_name: invitation.inviter?.full_name || 'Unknown User',
-        role: invitation.role,
-        created_at: invitation.created_at,
-        expires_at: invitation.expires_at,
-        token: invitation.token
+        inviter_name: 'Unknown User' // We'll need to fetch this separately if needed
       }));
 
       setInvitations(formattedInvitations);
@@ -109,9 +101,6 @@ export const useInvitationNotifications = () => {
               trip:trip_id (
                 id,
                 name
-              ),
-              inviter:inviter_id (
-                full_name
               )
             `)
             .eq('id', payload.new.id)
@@ -119,14 +108,9 @@ export const useInvitationNotifications = () => {
 
           if (invitationData) {
             const newInvitation = {
-              id: invitationData.id,
-              trip_id: invitationData.trip_id,
+              ...invitationData,
               trip_name: invitationData.trip?.name || 'Unknown Trip',
-              inviter_name: invitationData.inviter?.full_name || 'Unknown User',
-              role: invitationData.role,
-              created_at: invitationData.created_at,
-              expires_at: invitationData.expires_at,
-              token: invitationData.token
+              inviter_name: 'Unknown User' // We'll need to fetch this separately if needed
             };
 
             setInvitations(prev => [newInvitation, ...prev]);
