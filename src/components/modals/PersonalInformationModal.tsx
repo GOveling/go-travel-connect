@@ -649,8 +649,8 @@ const PersonalInformationModal = ({
           </div>
         </div>
 
-        {/* Fixed Bottom Actions for Mobile */}
-        <div className="sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t p-6">
+        {/* Bottom Actions */}
+        <div className="bg-background border-t p-6">
           <div className="flex flex-col gap-3">
             <Button
               type="submit"
