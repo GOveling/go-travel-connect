@@ -40,6 +40,9 @@ export const useInvitationNotifications = () => {
           trip:trip_id (
             id,
             name
+          ),
+          inviter:inviter_id (
+            full_name
           )
         `)
         .eq('email', profileData.email)
@@ -56,7 +59,7 @@ export const useInvitationNotifications = () => {
         id: invitation.id,
         trip_id: invitation.trip_id,
         trip_name: invitation.trip?.name || 'Unknown Trip',
-        inviter_name: 'Unknown User', // Will need to add inviter join if needed
+        inviter_name: invitation.inviter?.full_name || 'Unknown User',
         role: invitation.role,
         created_at: invitation.created_at,
         expires_at: invitation.expires_at,
@@ -106,6 +109,9 @@ export const useInvitationNotifications = () => {
               trip:trip_id (
                 id,
                 name
+              ),
+              inviter:inviter_id (
+                full_name
               )
             `)
             .eq('id', payload.new.id)
@@ -116,7 +122,7 @@ export const useInvitationNotifications = () => {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
               trip_name: invitationData.trip?.name || 'Unknown Trip',
-              inviter_name: 'Unknown User', // Will need to add inviter join if needed
+              inviter_name: invitationData.inviter?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
