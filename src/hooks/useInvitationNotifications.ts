@@ -194,6 +194,61 @@ export const useInvitationNotifications = () => {
           }
         }
       })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'trip_invitations',
+        filter: `email=eq.${user?.email || ''}`
+      }, async (payload) => {
+        if (payload.new.email === user?.email) {
+          console.log('🔄 Invitation UPDATE detected:', payload.new);
+          
+          const { data: invitationData } = await supabase
+            .from('trip_invitations')
+            .select('*')
+            .eq('id', payload.new.id)
+            .single();
+
+          if (invitationData) {
+            // Fetch trip name
+            const { data: tripData } = await supabase
+              .from('trips')
+              .select('name')
+              .eq('id', invitationData.trip_id)
+              .single();
+            
+            // Fetch inviter name
+            const { data: inviterData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', invitationData.inviter_id)
+              .single();
+
+            const updatedInvitation = {
+              id: invitationData.id,
+              trip_id: invitationData.trip_id,
+              trip_name: tripData?.name || 'Unknown Trip',
+              inviter_name: inviterData?.full_name || 'Unknown User',
+              role: invitationData.role,
+              created_at: invitationData.created_at,
+              expires_at: invitationData.expires_at,
+              token: invitationData.token,
+              status: invitationData.status
+            };
+
+            // Actualizar la invitación existente con el nuevo estado
+            setInvitations(prev => {
+              const exists = prev.find(inv => inv.id === updatedInvitation.id);
+              if (exists) {
+                console.log('🔄 Updating existing invitation status:', updatedInvitation.status);
+                return prev.map(inv => inv.id === updatedInvitation.id ? updatedInvitation : inv);
+              }
+              // Si no existe, agregarla (por si acaso)
+              return [updatedInvitation, ...prev];
+            });
+          }
+        }
+      })
       .subscribe();
 
     return () => {
