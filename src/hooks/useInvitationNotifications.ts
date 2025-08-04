@@ -56,6 +56,12 @@ export const useInvitationNotifications = () => {
       }
 
       console.log('Raw invitations data:', data);
+      console.log('Data length:', data?.length);
+      if (data && data.length > 0) {
+        console.log('First invitation data:', JSON.stringify(data[0], null, 2));
+        console.log('Trip data:', data[0]?.trips);
+        console.log('Profile data:', data[0]?.profiles);
+      }
 
       const formattedInvitations = (data || []).map(invitation => ({
         id: invitation.id,
