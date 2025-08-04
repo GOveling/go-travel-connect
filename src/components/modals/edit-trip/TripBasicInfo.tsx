@@ -86,7 +86,8 @@ const TripBasicInfo = ({
         </Label>
         <Input
           id="budget"
-          placeholder="$2,500 per person"
+          type="number"
+          placeholder="2500"
           value={budget}
           onChange={(e) => onBudgetChange(e.target.value)}
           className="mt-1"
