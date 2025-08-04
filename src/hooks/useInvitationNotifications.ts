@@ -21,7 +21,11 @@ export const useInvitationNotifications = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchInvitations = useCallback(async () => {
-    if (!user) return;
+    console.log('=== Starting fetchInvitations ===');
+    if (!user) {
+      console.log('No user found, returning');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -37,11 +41,11 @@ export const useInvitationNotifications = () => {
         .from('trip_invitations')
         .select(`
           *,
-          trip:trip_id (
+          trips!trip_id (
             id,
             name
           ),
-          inviter:inviter_id (
+          profiles!inviter_id (
             full_name
           )
         `)
@@ -60,8 +64,8 @@ export const useInvitationNotifications = () => {
       const formattedInvitations = (data || []).map(invitation => ({
         id: invitation.id,
         trip_id: invitation.trip_id,
-        trip_name: invitation.trip?.name || 'Unknown Trip',
-        inviter_name: invitation.inviter?.full_name || 'Unknown User',
+        trip_name: invitation.trips?.name || 'Unknown Trip',
+        inviter_name: invitation.profiles?.full_name || 'Unknown User',
         role: invitation.role,
         created_at: invitation.created_at,
         expires_at: invitation.expires_at,
@@ -108,27 +112,23 @@ export const useInvitationNotifications = () => {
             .from('trip_invitations')
             .select(`
               *,
-              trip:trip_id (
+              trips!trip_id (
                 id,
                 name
+              ),
+              profiles!inviter_id (
+                full_name
               )
             `)
             .eq('id', payload.new.id)
             .single();
 
           if (invitationData) {
-            // Fetch inviter name separately
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('full_name')
-              .eq('id', invitationData.inviter_id)
-              .single();
-
             const newInvitation = {
               id: invitationData.id,
               trip_id: invitationData.trip_id,
-              trip_name: invitationData.trip?.name || 'Unknown Trip',
-              inviter_name: profileData?.full_name || 'Unknown User',
+              trip_name: invitationData.trips?.name || 'Unknown Trip',
+              inviter_name: invitationData.profiles?.full_name || 'Unknown User',
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
