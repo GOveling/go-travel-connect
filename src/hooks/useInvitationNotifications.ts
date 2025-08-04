@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { formatInvitationsWithDetails, formatInvitationWithDetails } from '@/utils/invitationUtils';
 
 interface InvitationNotification {
   id: string;
@@ -47,7 +46,37 @@ export const useInvitationNotifications = () => {
         return;
       }
 
-      const formattedInvitations = await formatInvitationsWithDetails(data || []);
+      // Get unique trip and inviter IDs
+      const tripIds = [...new Set((data || []).map(inv => inv.trip_id))];
+      const inviterIds = [...new Set((data || []).map(inv => inv.inviter_id))];
+
+      // Batch fetch trip details
+      const { data: tripsData } = await supabase
+        .from('trips')
+        .select('id, name')
+        .in('id', tripIds);
+
+      // Batch fetch inviter details
+      const { data: invitersData } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', inviterIds);
+
+      // Create lookup maps
+      const tripsMap = new Map(tripsData?.map(trip => [trip.id, trip.name]) || []);
+      const invitersMap = new Map(invitersData?.map(profile => [profile.id, profile.full_name]) || []);
+
+      const formattedInvitations: InvitationNotification[] = (data || []).map(inv => ({
+        id: inv.id,
+        trip_id: inv.trip_id,
+        trip_name: tripsMap.get(inv.trip_id) || 'Unknown Trip',
+        inviter_name: invitersMap.get(inv.inviter_id) || 'Unknown User',
+        role: inv.role,
+        created_at: inv.created_at,
+        expires_at: inv.expires_at,
+        token: inv.token
+      }));
+
       setInvitations(formattedInvitations);
     } catch (error) {
       console.error('Error fetching invitations:', error);
@@ -91,7 +120,23 @@ export const useInvitationNotifications = () => {
             .single();
 
           if (invitationData) {
-            const newInvitation = await formatInvitationWithDetails(invitationData);
+            // Fetch trip and inviter details
+            const [tripResult, inviterResult] = await Promise.all([
+              supabase.from('trips').select('name').eq('id', invitationData.trip_id).single(),
+              supabase.from('profiles').select('full_name').eq('id', invitationData.inviter_id).single()
+            ]);
+
+            const newInvitation: InvitationNotification = {
+              id: invitationData.id,
+              trip_id: invitationData.trip_id,
+              trip_name: tripResult.data?.name || 'Unknown Trip',
+              inviter_name: inviterResult.data?.full_name || 'Unknown User',
+              role: invitationData.role,
+              created_at: invitationData.created_at,
+              expires_at: invitationData.expires_at,
+              token: invitationData.token
+            };
+
             setInvitations(prev => [newInvitation, ...prev]);
             showInvitationToast(newInvitation);
           }
