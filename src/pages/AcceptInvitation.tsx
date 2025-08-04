@@ -39,14 +39,15 @@ const AcceptInvitation = () => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { acceptInvitation, loading } = useInvitations();
-  const { user, session } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
 
   const [invitation, setInvitation] = useState<InvitationDetails | null>(null);
   const [tripDetails, setTripDetails] = useState<TripDetails | null>(null);
-  const [invitationStatus, setInvitationStatus] = useState<'loading' | 'valid' | 'expired' | 'invalid' | 'accepted' | 'error'>('loading');
+  const [invitationStatus, setInvitationStatus] = useState<'loading' | 'authenticating' | 'valid' | 'expired' | 'invalid' | 'accepted' | 'error'>('loading');
   const [isAccepting, setIsAccepting] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [pendingInvitationToken, setPendingInvitationToken] = useState<string | null>(null);
+  const [authRetryCount, setAuthRetryCount] = useState(0);
 
   const { isValid: isProfileValid, requiresOnboarding, validateForInvitation } = useProfileValidation();
 
@@ -54,20 +55,18 @@ const AcceptInvitation = () => {
   const token = searchParams.get('token') || searchParams.get('code');
 
   useEffect(() => {
-    console.log('🔍 AcceptInvitation: Component loaded with full context:', {
+    console.log('🔍 AcceptInvitation: Component loaded with auth state:', {
       token: token,
-      allParams: Object.fromEntries(searchParams.entries()),
-      fullURL: window.location.href,
-      authState: {
-        hasUser: !!user,
-        hasSession: !!session,
-        userEmail: user?.email,
-        userId: user?.id?.substring(0, 8) + "...",
-      }
+      authLoading,
+      hasUser: !!user,
+      hasSession: !!session,
+      userEmail: user?.email,
+      sessionAccessToken: session?.access_token ? 'present' : 'missing',
+      retryCount: authRetryCount
     });
 
     if (!token) {
-      console.log('No token found in URL parameters');
+      console.log('❌ No token found in URL parameters');
       setInvitationStatus('invalid');
       return;
     }
@@ -78,15 +77,42 @@ const AcceptInvitation = () => {
       newSearchParams.delete('code');
       newSearchParams.set('token', token);
       navigate(`/accept-invitation?${newSearchParams.toString()}`, { replace: true });
+      return;
+    }
+
+    // Handle authentication states
+    if (authLoading) {
+      console.log('⏳ Auth still loading, waiting...');
+      setInvitationStatus('authenticating');
+      return;
+    }
+
+    if (!session) {
+      console.log('❌ No session found - user not authenticated');
+      // Implement retry mechanism for Google Auth timing issues
+      if (authRetryCount < 3) {
+        console.log(`🔄 Retrying auth check in 1s (attempt ${authRetryCount + 1}/3)`);
+        setTimeout(() => {
+          setAuthRetryCount(prev => prev + 1);
+        }, 1000);
+        return;
+      }
+      setInvitationStatus('invalid');
+      return;
+    }
+
+    // Reset retry count on successful session
+    if (authRetryCount > 0) {
+      setAuthRetryCount(0);
     }
 
     fetchInvitationDetails();
-  }, [token, searchParams, navigate]);
+  }, [token, searchParams, navigate, authLoading, session, user, authRetryCount]);
 
   const fetchInvitationDetails = async () => {
     if (!token) return;
 
-    console.log('Fetching invitation details for token:', token);
+    console.log('🔍 Fetching invitation details for token:', token);
 
     try {
       // Fetch invitation details
@@ -96,7 +122,13 @@ const AcceptInvitation = () => {
         .eq('token', token)
         .single();
 
-      console.log('📧 Invitation query result:', { invitationData, invitationError });
+      console.log('📧 Invitation query result:', { 
+        hasData: !!invitationData, 
+        error: invitationError?.message,
+        invitationEmail: invitationData?.email,
+        status: invitationData?.status,
+        expiresAt: invitationData?.expires_at
+      });
 
       if (invitationError || !invitationData) {
         console.log('❌ Invalid invitation:', invitationError?.message || 'No data found');
@@ -104,25 +136,30 @@ const AcceptInvitation = () => {
         return;
       }
 
-      // Check email match with current user
-      const currentUserEmail = user?.email;
-      const invitationEmail = invitationData.email;
+      // Use session-based authentication check
+      const currentUserEmail = session?.user?.email;
+      const invitationEmail = invitationData.email?.toLowerCase().trim();
+      const normalizedCurrentEmail = currentUserEmail?.toLowerCase().trim();
       
-      console.log('📨 Email validation:', {
-        currentUserEmail,
-        invitationEmail,
-        emailsMatch: currentUserEmail === invitationEmail,
-        userAuthenticated: !!user
+      console.log('📨 Enhanced email validation:', {
+        sessionEmail: currentUserEmail,
+        invitationEmail: invitationData.email,
+        normalizedSessionEmail: normalizedCurrentEmail,
+        normalizedInvitationEmail: invitationEmail,
+        emailsMatch: normalizedCurrentEmail === invitationEmail,
+        hasSession: !!session,
+        hasAccessToken: !!session?.access_token
       });
 
-      if (!user) {
-        console.log('❌ User not authenticated');
+      if (!session || !session.user) {
+        console.log('❌ No valid session found');
         setInvitationStatus('invalid');
         return;
       }
 
-      if (currentUserEmail !== invitationEmail) {
+      if (normalizedCurrentEmail !== invitationEmail) {
         console.log('❌ Email mismatch - invitation is for different user');
+        console.log(`Expected: "${invitationEmail}", Got: "${normalizedCurrentEmail}"`);
         setInvitationStatus('invalid');
         return;
       }
@@ -335,7 +372,20 @@ const AcceptInvitation = () => {
         return (
           <div className="flex flex-col items-center justify-center py-16 space-y-4">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">{t("common.loading") || "Cargando..."}</p>
+            <p className="text-muted-foreground">{t("common.loading") || "Cargando invitación..."}</p>
+          </div>
+        );
+
+      case 'authenticating':
+        return (
+          <div className="flex flex-col items-center justify-center py-16 space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Verificando autenticación...</p>
+            {authRetryCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Reintentando... ({authRetryCount}/3)
+              </p>
+            )}
           </div>
         );
 
@@ -361,14 +411,18 @@ const AcceptInvitation = () => {
             <p className="text-muted-foreground text-center max-w-md">
               {t("invitations.invalidMessage") || "Esta invitación no es válida o ya no existe."}
             </p>
-            {/* Debug information in development */}
+            {/* Enhanced debug information in development */}
             {process.env.NODE_ENV === 'development' && (
               <div className="text-xs text-muted-foreground bg-muted p-4 rounded-lg max-w-lg">
                 <p><strong>Debug Info:</strong></p>
                 <p>Token: {token}</p>
                 <p>User Email: {user?.email || 'No user'}</p>
-                <p>User ID: {user?.id || 'No ID'}</p>
+                <p>Session Email: {session?.user?.email || 'No session'}</p>
+                <p>User ID: {user?.id?.substring(0, 8) || 'No ID'}...</p>
                 <p>Has Session: {session ? 'Yes' : 'No'}</p>
+                <p>Has Access Token: {session?.access_token ? 'Yes' : 'No'}</p>
+                <p>Auth Loading: {authLoading ? 'Yes' : 'No'}</p>
+                <p>Auth Retries: {authRetryCount}</p>
               </div>
             )}
             <Button onClick={() => navigate('/')} variant="outline">
