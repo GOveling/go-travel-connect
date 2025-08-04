@@ -501,38 +501,36 @@ const PersonalInformationModal = ({
                         placeholder="Buscar país..." 
                         className="border-none h-12 text-base"
                       />
-                      <ScrollArea className="h-[300px]">
-                        <CommandList>
-                          <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
-                          <CommandGroup>
-                              {countries.map((country) => (
-                                <CommandItem
-                                  key={country.country_code}
-                                  value={country.country_name}
-                                   onSelect={() => {
-                                     console.log('Selected country:', country.country_name, 'Code:', country.country_code);
-                                     setFormData((prev) => ({
-                                       ...prev,
-                                       country: country.country_code,
-                                     }));
-                                     setCountryComboOpen(false);
-                                   }}
-                                  className="cursor-pointer text-base py-3 px-2 hover:bg-accent rounded-lg"
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-3 h-5 w-5",
-                                      formData.country === country.country_code
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {country.country_name}
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </ScrollArea>
+                      <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
+                        <CommandGroup>
+                            {countries.map((country) => (
+                              <CommandItem
+                                key={country.country_code}
+                                value={country.country_name}
+                                 onSelect={() => {
+                                   console.log('Selected country:', country.country_name, 'Code:', country.country_code);
+                                   setFormData((prev) => ({
+                                     ...prev,
+                                     country: country.country_code,
+                                   }));
+                                   setCountryComboOpen(false);
+                                 }}
+                                className="cursor-pointer text-base py-3 px-2 hover:bg-accent rounded-lg"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-3 h-5 w-5",
+                                    formData.country === country.country_code
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {country.country_name}
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
@@ -564,37 +562,35 @@ const PersonalInformationModal = ({
                         placeholder="Buscar ciudad..." 
                         className="border-none h-12 text-base"
                       />
-                      <ScrollArea className="h-[300px]">
-                        <CommandList>
-                          <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
-                          <CommandGroup>
-                              {cities.map((city, index) => (
-                                <CommandItem
-                                  key={index}
-                                  value={city.city}
-                                  onSelect={() => {
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      city_state: city.city,
-                                    }));
-                                    setCityComboOpen(false);
-                                  }}
-                                  className="cursor-pointer text-base py-3"
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-3 h-5 w-5",
-                                      formData.city_state === city.city
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {city.city}
-                                </CommandItem>
-                              ))}
-                             </CommandGroup>
-                         </CommandList>
-                      </ScrollArea>
+                      <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
+                        <CommandGroup>
+                            {cities.map((city, index) => (
+                              <CommandItem
+                                key={index}
+                                value={city.city}
+                                onSelect={() => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    city_state: city.city,
+                                  }));
+                                  setCityComboOpen(false);
+                                }}
+                                className="cursor-pointer text-base py-3"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-3 h-5 w-5",
+                                    formData.city_state === city.city
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {city.city}
+                              </CommandItem>
+                            ))}
+                           </CommandGroup>
+                       </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
