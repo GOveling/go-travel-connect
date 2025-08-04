@@ -65,21 +65,27 @@ export const useInvitationNotifications = () => {
 
       // First get the basic invitation data, then fetch related data separately
       const formattedInvitations = await Promise.all((data || []).map(async (invitation) => {
+        console.log('Processing invitation:', invitation.id, 'trip_id:', invitation.trip_id);
+        
         // Fetch trip name
-        const { data: tripData } = await supabase
+        const { data: tripData, error: tripError } = await supabase
           .from('trips')
           .select('name')
           .eq('id', invitation.trip_id)
           .single();
         
+        console.log('Trip query result:', { tripData, tripError });
+        
         // Fetch inviter name
-        const { data: inviterData } = await supabase
+        const { data: inviterData, error: inviterError } = await supabase
           .from('profiles')
           .select('full_name')
           .eq('id', invitation.inviter_id)
           .single();
 
-        return {
+        console.log('Inviter query result:', { inviterData, inviterError });
+
+        const result = {
           id: invitation.id,
           trip_id: invitation.trip_id,
           trip_name: tripData?.name || 'Unknown Trip',
@@ -89,6 +95,9 @@ export const useInvitationNotifications = () => {
           expires_at: invitation.expires_at,
           token: invitation.token
         };
+
+        console.log('Final invitation result:', result);
+        return result;
       }));
 
       setInvitations(formattedInvitations);
