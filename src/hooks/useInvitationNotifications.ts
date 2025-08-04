@@ -12,6 +12,7 @@ interface InvitationNotification {
   created_at: string;
   expires_at: string;
   token: string;
+  status: string;
 }
 
 export const useInvitationNotifications = () => {
@@ -49,7 +50,7 @@ export const useInvitationNotifications = () => {
         .from('trip_invitations')
         .select('*')
         .eq('email', profileData.email)
-        .eq('status', 'pending')
+        .in('status', ['pending', 'accepted', 'declined'])
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false });
 
@@ -100,7 +101,8 @@ export const useInvitationNotifications = () => {
           role: invitation.role,
           created_at: invitation.created_at,
           expires_at: invitation.expires_at,
-          token: invitation.token
+          token: invitation.token,
+          status: invitation.status
         };
 
         console.log('Final invitation result:', result);
@@ -172,11 +174,23 @@ export const useInvitationNotifications = () => {
               role: invitationData.role,
               created_at: invitationData.created_at,
               expires_at: invitationData.expires_at,
-              token: invitationData.token
+              token: invitationData.token,
+              status: invitationData.status
             };
 
-            setInvitations(prev => [newInvitation, ...prev]);
-            showInvitationToast(newInvitation);
+            // Evitar duplicados: si ya existe, reemplazar; si no, agregar
+            setInvitations(prev => {
+              const exists = prev.find(inv => inv.id === newInvitation.id);
+              if (exists) {
+                return prev.map(inv => inv.id === newInvitation.id ? newInvitation : inv);
+              }
+              return [newInvitation, ...prev];
+            });
+            
+            // Solo mostrar toast para invitaciones pending
+            if (invitationData.status === 'pending') {
+              showInvitationToast(newInvitation);
+            }
           }
         }
       })
@@ -200,12 +214,18 @@ export const useInvitationNotifications = () => {
     fetchInvitations();
   }, [fetchInvitations]);
 
+  // Filtrar invitaciones por estado
+  const activeInvitations = invitations.filter(inv => inv.status === 'pending');
+  const completedInvitations = invitations.filter(inv => inv.status === 'accepted' || inv.status === 'declined');
+
   return {
     invitations,
+    activeInvitations,
+    completedInvitations,
     loading,
     refetch: fetchInvitations,
     markAsRead,
     getInvitationLink,
-    totalCount: invitations.length
+    totalCount: activeInvitations.length // Solo contar las activas para el badge
   };
 };

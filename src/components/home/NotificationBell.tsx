@@ -19,7 +19,8 @@ const NotificationBell = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const {
-    invitations,
+    activeInvitations,
+    completedInvitations,
     generalNotifications,
     totalCount,
     loading,
@@ -130,17 +131,17 @@ const NotificationBell = () => {
                         </CardContent>
                       </Card>
                     </div>
-                    {(invitations.length > 0 || generalNotifications.filter(n => !n.isRead).length > 0) && <Separator />}
+                    {(activeInvitations.length > 0 || completedInvitations.length > 0 || generalNotifications.filter(n => !n.isRead).length > 0) && <Separator />}
                   </>
                 )}
 
-                {/* Invitations Section */}
-                {invitations.length > 0 && (
+                {/* Active Invitations Section */}
+                {activeInvitations.length > 0 && (
                   <>
                     <div className="px-4 py-2 bg-gray-50">
-                      <h4 className="text-sm font-medium text-gray-700">Invitaciones a viajes</h4>
+                      <h4 className="text-sm font-medium text-gray-700">Invitaciones activas</h4>
                     </div>
-                    {invitations.map((invitation) => (
+                    {activeInvitations.map((invitation) => (
                       <div key={invitation.id} className="p-3 hover:bg-gray-50">
                         <Card className="border-l-4 border-l-blue-500">
                           <CardContent className="p-3">
@@ -170,6 +171,44 @@ const NotificationBell = () => {
                                 >
                                   Rechazar
                                 </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    ))}
+                    {(completedInvitations.length > 0 || generalNotifications.filter(n => !n.isRead).length > 0) && <Separator />}
+                  </>
+                )}
+
+                {/* Completed Invitations Section */}
+                {completedInvitations.length > 0 && (
+                  <>
+                    <div className="px-4 py-2 bg-gray-50">
+                      <h4 className="text-sm font-medium text-gray-700">Invitaciones completadas</h4>
+                    </div>
+                    {completedInvitations.map((invitation) => (
+                      <div key={invitation.id} className="p-3 hover:bg-gray-50">
+                        <Card className={`border-l-4 ${
+                          invitation.status === 'accepted' ? 'border-l-green-500' : 'border-l-orange-500'
+                        }`}>
+                          <CardContent className="p-3">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="font-medium text-sm">{invitation.trip_name}</p>
+                                  <p className="text-xs text-gray-600">
+                                    Invitado por {invitation.inviter_name} como {invitation.role}
+                                  </p>
+                                </div>
+                                <Badge 
+                                  variant="secondary"
+                                  className={`text-xs ${
+                                    invitation.status === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                                  }`}
+                                >
+                                  {invitation.status === 'accepted' ? 'Aceptada' : 'Rechazada'}
+                                </Badge>
                               </div>
                             </div>
                           </CardContent>

@@ -22,6 +22,8 @@ export const useUnifiedNotifications = () => {
   const [pendingInvitation, setPendingInvitation] = useState<any>(null);
   const { 
     invitations, 
+    activeInvitations,
+    completedInvitations,
     loading: invitationsLoading, 
     markAsRead: markInvitationAsRead,
     getInvitationLink,
@@ -269,6 +271,8 @@ export const useUnifiedNotifications = () => {
   return {
     // Invitations
     invitations,
+    activeInvitations,
+    completedInvitations,
     markInvitationAsRead,
     getInvitationLink,
     invitationCount,
