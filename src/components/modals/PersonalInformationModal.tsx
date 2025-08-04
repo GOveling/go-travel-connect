@@ -496,48 +496,44 @@ const PersonalInformationModal = ({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-background border rounded-2xl shadow-lg">
-                    <div className="flex flex-col h-[400px]">
-                      <div className="p-3 border-b">
-                        <CommandInput 
-                          placeholder="Buscar país..." 
-                          className="border-none h-10 text-base focus:ring-0"
-                        />
+                    <Command className="w-full h-[400px] flex flex-col">
+                      <CommandInput 
+                        placeholder="Buscar país..." 
+                        className="border-none h-12 text-base flex-shrink-0"
+                      />
+                      <div className="flex-1 overflow-y-auto min-h-0">
+                        <CommandList className="max-h-none">
+                          <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
+                          <CommandGroup>
+                              {countries.map((country) => (
+                                <CommandItem
+                                  key={country.country_code}
+                                  value={country.country_name}
+                                   onSelect={() => {
+                                     console.log('Selected country:', country.country_name, 'Code:', country.country_code);
+                                     setFormData((prev) => ({
+                                       ...prev,
+                                       country: country.country_code,
+                                     }));
+                                     setCountryComboOpen(false);
+                                   }}
+                                  className="cursor-pointer text-base py-3 px-2 hover:bg-accent rounded-lg"
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-3 h-5 w-5",
+                                      formData.country === country.country_code
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {country.country_name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                        </CommandList>
                       </div>
-                      <div className="flex-1 overflow-y-auto p-1">
-                        <Command className="w-full">
-                          <CommandList>
-                            <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
-                            <CommandGroup>
-                                {countries.map((country) => (
-                                  <CommandItem
-                                    key={country.country_code}
-                                    value={country.country_name}
-                                     onSelect={() => {
-                                       console.log('Selected country:', country.country_name, 'Code:', country.country_code);
-                                       setFormData((prev) => ({
-                                         ...prev,
-                                         country: country.country_code,
-                                       }));
-                                       setCountryComboOpen(false);
-                                     }}
-                                    className="cursor-pointer text-base py-3 px-2 hover:bg-accent rounded-lg"
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-3 h-5 w-5",
-                                        formData.country === country.country_code
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {country.country_name}
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                           </CommandList>
-                        </Command>
-                      </div>
-                    </div>
+                    </Command>
                   </PopoverContent>
                 </Popover>
               </div>
