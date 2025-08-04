@@ -16,12 +16,20 @@ const isValidInvitation = async (supabaseClient: any, token: string, userEmail: 
     .select('*')
     .eq('token', token)
     .eq('email', userEmail)
-    .eq('status', 'pending')
     .single();
 
   if (!invitation) {
     console.log('❌ No invitation found with token and email:', { token: token.substring(0, 10) + '...', userEmail });
-    return false;
+    return { valid: false, error: 'invitation.not_found' };
+  }
+
+  // Check if invitation status is still pending
+  if (invitation.status !== 'pending') {
+    console.log('❌ Invitation already processed:', { status: invitation.status });
+    return { 
+      valid: false, 
+      error: invitation.status === 'accepted' ? 'invitation.already_accepted' : 'invitation.already_processed'
+    };
   }
 
   const now = new Date();
@@ -33,11 +41,11 @@ const isValidInvitation = async (supabaseClient: any, token: string, userEmail: 
       .from('trip_invitations')
       .update({ status: 'expired' })
       .eq('token', token);
-    return false;
+    return { valid: false, error: 'invitation.expired' };
   }
 
   console.log('✅ Valid invitation found:', { invitationId: invitation.id, status: invitation.status });
-  return true;
+  return { valid: true, invitation };
 };
 
 serve(async (req) => {
@@ -151,11 +159,11 @@ serve(async (req) => {
     }
 
     // Validate invitation before accepting
-    const isValid = await isValidInvitation(supabaseClient, token, user.email);
-    if (!isValid) {
-      console.log('❌ Invalid or expired invitation');
+    const validationResult = await isValidInvitation(supabaseClient, token, user.email);
+    if (!validationResult.valid) {
+      console.log('❌ Invalid invitation:', validationResult.error);
       return new Response(
-        JSON.stringify({ success: false, error: 'invitation.invalid' }),
+        JSON.stringify({ success: false, error: validationResult.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
