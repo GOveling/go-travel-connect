@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { TripOverview } from './TripOverview';
 import { TripItinerary } from './TripItinerary';
 import { TripCollaborators } from './TripCollaborators';
 import { TripSavedPlaces } from './TripSavedPlaces';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const TripDetails = () => {
@@ -198,7 +199,17 @@ export const TripDetails = () => {
   
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">{trip.name}</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">{trip.name}</h1>
+        {(userRole === 'owner' || userRole === 'editor') && (
+          <Link to={`/trips/${tripId}/edit`}>
+            <Button variant="outline" size="sm">
+              <Edit className="w-4 h-4 mr-2" />
+              Editar viaje
+            </Button>
+          </Link>
+        )}
+      </div>
       
       <Tabs defaultValue="overview">
         <TabsList className="mb-4">

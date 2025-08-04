@@ -622,44 +622,7 @@ export type Database = {
       }
     }
     Views: {
-      trip_members: {
-        Row: {
-          created_at: string | null
-          email: string | null
-          id: string | null
-          name: string | null
-          role: string | null
-          trip_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          name?: string | null
-          role?: string | null
-          trip_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string | null
-          id?: string | null
-          name?: string | null
-          role?: string | null
-          trip_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trip_collaborators_trip_id_fkey"
-            columns: ["trip_id"]
-            isOneToOne: false
-            referencedRelation: "trips"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_invitation_optimized: {
@@ -697,6 +660,18 @@ export type Database = {
           role: string
           created_at: string
           expires_at: string
+        }[]
+      }
+      get_trip_members: {
+        Args: { p_trip_id: string }
+        Returns: {
+          id: string
+          trip_id: string
+          user_id: string
+          role: string
+          created_at: string
+          name: string
+          email: string
         }[]
       }
       get_user_achievements_with_progress: {
