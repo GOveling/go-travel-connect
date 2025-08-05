@@ -1,52 +1,73 @@
-import {
-  InteractiveMenu,
-  InteractiveMenuItem,
-} from "@/components/ui/modern-mobile-menu";
-import { useLanguage } from "@/hooks/useLanguage";
-import { Calendar, Compass, Home, MapPin, User } from "lucide-react";
+import { Home, Compass, Briefcase, Calendar, User } from 'lucide-react';
 
 interface BottomNavigationProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeSection: string;
+  onChangeSection: (section: string) => void;
 }
 
-const BottomNavigation = ({
-  activeTab,
-  setActiveTab,
-}: BottomNavigationProps) => {
-  const { t } = useLanguage();
-
+export function BottomNavigation({ activeSection, onChangeSection }: BottomNavigationProps) {
   const navItems = [
-    { id: "home", icon: Home, label: t("navigation.home") },
-    { id: "explore", icon: Compass, label: t("navigation.explore") },
-    { id: "trips", icon: MapPin, label: t("navigation.trips") },
-    { id: "booking", icon: Calendar, label: t("navigation.booking") },
-    { id: "profile", icon: User, label: t("navigation.profile") },
+    {
+      icon: Home,
+      label: "Home",
+      id: "home"
+    },
+    {
+      icon: Compass,
+      label: "Explore",
+      id: "explore"
+    },
+    {
+      icon: Briefcase,
+      label: "My Trips",
+      id: "my-trips"
+    },
+    {
+      icon: Calendar,
+      label: "Booking",
+      id: "booking"
+    },
+    {
+      icon: User,
+      label: "Profile",
+      id: "profile"
+    }
   ];
 
-  const menuItems: InteractiveMenuItem[] = navItems.map((item) => ({
-    label: item.label,
-    icon: item.icon,
-  }));
-
-  const activeIndex = navItems.findIndex((item) => item.id === activeTab);
-
-  const handleItemClick = (index: number) => {
-    setActiveTab(navItems[index].id);
-  };
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200 px-2 sm:px-4 py-2 z-50 safe-area-bottom">
-      <div className="max-w-md mx-auto">
-        <InteractiveMenu
-          items={menuItems}
-          activeIndex={activeIndex}
-          onItemClick={handleItemClick}
-          accentColor="hsl(var(--primary))"
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t flex items-center justify-around p-2 z-50">
+      {navItems.map((item) => (
+        <NavItem
+          key={item.id}
+          icon={item.icon}
+          label={item.label}
+          active={activeSection === item.id}
+          onClick={() => onChangeSection(item.id)}
         />
-      </div>
+      ))}
     </div>
   );
-};
+}
+
+interface NavItemProps {
+  icon: React.ElementType;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+function NavItem({ icon: Icon, label, active, onClick }: NavItemProps) {
+  return (
+    <button 
+      className={`flex flex-col items-center justify-center p-1 ${
+        active ? 'text-primary' : 'text-muted-foreground'
+      }`} 
+      onClick={onClick}
+    >
+      <Icon size={20} />
+      <span className="text-xs mt-1">{label}</span>
+    </button>
+  );
+}
 
 export default BottomNavigation;

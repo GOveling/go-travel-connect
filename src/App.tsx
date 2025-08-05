@@ -3,11 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { HomePage } from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import InvitationLanding from "./pages/InvitationLanding";
-import EditTrip from "./pages/EditTrip";
 import AuthGate from "./components/auth/AuthGate";
 import AuthDebug from "./components/debug/AuthDebug";
 import { useAuth } from "./hooks/useAuth";
@@ -16,11 +15,12 @@ import { ReduxProvider } from "./providers/ReduxProvider";
 import { useWelcomeFlow } from "./hooks/useWelcomeFlow";
 import WelcomeModal from "./components/modals/WelcomeModal";
 import NewUserPersonalInfoModal from "./components/modals/NewUserPersonalInfoModal";
+import { useEffect } from 'react';
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const { 
     showWelcome, 
     showPersonalInfo, 
@@ -28,6 +28,25 @@ const App = () => {
     completeWelcome,
     completeOnboarding 
   } = useWelcomeFlow();
+
+  // Optimize for mobile view
+  useEffect(() => {
+    // Set viewport meta tag for better mobile experience
+    let meta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'viewport';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+    meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+    
+    // Add mobile-specific body class
+    document.body.classList.add('mobile-app');
+    
+    return () => {
+      document.body.classList.remove('mobile-app');
+    };
+  }, []);
 
   if (loading || welcomeLoading) {
     return (
@@ -89,8 +108,7 @@ const App = () => {
             
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<Index onSignOut={signOut} />} />
-                <Route path="/trips/:tripId/edit" element={<EditTrip />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/accept-invitation" element={<AcceptInvitation />} />
                 <Route path="/join/:token" element={<InvitationLanding />} />
                 <Route path="*" element={<NotFound />} />
