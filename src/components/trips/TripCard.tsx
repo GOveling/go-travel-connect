@@ -151,7 +151,7 @@ const TripCard = ({
                     >
                       {trip.status}
                     </Badge>
-                    {trip.isGroupTrip && (
+                    {(trip.isGroupTrip || (trip.collaborators && trip.collaborators.length > 0)) && (
                       <Button
                         onClick={() => onGroupOptions(trip)}
                         className="flex items-center space-x-1 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-full h-auto"
