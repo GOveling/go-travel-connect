@@ -187,7 +187,7 @@ const ExploreAddToTripModal = ({
 
                 <div className="flex items-center space-x-1 text-xs text-slate-500">
                   <Users size={10} />
-                  <span>{trip.travelers}</span>
+                  <span>{trip.isGroupTrip ? (trip.collaborators?.length || 0) + 1 : 1}</span>
                 </div>
               </div>
             </div>
