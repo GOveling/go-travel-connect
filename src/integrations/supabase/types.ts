@@ -630,7 +630,9 @@ export type Database = {
         Returns: Json
       }
       accept_trip_invitation: {
-        Args: { p_token: string }
+        Args:
+          | { invitation_id: string; user_id: string; accepted_date: string }
+          | { p_token: string }
         Returns: boolean
       }
       calculate_age: {
