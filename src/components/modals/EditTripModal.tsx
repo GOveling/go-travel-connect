@@ -5,6 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import MultiSelectPopover from './new-trip/MultiSelectPopover';
+import { accommodationOptions, transportationOptions } from './new-trip/constants';
 import { format, isPast, isFuture } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { 
@@ -56,8 +58,8 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
     start_date: null as Date | null,
     end_date: null as Date | null,
     budget: '',
-    accommodation: '',
-    transportation: '',
+    accommodation: [] as string[],
+    transportation: [] as string[],
   });
 
   // Fetch trip data and user permissions
@@ -95,6 +97,12 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
         setMemberCount(count || 0);
         
         // Populate form data - adapt from existing trip structure
+        // Convert comma-separated strings to arrays for multi-select
+        const accommodationArray = trip.accommodation ? 
+          trip.accommodation.split(',').map((item: string) => item.trim()).filter(Boolean) : [];
+        const transportationArray = trip.transportation ? 
+          trip.transportation.split(',').map((item: string) => item.trim()).filter(Boolean) : [];
+        
         setFormData({
           name: trip.name || '',
           description: trip.description || '',
@@ -102,8 +110,8 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
           start_date: trip.start_date ? new Date(trip.start_date) : null,
           end_date: trip.end_date ? new Date(trip.end_date) : null,
           budget: trip.budget || '',
-          accommodation: trip.accommodation || '',
-          transportation: trip.transportation || '',
+          accommodation: accommodationArray,
+          transportation: transportationArray,
         });
         
       } catch (error) {
@@ -127,6 +135,40 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  // Handle accommodation selection
+  const handleAccommodationSelect = (item: string) => {
+    if (!formData.accommodation.includes(item)) {
+      setFormData((prev) => ({
+        ...prev,
+        accommodation: [...prev.accommodation, item],
+      }));
+    }
+  };
+
+  const handleAccommodationRemove = (item: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      accommodation: prev.accommodation.filter((a) => a !== item),
+    }));
+  };
+
+  // Handle transportation selection
+  const handleTransportationSelect = (item: string) => {
+    if (!formData.transportation.includes(item)) {
+      setFormData((prev) => ({
+        ...prev,
+        transportation: [...prev.transportation, item],
+      }));
+    }
+  };
+
+  const handleTransportationRemove = (item: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      transportation: prev.transportation.filter((t) => t !== item),
     }));
   };
 
@@ -169,6 +211,7 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
       setSaving(true);
       
       // Create update object with all fields
+      // Convert arrays back to comma-separated strings for database storage
       const updateData = {
         name: formData.name,
         description: formData.description || '',
@@ -176,8 +219,8 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
         start_date: formData.start_date?.toISOString(),
         end_date: formData.end_date?.toISOString(),
         budget: formData.budget || '',
-        accommodation: formData.accommodation || '',
-        transportation: formData.transportation || '',
+        accommodation: formData.accommodation.join(', '),
+        transportation: formData.transportation.join(', '),
         updated_at: new Date().toISOString(),
       };
       
@@ -384,44 +427,41 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
                 {/* Budget field */}
                 <div className="space-y-2">
                   <label htmlFor="budget" className="text-sm font-medium">
-                    Budget
+                    Budget (optional)
                   </label>
                   <Input
                     id="budget"
-                    name="budget"
+                    type="number"
+                    min="0"
                     value={formData.budget}
-                    onChange={handleChange}
-                    placeholder="e.g. $1000"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        budget: value === "" ? "" : (parseFloat(value) || "").toString(),
+                      }));
+                    }}
+                    placeholder="Enter budget amount"
                   />
                 </div>
                 
-                {/* Accommodation field */}
-                <div className="space-y-2">
-                  <label htmlFor="accommodation" className="text-sm font-medium">
-                    Accommodation
-                  </label>
-                  <Input
-                    id="accommodation"
-                    name="accommodation"
-                    value={formData.accommodation}
-                    onChange={handleChange}
-                    placeholder="e.g. Hotel, Airbnb"
-                  />
-                </div>
-                
-                {/* Transportation field */}
-                <div className="space-y-2">
-                  <label htmlFor="transportation" className="text-sm font-medium">
-                    Transportation
-                  </label>
-                  <Input
-                    id="transportation"
-                    name="transportation"
-                    value={formData.transportation}
-                    onChange={handleChange}
-                    placeholder="e.g. Flight, Train, Car"
-                  />
-                </div>
+                <MultiSelectPopover
+                  label="Accommodation Preferences (optional)"
+                  options={accommodationOptions}
+                  selectedItems={formData.accommodation}
+                  onItemSelect={handleAccommodationSelect}
+                  onItemRemove={handleAccommodationRemove}
+                  placeholder="Select accommodation types"
+                />
+
+                <MultiSelectPopover
+                  label="Transportation (optional)"
+                  options={transportationOptions}
+                  selectedItems={formData.transportation}
+                  onItemSelect={handleTransportationSelect}
+                  onItemRemove={handleTransportationRemove}
+                  placeholder="Select transportation types"
+                />
                 
                 {/* Description field */}
                 <div className="space-y-2">
