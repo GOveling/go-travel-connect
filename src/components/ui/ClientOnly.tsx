@@ -12,6 +12,12 @@ const ClientOnly = ({ children, fallback = null }: ClientOnlyProps) => {
     setHasMounted(true);
   }, []);
 
+  // En producción, siempre renderizar para evitar problemas de hidratación
+  if (typeof window !== 'undefined') {
+    return <>{children}</>;
+  }
+
+  // Solo usar el fallback en SSR
   if (!hasMounted) {
     return <>{fallback}</>;
   }

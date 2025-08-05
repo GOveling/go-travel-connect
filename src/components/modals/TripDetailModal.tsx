@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { EditTripModal } from "./EditTripModal";
 import ClientOnly from "@/components/ui/ClientOnly";
+import ModalErrorBoundary from "@/components/ui/ModalErrorBoundary";
 import { Link } from "react-router-dom";
 import {
   Calendar,
@@ -609,7 +610,8 @@ const TripDetailModal = ({
   return (
     <>
       <ClientOnly fallback={<div>Loading...</div>}>
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <ModalErrorBoundary>
+          <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col rounded-[5px]">
           <DialogHeader className="flex-shrink-0 pb-4">
             <div className="flex items-center justify-between mb-2">
@@ -1112,8 +1114,9 @@ const TripDetailModal = ({
               )}
             </div>
           </div>
-        </DialogContent>
-        </Dialog>
+          </DialogContent>
+          </Dialog>
+        </ModalErrorBoundary>
       </ClientOnly>
 
       {/* InviteFriendsModal */}
