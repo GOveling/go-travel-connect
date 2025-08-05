@@ -247,13 +247,21 @@ const AcceptInvitation = () => {
 
     setIsAccepting(true);
     try {
-      // Use the new RPC function that works with trip_members
-      const { error } = await supabase.rpc('accept_trip_invitation_v2', {
-        p_token: token
-      });
+      // Use the atomic RPC function for safe transaction processing
+      const { data, error } = await supabase.rpc('accept_trip_invitation', {
+        p_token: token,
+        p_user_id: user.id
+      }) as { data: { success: boolean; message?: string; trip_id?: string; role?: string } | null; error: any };
 
       if (error) {
-        throw error;
+        console.error("RPC Error:", error);
+        throw new Error("Error al procesar la invitación");
+      }
+
+      console.log("RPC result:", data);
+
+      if (!data?.success) {
+        throw new Error(data?.message || "Error al procesar la invitación");
       }
 
       console.log('✅ Invitation accepted successfully via RPC');
@@ -268,6 +276,8 @@ const AcceptInvitation = () => {
         description: t("invitations.welcomeToTrip") || "Te has unido al viaje exitosamente",
       });
 
+      setInvitationStatus('accepted');
+
       // Redirect to main app after successful acceptance
       setTimeout(() => {
         navigate('/');
@@ -276,7 +286,7 @@ const AcceptInvitation = () => {
       console.error('Error accepting invitation:', error);
       toast({
         title: "Error",
-        description: "Error al aceptar la invitación. Inténtalo de nuevo.",
+        description: error.message || "Error al aceptar la invitación. Inténtalo de nuevo.",
         variant: "destructive",
       });
     } finally {
@@ -294,13 +304,19 @@ const AcceptInvitation = () => {
       setTimeout(async () => {
         setIsAccepting(true);
         try {
-          // Use the new RPC function that works with trip_members
-          const { error } = await supabase.rpc('accept_trip_invitation_v2', {
-            p_token: token
-          });
+          // Use the atomic RPC function for safe transaction processing
+          const { data, error } = await supabase.rpc('accept_trip_invitation', {
+            p_token: token,
+            p_user_id: user.id
+          }) as { data: { success: boolean; message?: string; trip_id?: string; role?: string } | null; error: any };
 
           if (error) {
-            throw error;
+            console.error("RPC Error:", error);
+            throw new Error("Error al procesar la invitación");
+          }
+
+          if (!data?.success) {
+            throw new Error(data?.message || "Error al procesar la invitación");
           }
           
           // Trigger custom event to refresh trips and update UI

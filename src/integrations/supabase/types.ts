@@ -668,6 +668,7 @@ export type Database = {
         Args:
           | { invitation_id: string; user_id: string; accepted_date: string }
           | { p_token: string }
+          | { p_token: string; p_user_id: string }
         Returns: boolean
       }
       accept_trip_invitation_v2: {
