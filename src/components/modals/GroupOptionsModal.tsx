@@ -89,7 +89,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   }, [trip?.id]);
 
   // Show message if no collaborators are available
-  if (!trip?.is_group_trip || (trip?.collaborators && trip.collaborators.length === 0)) {
+  if (!trip?.collaborators || trip.collaborators.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
