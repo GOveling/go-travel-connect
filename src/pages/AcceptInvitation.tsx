@@ -247,11 +247,9 @@ const AcceptInvitation = () => {
 
     setIsAccepting(true);
     try {
-      // Use the new RPC function directly
-      const { error } = await supabase.rpc('accept_trip_invitation', {
-        invitation_id: invitation.id,
-        user_id: user.id,
-        accepted_date: new Date().toISOString()
+      // Use the new RPC function that works with trip_members
+      const { error } = await supabase.rpc('accept_trip_invitation_v2', {
+        p_token: token
       });
 
       if (error) {
@@ -296,11 +294,9 @@ const AcceptInvitation = () => {
       setTimeout(async () => {
         setIsAccepting(true);
         try {
-          // Use the new RPC function directly
-          const { error } = await supabase.rpc('accept_trip_invitation', {
-            invitation_id: invitation.id,
-            user_id: user.id,
-            accepted_date: new Date().toISOString()
+          // Use the new RPC function that works with trip_members
+          const { error } = await supabase.rpc('accept_trip_invitation_v2', {
+            p_token: token
           });
 
           if (error) {

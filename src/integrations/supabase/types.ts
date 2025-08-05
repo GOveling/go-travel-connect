@@ -426,6 +426,41 @@ export type Database = {
           },
         ]
       }
+      trip_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          trip_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: string
+          trip_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          trip_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_members_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trips: {
         Row: {
           accommodation: string | null
@@ -633,6 +668,10 @@ export type Database = {
         Args:
           | { invitation_id: string; user_id: string; accepted_date: string }
           | { p_token: string }
+        Returns: boolean
+      }
+      accept_trip_invitation_v2: {
+        Args: { p_token: string }
         Returns: boolean
       }
       calculate_age: {

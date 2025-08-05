@@ -209,12 +209,10 @@ export const useInvitations = () => {
 
       console.log("🚀 Usando función RPC optimizada para aceptar invitación");
       
-      // Usar la función RPC optimizada
+      // Usar la función RPC actualizada
       const { data: result, error: rpcError } = await supabase
-        .rpc('accept_invitation_optimized', {
-          invitation_token: token,
-          user_email: profileData.email,
-          user_id: userData.user.id
+        .rpc('accept_trip_invitation_v2', {
+          p_token: token
         });
 
       console.log("✅ RPC Result:", result);
