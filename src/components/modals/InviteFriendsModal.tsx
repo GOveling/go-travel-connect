@@ -207,7 +207,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   const handleCopyInviteLink = () => {
     const baseUrl = window.location.origin;
-    const inviteLink = `${baseUrl}/trips/${trip.id}/join`;
+    const inviteLink = `${baseUrl}/?join=${trip.id}`;
     navigator.clipboard.writeText(inviteLink);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2000);
@@ -426,7 +426,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 <div className="space-y-3">
                   <div className="flex gap-2">
                     <Input
-                      value={`${window.location.origin}/trips/${trip.id}/join`}
+                      value={`${window.location.origin}/?join=${trip.id}`}
                       readOnly
                       className="flex-1 bg-background text-sm rounded-lg"
                     />
@@ -650,13 +650,13 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                   <Label className="text-sm font-medium">Enlace público del viaje</Label>
                   <div className="flex gap-2 mt-2">
                     <Input
-                      value={`${window.location.origin}/trips/${trip.id}/view`}
+                      value={`${window.location.origin}/?view=${trip.id}`}
                       readOnly
                       className="flex-1 bg-background text-sm rounded-lg"
                     />
                     <Button 
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/trips/${trip.id}/view`);
+                        navigator.clipboard.writeText(`${window.location.origin}/?view=${trip.id}`);
                         toast({ title: "Enlace copiado", description: "El enlace ha sido copiado al portapapeles" });
                       }}
                       variant="outline"
@@ -678,7 +678,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                         navigator.share({
                           title: `Viaje: ${trip.name}`,
                           text: `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}!`,
-                          url: `${window.location.origin}/trips/${trip.id}/view`
+                          url: `${window.location.origin}/?view=${trip.id}`
                         });
                       }
                     }}
@@ -692,7 +692,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     variant="outline" 
                     className="h-20 flex-col rounded-xl border-2 border-dashed hover:border-solid transition-all"
                     onClick={() => {
-                      const text = `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}! ${window.location.origin}/trips/${trip.id}/view`;
+                      const text = `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}! ${window.location.origin}/?view=${trip.id}`;
                       navigator.clipboard.writeText(text);
                       toast({ title: "Texto copiado", description: "El texto ha sido copiado al portapapeles" });
                     }}
