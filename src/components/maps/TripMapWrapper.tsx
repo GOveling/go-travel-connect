@@ -2,8 +2,20 @@ import { lazy, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 
-// Import lazy del componente del mapa para evitar SSR
-const TripMapInteractiveComponent = lazy(() => import("./TripMapInteractive"));
+// Import lazy del componente del mapa para evitar SSR con fallback mejorado
+const TripMapInteractiveComponent = lazy(() => 
+  import("./TripMapInteractive").catch(() => {
+    console.error('Failed to load TripMapInteractive component');
+    // Fallback component cuando falla la carga
+    return { 
+      default: () => (
+        <div className="h-96 flex items-center justify-center text-red-500">
+          Map component failed to load
+        </div>
+      )
+    };
+  })
+);
 
 const MapLoadingFallback = () => (
   <Card className="h-96 bg-gradient-to-br from-purple-100 to-orange-100 border-2 border-dashed border-purple-300">

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useRealtimeFallback } from '@/hooks/useRealtimeFallback';
+import { useEnvironment } from '@/hooks/useEnvironment';
 
 interface InvitationNotification {
   id: string;
@@ -19,6 +20,7 @@ interface InvitationNotification {
 export const useInvitationNotifications = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isVercel, isClient } = useEnvironment();
   const [invitations, setInvitations] = useState<InvitationNotification[]>([]);
   const [loading, setLoading] = useState(false);
   const [isRealtimeWorking, setIsRealtimeWorking] = useState(true);
@@ -98,83 +100,30 @@ export const useInvitationNotifications = () => {
     });
   }, [toast]);
 
-  const setupInvitationListener = useCallback((userId: string) => {
-    // Solo configurar realtime si tenemos email del usuario
-    if (!user?.email) {
-      console.log('No user email, skipping realtime setup');
-      return () => {};
-    }
-
-    console.log('🔊 Setting up realtime listener for user:', user.email);
-    
-    const channel = supabase
-      .channel(`invitation-notifications-${userId}`, {
-        config: {
-          broadcast: { self: true },
-          presence: { key: userId }
-        }
-      })
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'trip_invitations',
-        filter: `email=eq.${user.email}`
-      }, async (payload) => {
-        console.log('🔔 New invitation INSERT detected:', payload);
-        if (payload.new.email === user.email && payload.new.status === 'pending') {
-          await handleNewInvitation(payload.new);
-        }
-      })
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'trip_invitations',
-        filter: `email=eq.${user.email}`
-      }, async (payload) => {
-        console.log('🔄 Invitation UPDATE detected:', payload);
-        if (payload.new.email === user.email) {
-          await handleInvitationUpdate(payload.new);
-        }
-      })
-      .subscribe((status) => {
-        console.log('📡 Realtime subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-          console.log('✅ Successfully subscribed to realtime updates');
-          setIsRealtimeWorking(true);
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Channel error - realtime may not work properly');
-          setIsRealtimeWorking(false);
-        } else if (status === 'TIMED_OUT') {
-          console.error('⏱️ Subscription timed out - attempting to reconnect');
-          setIsRealtimeWorking(false);
-          // Intentar reconectar después de un delay
-          setTimeout(() => {
-            if (user?.id) {
-              console.log('🔄 Attempting to reconnect realtime...');
-              setupInvitationListener(user.id);
-            }
-          }, 5000);
-        } else if (status === 'CLOSED') {
-          console.log('🔌 Channel closed');
-          setIsRealtimeWorking(false);
-        }
-      });
-
-    return () => {
-      console.log('🧹 Cleaning up realtime subscription');
-      channel.unsubscribe();
-    };
-  }, [user]);
-
-  const handleNewInvitation = async (invitationData: any) => {
+  const handleNewInvitation = useCallback(async (invitationData: any) => {
     try {
       console.log('🆕 Processing new invitation:', invitationData.id);
       
-      // Fetch additional data
-      const [tripData, inviterData] = await Promise.all([
+      // Verificar que supabase esté disponible
+      if (!supabase) {
+        console.error('Supabase client not available for new invitation handling');
+        return;
+      }
+
+      // Fetch additional data con timeout
+      const fetchPromises = [
         supabase.from('trips').select('name').eq('id', invitationData.trip_id).single(),
         supabase.from('profiles').select('full_name').eq('id', invitationData.inviter_id).single()
-      ]);
+      ];
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Fetch timeout')), 10000)
+      );
+
+      const [tripData, inviterData] = await Promise.race([
+        Promise.all(fetchPromises),
+        timeoutPromise
+      ]) as any;
 
       const newInvitation: InvitationNotification = {
         id: invitationData.id,
@@ -204,17 +153,32 @@ export const useInvitationNotifications = () => {
     } catch (error) {
       console.error('❌ Error processing new invitation:', error);
     }
-  };
+  }, [showInvitationToast]);
 
-  const handleInvitationUpdate = async (invitationData: any) => {
+  const handleInvitationUpdate = useCallback(async (invitationData: any) => {
     try {
       console.log('🔄 Processing invitation update:', invitationData.id);
       
-      // Fetch additional data
-      const [tripData, inviterData] = await Promise.all([
+      // Verificar que supabase esté disponible
+      if (!supabase) {
+        console.error('Supabase client not available for update handling');
+        return;
+      }
+
+      // Fetch additional data con timeout
+      const fetchPromises = [
         supabase.from('trips').select('name').eq('id', invitationData.trip_id).single(),
         supabase.from('profiles').select('full_name').eq('id', invitationData.inviter_id).single()
-      ]);
+      ];
+
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Fetch timeout')), 10000)
+      );
+
+      const [tripData, inviterData] = await Promise.race([
+        Promise.all(fetchPromises),
+        timeoutPromise
+      ]) as any;
 
       const updatedInvitation: InvitationNotification = {
         id: invitationData.id,
@@ -235,32 +199,136 @@ export const useInvitationNotifications = () => {
     } catch (error) {
       console.error('❌ Error processing invitation update:', error);
     }
-  };
+  }, []);
+
+  const setupInvitationListener = useCallback((userId: string) => {
+    // Protecciones adicionales
+    if (!user?.email || !userId) {
+      console.log('Missing user email or userId, skipping realtime setup');
+      return () => {};
+    }
+
+    // Verificar que supabase esté disponible
+    if (!supabase) {
+      console.error('Supabase client not available');
+      return () => {};
+    }
+
+    console.log('🔊 Setting up realtime listener for user:', user.email);
+    
+    try {
+      const channel = supabase
+        .channel(`invitation-notifications-${userId}`, {
+          config: {
+            broadcast: { self: true },
+            presence: { key: userId }
+          }
+        })
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'trip_invitations',
+          filter: `email=eq.${user.email}`
+        }, async (payload) => {
+          try {
+            console.log('🔔 New invitation INSERT detected:', payload);
+            if (payload.new.email === user.email && payload.new.status === 'pending') {
+              await handleNewInvitation(payload.new);
+            }
+          } catch (error) {
+            console.error('❌ Error handling new invitation:', error);
+          }
+        })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'trip_invitations',
+          filter: `email=eq.${user.email}`
+        }, async (payload) => {
+          try {
+            console.log('🔄 Invitation UPDATE detected:', payload);
+            if (payload.new.email === user.email) {
+              await handleInvitationUpdate(payload.new);
+            }
+          } catch (error) {
+            console.error('❌ Error handling invitation update:', error);
+          }
+        })
+        .subscribe((status) => {
+          console.log('📡 Realtime subscription status:', status);
+          if (status === 'SUBSCRIBED') {
+            console.log('✅ Successfully subscribed to realtime updates');
+            setIsRealtimeWorking(true);
+          } else if (status === 'CHANNEL_ERROR') {
+            console.error('❌ Channel error - realtime may not work properly');
+            setIsRealtimeWorking(false);
+          } else if (status === 'TIMED_OUT') {
+            console.error('⏱️ Subscription timed out - attempting to reconnect');
+            setIsRealtimeWorking(false);
+            // Intentar reconectar después de un delay
+            setTimeout(() => {
+              if (user?.id) {
+                console.log('🔄 Attempting to reconnect realtime...');
+                setupInvitationListener(user.id);
+              }
+            }, 5000);
+          } else if (status === 'CLOSED') {
+            console.log('🔌 Channel closed');
+            setIsRealtimeWorking(false);
+          }
+        });
+
+      return () => {
+        try {
+          console.log('🧹 Cleaning up realtime subscription');
+          channel.unsubscribe();
+        } catch (error) {
+          console.error('❌ Error during cleanup:', error);
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error setting up realtime subscription:', error);
+      setIsRealtimeWorking(false);
+      return () => {}; // Función de limpieza vacía
+    }
+  }, [user, handleNewInvitation, handleInvitationUpdate]);
+
 
   // Real-time subscription for new invitations with improved error handling
   useEffect(() => {
-    if (!user?.id || !user?.email) {
-      console.log('Missing user ID or email, skipping realtime setup');
+    if (!user?.id || !user?.email || !isClient) {
+      console.log('Missing requirements for realtime setup:', { 
+        userId: !!user?.id, 
+        email: !!user?.email, 
+        isClient 
+      });
       return;
     }
 
-    console.log('🚀 Initializing realtime listener for user:', user.id);
+    // En Vercel, aumentar el delay inicial para evitar problemas de hidratación
+    const initialDelay = isVercel ? 500 : 100;
     
-    // Pequeño delay para asegurar que el componente esté montado
+    console.log('🚀 Initializing realtime listener for user:', user.id, 'environment: Vercel =', isVercel);
+    
     const timeoutId = setTimeout(() => {
-      const cleanup = setupInvitationListener(user.id);
-      
-      // Cleanup function
-      return cleanup;
-    }, 100);
+      try {
+        const cleanup = setupInvitationListener(user.id);
+        return cleanup;
+      } catch (error) {
+        console.error('❌ Error initializing realtime listener:', error);
+        setIsRealtimeWorking(false);
+      }
+    }, initialDelay);
 
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [user?.id, user?.email, setupInvitationListener]);
+  }, [user?.id, user?.email, setupInvitationListener, isVercel, isClient]);
 
   // Configurar fallback de polling cuando realtime no funciona
-  useRealtimeFallback(isRealtimeWorking, fetchInvitations, 30000);
+  // En Vercel, usar intervalo más frecuente para compensar problemas de realtime
+  const pollingInterval = isVercel ? 20000 : 30000; // 20s en Vercel, 30s en otros
+  useRealtimeFallback(isRealtimeWorking, fetchInvitations, pollingInterval);
 
   // Initial fetch
   useEffect(() => {
