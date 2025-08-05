@@ -90,6 +90,13 @@ const TripDetailModal = ({
 }: TripDetailModalProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  
+  // Debug logging for modal state
+  console.log('TripDetailModal render:', { isOpen, tripId: trip?.id });
+
+  useEffect(() => {
+    console.log('TripDetailModal isOpen changed:', isOpen);
+  }, [isOpen]);
   const [activeTab, setActiveTab] = useState("overview");
   const [showRouteMap, setShowRouteMap] = useState(false);
   const [selectedDestination, setSelectedDestination] = useState<string>("");
@@ -598,13 +605,6 @@ const TripDetailModal = ({
         return "bg-gray-100 text-gray-800";
     }
   };
-
-  // Debug logging for modal state
-  console.log('TripDetailModal render:', { isOpen, tripId: trip?.id });
-
-  useEffect(() => {
-    console.log('TripDetailModal isOpen changed:', isOpen);
-  }, [isOpen]);
 
   return (
     <>
