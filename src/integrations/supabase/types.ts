@@ -675,6 +675,10 @@ export type Database = {
         Args: { p_token: string }
         Returns: boolean
       }
+      accept_trip_invitation_v3: {
+        Args: { p_token: string }
+        Returns: Json
+      }
       calculate_age: {
         Args: { birth_date: string }
         Returns: number

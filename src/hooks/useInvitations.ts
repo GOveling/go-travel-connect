@@ -170,7 +170,7 @@ export const useInvitations = () => {
 
   const acceptInvitation = async (token: string) => {
     try {
-      console.log("🎫 Aceptando invitación con token optimizado:", token.substring(0, 10) + '...');
+      console.log("🎫 Aceptando invitación con función v3:", token.substring(0, 10) + '...');
       setLoading(true);
 
       // Obtener datos del usuario actual
@@ -207,16 +207,15 @@ export const useInvitations = () => {
         };
       }
 
-      console.log("🚀 Usando función RPC optimizada para aceptar invitación");
+      console.log("🚀 Usando función RPC v3 para aceptar invitación");
       
-      // Usar la función RPC actualizada
+      // Usar la nueva función RPC v3
       const { data: result, error: rpcError } = await supabase
-        .rpc('accept_trip_invitation_v2', {
+        .rpc('accept_trip_invitation_v3', {
           p_token: token
         });
 
       console.log("✅ RPC Result:", result);
-      console.log("❌ RPC Error:", rpcError);
 
       if (rpcError) {
         console.error("❌ Error RPC:", rpcError);
@@ -228,7 +227,7 @@ export const useInvitations = () => {
         return { success: false, error: rpcError.message };
       }
 
-      // Hacer type assertion para el resultado de la función RPC
+      // Cast result to proper type
       const acceptResult = result as unknown as AcceptInvitationResult;
 
       if (!acceptResult || !acceptResult.success) {
@@ -242,10 +241,23 @@ export const useInvitations = () => {
         return { success: false, error: errorMessage };
       }
 
-      console.log("✅ Invitación aceptada exitosamente con RPC");
+      console.log("✅ Invitación aceptada exitosamente");
+      
+      // Disparar eventos para actualizar la UI
+      window.dispatchEvent(new CustomEvent('tripInvitationAccepted', {
+        detail: { 
+          tripId: acceptResult.trip_id,
+          role: acceptResult.role 
+        }
+      }));
+      
+      window.dispatchEvent(new CustomEvent('refreshManageTeam', {
+        detail: { tripId: acceptResult.trip_id }
+      }));
+
       toast({
         title: "Invitación aceptada",
-        description: `¡Te has unido al viaje "${acceptResult.trip_name || 'Viaje'}"!`,
+        description: `¡Te has unido al viaje "${acceptResult.trip_name}"!`,
       });
 
       return {

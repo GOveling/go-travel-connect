@@ -44,94 +44,180 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
   const [tripDetails, setTripDetails] = useState<any>(null);
   const [userRole, setUserRole] = useState('viewer');
   
+  // Función mejorada para obtener datos
+  const fetchData = async () => {
+    if (!tripId || !user) return;
+    
+    setLoading(true);
+    try {
+      // Get trip details
+      const { data: tripData, error: tripError } = await supabase
+        .from('trips')
+        .select('*')
+        .eq('id', tripId)
+        .single();
+        
+      if (tripError) throw tripError;
+      setTripDetails(tripData);
+      
+      // Verificar rol del usuario
+      if (tripData.user_id === user.id) {
+        setUserRole('owner');
+      } else {
+        const { data: memberData } = await supabase
+          .from('trip_collaborators')
+          .select('role')
+          .eq('trip_id', tripId)
+          .eq('user_id', user.id)
+          .single();
+          
+        setUserRole(memberData?.role || 'viewer');
+      }
+      
+      // Obtener miembros actuales - USAR TRIP_COLLABORATORS como fuente principal
+      const { data: membersData, error: membersError } = await supabase
+        .from('trip_collaborators')
+        .select(`
+          id,
+          role,
+          email,
+          name,
+          user_id,
+          joined_at
+        `)
+        .eq('trip_id', tripId)
+        .neq('user_id', user?.id || '');
+        
+      if (membersError) throw membersError;
+      
+      // Enriquecer con datos de perfil
+      const enrichedMembers = await Promise.all(
+        (membersData || []).map(async (member) => {
+          if (member.user_id) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name, avatar_url')
+              .eq('id', member.user_id)
+              .single();
+              
+            return {
+              ...member,
+              profiles: {
+                id: member.user_id,
+                email: member.email,
+                full_name: profile?.full_name || member.name,
+                avatar_url: profile?.avatar_url
+              }
+            };
+          }
+          return {
+            ...member,
+            profiles: {
+              id: null,
+              email: member.email,
+              full_name: member.name,
+              avatar_url: null
+            }
+          };
+        })
+      );
+      
+      setMembers(enrichedMembers);
+      
+      // Get pending invitations
+      const { data: pendingData, error: pendingError } = await supabase
+        .from('trip_invitations')
+        .select('*, inviter:inviter_id(full_name)')
+        .eq('trip_id', tripId)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString());
+        
+      if (pendingError) throw pendingError;
+      setPendingInvites(pendingData || []);
+      
+      // Get completed invitations (accepted or declined)
+      const { data: completedData, error: completedError } = await supabase
+        .from('trip_invitations')
+        .select('*, inviter:inviter_id(full_name)')
+        .eq('trip_id', tripId)
+        .in('status', ['accepted', 'declined']);
+        
+      if (completedError) throw completedError;
+      setCompletedInvites(completedData || []);
+      
+    } catch (error) {
+      console.error("Error fetching team data:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo cargar la información del equipo",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Load all data
   useEffect(() => {
     if (!isOpen || !tripId) return;
-    
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Get trip details
-        const { data: tripData, error: tripError } = await supabase
-          .from('trips')
-          .select('*')
-          .eq('id', tripId)
-          .single();
-          
-        if (tripError) throw tripError;
-        setTripDetails(tripData);
-        
-        // Determine user's role
-        if (tripData.user_id === user?.id) {
-          setUserRole('owner');
-        } else {
-          const { data: memberData } = await supabase
-            .from('trip_members')
-            .select('role')
-            .eq('trip_id', tripId)
-            .eq('user_id', user?.id)
-            .single();
-            
-          if (memberData) {
-            setUserRole(memberData.role);
-          }
-        }
-        
-        // Get members (excluding the current user)
-        const { data: membersData, error: membersError } = await supabase
-          .from('trip_members')
-          .select(`
-            id,
-            role,
-            created_at,
-            profiles!inner (
-              id,
-              email,
-              full_name,
-              avatar_url
-            )
-          `)
-          .eq('trip_id', tripId)
-          .neq('user_id', user?.id || '');
-          
-        if (membersError) throw membersError;
-        setMembers(membersData || []);
-        
-        // Get pending invitations
-        const { data: pendingData, error: pendingError } = await supabase
-          .from('trip_invitations')
-          .select('*, inviter:inviter_id(full_name)')
-          .eq('trip_id', tripId)
-          .eq('status', 'pending')
-          .gt('expires_at', new Date().toISOString());
-          
-        if (pendingError) throw pendingError;
-        setPendingInvites(pendingData || []);
-        
-        // Get completed invitations (accepted or declined)
-        const { data: completedData, error: completedError } = await supabase
-          .from('trip_invitations')
-          .select('*, inviter:inviter_id(full_name)')
-          .eq('trip_id', tripId)
-          .in('status', ['accepted', 'declined']);
-          
-        if (completedError) throw completedError;
-        setCompletedInvites(completedData || []);
-        
-      } catch (error) {
-        console.error("Error fetching team data:", error);
-        toast({
-          title: "Error",
-          description: "No se pudo cargar la información del equipo",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchData();
   }, [tripId, isOpen, user]);
+
+  // Escuchar eventos de invitaciones aceptadas
+  useEffect(() => {
+    const handleRefreshTeam = (event: CustomEvent) => {
+      if (event.detail.tripId === tripId) {
+        console.log('🔄 Refreshing team data after invitation accepted');
+        fetchData();
+      }
+    };
+
+    const handleInvitationAccepted = (event: CustomEvent) => {
+      if (event.detail.tripId === tripId) {
+        console.log('🔄 Invitation accepted, refreshing team data');
+        fetchData();
+      }
+    };
+
+    window.addEventListener('refreshManageTeam', handleRefreshTeam as EventListener);
+    window.addEventListener('tripInvitationAccepted', handleInvitationAccepted as EventListener);
+
+    return () => {
+      window.removeEventListener('refreshManageTeam', handleRefreshTeam as EventListener);
+      window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted as EventListener);
+    };
+  }, [tripId]);
+
+  // Configurar subscription de Supabase para cambios en tiempo real
+  useEffect(() => {
+    if (!isOpen || !tripId) return;
+
+    const subscription = supabase
+      .channel(`team-changes-${tripId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'trip_invitations',
+        filter: `trip_id=eq.${tripId}`
+      }, (payload) => {
+        console.log('🔄 Trip invitation changed:', payload);
+        fetchData();
+      })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'trip_collaborators',
+        filter: `trip_id=eq.${tripId}`
+      }, (payload) => {
+        console.log('🔄 Trip collaborator changed:', payload);
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [isOpen, tripId]);
   
   // Send invitation
   const handleSendInvitation = async (e: React.FormEvent) => {
@@ -151,7 +237,7 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
       // Check if email is already invited
       const emailExists = [
         ...pendingInvites.map(i => i.email.toLowerCase()),
-        ...members.map(m => m.profiles.email.toLowerCase())
+        ...members.map(m => m.profiles?.email?.toLowerCase()).filter(Boolean)
       ].includes(email.toLowerCase());
       
       if (emailExists) {
@@ -247,7 +333,7 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
   const handleRemoveMember = async (memberId: string) => {
     try {
       const { error } = await supabase
-        .from('trip_members')
+        .from('trip_collaborators')
         .delete()
         .eq('id', memberId);
         
@@ -262,6 +348,7 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
           .from('trips')
           .update({ 
             type: 'solo',
+            is_group_trip: false,
             updated_at: new Date().toISOString()
           })
           .eq('id', tripId);
@@ -290,10 +377,9 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
   const handleChangeRole = async (memberId: string, newRole: string) => {
     try {
       const { error } = await supabase
-        .from('trip_members')
+        .from('trip_collaborators')
         .update({ 
-          role: newRole,
-          updated_at: new Date().toISOString()
+          role: newRole
         })
         .eq('id', memberId);
         
