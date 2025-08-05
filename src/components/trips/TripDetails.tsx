@@ -265,12 +265,18 @@ export const TripDetails = () => {
         </div>
         
         {canEdit && (
-          <Link to={`/trips/${tripId}/edit`}>
-            <Button className="flex items-center gap-2">
-              <Edit className="h-4 w-4" />
-              <span>Editar viaje</span>
-            </Button>
-          </Link>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => {
+              const event = new CustomEvent('openTripDetailModal', {
+                detail: { trip: { ...trip, id: tripId } }
+              });
+              window.dispatchEvent(event);
+            }}
+          >
+            <Edit className="h-4 w-4" />
+            <span>Editar viaje</span>
+          </Button>
         )}
       </div>
       
