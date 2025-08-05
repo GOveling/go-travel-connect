@@ -226,13 +226,14 @@ const AcceptInvitation = () => {
   };
 
   const handleAcceptInvitation = async () => {
-    if (!token) return;
+    if (!token || !invitation || !user) return;
 
     console.log('🚀 Starting invitation acceptance process:', {
       token,
       userEmail: user?.email,
       invitationEmail: invitation?.email,
-      hasSession: !!session
+      hasSession: !!session,
+      invitationId: invitation.id
     });
 
     // Validate profile before attempting to accept
@@ -246,26 +247,23 @@ const AcceptInvitation = () => {
 
     setIsAccepting(true);
     try {
-      const result = await acceptInvitation(token);
-      
-      // Handle onboarding requirement response
-      if (result && !result.success && result.requiresOnboarding) {
-        console.log('⚠️ Backend requires onboarding, showing modal');
-        setPendingInvitationToken(result.token || token);
-        setShowOnboardingModal(true);
-        return;
+      // Use the new RPC function directly
+      const { error } = await supabase.rpc('accept_trip_invitation', {
+        invitation_id: invitation.id,
+        user_id: user.id,
+        accepted_date: new Date().toISOString()
+      });
+
+      if (error) {
+        throw error;
       }
 
-      // Handle profile requirement response  
-      if (result && !result.success && result.requiresProfile) {
-        console.log('⚠️ Backend requires profile creation');
-        toast({
-          title: "Perfil requerido",
-          description: "Necesitas crear tu perfil antes de aceptar la invitación",
-          variant: "destructive",
-        });
-        return;
-      }
+      console.log('✅ Invitation accepted successfully via RPC');
+
+      // Trigger custom event to refresh trips and update UI
+      window.dispatchEvent(new CustomEvent('tripInvitationAccepted', {
+        detail: { tripId: invitation.trip_id }
+      }));
 
       toast({
         title: t("invitations.acceptedSuccessfully") || "¡Invitación aceptada!",
@@ -278,6 +276,11 @@ const AcceptInvitation = () => {
       }, 2000);
     } catch (error) {
       console.error('Error accepting invitation:', error);
+      toast({
+        title: "Error",
+        description: "Error al aceptar la invitación. Inténtalo de nuevo.",
+        variant: "destructive",
+      });
     } finally {
       setIsAccepting(false);
     }
@@ -286,14 +289,28 @@ const AcceptInvitation = () => {
   const handleOnboardingComplete = async () => {
     setShowOnboardingModal(false);
     
-    if (pendingInvitationToken) {
+    if (pendingInvitationToken && invitation && user) {
       console.log('🔄 Continuing invitation acceptance after onboarding');
       
       // Small delay to ensure profile is updated
       setTimeout(async () => {
         setIsAccepting(true);
         try {
-          await acceptInvitation(pendingInvitationToken);
+          // Use the new RPC function directly
+          const { error } = await supabase.rpc('accept_trip_invitation', {
+            invitation_id: invitation.id,
+            user_id: user.id,
+            accepted_date: new Date().toISOString()
+          });
+
+          if (error) {
+            throw error;
+          }
+          
+          // Trigger custom event to refresh trips and update UI
+          window.dispatchEvent(new CustomEvent('tripInvitationAccepted', {
+            detail: { tripId: invitation.trip_id }
+          }));
           
           toast({
             title: t("invitations.acceptedSuccessfully") || "¡Invitación aceptada!",

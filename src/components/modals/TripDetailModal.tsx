@@ -173,6 +173,49 @@ const TripDetailModal = ({
     fetchUserRole();
   }, [trip, user, isOpen]);
 
+  // Listen for trip invitation acceptance to refresh user role
+  useEffect(() => {
+    const handleTripInvitationAccepted = (event: CustomEvent) => {
+      const { tripId } = event.detail;
+      if (tripId === trip?.id && isOpen) {
+        console.log('Trip invitation accepted, refreshing user role for trip:', tripId);
+        // Refetch user role after invitation acceptance
+        if (trip && user) {
+          const fetchUpdatedRole = async () => {
+            try {
+              let role = 'viewer';
+              if (trip.user_id === user.id) {
+                role = 'owner';
+              } else {
+                const { data: memberData } = await supabase
+                  .from('trip_collaborators')
+                  .select('role')
+                  .eq('trip_id', trip.id)
+                  .eq('user_id', user.id)
+                  .single();
+                
+                if (memberData) {
+                  role = memberData.role;
+                }
+              }
+              setUserRole(role);
+              console.log('Updated user role:', role);
+            } catch (error) {
+              console.error('Error refreshing user role:', error);
+            }
+          };
+          fetchUpdatedRole();
+        }
+      }
+    };
+
+    window.addEventListener('tripInvitationAccepted', handleTripInvitationAccepted as EventListener);
+    
+    return () => {
+      window.removeEventListener('tripInvitationAccepted', handleTripInvitationAccepted as EventListener);
+    };
+  }, [trip, user, isOpen]);
+
 
   // Function to navigate to explore section
   const handleNavigateToExplore = () => {
