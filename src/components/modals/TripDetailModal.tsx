@@ -601,7 +601,7 @@ const TripDetailModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col rounded-[5px]">
           <DialogHeader className="flex-shrink-0 pb-4">
             <div className="flex items-center justify-between mb-2">
               <DialogTitle className="text-xl md:text-2xl font-bold text-gray-800 flex items-center space-x-2 md:space-x-3">
