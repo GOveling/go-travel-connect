@@ -13,23 +13,26 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Calendar, Edit, X } from "lucide-react";
 
-interface Decision {
-  id: number;
+interface TripDecision {
+  id: string;
+  trip_id: string;
   title: string;
   description?: string;
   options: string[];
-  votes: Record<string, number>;
-  votersPerOption: Record<string, string[]>;
   status: string;
-  endDate: string;
-  createdBy: string;
+  end_date?: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  selected_participants: string[];
+  votes?: any[];
 }
 
 interface DecisionCardProps {
-  decision: Decision;
-  onVote: (decisionId: number, option: string) => void;
-  onEdit: (decision: Decision) => void;
-  onDelete: (decisionId: number) => void;
+  decision: TripDecision;
+  onVote: (decisionId: string, optionIndex: number) => void;
+  onEdit: (decision: TripDecision) => void;
+  onDelete: (decisionId: string) => void;
 }
 
 const DecisionCard = ({
@@ -38,10 +41,13 @@ const DecisionCard = ({
   onEdit,
   onDelete,
 }: DecisionCardProps) => {
-  const totalVotes = Object.values(decision.votes).reduce(
-    (sum, count) => sum + count,
-    0
-  );
+  // Calculate votes from the votes array
+  const votesByOption = decision.votes?.reduce((acc: Record<string, number>, vote: any) => {
+    acc[vote.option_index] = (acc[vote.option_index] || 0) + 1;
+    return acc;
+  }, {}) || {};
+  
+  const totalVotes = decision.votes?.length || 0;
 
   return (
     <Card className="border-l-4 border-l-blue-400">
@@ -60,9 +66,9 @@ const DecisionCard = ({
               <div className="flex items-center space-x-4 text-xs text-gray-500">
                 <span className="flex items-center space-x-1">
                   <Calendar size={12} />
-                  <span>Ends: {decision.endDate}</span>
+                  <span>Ends: {decision.end_date ? new Date(decision.end_date).toLocaleDateString() : 'No end date'}</span>
                 </span>
-                <span>By: {decision.createdBy}</span>
+                <span>By: {decision.created_by}</span>
               </div>
             </div>
             <div className="flex space-x-2 flex-shrink-0">
@@ -110,25 +116,22 @@ const DecisionCard = ({
           </div>
 
           <div className="space-y-3">
-            {decision.options.map((option) => {
-              const voteCount = decision.votes[option];
-              const voters = decision.votersPerOption[option] || [];
-              const hasVoted = voters.includes("You");
-              const percentage =
-                totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+            {decision.options.map((option, index) => {
+              const voteCount = votesByOption[index] || 0;
+              const percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+              
+              // Check if current user has voted for this option
+              const hasVoted = decision.votes?.some((vote: any) => 
+                vote.option_index === index && vote.user_id === 'current-user' // Replace with actual user ID
+              ) || false;
 
               return (
-                <div key={option} className="space-y-2">
+                <div key={index} className="space-y-2">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded space-y-2 sm:space-y-0">
                     <div className="flex-1">
                       <span className="text-sm md:text-base font-medium">
                         {option}
                       </span>
-                      {voters.length > 0 && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Voted by: {voters.join(", ")}
-                        </p>
-                      )}
                     </div>
                     <div className="flex items-center justify-between sm:justify-end space-x-3">
                       <div className="text-center">
@@ -138,7 +141,7 @@ const DecisionCard = ({
                       <Button
                         size="sm"
                         variant={hasVoted ? "default" : "outline"}
-                        onClick={() => onVote(decision.id, option)}
+                        onClick={() => onVote(decision.id, index)}
                         className={`h-9 px-4 ${hasVoted ? "bg-[#EA6123] hover:bg-[#EA6123]/90" : ""}`}
                       >
                         {hasVoted ? "Voted" : "Vote"}

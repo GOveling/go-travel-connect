@@ -6,17 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Users } from "lucide-react";
 
-interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
-}
-
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string;
@@ -24,16 +15,18 @@ interface Collaborator {
 }
 
 interface ExpenseFormProps {
-  editingExpenseId: number | null;
+  editingExpenseId: string | null;
   newExpense: {
+    trip_id: string;
     description: string;
-    amount: string;
-    paidBy: string[];
-    splitBetween: string[];
+    amount: number;
+    paid_by: string[];
+    split_between: string[];
   };
   setNewExpense: (expense: any) => void;
   allParticipants: Collaborator[];
   onAddExpense: () => void;
+  onUpdateExpense: () => void;
   onCancelEdit: () => void;
 }
 
@@ -43,6 +36,7 @@ const ExpenseForm = ({
   setNewExpense,
   allParticipants,
   onAddExpense,
+  onUpdateExpense,
   onCancelEdit,
 }: ExpenseFormProps) => {
   const handleSplitBetweenChange = (
@@ -52,12 +46,12 @@ const ExpenseForm = ({
     if (checked) {
       setNewExpense({
         ...newExpense,
-        splitBetween: [...newExpense.splitBetween, participantName],
+        split_between: [...newExpense.split_between, participantName],
       });
     } else {
       setNewExpense({
         ...newExpense,
-        splitBetween: newExpense.splitBetween.filter(
+        split_between: newExpense.split_between.filter(
           (name) => name !== participantName
         ),
       });
@@ -68,30 +62,30 @@ const ExpenseForm = ({
     if (checked) {
       setNewExpense({
         ...newExpense,
-        paidBy: [...newExpense.paidBy, participantName],
+        paid_by: [...newExpense.paid_by, participantName],
       });
     } else {
       setNewExpense({
         ...newExpense,
-        paidBy: newExpense.paidBy.filter((name) => name !== participantName),
+        paid_by: newExpense.paid_by.filter((name) => name !== participantName),
       });
     }
   };
 
   const handleSelectAllPaidBy = () => {
-    const allSelected = newExpense.paidBy.length === allParticipants.length;
+    const allSelected = newExpense.paid_by.length === allParticipants.length;
     setNewExpense({
       ...newExpense,
-      paidBy: allSelected ? [] : allParticipants.map((p) => p.name),
+      paid_by: allSelected ? [] : allParticipants.map((p) => p.name),
     });
   };
 
   const handleSelectAllSplitBetween = () => {
     const allSelected =
-      newExpense.splitBetween.length === allParticipants.length;
+      newExpense.split_between.length === allParticipants.length;
     setNewExpense({
       ...newExpense,
-      splitBetween: allSelected ? [] : allParticipants.map((p) => p.name),
+      split_between: allSelected ? [] : allParticipants.map((p) => p.name),
     });
   };
 
@@ -126,9 +120,9 @@ const ExpenseForm = ({
               id="amount"
               type="number"
               placeholder="0.00"
-              value={newExpense.amount}
+              value={newExpense.amount.toString()}
               onChange={(e) =>
-                setNewExpense({ ...newExpense, amount: e.target.value })
+                setNewExpense({ ...newExpense, amount: parseFloat(e.target.value) || 0 })
               }
               className="h-12 text-base"
             />
@@ -144,7 +138,7 @@ const ExpenseForm = ({
                 className="h-7 px-2 text-xs"
               >
                 <Users size={12} className="mr-1" />
-                {newExpense.paidBy.length === allParticipants.length
+                {newExpense.paid_by.length === allParticipants.length
                   ? "Deselect All"
                   : "Select All"}
               </Button>
@@ -157,7 +151,7 @@ const ExpenseForm = ({
                 >
                   <Checkbox
                     id={`paid-${participant.id}`}
-                    checked={newExpense.paidBy.includes(participant.name)}
+                    checked={newExpense.paid_by.includes(participant.name)}
                     onCheckedChange={(checked) =>
                       handlePaidByChange(participant.name, checked as boolean)
                     }
@@ -175,9 +169,9 @@ const ExpenseForm = ({
                 </div>
               ))}
             </div>
-            {newExpense.paidBy.length > 0 && (
+            {newExpense.paid_by.length > 0 && (
               <p className="text-xs text-gray-600 mt-2">
-                Selected: {newExpense.paidBy.join(", ")}
+                Selected: {newExpense.paid_by.join(", ")}
               </p>
             )}
           </div>
@@ -192,7 +186,7 @@ const ExpenseForm = ({
                 className="h-7 px-2 text-xs"
               >
                 <Users size={12} className="mr-1" />
-                {newExpense.splitBetween.length === allParticipants.length
+                {newExpense.split_between.length === allParticipants.length
                   ? "Deselect All"
                   : "Select All"}
               </Button>
@@ -205,7 +199,7 @@ const ExpenseForm = ({
                 >
                   <Checkbox
                     id={`split-${participant.id}`}
-                    checked={newExpense.splitBetween.includes(participant.name)}
+                    checked={newExpense.split_between.includes(participant.name)}
                     onCheckedChange={(checked) =>
                       handleSplitBetweenChange(
                         participant.name,
@@ -226,15 +220,18 @@ const ExpenseForm = ({
                 </div>
               ))}
             </div>
-            {newExpense.splitBetween.length > 0 && (
+            {newExpense.split_between.length > 0 && (
               <p className="text-xs text-gray-600 mt-2">
-                Selected: {newExpense.splitBetween.join(", ")}
+                Selected: {newExpense.split_between.join(", ")}
               </p>
             )}
           </div>
         </div>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-          <Button onClick={onAddExpense} className="flex-1 h-12">
+          <Button 
+            onClick={editingExpenseId ? onUpdateExpense : onAddExpense} 
+            className="flex-1 h-12"
+          >
             {editingExpenseId ? "Update Expense" : "Add Expense"}
           </Button>
           {editingExpenseId && (

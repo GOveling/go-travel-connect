@@ -13,17 +13,20 @@ import {
   getAdjustedBalance,
 } from "./balance/BalanceCalculator";
 
-interface Expense {
-  id: number;
+interface TripExpense {
+  id: string;
+  trip_id: string;
   description: string;
   amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
+  paid_by: string[];
+  split_between: string[];
+  created_at: string;
+  updated_at: string;
+  created_by: string;
 }
 
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string;
@@ -37,7 +40,7 @@ interface PaymentRecord {
 }
 
 interface BalanceSummaryProps {
-  expenses: Expense[];
+  expenses: TripExpense[];
   allParticipants: Collaborator[];
 }
 

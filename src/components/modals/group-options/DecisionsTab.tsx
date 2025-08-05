@@ -3,24 +3,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Vote, Plus } from "lucide-react";
 import DecisionCard from "./DecisionCard";
 
-interface Decision {
-  id: number;
+interface TripDecision {
+  id: string;
+  trip_id: string;
   title: string;
   description?: string;
   options: string[];
-  votes: Record<string, number>;
-  votersPerOption: Record<string, string[]>;
   status: string;
-  endDate: string;
-  createdBy: string;
+  end_date?: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  selected_participants: string[];
+  votes?: any[];
 }
 
 interface DecisionsTabProps {
-  decisions: Decision[];
+  decisions: TripDecision[];
   onCreateDecision: () => void;
-  onVote: (decisionId: number, option: string) => void;
-  onEditDecision: (decision: Decision) => void;
-  onDeleteDecision: (decisionId: number) => void;
+  onVote: (decisionId: string, optionIndex: number) => void;
+  onEditDecision: (decision: TripDecision) => void;
+  onDeleteDecision: (decisionId: string) => void;
+  loading: boolean;
 }
 
 const DecisionsTab = ({
@@ -29,6 +33,7 @@ const DecisionsTab = ({
   onVote,
   onEditDecision,
   onDeleteDecision,
+  loading,
 }: DecisionsTabProps) => {
   const activeDecisions = decisions.filter((d) => d.status === "active");
 

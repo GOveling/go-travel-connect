@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string;
@@ -37,30 +37,29 @@ interface Collaborator {
 interface CreateDecisionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  editingDecisionId: number | null;
+  editingDecision: any | null;
   newDecision: {
+    trip_id: string;
     title: string;
-    description: string;
+    description?: string;
     options: string[];
-    startDate: string;
-    endDate: string;
-    selectedParticipants: string[];
+    end_date?: string;
+    status: string;
+    selected_participants: string[];
   };
   setNewDecision: (decision: any) => void;
   allParticipants: Collaborator[];
-  onCreateDecision: () => void;
-  onUpdateDecision: () => void;
+  onSave: (decisionData: any) => void;
 }
 
 const CreateDecisionModal = ({
   isOpen,
   onClose,
-  editingDecisionId,
+  editingDecision,
   newDecision,
   setNewDecision,
   allParticipants,
-  onCreateDecision,
-  onUpdateDecision,
+  onSave,
 }: CreateDecisionModalProps) => {
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
 
@@ -71,12 +70,12 @@ const CreateDecisionModal = ({
     if (checked) {
       setNewDecision((prev) => ({
         ...prev,
-        selectedParticipants: [...prev.selectedParticipants, participantName],
+        selected_participants: [...prev.selected_participants, participantName],
       }));
     } else {
       setNewDecision((prev) => ({
         ...prev,
-        selectedParticipants: prev.selectedParticipants.filter(
+        selected_participants: prev.selected_participants.filter(
           (name) => name !== participantName
         ),
       }));
@@ -87,53 +86,48 @@ const CreateDecisionModal = ({
     const allNames = allParticipants.map((p) => p.name);
     setNewDecision((prev) => ({
       ...prev,
-      selectedParticipants: allNames,
+      selected_participants: allNames,
     }));
   };
 
   const handleDeselectAll = () => {
     setNewDecision((prev) => ({
       ...prev,
-      selectedParticipants: [],
+      selected_participants: [],
     }));
   };
 
   const handleDateRangeChange = (
     range: { start: CalendarDate | null; end: CalendarDate | null } | null
   ) => {
-    if (range?.start && range?.end) {
-      const startDate = format(
-        new Date(range.start.year, range.start.month - 1, range.start.day),
-        "yyyy-MM-dd"
-      );
+    if (range?.end) {
       const endDate = format(
         new Date(range.end.year, range.end.month - 1, range.end.day),
         "yyyy-MM-dd"
       );
       setNewDecision((prev) => ({
         ...prev,
-        startDate,
-        endDate,
+        end_date: endDate,
       }));
       setIsDateRangeOpen(false);
     }
   };
 
   const getDateRangeValue = () => {
-    if (newDecision.startDate && newDecision.endDate) {
+    if (newDecision.end_date) {
       return {
-        start: parseDate(newDecision.startDate),
-        end: parseDate(newDecision.endDate),
+        start: parseDate(newDecision.end_date.split('T')[0]),
+        end: parseDate(newDecision.end_date.split('T')[0]),
       };
     }
     return null;
   };
 
   const formatDateRange = () => {
-    if (newDecision.startDate && newDecision.endDate) {
-      return `${format(new Date(newDecision.startDate), "dd/MM/yyyy")} - ${format(new Date(newDecision.endDate), "dd/MM/yyyy")}`;
+    if (newDecision.end_date) {
+      return format(new Date(newDecision.end_date), "dd/MM/yyyy");
     }
-    return "Seleccionar período de votación";
+    return "Seleccionar fecha límite";
   };
 
   return (
@@ -165,11 +159,11 @@ const CreateDecisionModal = ({
           <DialogTitle className="flex items-center space-x-2">
             <Vote size={20} />
             <span>
-              {editingDecisionId ? "Edit Decision" : "Create New Decision"}
+              {editingDecision ? "Edit Decision" : "Create New Decision"}
             </span>
           </DialogTitle>
           <DialogDescription>
-            {editingDecisionId
+            {editingDecision
               ? "Update the decision details below."
               : "Create a new decision for your group to vote on."}
           </DialogDescription>
@@ -228,8 +222,8 @@ const CreateDecisionModal = ({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal mt-1 h-12 text-base",
-                      (!newDecision.startDate || !newDecision.endDate) &&
-                        "text-muted-foreground"
+                       !newDecision.end_date &&
+                         "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -347,7 +341,7 @@ const CreateDecisionModal = ({
                   >
                     <Checkbox
                       id={`participant-${participant.id}`}
-                      checked={newDecision.selectedParticipants.includes(
+                      checked={newDecision.selected_participants.includes(
                         participant.name
                       )}
                       onCheckedChange={(checked) =>
@@ -377,13 +371,13 @@ const CreateDecisionModal = ({
                   </div>
                 ))}
               </div>
-              {newDecision.selectedParticipants.length > 0 && (
+              {newDecision.selected_participants.length > 0 && (
                 <p className="text-xs text-gray-600">
                   Selected participants:{" "}
-                  {newDecision.selectedParticipants.join(", ")}
+                  {newDecision.selected_participants.join(", ")}
                 </p>
               )}
-              {newDecision.selectedParticipants.length === 0 && (
+              {newDecision.selected_participants.length === 0 && (
                 <p className="text-xs text-red-500">
                   Please select at least one participant to vote on this
                   decision.
@@ -396,18 +390,17 @@ const CreateDecisionModal = ({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                editingDecisionId ? onUpdateDecision() : onCreateDecision();
+                onSave(newDecision);
               }}
               disabled={
                 !newDecision.title ||
                 newDecision.options.filter((opt) => opt.trim()).length < 2 ||
-                newDecision.selectedParticipants.length === 0 ||
-                !newDecision.startDate ||
-                !newDecision.endDate
+                newDecision.selected_participants.length === 0 ||
+                !newDecision.end_date
               }
               className="w-full h-12 text-base"
             >
-              {editingDecisionId ? "Update Decision" : "Create Decision"}
+              {editingDecision ? "Update Decision" : "Create Decision"}
             </Button>
             <Button
               variant="outline"

@@ -1,14 +1,17 @@
-interface Expense {
-  id: number;
+interface TripExpense {
+  id: string;
+  trip_id: string;
   description: string;
   amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
+  paid_by: string[];
+  split_between: string[];
+  created_at: string;
+  updated_at: string;
+  created_by: string;
 }
 
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string;
@@ -28,12 +31,12 @@ interface Settlement {
   payments: PaymentRecord[];
 }
 
-export const calculatePersonBalance = (person: string, expenses: Expense[]) => {
+export const calculatePersonBalance = (person: string, expenses: TripExpense[]) => {
   let balance = 0;
 
   expenses.forEach((expense) => {
-    const paidBy = expense.paidBy;
-    const splitBetween = expense.splitBetween;
+    const paidBy = expense.paid_by;
+    const splitBetween = expense.split_between;
 
     // Amount this person paid
     if (paidBy.includes(person)) {
@@ -51,7 +54,7 @@ export const calculatePersonBalance = (person: string, expenses: Expense[]) => {
 
 // Calculate global settlements that are consistent for all users
 export const calculateGlobalSettlements = (
-  expenses: Expense[],
+  expenses: TripExpense[],
   allParticipants: Collaborator[],
   paymentHistory: Record<string, PaymentRecord[]>
 ): Settlement[] => {
@@ -123,7 +126,7 @@ export const calculateGlobalSettlements = (
 
 export const calculateSettlements = (
   person: string,
-  expenses: Expense[],
+  expenses: TripExpense[],
   allParticipants: Collaborator[],
   paymentHistory: Record<string, PaymentRecord[]>
 ): Settlement[] => {
@@ -142,7 +145,7 @@ export const calculateSettlements = (
 
 export const getAdjustedBalance = (
   person: string,
-  expenses: Expense[],
+  expenses: TripExpense[],
   paymentHistory: Record<string, PaymentRecord[]>
 ) => {
   const originalBalance = calculatePersonBalance(person, expenses);

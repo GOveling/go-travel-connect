@@ -363,7 +363,7 @@ export const useSupabaseTrips = () => {
     fetchTrips();
   }, [user]);
 
-  // Listen for invitation acceptance events to refresh trips
+  // Listen for invitation acceptance events and real-time collaborator changes
   useEffect(() => {
     const handleInvitationAccepted = () => {
       console.log('Trip invitation accepted, refreshing trips...');
@@ -372,8 +372,40 @@ export const useSupabaseTrips = () => {
 
     window.addEventListener('tripInvitationAccepted', handleInvitationAccepted);
     
+    // Set up real-time subscription for trip collaborators
+    const collaboratorsChannel = supabase
+      .channel('trip-collaborators-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'trip_collaborators'
+        },
+        (payload) => {
+          console.log('Trip collaborators changed:', payload);
+          fetchTrips();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'trips'
+        },
+        (payload) => {
+          console.log('Trip updated:', payload);
+          if (payload.new && (payload.new as any).is_group_trip !== (payload.old as any)?.is_group_trip) {
+            fetchTrips();
+          }
+        }
+      )
+      .subscribe();
+    
     return () => {
       window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
+      supabase.removeChannel(collaboratorsChannel);
     };
   }, []);
 

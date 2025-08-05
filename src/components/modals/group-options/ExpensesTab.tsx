@@ -23,17 +23,20 @@ import { Edit, X } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
 import BalanceSummary from "./BalanceSummary";
 
-interface Expense {
-  id: number;
+interface TripExpense {
+  id: string;
+  trip_id: string;
   description: string;
   amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
+  paid_by: string[];
+  split_between: string[];
+  created_at: string;
+  updated_at: string;
+  created_by: string;
 }
 
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string;
@@ -41,20 +44,23 @@ interface Collaborator {
 }
 
 interface ExpensesTabProps {
-  expenses: Expense[];
-  editingExpenseId: number | null;
+  expenses: TripExpense[];
+  editingExpenseId: string | null;
   newExpense: {
+    trip_id: string;
     description: string;
-    amount: string;
-    paidBy: string[];
-    splitBetween: string[];
+    amount: number;
+    paid_by: string[];
+    split_between: string[];
   };
   setNewExpense: (expense: any) => void;
   allParticipants: Collaborator[];
   onAddExpense: () => void;
-  onEditExpense: (expense: Expense) => void;
-  onDeleteExpense: (expenseId: number) => void;
+  onUpdateExpense: () => void;
+  onEditExpense: (expense: TripExpense) => void;
+  onDeleteExpense: (expenseId: string) => void;
   onCancelEdit: () => void;
+  loading: boolean;
 }
 
 const ExpensesTab = ({
@@ -64,9 +70,11 @@ const ExpensesTab = ({
   setNewExpense,
   allParticipants,
   onAddExpense,
+  onUpdateExpense,
   onEditExpense,
   onDeleteExpense,
   onCancelEdit,
+  loading,
 }: ExpensesTabProps) => {
   const getTotalExpenses = () => {
     return expenses.reduce((total, expense) => total + expense.amount, 0);
@@ -99,12 +107,12 @@ const ExpensesTab = ({
                     <div className="text-xs text-gray-600 space-y-1">
                       <div>
                         Paid by:{" "}
-                        {Array.isArray(expense.paidBy)
-                          ? expense.paidBy.join(", ")
-                          : expense.paidBy}
+                        {Array.isArray(expense.paid_by)
+                          ? expense.paid_by.join(", ")
+                          : expense.paid_by}
                       </div>
-                      <div>Split: {expense.splitBetween.join(", ")}</div>
-                      <div>Date: {expense.date}</div>
+                      <div>Split: {expense.split_between.join(", ")}</div>
+                      <div>Date: {new Date(expense.created_at).toLocaleDateString()}</div>
                     </div>
                     <div className="flex space-x-2 pt-2">
                       <Button
@@ -188,12 +196,12 @@ const ExpensesTab = ({
                     <TableCell>{expense.description}</TableCell>
                     <TableCell>${expense.amount.toFixed(2)}</TableCell>
                     <TableCell>
-                      {Array.isArray(expense.paidBy)
-                        ? expense.paidBy.join(", ")
-                        : expense.paidBy}
+                      {Array.isArray(expense.paid_by)
+                        ? expense.paid_by.join(", ")
+                        : expense.paid_by}
                     </TableCell>
-                    <TableCell>{expense.splitBetween.join(", ")}</TableCell>
-                    <TableCell>{expense.date}</TableCell>
+                    <TableCell>{expense.split_between.join(", ")}</TableCell>
+                    <TableCell>{new Date(expense.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button
@@ -252,6 +260,7 @@ const ExpensesTab = ({
         setNewExpense={setNewExpense}
         allParticipants={allParticipants}
         onAddExpense={onAddExpense}
+        onUpdateExpense={onUpdateExpense}
         onCancelEdit={onCancelEdit}
       />
 
