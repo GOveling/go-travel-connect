@@ -754,15 +754,6 @@ const TripDetailModal = ({
                       </div>
                     )}
                     
-                    <div className="flex items-start space-x-3">
-                      <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="font-medium">Travelers</p>
-                        <p className="text-sm text-muted-foreground">
-                          {getTravelerCount()} {getTravelerCount() === 1 ? 'traveler' : 'travelers'}
-                        </p>
-                      </div>
-                    </div>
                     
                     {trip.budget && (
                       <div className="flex items-start space-x-3">
