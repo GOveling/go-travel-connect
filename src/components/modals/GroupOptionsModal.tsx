@@ -1,22 +1,16 @@
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Vote } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ExpensesTab from "./group-options/ExpensesTab";
 import DecisionsTab from "./group-options/DecisionsTab";
 import CreateDecisionModal from "./group-options/CreateDecisionModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useSupabaseTripExpenses, type TripExpense } from "@/hooks/useSupabaseTripExpenses";
+import { useSupabaseTripDecisions, type TripDecision } from "@/hooks/useSupabaseTripDecisions";
 
 interface GroupOptionsModalProps {
   isOpen: boolean;
@@ -24,207 +18,78 @@ interface GroupOptionsModalProps {
   trip: any;
 }
 
-interface Expense {
-  id: number;
-  description: string;
-  amount: number;
-  paidBy: string[];
-  splitBetween: string[];
-  date: string;
-}
-
-interface Decision {
-  id: number;
-  title: string;
-  description?: string;
-  options: string[];
-  votes: Record<string, number>;
-  votersPerOption: Record<string, string[]>;
-  status: string;
-  startDate: string;
-  endDate: string;
-  createdBy: string;
-}
-
 interface Collaborator {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string;
   role: string;
 }
 
-const GroupOptionsModal = ({
-  isOpen,
-  onClose,
-  trip,
-}: GroupOptionsModalProps) => {
+const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("expenses");
-  const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
-  const [editingDecisionId, setEditingDecisionId] = useState<number | null>(
-    null
-  );
-  const [showCreateDecisionModal, setShowCreateDecisionModal] = useState(false);
-
-  // Get trip-specific mock data based on trip ID
-  const getTripSpecificExpenses = () => {
-    if (!trip) return [];
-
-    switch (trip.id) {
-      case 1: // European Adventure
-        return [
-          {
-            id: 1,
-            description: "Hotel Booking Paris",
-            amount: 450,
-            paidBy: ["Alice Johnson"],
-            splitBetween: ["Alice Johnson", "Bob Smith", "Carol Davis"],
-            date: "2024-12-10",
-          },
-          {
-            id: 2,
-            description: "Flight Tickets",
-            amount: 850,
-            paidBy: ["You"],
-            splitBetween: ["Alice Johnson", "Bob Smith", "You"],
-            date: "2024-12-08",
-          },
-        ];
-      case 3: // Bali Retreat
-        return [
-          {
-            id: 1,
-            description: "Beach Resort Booking",
-            amount: 320,
-            paidBy: ["Emma Wilson"],
-            splitBetween: ["Emma Wilson", "David Brown", "You"],
-            date: "2024-11-15",
-          },
-          {
-            id: 2,
-            description: "Yoga Classes",
-            amount: 180,
-            paidBy: ["You"],
-            splitBetween: ["Emma Wilson", "David Brown", "You"],
-            date: "2024-11-18",
-          },
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const getTripSpecificDecisions = () => {
-    if (!trip) return [];
-
-    switch (trip.id) {
-      case 1: // European Adventure
-        return [
-          {
-            id: 1,
-            title: "Restaurant Choice for Day 1 in Paris",
-            description:
-              "Where should we have dinner on our first day in Paris?",
-            options: ["Le Bernardin", "Eleven Madison Park", "Per Se"],
-            votes: { "Le Bernardin": 2, "Eleven Madison Park": 1, "Per Se": 0 },
-            votersPerOption: {
-              "Le Bernardin": ["Alice Johnson", "Bob Smith"],
-              "Eleven Madison Park": ["Carol Davis"],
-              "Per Se": [],
-            },
-            status: "active",
-            startDate: "2024-12-20",
-            endDate: "2024-12-20",
-            createdBy: "Alice Johnson",
-          },
-          {
-            id: 2,
-            title: "Transportation in Rome",
-            description: "How should we get around Rome?",
-            options: ["Metro Pass", "Taxi Services", "Walking Tours"],
-            votes: { "Metro Pass": 2, "Taxi Services": 0, "Walking Tours": 1 },
-            votersPerOption: {
-              "Metro Pass": ["Alice Johnson", "You"],
-              "Taxi Services": [],
-              "Walking Tours": ["Bob Smith"],
-            },
-            status: "active",
-            startDate: "2024-12-21",
-            endDate: "2024-12-21",
-            createdBy: "Bob Smith",
-          },
-        ];
-      case 3: // Bali Retreat
-        return [
-          {
-            id: 1,
-            title: "Morning Activity Choice",
-            description: "What should we do for our morning activities?",
-            options: ["Beach Yoga", "Temple Visit", "Cooking Class"],
-            votes: { "Beach Yoga": 2, "Temple Visit": 1, "Cooking Class": 0 },
-            votersPerOption: {
-              "Beach Yoga": ["Emma Wilson", "You"],
-              "Temple Visit": ["David Brown"],
-              "Cooking Class": [],
-            },
-            status: "active",
-            startDate: "2024-11-25",
-            endDate: "2024-11-25",
-            createdBy: "Emma Wilson",
-          },
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const [expenses, setExpenses] = useState<Expense[]>(
-    getTripSpecificExpenses()
-  );
-  const [decisions, setDecisions] = useState<Decision[]>(
-    getTripSpecificDecisions()
-  );
-
-  const [newExpense, setNewExpense] = useState({
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
+  const [newExpense, setNewExpense] = useState<Omit<TripExpense, "id" | "created_at" | "updated_at" | "created_by">>({
+    trip_id: trip?.id || "",
     description: "",
-    amount: "",
-    paidBy: [] as string[],
-    splitBetween: [] as string[],
+    amount: 0,
+    paid_by: [],
+    split_between: [],
   });
 
-  const [newDecision, setNewDecision] = useState({
+  // Use Supabase hooks for data management
+  const { expenses, loading: expensesLoading, createExpense, updateExpense, deleteExpense } = useSupabaseTripExpenses(trip?.id || "");
+  const { decisions, loading: decisionsLoading, createDecision, updateDecision, deleteDecision, vote } = useSupabaseTripDecisions(trip?.id || "");
+
+  // Create decision modal state
+  const [isCreateDecisionModalOpen, setIsCreateDecisionModalOpen] = useState(false);
+  const [editingDecision, setEditingDecision] = useState<TripDecision | null>(null);
+  const [newDecision, setNewDecision] = useState<Omit<TripDecision, "id" | "created_at" | "updated_at" | "created_by" | "votes">>({
+    trip_id: trip?.id || "",
     title: "",
     description: "",
-    options: ["", ""],
-    startDate: "",
-    endDate: "",
-    selectedParticipants: [] as string[],
+    options: [""],
+    end_date: "",
+    status: "active",
+    selected_participants: [],
   });
 
-  // Use actual trip collaborators and add current user
-  const collaborators: Collaborator[] = trip?.collaborators || [];
-
-  // Add current user to the list of all participants for expenses
+  // Get all participants (trip owner + collaborators)
   const allParticipants = [
     {
-      id: 0,
-      name: "You",
-      email: "you@example.com",
-      avatar: "Y",
+      id: user?.id || "current-user",
+      name: user?.user_metadata?.full_name || "You",
+      email: user?.email || "you@example.com",
+      avatar: user?.user_metadata?.avatar_url || "",
       role: "owner",
     },
-    ...collaborators.map((collaborator: any) => ({
-      id: collaborator.id,
-      name: collaborator.name,
+    ...(trip?.collaborators || []).map((collaborator: any) => ({
+      id: collaborator.user_id || collaborator.id,
+      name: collaborator.name || collaborator.full_name,
       email: collaborator.email,
-      avatar: collaborator.avatar,
+      avatar: collaborator.avatar || "",
       role: collaborator.role,
     })),
   ];
 
+  // Reset new expense when trip changes
+  useEffect(() => {
+    if (trip?.id) {
+      setNewExpense(prev => ({
+        ...prev,
+        trip_id: trip.id,
+      }));
+      setNewDecision(prev => ({
+        ...prev,
+        trip_id: trip.id,
+      }));
+    }
+  }, [trip?.id]);
+
   // Show message if no collaborators are available
-  if (!trip?.isGroupTrip || allParticipants.length <= 1) {
+  if (!trip?.is_group_trip || allParticipants.length <= 1) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
@@ -246,228 +111,148 @@ const GroupOptionsModal = ({
     );
   }
 
-  const handleAddExpense = () => {
-    if (
-      newExpense.description &&
-      newExpense.amount &&
-      newExpense.paidBy.length > 0
-    ) {
-      if (editingExpenseId) {
-        // Update existing expense
-        setExpenses(
-          expenses.map((expense) =>
-            expense.id === editingExpenseId
-              ? {
-                  ...expense,
-                  description: newExpense.description,
-                  amount: parseFloat(newExpense.amount),
-                  paidBy: newExpense.paidBy,
-                  splitBetween:
-                    newExpense.splitBetween.length > 0
-                      ? newExpense.splitBetween
-                      : newExpense.paidBy,
-                }
-              : expense
-          )
-        );
-        setEditingExpenseId(null);
-      } else {
-        // Add new expense
-        const expense: Expense = {
-          id: expenses.length + 1,
-          description: newExpense.description,
-          amount: parseFloat(newExpense.amount),
-          paidBy: newExpense.paidBy,
-          splitBetween:
-            newExpense.splitBetween.length > 0
-              ? newExpense.splitBetween
-              : newExpense.paidBy,
-          date: new Date().toISOString().split("T")[0],
-        };
-        setExpenses([...expenses, expense]);
-      }
+  const handleAddExpense = async () => {
+    if (!newExpense.description || newExpense.amount <= 0) return;
+    
+    try {
+      await createExpense(newExpense);
       setNewExpense({
+        trip_id: trip?.id || "",
         description: "",
-        amount: "",
-        paidBy: [],
-        splitBetween: [],
+        amount: 0,
+        paid_by: [],
+        split_between: [],
       });
+    } catch (error) {
+      console.error("Error adding expense:", error);
     }
   };
 
-  const handleEditExpense = (expense: Expense) => {
-    setNewExpense({
-      description: expense.description,
-      amount: expense.amount.toString(),
-      paidBy: expense.paidBy,
-      splitBetween: expense.splitBetween,
-    });
+  const handleEditExpense = (expense: TripExpense) => {
     setEditingExpenseId(expense.id);
+    setNewExpense({
+      trip_id: expense.trip_id,
+      description: expense.description,
+      amount: expense.amount,
+      paid_by: expense.paid_by,
+      split_between: expense.split_between,
+    });
   };
 
-  const handleDeleteExpense = (expenseId: number) => {
-    setExpenses(expenses.filter((expense) => expense.id !== expenseId));
+  const handleUpdateExpense = async () => {
+    if (!editingExpenseId || !newExpense.description || newExpense.amount <= 0) return;
+
+    try {
+      await updateExpense(editingExpenseId, newExpense);
+      setEditingExpenseId(null);
+      setNewExpense({
+        trip_id: trip?.id || "",
+        description: "",
+        amount: 0,
+        paid_by: [],
+        split_between: [],
+      });
+    } catch (error) {
+      console.error("Error updating expense:", error);
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    try {
+      await deleteExpense(expenseId);
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingExpenseId(null);
     setNewExpense({
+      trip_id: trip?.id || "",
       description: "",
-      amount: "",
-      paidBy: [],
-      splitBetween: [],
+      amount: 0,
+      paid_by: [],
+      split_between: [],
     });
   };
 
+  // Decision management functions
   const handleCreateDecision = () => {
-    if (
-      newDecision.title &&
-      newDecision.options.filter((opt) => opt.trim()).length >= 2 &&
-      newDecision.selectedParticipants.length > 0
-    ) {
-      const validOptions = newDecision.options.filter((opt) => opt.trim());
-      const initialVotes: Record<string, number> = {};
-      const initialVotersPerOption: Record<string, string[]> = {};
-      validOptions.forEach((option) => {
-        initialVotes[option] = 0;
-        initialVotersPerOption[option] = [];
-      });
-
-      const decision: Decision = {
-        id: decisions.length + 1,
-        title: newDecision.title,
-        description: newDecision.description,
-        options: validOptions,
-        votes: initialVotes,
-        votersPerOption: initialVotersPerOption,
-        status: "active",
-        startDate:
-          newDecision.startDate ||
-          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
-        endDate:
-          newDecision.endDate ||
-          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
-        createdBy: "You",
-      };
-      setDecisions([...decisions, decision]);
-      setNewDecision({
-        title: "",
-        description: "",
-        options: ["", ""],
-        startDate: "",
-        endDate: "",
-        selectedParticipants: [],
-      });
-      setShowCreateDecisionModal(false);
-    }
+    setEditingDecision(null);
+    setNewDecision({
+      trip_id: trip?.id || "",
+      title: "",
+      description: "",
+      options: [""],
+      end_date: "",
+      status: "active",
+      selected_participants: [],
+    });
+    setIsCreateDecisionModalOpen(true);
   };
 
-  const handleEditDecision = (decision: Decision) => {
+  const handleEditDecision = (decision: TripDecision) => {
+    setEditingDecision(decision);
     setNewDecision({
+      trip_id: decision.trip_id,
       title: decision.title,
       description: decision.description || "",
       options: decision.options,
-      startDate: decision.startDate,
-      endDate: decision.endDate,
-      selectedParticipants: allParticipants.map((p) => p.name), // Default to all participants for existing decisions
+      end_date: decision.end_date || "",
+      status: decision.status,
+      selected_participants: decision.selected_participants,
     });
-    setEditingDecisionId(decision.id);
-    setShowCreateDecisionModal(true);
+    setIsCreateDecisionModalOpen(true);
   };
 
-  const handleUpdateDecision = () => {
-    if (
-      editingDecisionId &&
-      newDecision.title &&
-      newDecision.options.filter((opt) => opt.trim()).length >= 2 &&
-      newDecision.selectedParticipants.length > 0
-    ) {
-      const validOptions = newDecision.options.filter((opt) => opt.trim());
+  const handleUpdateDecision = async (decisionData: Omit<TripDecision, "id" | "created_at" | "updated_at" | "created_by" | "votes">) => {
+    try {
+      if (editingDecision) {
+        // Update existing decision
+        await updateDecision(editingDecision.id, decisionData);
+      } else {
+        // Create new decision
+        await createDecision(decisionData);
+      }
 
-      setDecisions(
-        decisions.map((decision) =>
-          decision.id === editingDecisionId
-            ? {
-                ...decision,
-                title: newDecision.title,
-                description: newDecision.description,
-                options: validOptions,
-                startDate: newDecision.startDate,
-                endDate: newDecision.endDate,
-              }
-            : decision
-        )
-      );
-      setNewDecision({
-        title: "",
-        description: "",
-        options: ["", ""],
-        startDate: "",
-        endDate: "",
-        selectedParticipants: [],
-      });
-      setEditingDecisionId(null);
-      setShowCreateDecisionModal(false);
+      setIsCreateDecisionModalOpen(false);
+      resetCreateDecisionForm();
+    } catch (error) {
+      console.error("Error saving decision:", error);
     }
   };
 
-  const handleDeleteDecision = (decisionId: number) => {
-    setDecisions(decisions.filter((decision) => decision.id !== decisionId));
+  const handleDeleteDecision = async (decisionId: string) => {
+    try {
+      await deleteDecision(decisionId);
+    } catch (error) {
+      console.error("Error deleting decision:", error);
+    }
   };
 
-  const handleVote = (decisionId: number, option: string) => {
-    const currentUser = "You";
-
-    setDecisions(
-      decisions.map((decision) => {
-        if (decision.id === decisionId) {
-          const newVotersPerOption = { ...decision.votersPerOption };
-          const newVotes = { ...decision.votes };
-
-          // Remove user's previous vote if any
-          Object.keys(newVotersPerOption).forEach((opt) => {
-            const index = newVotersPerOption[opt].indexOf(currentUser);
-            if (index > -1) {
-              newVotersPerOption[opt].splice(index, 1);
-              newVotes[opt]--;
-            }
-          });
-
-          // Add new vote
-          if (!newVotersPerOption[option].includes(currentUser)) {
-            newVotersPerOption[option].push(currentUser);
-            newVotes[option]++;
-          }
-
-          return {
-            ...decision,
-            votes: newVotes,
-            votersPerOption: newVotersPerOption,
-          };
-        }
-        return decision;
-      })
-    );
+  const handleVote = async (decisionId: string, optionIndex: number) => {
+    try {
+      await vote(decisionId, optionIndex);
+    } catch (error) {
+      console.error("Error voting:", error);
+    }
   };
 
   const resetCreateDecisionForm = () => {
     setNewDecision({
+      trip_id: trip?.id || "",
       title: "",
       description: "",
-      options: ["", ""],
-      startDate: "",
-      endDate: "",
-      selectedParticipants: [],
+      options: [""],
+      end_date: "",
+      status: "active",
+      selected_participants: [],
     });
-    setEditingDecisionId(null);
+    setEditingDecision(null);
   };
 
   const handleCloseCreateDecisionModal = () => {
-    setShowCreateDecisionModal(false);
+    setIsCreateDecisionModalOpen(false);
     resetCreateDecisionForm();
   };
 
@@ -494,73 +279,52 @@ const GroupOptionsModal = ({
             </ModalTitle>
           </ModalHeader>
 
-          {/* Tab Navigation - Mobile Optimized */}
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-4 md:mb-6 flex-shrink-0">
-            <Button
-              variant={activeTab === "expenses" ? "default" : "ghost"}
-              className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${
-                activeTab === "expenses"
-                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm"
-                  : "text-black hover:text-black"
-              }`}
-              onClick={() => setActiveTab("expenses")}
-            >
-              <DollarSign size={16} className="mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Split Costs</span>
-              <span className="sm:hidden">Costs</span>
-            </Button>
-            <Button
-              variant={activeTab === "decisions" ? "default" : "ghost"}
-              className={`flex-1 min-h-[48px] text-xs md:text-sm px-2 md:px-4 ${
-                activeTab === "decisions"
-                  ? "bg-[#EA6123] text-white hover:bg-[#EA6123] shadow-sm"
-                  : "text-black hover:text-black"
-              }`}
-              onClick={() => setActiveTab("decisions")}
-            >
-              <Vote size={16} className="mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Group Decisions</span>
-              <span className="sm:hidden">Decisions</span>
-            </Button>
-          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
+              <TabsTrigger value="expenses">Split Costs</TabsTrigger>
+              <TabsTrigger value="decisions">Group Decisions</TabsTrigger>
+            </TabsList>
 
-          <div className="flex-1 overflow-y-auto">
-            {activeTab === "expenses" && (
-              <ExpensesTab
-                expenses={expenses}
-                editingExpenseId={editingExpenseId}
-                newExpense={newExpense}
-                setNewExpense={setNewExpense}
-                allParticipants={allParticipants}
-                onAddExpense={handleAddExpense}
-                onEditExpense={handleEditExpense}
-                onDeleteExpense={handleDeleteExpense}
-                onCancelEdit={handleCancelEdit}
-              />
-            )}
+            <div className="flex-1 overflow-hidden">
+              <TabsContent value="expenses" className="h-full overflow-y-auto">
+                <ExpensesTab
+                  expenses={expenses}
+                  editingExpenseId={editingExpenseId}
+                  newExpense={newExpense}
+                  setNewExpense={setNewExpense}
+                  allParticipants={allParticipants}
+                  onAddExpense={handleAddExpense}
+                  onUpdateExpense={handleUpdateExpense}
+                  onEditExpense={handleEditExpense}
+                  onDeleteExpense={handleDeleteExpense}
+                  onCancelEdit={handleCancelEdit}
+                  loading={expensesLoading}
+                />
+              </TabsContent>
 
-            {activeTab === "decisions" && (
-              <DecisionsTab
-                decisions={decisions}
-                onCreateDecision={() => setShowCreateDecisionModal(true)}
-                onVote={handleVote}
-                onEditDecision={handleEditDecision}
-                onDeleteDecision={handleDeleteDecision}
-              />
-            )}
-          </div>
+              <TabsContent value="decisions" className="h-full overflow-y-auto">
+                <DecisionsTab
+                  decisions={decisions}
+                  onCreateDecision={handleCreateDecision}
+                  onVote={handleVote}
+                  onEditDecision={handleEditDecision}
+                  onDeleteDecision={handleDeleteDecision}
+                  loading={decisionsLoading}
+                />
+              </TabsContent>
+            </div>
+          </Tabs>
         </ModalContent>
       </ModalWrapper>
 
       <CreateDecisionModal
-        isOpen={showCreateDecisionModal}
+        isOpen={isCreateDecisionModalOpen}
         onClose={handleCloseCreateDecisionModal}
-        editingDecisionId={editingDecisionId}
+        onSave={handleUpdateDecision}
         newDecision={newDecision}
         setNewDecision={setNewDecision}
+        editingDecision={editingDecision}
         allParticipants={allParticipants}
-        onCreateDecision={handleCreateDecision}
-        onUpdateDecision={handleUpdateDecision}
       />
     </>
   );
