@@ -35,146 +35,55 @@ export const ActiveInvitations = ({
     
     setProcessing(token);
     try {
-      console.log('Accepting invitation', { token, userEmail: user.email });
+      console.log('🚀 Accepting invitation with v3 RPC:', token.substring(0, 10) + '...');
 
-      // PASO 1: Verificar que la invitación existe y corresponde al usuario
-      const { data: basicInvitation, error: basicError } = await supabase
-        .from('trip_invitations')
-        .select('id, trip_id, role, email, status, expires_at')
-        .eq('token', token)
-        .single();
-
-      console.log('Basic invitation data:', basicInvitation);
-      console.log('Basic fetch error:', basicError);
-
-      // Validar si la invitación existe
-      if (basicError || !basicInvitation) {
-        console.error('No invitation found with token:', token);
-        throw new Error('No se encontró la invitación');
-      }
-
-      // Validaciones de estado y email
-      if (basicInvitation.status !== 'pending') {
-        throw new Error('La invitación ya fue respondida');
-      }
-
-      // Verificar que no haya expirado
-      if (new Date(basicInvitation.expires_at) < new Date()) {
-        throw new Error('La invitación ha expirado');
-      }
-
-      if (basicInvitation.email?.toLowerCase() !== user.email?.toLowerCase()) {
-        throw new Error('Esta invitación no corresponde a tu cuenta');
-      }
-
-      // PASO 2: Actualizar el estado de la invitación
-      const { error: updateError } = await supabase
-        .from('trip_invitations')
-        .update({ 
-          status: 'accepted',
-          accepted_at: new Date().toISOString(),
-          accepted_by: user.id
-        })
-        .eq('id', basicInvitation.id);
-
-      if (updateError) {
-        console.error('Error updating invitation:', updateError);
-        throw new Error('Error al actualizar la invitación');
-      }
-
-      // PASO 4: Verificar si el usuario ya es colaborador para evitar duplicados
-      const { data: existingCollaborator } = await supabase
-        .from('trip_collaborators')
-        .select('id')
-        .eq('trip_id', basicInvitation.trip_id)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      // Solo agregar si no es colaborador
-      if (!existingCollaborator) {
-        // Obtener el nombre del perfil del usuario
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', user.id)
-          .single();
-
-        // Agregar el usuario como colaborador del trip
-        const { error: collaboratorError } = await supabase
-          .from('trip_collaborators')
-          .insert({
-            trip_id: basicInvitation.trip_id,
-            user_id: user.id,
-            role: basicInvitation.role,
-            email: user.email,
-            name: profile?.full_name || user.email || 'Usuario'
-          });
-
-        if (collaboratorError) {
-          console.error('Error adding collaborator:', collaboratorError);
-          throw new Error('Error al agregarte como colaborador');
-        }
-      }
-
-      // PASO 4: CRÍTICO - Actualizar el tipo de viaje a "group" - ASEGURAR QUE ESTO SE EJECUTE
-      const { error: typeUpdateError } = await supabase
-        .from('trips')
-        .update({ 
-          type: 'group',
-          is_group_trip: true // Mantener ambos campos por compatibilidad
-        })
-        .eq('id', basicInvitation.trip_id);
-
-      if (typeUpdateError) {
-        console.error('Error updating trip type:', typeUpdateError);
-        // Log detallado del error pero no interrumpir el flujo
-        console.error('Trip ID:', basicInvitation.trip_id);
-        console.error('Error details:', typeUpdateError);
-      } else {
-        console.log('✅ Trip type successfully updated to "group" for trip:', basicInvitation.trip_id);
-      }
-
-      // PASO 5: Obtener información del viaje para la redirección
-      const { data: tripData } = await supabase
-        .from('trips')
-        .select('name')
-        .eq('id', basicInvitation.trip_id)
-        .single();
-
-      // PASO 6: Configurar permisos de acceso (si existe la función RPC)
-      try {
-        const { error: accessError } = await supabase.rpc('grant_trip_member_access', {
-          p_trip_id: basicInvitation.trip_id,
-          p_user_id: user.id
+      // Use the atomic RPC function for safe transaction processing
+      const { data: result, error: rpcError } = await supabase
+        .rpc('accept_trip_invitation_v3', {
+          p_token: token
         });
 
-        if (accessError) {
-          console.error('Error granting access:', accessError);
-          // No lanzar error aquí porque la invitación ya fue aceptada
-        }
-      } catch (rpcError) {
-        // Si la función RPC no existe, solo logueamos el error pero continuamos
-        console.warn('RPC function not available:', rpcError);
+      console.log('✅ RPC Result:', result);
+
+      if (rpcError) {
+        console.error('❌ Error RPC:', rpcError);
+        throw new Error('Error al procesar la invitación');
       }
 
-      // Éxito
-      toast({
-        title: "¡Te has unido al viaje!",
-        description: `Ahora eres colaborador de "${tripData?.name || tripName}"`,
-      });
+      // Type assertion for RPC result
+      const typedResult = result as { success: boolean; error?: string; trip_id?: string; trip_name?: string; role?: string } | null;
 
-      if (onAccepted) onAccepted(basicInvitation.trip_id);
+      if (!typedResult || !typedResult.success) {
+        const errorMessage = typedResult?.error || 'Error desconocido al aceptar la invitación';
+        throw new Error(errorMessage);
+      }
+
+      console.log('✅ Invitation accepted successfully');
       
-      // Forzar refresco de datos para actualizar la UI
-      window.dispatchEvent(new CustomEvent('tripDataRefresh', { 
-        detail: { tripId: basicInvitation.trip_id } 
+      // Trigger events to update the UI
+      window.dispatchEvent(new CustomEvent('tripInvitationAccepted', {
+        detail: { 
+          tripId: typedResult.trip_id,
+          role: typedResult.role 
+        }
       }));
       
-      // Redireccionar al usuario al viaje
+      window.dispatchEvent(new CustomEvent('refreshManageTeam', {
+        detail: { tripId: typedResult.trip_id }
+      }));
+
+      toast({
+        title: "¡Te has unido al viaje!",
+        description: `Ahora eres colaborador de "${typedResult.trip_name}"`,
+      });
+
+      if (onAccepted) onAccepted(typedResult.trip_id!);
+      
+      // Redirect to trips tab
       navigate(`/?tab=trips`);
 
     } catch (error: any) {
-      console.error('Error accepting invitation:', error);
+      console.error('❌ Error accepting invitation:', error);
       toast({
         title: "Error al aceptar invitación",
         description: error.message || "Ha ocurrido un error inesperado",

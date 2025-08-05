@@ -248,9 +248,8 @@ const AcceptInvitation = () => {
     setIsAccepting(true);
     try {
       // Use the atomic RPC function for safe transaction processing
-      const { data, error } = await supabase.rpc('accept_trip_invitation', {
-        p_token: token,
-        p_user_id: user.id
+      const { data, error } = await supabase.rpc('accept_trip_invitation_v3', {
+        p_token: token
       }) as { data: { success: boolean; message?: string; trip_id?: string; role?: string } | null; error: any };
 
       if (error) {
@@ -305,9 +304,8 @@ const AcceptInvitation = () => {
         setIsAccepting(true);
         try {
           // Use the atomic RPC function for safe transaction processing
-          const { data, error } = await supabase.rpc('accept_trip_invitation', {
-            p_token: token,
-            p_user_id: user.id
+          const { data, error } = await supabase.rpc('accept_trip_invitation_v3', {
+            p_token: token
           }) as { data: { success: boolean; message?: string; trip_id?: string; role?: string } | null; error: any };
 
           if (error) {
