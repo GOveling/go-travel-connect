@@ -1,4 +1,4 @@
-import { BottomNavigation } from "@/components/navigation/BottomNavigation";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
 import BookingSection from "@/components/sections/BookingSection";
 import ExploreSection from "@/components/sections/ExploreSection";
 import HomeSection from "@/components/sections/HomeSection";
@@ -61,8 +61,8 @@ const Index = ({ onSignOut }: IndexProps) => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {renderContent()}
       <BottomNavigation
-        activeSection={activeSection}
-        onChangeSection={setActiveSection}
+        activeTab={activeSection}
+        setActiveTab={setActiveSection}
       />
     </div>
   );

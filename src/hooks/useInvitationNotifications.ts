@@ -96,21 +96,16 @@ export const useInvitationNotifications = () => {
     });
   }, [toast]);
 
-  const setupInvitationListener = useCallback((userId: string, userEmail: string) => {
-    // Create a unique channel name with timestamp to avoid conflicts
-    const channelName = `invitation-notifications-${userId}-${Date.now()}`;
-    console.log('🔌 Setting up invitation listener with channel:', channelName);
-    
+  const setupInvitationListener = useCallback((userId: string) => {
     const channel = supabase
-      .channel(channelName)
+      .channel(`invitation-notifications-${userId}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'trip_invitations',
-        filter: `email=eq.${userEmail}`
+        filter: `email=eq.${user?.email || ''}`
       }, async (payload) => {
-        console.log('📨 New invitation INSERT detected:', payload.new);
-        if (payload.new.email === userEmail) {
+        if (payload.new.email === user?.email) {
           const { data: invitationData } = await supabase
             .from('trip_invitations')
             .select('*')
@@ -155,10 +150,7 @@ export const useInvitationNotifications = () => {
             
             // Solo mostrar toast para invitaciones pending
             if (invitationData.status === 'pending') {
-              toast({
-                title: "Nueva invitación de viaje",
-                description: `${newInvitation.inviter_name} te ha invitado a "${newInvitation.trip_name}"`,
-              });
+              showInvitationToast(newInvitation);
             }
           }
         }
@@ -167,10 +159,11 @@ export const useInvitationNotifications = () => {
         event: 'UPDATE',
         schema: 'public',
         table: 'trip_invitations',
-        filter: `email=eq.${userEmail}`
+        filter: `email=eq.${user?.email || ''}`
       }, async (payload) => {
-        console.log('🔄 Invitation UPDATE detected:', payload.new);
-        if (payload.new.email === userEmail) {
+        if (payload.new.email === user?.email) {
+          console.log('🔄 Invitation UPDATE detected:', payload.new);
+          
           const { data: invitationData } = await supabase
             .from('trip_invitations')
             .select('*')
@@ -219,24 +212,18 @@ export const useInvitationNotifications = () => {
       })
       .subscribe();
 
-    console.log('✅ Channel subscribed:', channelName);
     return () => {
-      console.log('🧹 Cleaning up channel:', channelName);
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
-  }, [toast]); // Only depend on toast
+  }, [user, showInvitationToast]);
 
   // Real-time subscription for new invitations
   useEffect(() => {
-    if (!user?.id || !user?.email) {
-      console.log('⏸️ No user or email, skipping invitation listener setup');
-      return;
-    }
+    if (!user?.id) return;
 
-    console.log('🚀 Setting up invitation listener for user:', user.id);
-    const cleanup = setupInvitationListener(user.id, user.email);
+    const cleanup = setupInvitationListener(user.id);
     return cleanup;
-  }, [user?.id, user?.email, setupInvitationListener]);
+  }, [user?.id, setupInvitationListener]);
 
   // Initial fetch
   useEffect(() => {

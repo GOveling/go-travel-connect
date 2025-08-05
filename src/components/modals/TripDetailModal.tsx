@@ -459,7 +459,7 @@ const TripDetailModal = ({
 
   // New handler functions for the modals
   const handleFlightSearch = (locationIndex: number) => {
-    if (trip && trip.coordinates && trip.coordinates[locationIndex]) {
+    if (trip && trip.coordinates[locationIndex]) {
       setSelectedLocationForModal(trip.coordinates[locationIndex]);
       setSelectedLocationIndex(locationIndex);
       setShowFlightSearchModal(true);
@@ -467,7 +467,7 @@ const TripDetailModal = ({
   };
 
   const handleHotelSearch = (locationIndex: number) => {
-    if (trip && trip.coordinates && trip.coordinates[locationIndex]) {
+    if (trip && trip.coordinates[locationIndex]) {
       setSelectedLocationForModal(trip.coordinates[locationIndex]);
       setSelectedLocationIndex(locationIndex);
       setShowHotelSearchModal(true);
@@ -475,7 +475,7 @@ const TripDetailModal = ({
   };
 
   const handleToursSearch = (locationIndex: number) => {
-    if (trip && trip.coordinates && trip.coordinates[locationIndex]) {
+    if (trip && trip.coordinates[locationIndex]) {
       setSelectedLocationForModal(trip.coordinates[locationIndex]);
       setSelectedLocationIndex(locationIndex);
       setShowToursModal(true);
@@ -486,7 +486,7 @@ const TripDetailModal = ({
     locationIndex: number,
     type: "arrival" | "departure" | "between"
   ) => {
-    if (trip && trip.coordinates && trip.coordinates[locationIndex]) {
+    if (trip && trip.coordinates[locationIndex]) {
       setSelectedLocationForModal(trip.coordinates[locationIndex]);
       setSelectedLocationIndex(locationIndex);
       setTransferType(type);
@@ -767,7 +767,7 @@ const TripDetailModal = ({
                           Round-trip Flight
                         </h5>
                         <p className="text-sm text-purple-600 mb-3">
-                          From your location to {trip.coordinates && trip.coordinates.length > 0 ? trip.coordinates[0]?.name : 'your destination'}
+                          From your location to {trip.coordinates[0]?.name}
                         </p>
                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                           <Button
