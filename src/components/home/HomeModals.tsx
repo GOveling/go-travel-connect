@@ -4,6 +4,7 @@ import NewTripModal from "@/components/modals/NewTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import LoginModal from "@/components/modals/LoginModal";
 import SignUpModal from "@/components/modals/SignUpModal";
+import ClientOnly from "@/components/ui/ClientOnly";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 import { useAuth } from "@/hooks/useAuth";
@@ -85,7 +86,8 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
 
   return (
     <>
-      <NotificationAlertsModal
+      <ClientOnly fallback={<div>Loading...</div>}>
+        <NotificationAlertsModal
         isOpen={homeState.isNotificationModalOpen}
         onClose={() => homeState.setIsNotificationModalOpen(false)}
         notificationCount={0}
@@ -130,6 +132,7 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
         onGoogleSignUp={handleGoogleAuth}
         onSwitchToLogin={handleSwitchToLogin}
       />
+      </ClientOnly>
     </>
   );
 };

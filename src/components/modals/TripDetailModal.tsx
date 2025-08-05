@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { EditTripModal } from "./EditTripModal";
+import ClientOnly from "@/components/ui/ClientOnly";
 import { Link } from "react-router-dom";
 import {
   Calendar,
@@ -598,9 +599,17 @@ const TripDetailModal = ({
     }
   };
 
+  // Debug logging for modal state
+  console.log('TripDetailModal render:', { isOpen, tripId: trip?.id });
+
+  useEffect(() => {
+    console.log('TripDetailModal isOpen changed:', isOpen);
+  }, [isOpen]);
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <ClientOnly fallback={<div>Loading...</div>}>
+        <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col rounded-[5px]">
           <DialogHeader className="flex-shrink-0 pb-4">
             <div className="flex items-center justify-between mb-2">
@@ -1104,7 +1113,8 @@ const TripDetailModal = ({
             </div>
           </div>
         </DialogContent>
-      </Dialog>
+        </Dialog>
+      </ClientOnly>
 
       {/* InviteFriendsModal */}
       <InviteFriendsModal
