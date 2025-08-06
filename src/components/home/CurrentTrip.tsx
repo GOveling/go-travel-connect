@@ -81,16 +81,6 @@ const CurrentTripContent = ({
     }
   }, [nearestUpcomingTrip, travelingTrip]);
 
-  const handleViewTripDetails = () => {
-    if (nearestUpcomingTrip) {
-      // Dispatch custom event to open trip detail modal with the specific trip
-      const event = new CustomEvent('openTripDetailModal', {
-        detail: { trip: nearestUpcomingTrip }
-      });
-      window.dispatchEvent(event);
-    }
-  };
-
   // Case 1: Currently traveling - show AI Smart Route
   if (travelingTrip) {
     return (
@@ -166,7 +156,7 @@ const CurrentTripContent = ({
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-to-r from-purple-600 to-orange-500 border-0 hover:from-purple-700 hover:to-orange-600"
-              onClick={handleViewTripDetails}
+              onClick={onNavigateToTrips}
             >
               View Trip Details
             </Button>
