@@ -277,48 +277,52 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         <ModalContent
           className={
             isMobile
-              ? "max-h-[95vh] flex flex-col"
+              ? "max-h-[90vh] h-[90vh] flex flex-col p-0"
               : "max-w-4xl max-h-[95vh] w-[95vw] mx-auto flex flex-col"
           }
         >
-          <ModalHeader className="flex-shrink-0 pb-4">
+          <ModalHeader className="flex-shrink-0 pb-4 px-4 pt-4 md:px-6 md:pt-6">
             <ModalTitle className="flex items-center space-x-2 text-lg md:text-xl">
               <span>Group Options - {trip.name}</span>
             </ModalTitle>
           </ModalHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 px-4 md:px-6">
             <TabsList className="grid w-full grid-cols-2 flex-shrink-0 mb-4">
               <TabsTrigger value="expenses">Split Costs</TabsTrigger>
               <TabsTrigger value="decisions">Group Decisions</TabsTrigger>
             </TabsList>
 
-            <div className="flex-1 min-h-0">
-              <TabsContent value="expenses" className="h-full overflow-y-auto mt-0 p-1">
-                <ExpensesTab
-                  expenses={expenses}
-                  editingExpenseId={editingExpenseId}
-                  newExpense={newExpense}
-                  setNewExpense={setNewExpense}
-                  allParticipants={allParticipants}
-                  onAddExpense={handleAddExpense}
-                  onUpdateExpense={handleUpdateExpense}
-                  onEditExpense={handleEditExpense}
-                  onDeleteExpense={handleDeleteExpense}
-                  onCancelEdit={handleCancelEdit}
-                  loading={expensesLoading}
-                />
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="expenses" className="h-full overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <ExpensesTab
+                    expenses={expenses}
+                    editingExpenseId={editingExpenseId}
+                    newExpense={newExpense}
+                    setNewExpense={setNewExpense}
+                    allParticipants={allParticipants}
+                    onAddExpense={handleAddExpense}
+                    onUpdateExpense={handleUpdateExpense}
+                    onEditExpense={handleEditExpense}
+                    onDeleteExpense={handleDeleteExpense}
+                    onCancelEdit={handleCancelEdit}
+                    loading={expensesLoading}
+                  />
+                </div>
               </TabsContent>
 
-              <TabsContent value="decisions" className="h-full overflow-y-auto mt-0 p-1">
-                <DecisionsTab
-                  decisions={decisions}
-                  onCreateDecision={handleCreateDecision}
-                  onVote={handleVote}
-                  onEditDecision={handleEditDecision}
-                  onDeleteDecision={handleDeleteDecision}
-                  loading={decisionsLoading}
-                />
+              <TabsContent value="decisions" className="h-full overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <DecisionsTab
+                    decisions={decisions}
+                    onCreateDecision={handleCreateDecision}
+                    onVote={handleVote}
+                    onEditDecision={handleEditDecision}
+                    onDeleteDecision={handleDeleteDecision}
+                    loading={decisionsLoading}
+                  />
+                </div>
               </TabsContent>
             </div>
           </Tabs>
