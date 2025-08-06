@@ -9,6 +9,7 @@ import ExpensesTab from "./group-options/ExpensesTab";
 import DecisionsTab from "./group-options/DecisionsTab";
 import CreateDecisionModal from "./group-options/CreateDecisionModal";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfileData } from "@/hooks/useProfileData";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import { useSupabaseTripExpenses, type TripExpense } from "@/hooks/useSupabaseTripExpenses";
 import { useSupabaseTripDecisions, type TripDecision } from "@/hooks/useSupabaseTripDecisions";
@@ -30,6 +31,7 @@ interface Collaborator {
 const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { profile } = useProfileData();
   const { ownerProfile } = useOwnerProfile(trip?.user_id);
   const [activeTab, setActiveTab] = useState("expenses");
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
@@ -63,13 +65,13 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     {
       id: trip?.user_id || user?.id || "current-user",
       name: trip?.user_id === user?.id 
-        ? (user?.user_metadata?.full_name || "You")
+        ? (profile?.full_name || "You")
         : (ownerProfile?.full_name || "Trip Owner"),
       email: trip?.user_id === user?.id 
         ? (user?.email || "you@example.com")
         : (ownerProfile?.email || "owner@example.com"),
       avatar: trip?.user_id === user?.id 
-        ? (user?.user_metadata?.avatar_url || "")
+        ? (profile?.avatar_url || "")
         : (ownerProfile?.avatar_url || ""),
       role: "owner",
     },
