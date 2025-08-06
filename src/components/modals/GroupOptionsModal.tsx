@@ -277,8 +277,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
         <ModalContent
           className={
             isMobile
-              ? "max-h-[95vh]"
-              : "max-w-4xl max-h-[95vh] w-[95vw] mx-auto overflow-hidden flex flex-col"
+              ? "max-h-[95vh] flex flex-col"
+              : "max-w-4xl max-h-[95vh] w-[95vw] mx-auto flex flex-col"
           }
         >
           <ModalHeader className="flex-shrink-0 pb-4">
@@ -287,14 +287,14 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             </ModalTitle>
           </ModalHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="grid w-full grid-cols-2 flex-shrink-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-2 flex-shrink-0 mb-4">
               <TabsTrigger value="expenses">Split Costs</TabsTrigger>
               <TabsTrigger value="decisions">Group Decisions</TabsTrigger>
             </TabsList>
 
-            <div className="flex-1 overflow-hidden">
-              <TabsContent value="expenses" className="h-full overflow-y-auto">
+            <div className="flex-1 min-h-0">
+              <TabsContent value="expenses" className="h-full overflow-y-auto mt-0 p-1">
                 <ExpensesTab
                   expenses={expenses}
                   editingExpenseId={editingExpenseId}
@@ -310,7 +310,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 />
               </TabsContent>
 
-              <TabsContent value="decisions" className="h-full overflow-y-auto">
+              <TabsContent value="decisions" className="h-full overflow-y-auto mt-0 p-1">
                 <DecisionsTab
                   decisions={decisions}
                   onCreateDecision={handleCreateDecision}
