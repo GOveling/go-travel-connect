@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -130,7 +131,6 @@ const BalanceSummary = ({ expenses, allParticipants }: BalanceSummaryProps) => {
                             ? "text-red-600 hover:text-red-700"
                             : "text-gray-600 hover:text-gray-700"
                       }`}
-                      disabled={Math.abs(adjustedBalance) < 0.01}
                     >
                       {adjustedBalance > 0 ? "+" : ""}$
                       {adjustedBalance.toFixed(2)}
