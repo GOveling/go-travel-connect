@@ -110,38 +110,8 @@ export const useUnifiedNotifications = () => {
     checkPendingInvitation();
   }, [user]);
 
-  const [generalNotifications, setGeneralNotifications] = useState<GeneralNotification[]>([
-    {
-      id: '1',
-      type: 'trip_update',
-      title: t('notifications.tripUpdate') || 'Trip Update',
-      message: t('notifications.newRecommendation') || 'New places recommended for your Paris trip',
-      time: '2h',
-      isRead: false,
-      icon: 'MapPin',
-      color: 'blue'
-    },
-    {
-      id: '2',
-      type: 'achievement',
-      title: t('notifications.achievement') || 'Achievement Unlocked',
-      message: t('notifications.explorerBadge') || 'You earned the "Explorer" badge!',
-      time: '1d',
-      isRead: false,
-      icon: 'Trophy',
-      color: 'gold'
-    },
-    {
-      id: '3',
-      type: 'recommendation',
-      title: t('notifications.recommendation') || 'New Recommendation',
-      message: t('notifications.restaurantSuggestion') || 'Check out this restaurant in Tokyo',
-      time: '2d',
-      isRead: true,
-      icon: 'Utensils',
-      color: 'orange'
-    }
-  ]);
+  // Real-time notifications will be populated here based on actual app events
+  const [generalNotifications, setGeneralNotifications] = useState<GeneralNotification[]>([]);
 
   const markGeneralNotificationAsRead = useCallback((notificationId: string) => {
     setGeneralNotifications(prev => 
