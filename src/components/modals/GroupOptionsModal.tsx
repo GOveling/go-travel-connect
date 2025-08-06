@@ -9,6 +9,7 @@ import ExpensesTab from "./group-options/ExpensesTab";
 import DecisionsTab from "./group-options/DecisionsTab";
 import CreateDecisionModal from "./group-options/CreateDecisionModal";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import { useSupabaseTripExpenses, type TripExpense } from "@/hooks/useSupabaseTripExpenses";
 import { useSupabaseTripDecisions, type TripDecision } from "@/hooks/useSupabaseTripDecisions";
 
@@ -29,6 +30,7 @@ interface Collaborator {
 const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { ownerProfile } = useOwnerProfile(trip?.user_id);
   const [activeTab, setActiveTab] = useState("expenses");
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
   const [newExpense, setNewExpense] = useState<Omit<TripExpense, "id" | "created_at" | "updated_at" | "created_by">>({
@@ -59,10 +61,16 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   // Get all participants (trip owner + collaborators)
   const allParticipants = [
     {
-      id: user?.id || "current-user",
-      name: user?.user_metadata?.full_name || "You",
-      email: user?.email || "you@example.com",
-      avatar: user?.user_metadata?.avatar_url || "",
+      id: trip?.user_id || user?.id || "current-user",
+      name: trip?.user_id === user?.id 
+        ? (user?.user_metadata?.full_name || "You")
+        : (ownerProfile?.full_name || "Trip Owner"),
+      email: trip?.user_id === user?.id 
+        ? (user?.email || "you@example.com")
+        : (ownerProfile?.email || "owner@example.com"),
+      avatar: trip?.user_id === user?.id 
+        ? (user?.user_metadata?.avatar_url || "")
+        : (ownerProfile?.avatar_url || ""),
       role: "owner",
     },
     ...(trip?.collaborators || []).map((collaborator: any) => ({
