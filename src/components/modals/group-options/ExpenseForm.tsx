@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Users } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface Collaborator {
   id: string;
@@ -89,6 +90,15 @@ const ExpenseForm = ({
     });
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3 md:pb-4">
@@ -161,9 +171,14 @@ const ExpenseForm = ({
                     htmlFor={`paid-${participant.id}`}
                     className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                   >
-                    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                      {participant.avatar}
-                    </div>
+                    <Avatar className="w-6 h-6">
+                      {participant.avatar && participant.avatar.startsWith('http') ? (
+                        <AvatarImage src={participant.avatar} alt={participant.name} />
+                      ) : null}
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-orange-500 text-white text-xs">
+                        {getInitials(participant.name)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-sm">{participant.name}</span>
                   </label>
                 </div>
@@ -212,9 +227,14 @@ const ExpenseForm = ({
                     htmlFor={`split-${participant.id}`}
                     className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                   >
-                    <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-orange-500 rounded-full flex items-center justify-center text-xs text-white">
-                      {participant.avatar}
-                    </div>
+                    <Avatar className="w-6 h-6">
+                      {participant.avatar && participant.avatar.startsWith('http') ? (
+                        <AvatarImage src={participant.avatar} alt={participant.name} />
+                      ) : null}
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-orange-500 text-white text-xs">
+                        {getInitials(participant.name)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-sm">{participant.name}</span>
                   </label>
                 </div>
