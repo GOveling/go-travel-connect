@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Calendar, Edit, X } from "lucide-react";
+import { useCreatorProfile } from "@/hooks/useCreatorProfile";
 
 interface TripDecision {
   id: string;
@@ -41,6 +42,8 @@ const DecisionCard = ({
   onEdit,
   onDelete,
 }: DecisionCardProps) => {
+  const { creatorProfile } = useCreatorProfile(decision.created_by);
+  
   // Calculate votes from the votes array
   const votesByOption = decision.votes?.reduce((acc: Record<string, number>, vote: any) => {
     acc[vote.option_index] = (acc[vote.option_index] || 0) + 1;
@@ -68,7 +71,7 @@ const DecisionCard = ({
                   <Calendar size={12} />
                   <span>Ends: {decision.end_date ? new Date(decision.end_date).toLocaleDateString() : 'No end date'}</span>
                 </span>
-                <span>By: {decision.created_by}</span>
+                <span>By: {creatorProfile?.full_name || creatorProfile?.email || "Unknown User"}</span>
               </div>
             </div>
             <div className="flex space-x-2 flex-shrink-0">
