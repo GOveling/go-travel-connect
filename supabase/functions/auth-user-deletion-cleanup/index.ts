@@ -37,6 +37,13 @@ serve(async (req: Request) => {
     );
   }
 
+  // Dry-run support via header or query param
+  const url = new URL(req.url);
+  const dryRun = (
+    (req.headers.get("x-dry-run") || "").toLowerCase() === "true" ||
+    ["1", "true", "yes"].includes((url.searchParams.get("dryRun") || "").toLowerCase())
+  );
+
   let payload: any;
   try {
     payload = await req.json();
@@ -66,6 +73,8 @@ serve(async (req: Request) => {
     },
   });
 
+  const start = Date.now();
+
   // Helpers
   const chunk = <T,>(arr: T[], size = 1000): T[][] => {
     const out: T[][] = [];
@@ -85,8 +94,50 @@ serve(async (req: Request) => {
     }
   };
 
+  const countByTripIds = async (table: string, tripIds: string[], col = "trip_id") => {
+    if (!tripIds.length) return 0;
+    const { count, error } = await adminClient
+      .from(table)
+      .select("*", { count: "exact", head: true })
+      .in(col, tripIds);
+    if (error) throw new Error(`${table} count failed: ${error.message}`);
+    return count || 0;
+  };
+
+  const countByUserId = async (table: string, userId: string, col = "user_id") => {
+    const { count, error } = await adminClient
+      .from(table)
+      .select("*", { count: "exact", head: true })
+      .eq(col, userId);
+    if (error) throw new Error(`${table} count failed: ${error.message}`);
+    return count || 0;
+  };
+
+  const extractAvatarPath = (avatarUrl?: string | null) => {
+    if (!avatarUrl) return null;
+    try {
+      const u = new URL(avatarUrl);
+      const parts = u.pathname.split("/avatars/");
+      if (parts.length > 1) {
+        return parts[1].replace(/^public\//, ""); // strip leading 'public/' if present
+      }
+      // fallback: if it's already a relative path
+      return avatarUrl.includes("/") ? avatarUrl.split("avatars/").pop() || null : avatarUrl;
+    } catch {
+      // not a URL, assume it's a direct storage path
+      return avatarUrl.includes("/") ? avatarUrl.split("avatars/").pop() || null : avatarUrl;
+    }
+  };
+
   try {
-    console.log("[auth-user-deletion-cleanup] Starting cleanup for:", { userId, userEmail });
+    console.log("[auth-user-deletion-cleanup] Starting cleanup for:", { userId, userEmail, dryRun });
+
+    // Pre-fetch profile (for storage cleanup + existence check)
+    const { data: profileRow } = await adminClient
+      .from("profiles")
+      .select("id, avatar_url")
+      .eq("id", userId)
+      .maybeSingle();
 
     // 1) Collect all user's trip ids
     const { data: trips, error: tripsErr } = await adminClient
@@ -105,6 +156,45 @@ serve(async (req: Request) => {
         .in("trip_id", tripIds);
       if (decErr) throw new Error(`trip_decisions query failed: ${decErr.message}`);
       decisionIds = (decisions ?? []).map((d: { id: string }) => d.id);
+    }
+
+    // Build counts summary (pre-deletion)
+    const preCounts = {
+      trips: tripIds.length,
+      trip_decisions: await countByTripIds("trip_decisions", tripIds),
+      trip_decision_votes: decisionIds.length
+        ? (await adminClient.from("trip_decision_votes").select("*", { count: "exact", head: true }).in("decision_id", decisionIds)).count || 0
+        : 0,
+      trip_expenses: await countByTripIds("trip_expenses", tripIds),
+      trip_collaborators_by_trip: await countByTripIds("trip_collaborators", tripIds),
+      trip_members_by_trip: await countByTripIds("trip_members", tripIds),
+      trip_access_log_by_trip: await countByTripIds("trip_access_log", tripIds),
+      trip_collaborators_by_user: await countByUserId("trip_collaborators", userId),
+      trip_members_by_user: await countByUserId("trip_members", userId),
+      trip_access_log_by_user: await countByUserId("trip_access_log", userId),
+      saved_places: await countByTripIds("saved_places", tripIds),
+      trip_coordinates: await countByTripIds("trip_coordinates", tripIds),
+      ai_itineraries: await countByUserId("ai_itineraries", userId),
+      place_reviews: await countByUserId("place_reviews", userId),
+      user_achievement_progress: await countByUserId("user_achievement_progress", userId),
+      user_achievements: await countByUserId("user_achievements", userId),
+      user_activities: await countByUserId("user_activities", userId),
+      user_stats: await countByUserId("user_stats", userId),
+      trip_invitations_by_email: userEmail
+        ? ((await adminClient.from("trip_invitations").select("*", { count: "exact", head: true }).eq("email", userEmail)).count || 0)
+        : 0,
+      trip_invitations_by_inviter: await countByUserId("trip_invitations", userId, "inviter_id"),
+      profiles: profileRow ? 1 : 0,
+    } as Record<string, number>;
+
+    if (dryRun) {
+      const durationMs = Date.now() - start;
+      const summary = { userId, userEmail, dryRun: true, preCounts, durationMs };
+      console.log("[auth-user-deletion-cleanup] Dry-run summary:", summary);
+      return new Response(JSON.stringify({ ok: true, dryRun: true, preCounts, durationMs }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // 3) Delete trip decision votes
@@ -216,8 +306,24 @@ serve(async (req: Request) => {
       if (error) throw new Error(`profiles delete failed: ${error.message}`);
     }
 
-    console.log("[auth-user-deletion-cleanup] Cleanup completed for:", { userId });
-    return new Response(JSON.stringify({ ok: true }), {
+    // 11) Optional storage cleanup for avatar
+    let avatarsRemoved = 0;
+    const avatarPath = extractAvatarPath(profileRow?.avatar_url || undefined);
+    if (avatarPath) {
+      const { data: removeRes, error: removeErr } = await adminClient.storage.from("avatars").remove([avatarPath]);
+      if (removeErr) {
+        // Log but don't fail the entire cleanup on storage errors
+        console.warn("[auth-user-deletion-cleanup] Avatar removal warning:", removeErr.message);
+      } else if (Array.isArray(removeRes) && removeRes.length > 0) {
+        avatarsRemoved = removeRes.filter((r: any) => !r.error).length;
+      }
+    }
+
+    const durationMs = Date.now() - start;
+    const result = { ok: true, preCounts, avatarsRemoved, durationMs };
+    console.log("[auth-user-deletion-cleanup] Cleanup completed:", { userId, durationMs, avatarsRemoved });
+
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
