@@ -55,3 +55,6 @@ port = 54324
 image_transformation = {
   enabled = true
 }
+
+[functions.auth-user-deletion-cleanup]
+verify_jwt = false
