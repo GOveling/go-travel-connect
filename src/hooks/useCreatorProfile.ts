@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useCreatorProfile = (creatorId: string | null) => {
+export const useCreatorProfile = (creatorId: string | null, tripId?: string | null) => {
   const [creatorProfile, setCreatorProfile] = useState<{
     id: string;
     full_name: string | null;
@@ -11,7 +11,7 @@ export const useCreatorProfile = (creatorId: string | null) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!creatorId) {
+    if (!creatorId || !tripId) {
       setCreatorProfile(null);
       return;
     }
@@ -20,10 +20,11 @@ export const useCreatorProfile = (creatorId: string | null) => {
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from("profiles")
-          .select("id, full_name, email, avatar_url")
-          .eq("id", creatorId)
-          .single();
+          .rpc("get_trip_user_profile", {
+            p_trip_id: tripId,
+            p_user_id: creatorId,
+          })
+          .maybeSingle();
 
         if (error) {
           console.error("Error fetching creator profile:", error);
@@ -39,7 +40,7 @@ export const useCreatorProfile = (creatorId: string | null) => {
     };
 
     fetchCreatorProfile();
-  }, [creatorId]);
+  }, [creatorId, tripId]);
 
   return { creatorProfile, loading };
 };

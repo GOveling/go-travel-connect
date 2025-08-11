@@ -87,32 +87,35 @@ export const usePlaceReviews = (
 
       if (reviewsError) throw reviewsError;
 
-      // Then fetch profiles for each review
-      const reviewsWithUserInfo = await Promise.all(
-        (reviewsData || []).map(async (review) => {
-          let profileName = null;
+      // Build a map of user_id -> safe profile fields
+      const nonAnonymousIds = Array.from(
+        new Set((reviewsData || []).filter((r: any) => !r.anonymous).map((r: any) => r.user_id))
+      ) as string[];
 
-          // Only fetch profile if not anonymous
-          if (!review.anonymous) {
-            const { data: profileData } = await supabase
-              .from("profiles")
-              .select("full_name")
-              .eq("id", review.user_id)
-              .maybeSingle();
+      let profilesById = new Map<string, { id: string; full_name: string | null; avatar_url: string | null }>();
+      if (nonAnonymousIds.length > 0 && user) {
+        const { data: safeProfiles, error: profilesError } = await supabase
+          .rpc("get_users_public_profile_min", { p_user_ids: nonAnonymousIds });
 
-            profileName = profileData?.full_name;
-          }
+        if (profilesError) {
+          console.error("Error fetching public profiles:", profilesError);
+        } else {
+          profilesById = new Map((safeProfiles || []).map((p: any) => [p.id, p]));
+        }
+      }
 
-          return {
-            ...review,
-            user_name: review.anonymous
-              ? "Anonymous User"
-              : profileName || "Verified User",
-            user_avatar: review.anonymous ? "👤" : "👤",
-            profiles: review.anonymous ? null : { full_name: profileName },
-          };
-        })
-      );
+      // Enrich reviews with user info without exposing sensitive data
+      const reviewsWithUserInfo = (reviewsData || []).map((review: any) => {
+        const profile = review.anonymous ? null : profilesById.get(review.user_id as string);
+        const profileName = profile?.full_name || null;
+
+        return {
+          ...review,
+          user_name: review.anonymous ? "Anonymous User" : profileName || "Verified User",
+          user_avatar: review.anonymous ? "👤" : "👤",
+          profiles: review.anonymous ? null : { full_name: profileName },
+        };
+      });
 
       setReviews(reviewsWithUserInfo);
       setCurrentPage(page);

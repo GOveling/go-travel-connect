@@ -32,7 +32,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { profile } = useProfileData();
-  const { ownerProfile } = useOwnerProfile(trip?.user_id);
+  const { ownerProfile } = useOwnerProfile(trip?.user_id, trip?.id);
   const [activeTab, setActiveTab] = useState("expenses");
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
   const [newExpense, setNewExpense] = useState<Omit<TripExpense, "id" | "created_at" | "updated_at" | "created_by">>({

@@ -849,6 +849,15 @@ export type Database = {
           email: string
         }[]
       }
+      get_trip_user_profile: {
+        Args: { p_trip_id: string; p_user_id: string }
+        Returns: {
+          id: string
+          full_name: string
+          email: string
+          avatar_url: string
+        }[]
+      }
       get_user_achievements_with_progress: {
         Args: { p_user_id: string }
         Returns: {
@@ -865,6 +874,14 @@ export type Database = {
           is_completed: boolean
           completed_at: string
           progress_percentage: number
+        }[]
+      }
+      get_users_public_profile_min: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          id: string
+          full_name: string
+          avatar_url: string
         }[]
       }
       grant_trip_member_access: {

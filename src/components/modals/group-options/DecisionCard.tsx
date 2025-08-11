@@ -42,7 +42,7 @@ const DecisionCard = ({
   onEdit,
   onDelete,
 }: DecisionCardProps) => {
-  const { creatorProfile } = useCreatorProfile(decision.created_by);
+  const { creatorProfile } = useCreatorProfile(decision.created_by, decision.trip_id);
   
   // Calculate votes from the votes array
   const votesByOption = decision.votes?.reduce((acc: Record<string, number>, vote: any) => {
