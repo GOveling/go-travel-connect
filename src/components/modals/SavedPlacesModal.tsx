@@ -112,6 +112,9 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
             src={imageUrl}
             alt="Place"
             className="w-full h-full object-cover"
+            draggable={false}
+            loading="lazy"
+            onDragStart={(e) => e.preventDefault()}
             onError={(e) => {
               e.currentTarget.style.display = "none";
               e.currentTarget.nextElementSibling?.classList.remove("hidden");
@@ -159,6 +162,9 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
           {...listeners}
           className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded-md transition-colors z-10"
           onClick={(e) => e.stopPropagation()}
+          draggable={false}
+          onDragStart={(e) => e.preventDefault()}
+          aria-label="Reordenar"
         >
           <GripVertical size={16} className="text-gray-400" />
         </div>

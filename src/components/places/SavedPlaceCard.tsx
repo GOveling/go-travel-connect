@@ -95,8 +95,15 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete }: SavedPlaceCardProps
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start gap-3 flex-1">
             {canEdit && (
-              <div className="flex items-center justify-center pt-1">
-                <GripVertical className="h-4 w-4 text-gray-400" />
+              <div 
+                className="flex items-center justify-center pt-1"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
+              >
+                <GripVertical 
+                  className="h-4 w-4 text-gray-400"
+                  aria-label="Reordenar"
+                />
               </div>
             )}
             
@@ -126,6 +133,9 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete }: SavedPlaceCardProps
                 src={place.image}
                 alt={place.name}
                 className="w-16 h-16 object-cover rounded-lg"
+                draggable={false}
+                loading="lazy"
+                onDragStart={(e) => e.preventDefault()}
               />
             )}
           </div>
