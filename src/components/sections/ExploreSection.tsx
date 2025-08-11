@@ -8,7 +8,9 @@ import { useCallback, useState } from "react";
 import ExploreFilters from "./explore/ExploreFilters";
 import ExploreResults from "./explore/ExploreResults";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
-
+import ExploreHero from "./explore/ExploreHero";
+import BottomSafeAdSlot from "@/components/ads/BottomSafeAdSlot";
+import CongratsOverlay from "@/components/feedback/CongratsOverlay";
 interface Place {
   id: string;
   name: string;
@@ -56,6 +58,7 @@ const ExploreSection = ({
   const [placeForTrip, setPlaceForTrip] = useState<any>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [selectedLocationPlace, setSelectedLocationPlace] = useState<any>(null);
+  const [showCongrats, setShowCongrats] = useState(false);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -171,18 +174,20 @@ const ExploreSection = ({
       try {
         const success = await addPlaceToTrip(sourceTrip.id, placeData);
 
-        if (success) {
-          toast({
-            title: "Lugar agregado",
-            description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
-          });
-          setIsModalOpen(false);
-          onClearSourceTrip?.();
-
-          // Navigate back to trips section
-          const event = new CustomEvent("navigateToTrips");
-          window.dispatchEvent(event);
-        }
+          if (success) {
+            toast({
+              title: "Lugar agregado",
+              description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
+            });
+            setIsModalOpen(false);
+            onClearSourceTrip?.();
+            setShowCongrats(true);
+            setTimeout(() => {
+              // Navigate back to trips section
+              const event = new CustomEvent("navigateToTrips");
+              window.dispatchEvent(event);
+            }, 1400);
+          }
       } catch (error) {
         toast({
           title: "Error",
@@ -210,16 +215,15 @@ const ExploreSection = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-28">
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              {t("explore.title")}
-            </h1>
-            <p className="text-sm text-gray-600">{t("explore.subtitle")}</p>
-          </div>
+            <ExploreHero
+              title={t("explore.title")}
+              subtitle={t("explore.subtitle")}
+              onExploreClick={() => {}}
+            />
 
           {/* Search Controls - Filtros y Búsqueda más juntos */}
           <div className="space-y-2">
@@ -271,6 +275,7 @@ const ExploreSection = ({
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
         selectedPlace={placeForTrip}
+        onSuccess={() => setShowCongrats(true)}
       />
 
       {/* Place Map Modal */}
@@ -282,6 +287,10 @@ const ExploreSection = ({
           setSelectedLocationPlace(null);
         }}
       />
+
+      {/* Overlays and Ad Slot */}
+      <CongratsOverlay open={showCongrats} onClose={() => setShowCongrats(false)} />
+      <BottomSafeAdSlot />
     </div>
   );
 };

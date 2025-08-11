@@ -37,12 +37,14 @@ interface ExploreAddToTripModalProps {
     lat?: number;
     lng?: number;
   } | null;
+  onSuccess?: (data: { place: any; tripId?: string; trip?: any }) => void;
 }
 
 const ExploreAddToTripModal = ({
   isOpen,
   onClose,
   selectedPlace,
+  onSuccess,
 }: ExploreAddToTripModalProps) => {
   const {
     trips,
@@ -65,15 +67,16 @@ const ExploreAddToTripModal = ({
   const { matching: matchingTrips, other: otherTrips } =
     categorizeTrips(selectedPlace);
 
-  const handleAddToExistingTrip = async () => {
-    if (selectedTripId && selectedPlace) {
-      const success = await addPlaceToTrip(selectedTripId, selectedPlace);
-      if (success) {
-        onClose();
-        resetForm();
-      }
+const handleAddToExistingTrip = async () => {
+  if (selectedTripId && selectedPlace) {
+    const success = await addPlaceToTrip(selectedTripId, selectedPlace);
+    if (success) {
+      onSuccess?.({ place: selectedPlace, tripId: selectedTripId });
+      onClose();
+      resetForm();
     }
-  };
+  }
+};
 
   const handleCreateNewTrip = async (tripData: any) => {
     // Add the selected place to the new trip data
@@ -102,12 +105,13 @@ const ExploreAddToTripModal = ({
       },
     };
 
-    const createdTrip = await createTrip(newTripWithPlace);
-    if (createdTrip) {
-      setShowNewTripModal(false);
-      onClose();
-      resetForm();
-    }
+const createdTrip = await createTrip(newTripWithPlace);
+if (createdTrip) {
+  setShowNewTripModal(false);
+  onSuccess?.({ place: selectedPlace, trip: createdTrip });
+  onClose();
+  resetForm();
+}
   };
 
   const resetForm = () => {
