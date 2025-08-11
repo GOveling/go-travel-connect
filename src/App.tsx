@@ -26,7 +26,8 @@ const App = () => {
     showPersonalInfo, 
     loading: welcomeLoading,
     completeWelcome,
-    completeOnboarding 
+    completeOnboarding,
+    skipOnboardingForNow
   } = useWelcomeFlow();
 
   if (loading || welcomeLoading) {
@@ -83,7 +84,7 @@ const App = () => {
             />
             <NewUserPersonalInfoModal
               isOpen={showPersonalInfo}
-              onClose={() => {}}
+              onClose={skipOnboardingForNow}
               onComplete={completeOnboarding}
             />
             

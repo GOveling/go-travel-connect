@@ -19,7 +19,8 @@ export const useWelcomeFlow = () => {
       try {
         // Check if this is a new signup and welcome hasn't been shown this session
         const isNewSignup = sessionStorage.getItem(`new_signup_${user.id}`);
-        const welcomeShownThisSession = sessionStorage.getItem(`welcome_shown_${user.id}`);
+        const welcomeShown = localStorage.getItem(`welcome_shown_${user.id}`);
+        const onboardingDismissed = sessionStorage.getItem(`onboarding_dismissed_${user.id}`);
         
         // Check if user has completed onboarding
         const { data: profile, error } = await supabase
@@ -53,13 +54,13 @@ export const useWelcomeFlow = () => {
         
         // Show welcome if:
         // 1. This is a new signup (session flag OR recently created user OR no profile)
-        // 2. Welcome hasn't been shown this session
+        // 2. Welcome hasn't been shown before for this user (persisted)
         // 3. OR if there's an invitation token and onboarding isn't complete (force complete flow)
-        const shouldShowWelcome = ((!!isNewSignup || isNewUser || !profile) && !welcomeShownThisSession) || 
-                                  (hasInvitationToken && !onboardingCompleted && !welcomeShownThisSession);
+        const shouldShowWelcome = ((!!isNewSignup || isNewUser || !profile) && !welcomeShown) || 
+                                  (hasInvitationToken && !onboardingCompleted && !welcomeShown);
 
-        // Show personal info modal if onboarding not completed
-        const shouldShowPersonalInfo = !profile || !onboardingCompleted;
+        // Show personal info modal if onboarding not completed and not dismissed for this session
+        const shouldShowPersonalInfo = (!profile || !onboardingCompleted) && !shouldShowWelcome && !onboardingDismissed;
 
         console.log('Welcome flow check:', {
           hasProfile: !!profile,
@@ -67,7 +68,8 @@ export const useWelcomeFlow = () => {
           isNewUser,
           hasInvitationToken: !!hasInvitationToken,
           onboardingCompleted: onboardingCompleted,
-          welcomeShownThisSession: !!welcomeShownThisSession,
+          welcomeShown: !!welcomeShown,
+          onboardingDismissed: !!onboardingDismissed,
           shouldShowWelcome,
           shouldShowPersonalInfo
         });
@@ -91,9 +93,8 @@ export const useWelcomeFlow = () => {
   }, [user]);
 
   const completeWelcome = () => {
-    // Mark welcome as shown for this session
     if (user) {
-      sessionStorage.setItem(`welcome_shown_${user.id}`, 'true');
+      localStorage.setItem(`welcome_shown_${user.id}`, 'true');
     }
     setShowWelcome(false);
     setShowPersonalInfo(true);
@@ -132,6 +133,13 @@ export const useWelcomeFlow = () => {
     }
   };
 
+  const skipOnboardingForNow = () => {
+    if (user) {
+      sessionStorage.setItem(`onboarding_dismissed_${user.id}`, 'true');
+    }
+    setShowPersonalInfo(false);
+  };
+
   return {
     isNewUser,
     showWelcome,
@@ -139,5 +147,5 @@ export const useWelcomeFlow = () => {
     loading,
     completeWelcome,
     completeOnboarding,
+    skipOnboardingForNow,
   };
-};

@@ -41,6 +41,7 @@ interface PersonalInformationModalProps {
   onClose: () => void;
   profile?: ProfileData;
   onProfileUpdate?: () => void;
+  showIntroMessage?: boolean;
 }
 
 const PersonalInformationModal = ({
@@ -48,6 +49,7 @@ const PersonalInformationModal = ({
   onClose,
   profile,
   onProfileUpdate,
+  showIntroMessage = false,
 }: PersonalInformationModalProps) => {
   const { toast } = useToast();
   const { countries, loading: countriesLoading } = useCountries();
@@ -240,19 +242,22 @@ const PersonalInformationModal = ({
           </div>
           
           {/* Progress indicator for mobile */}
-          <div className="mt-3 bg-gradient-to-r from-purple-50 to-orange-50 dark:from-purple-950/20 dark:to-orange-950/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
-            <div className="flex items-start gap-3">
-              <div className="text-2xl">🎯</div>
-              <div className="space-y-1">
-                <h3 className="font-medium text-green-800 dark:text-green-300 text-sm">
-                  ¡Último paso para comenzar!
-                </h3>
-                <p className="text-xs text-green-700 dark:text-green-400">
-                  Completa tu información para obtener recomendaciones personalizadas.
-                </p>
+          {/** Only show on first-time onboarding */}
+          {showIntroMessage && (
+            <div className="mt-3 bg-gradient-to-r from-purple-50 to-orange-50 dark:from-purple-950/20 dark:to-orange-950/20 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">🎯</div>
+                <div className="space-y-1">
+                  <h3 className="font-medium text-green-800 dark:text-green-300 text-sm">
+                    ¡Último paso para comenzar!
+                  </h3>
+                  <p className="text-xs text-green-700 dark:text-green-400">
+                    Completa tu información para obtener recomendaciones personalizadas.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Scrollable Content */}
