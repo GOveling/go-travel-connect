@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -58,21 +58,31 @@ interface PlaceMapModalProps {
 
 const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
   const mapRef = useRef<any>(null);
-  const { location, getCurrentLocation, isLocating, error } = useUserLocation();
+  const { location, getCurrentLocation, isLocating, error, startWatching, stopWatching } = useUserLocation();
   const { toast } = useToast();
+  const [showUserLocation, setShowUserLocation] = useState(false);
 
-  const handleCenterOnUser = async () => {
-    const loc = await getCurrentLocation();
-    if (loc && mapRef.current) {
-      mapRef.current.setView([loc.lat, loc.lng], 16);
-    } else if (error) {
+  const handleToggleUserLocation = async () => {
+    try {
+      if (!showUserLocation) {
+        await startWatching();
+        const loc = await getCurrentLocation();
+        if (loc && mapRef.current?.setView) {
+          mapRef.current.setView([loc.lat, loc.lng], 16);
+        }
+      } else {
+        await stopWatching();
+      }
+      setShowUserLocation((prev) => !prev);
+    } catch (e) {
       toast({
         title: "Ubicación no disponible",
-        description: error,
+        description: error || "No se pudo obtener tu ubicación",
         variant: "destructive",
       });
     }
   };
+
   useEffect(() => {
     // Clean up the map when component unmounts
     return () => {
@@ -113,7 +123,31 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
                 </div>
               </Popup>
             </Marker>
+
+            {showUserLocation && location && (
+              <>
+                <Marker position={[location.lat, location.lng]} icon={userIcon} />
+                <Circle
+                  center={[location.lat, location.lng]}
+                  radius={location.accuracy ?? 50}
+                  pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.15 }}
+                />
+              </>
+            )}
           </MapContainer>
+
+          <div className="absolute top-3 right-3 z-[1000]">
+            <Button
+              size="sm"
+              variant={showUserLocation ? "default" : "outline"}
+              onClick={handleToggleUserLocation}
+              className="h-9"
+              disabled={isLocating}
+            >
+              <LocateFixed size={16} className="mr-2" />
+              {showUserLocation ? "Ocultar ubicación" : isLocating ? "Localizando..." : "Mi ubicación"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

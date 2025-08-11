@@ -3,15 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useMapData } from "@/hooks/useMapData";
 import L from "leaflet";
-import {
-  Bookmark,
-  Eye,
-  Layers,
-  Mountain,
-  Navigation,
-  Satellite,
-  Users,
-} from "lucide-react";
+import { Bookmark, Eye, Layers, Mountain, Navigation, Satellite, Users, LocateFixed } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
@@ -23,7 +15,8 @@ import {
 } from "react-leaflet";
 import MapFilters from "./MapFilters";
 import TripSelector from "./TripSelector";
-
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { useToast } from "@/hooks/use-toast";
 // Configuración de iconos de Leaflet
 if (typeof window !== "undefined") {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -48,6 +41,9 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
   const [showRoutes, setShowRoutes] = useState(true);
   const [showSavedPlaces, setShowSavedPlaces] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
+  const { location, isLocating, error, getCurrentLocation, startWatching, stopWatching } = useUserLocation();
+  const { toast } = useToast();
+  const [showUserLocation, setShowUserLocation] = useState(false);
 
   // Use the custom hook for map data management
   const {
@@ -103,6 +99,20 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
     });
   };
 
+  const userIcon = L.divIcon({
+    html: `<div style="
+      background-color: #3b82f6;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.25);
+      border: 2px solid white;
+    "></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    className: "custom-user-icon",
+  });
+
   // Fit map to show all markers
   const fitMapToMarkers = () => {
     if (!mapRef.current) return;
@@ -144,6 +154,27 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
         return "#6b7280";
       default:
         return "#6b7280";
+    }
+  };
+
+  const handleToggleUserLocation = async () => {
+    try {
+      if (!showUserLocation) {
+        await startWatching();
+        const loc = await getCurrentLocation();
+        if (loc && mapRef.current?.setView) {
+          mapRef.current.setView([loc.lat, loc.lng], 14);
+        }
+      } else {
+        await stopWatching();
+      }
+      setShowUserLocation((prev) => !prev);
+    } catch (e) {
+      toast({
+        title: "Ubicación no disponible",
+        description: error || "No se pudo obtener tu ubicación",
+        variant: "destructive",
+      });
     }
   };
 
@@ -270,6 +301,18 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
       <Card className="overflow-hidden">
         <CardContent className="p-0">
           <div className="h-96 lg:h-[500px] relative">
+            <div className="absolute top-3 right-3 z-[1000]">
+              <Button
+                size="sm"
+                variant={showUserLocation ? "default" : "outline"}
+                onClick={handleToggleUserLocation}
+                className="h-9"
+                disabled={isLocating}
+              >
+                <LocateFixed size={16} className="mr-2" />
+                {showUserLocation ? "Ocultar ubicación" : isLocating ? "Localizando..." : "Mi ubicación"}
+              </Button>
+            </div>
             <MapContainer
               center={mapCenter}
               zoom={4}
@@ -442,6 +485,17 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                     />
                   );
                 })}
+
+              {showUserLocation && location && (
+                <>
+                  <Marker position={[location.lat, location.lng]} icon={userIcon} />
+                  <Circle
+                    center={[location.lat, location.lng]}
+                    radius={location.accuracy ?? 50}
+                    pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.15 }}
+                  />
+                </>
+              )}
             </MapContainer>
           </div>
         </CardContent>
