@@ -55,23 +55,29 @@ const TravelDocumentsModal = ({
     const savedDocuments = localStorage.getItem("travelDocuments");
     const savedOfflineMode = localStorage.getItem("offlineMode");
 
-    if (savedDocuments) {
-      setDocuments(JSON.parse(savedDocuments));
-    }
+    const offline = savedOfflineMode ? JSON.parse(savedOfflineMode) : false;
+    setIsOfflineMode(offline);
 
-    if (savedOfflineMode) {
-      setIsOfflineMode(JSON.parse(savedOfflineMode));
+    if (offline && savedDocuments) {
+      setDocuments(JSON.parse(savedDocuments));
     }
   }, []);
 
-  // Save documents to localStorage whenever documents change
+  // Save documents to localStorage whenever documents or offline mode change
   useEffect(() => {
-    localStorage.setItem("travelDocuments", JSON.stringify(documents));
-  }, [documents]);
+    if (isOfflineMode) {
+      localStorage.setItem("travelDocuments", JSON.stringify(documents));
+    } else {
+      localStorage.removeItem("travelDocuments");
+    }
+  }, [documents, isOfflineMode]);
 
   // Save offline mode preference
   useEffect(() => {
     localStorage.setItem("offlineMode", JSON.stringify(isOfflineMode));
+    if (!isOfflineMode) {
+      localStorage.removeItem("travelDocuments");
+    }
   }, [isOfflineMode]);
 
   const handleAddDocument = () => {

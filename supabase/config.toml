@@ -35,10 +35,10 @@ enable_confirmations = false
 port = 54323
 
 [functions.google-places]
-verify_jwt = false
+verify_jwt = true
 
 [functions.google-places-enhanced]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-trip-invitation]
 verify_jwt = true
@@ -47,7 +47,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.send-invitation-email]
-verify_jwt = false
+verify_jwt = true
 
 [storage]
 enabled = true

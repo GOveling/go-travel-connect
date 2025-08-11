@@ -15,7 +15,7 @@ export const useReduxAuth = () => {
 
   useEffect(() => {
     if (session?.access_token) {
-      dispatch(setToken(session.access_token));
+      dispatch(setToken());
 
       if (user && profile) {
         dispatch(

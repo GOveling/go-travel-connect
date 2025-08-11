@@ -25,38 +25,29 @@ class ApiService {
   private setupInterceptors() {
     // Request interceptor to add Bearer token
     this.api.interceptors.request.use(
-      (config) => {
-        const state = store.getState();
-        const token = state.auth.token;
-
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-
-        console.log(
-          `API Request: ${config.method?.toUpperCase()} ${config.url}`,
-          {
-            headers: config.headers,
-            data: config.data,
+      async (config) => {
+        try {
+          const { data } = await supabase.auth.getSession();
+          const accessToken = data.session?.access_token;
+          if (accessToken) {
+            config.headers = config.headers || {};
+            (config.headers as any).Authorization = `Bearer ${accessToken}`;
           }
-        );
-
+        } catch (e) {
+          console.error("Failed to attach auth token", e);
+        }
         return config;
       },
       (error) => {
-        console.error("Request interceptor error:", error);
         return Promise.reject(error);
       }
     );
 
     // Response interceptor for error handling
     this.api.interceptors.response.use(
-      (response: AxiosResponse<ApiResponse>) => {
-        console.log(`API Response: ${response.status}`, response.data);
-        return response;
-      },
+      (response: AxiosResponse<ApiResponse>) => response,
       (error) => {
-        console.error("API Error:", error.response?.data || error.message);
+        console.error("API Error:", error.message, error.response?.status);
 
         if (error.response?.status === 401) {
           // Handle unauthorized - clear token
