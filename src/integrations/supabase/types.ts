@@ -352,6 +352,42 @@ export type Database = {
           },
         ]
       }
+      trip_debt_backups: {
+        Row: {
+          amount: number
+          counterparty_name: string
+          counterparty_user_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          removed_user_id: string
+          removed_user_name: string
+          trip_id: string
+        }
+        Insert: {
+          amount: number
+          counterparty_name: string
+          counterparty_user_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          removed_user_id: string
+          removed_user_name: string
+          trip_id: string
+        }
+        Update: {
+          amount?: number
+          counterparty_name?: string
+          counterparty_user_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          removed_user_id?: string
+          removed_user_name?: string
+          trip_id?: string
+        }
+        Relationships: []
+      }
       trip_decision_votes: {
         Row: {
           created_at: string
@@ -925,6 +961,10 @@ export type Database = {
       is_trip_collaborator: {
         Args: { trip_id: string; user_id: string }
         Returns: boolean
+      }
+      remove_collaborator_and_archive: {
+        Args: { p_trip_id: string; p_user_id: string }
+        Returns: Json
       }
       send_trip_invitation: {
         Args:

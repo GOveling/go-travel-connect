@@ -332,43 +332,44 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
   // Handle member removal
   const handleRemoveMember = async (memberId: string) => {
     try {
-      const { error } = await supabase
-        .from('trip_collaborators')
-        .delete()
-        .eq('id', memberId);
-        
-      if (error) throw error;
-      
-      // Update local state
-      setMembers(prev => prev.filter(mem => mem.id !== memberId));
-      
-      // Also check if we need to update the trip type
-      if (members.length === 1) { // Only one member left (which we just removed)
-        const { error: tripError } = await supabase
-          .from('trips')
-          .update({ 
-            type: 'solo',
-            is_group_trip: false,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', tripId);
-          
-        if (tripError) console.error("Error updating trip type:", tripError);
+      // Locate member to get user_id
+      const member = members.find((m) => m.id === memberId);
+      if (!member || !member.user_id) {
+        toast({
+          title: "Error",
+          description: "No se encontró el usuario del miembro",
+          variant: "destructive",
+        });
+        return;
       }
-      
-      // Refresh parent data if needed
+
+      // Call RPC to archive debts, clean participation and remove collaborator
+      const { data, error } = await supabase.rpc('remove_collaborator_and_archive', {
+        p_trip_id: tripId,
+        p_user_id: member.user_id,
+      });
+
+      if (error) throw error;
+
+      // Update local state
+      setMembers((prev) => prev.filter((mem) => mem.id !== memberId));
+
+      // Optionally refresh parent data
       if (refreshData) refreshData();
-      
+
+      const backupCount = (data as any)?.backup_count ?? 0;
       toast({
         title: "Miembro eliminado",
-        description: "El miembro ha sido eliminado del viaje",
+        description: backupCount > 0
+          ? `Se archivaron ${backupCount} respaldo(s) de deuda.`
+          : "Participación eliminada y datos archivados",
       });
     } catch (error) {
       console.error("Error removing member:", error);
       toast({
         title: "Error",
         description: "No se pudo eliminar al miembro",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
