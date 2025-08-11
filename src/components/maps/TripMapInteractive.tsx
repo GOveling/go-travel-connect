@@ -19,6 +19,7 @@ import {
   Polyline,
   Popup,
   TileLayer,
+  Circle,
 } from "react-leaflet";
 import MapFilters from "./MapFilters";
 import TripSelector from "./TripSelector";

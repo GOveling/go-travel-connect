@@ -1,12 +1,16 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix for default markers in React Leaflet
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { Button } from "@/components/ui/button";
+import { LocateFixed } from "lucide-react";
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { useToast } from "@/hooks/use-toast";
 
 let DefaultIcon = L.divIcon({
   html: `<div style="
@@ -21,6 +25,21 @@ let DefaultIcon = L.divIcon({
   iconSize: [20, 20],
   iconAnchor: [10, 20],
   className: "custom-div-icon",
+});
+
+// Icono para la ubicación del usuario
+const userIcon = L.divIcon({
+  html: `<div style="
+    background-color: #3b82f6;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.25);
+    border: 2px solid white;
+  "></div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  className: "custom-user-icon",
 });
 
 interface Place {
@@ -39,7 +58,21 @@ interface PlaceMapModalProps {
 
 const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
   const mapRef = useRef<any>(null);
+  const { location, getCurrentLocation, isLocating, error } = useUserLocation();
+  const { toast } = useToast();
 
+  const handleCenterOnUser = async () => {
+    const loc = await getCurrentLocation();
+    if (loc && mapRef.current) {
+      mapRef.current.setView([loc.lat, loc.lng], 16);
+    } else if (error) {
+      toast({
+        title: "Ubicación no disponible",
+        description: error,
+        variant: "destructive",
+      });
+    }
+  };
   useEffect(() => {
     // Clean up the map when component unmounts
     return () => {
@@ -56,7 +89,7 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl w-full h-[60vh] p-0 border-0 rounded-[5px]">
-        <div className="w-full h-full rounded-[5px] overflow-hidden">
+        <div className="relative w-full h-full rounded-[5px] overflow-hidden">
           <MapContainer
             center={position}
             zoom={16}
