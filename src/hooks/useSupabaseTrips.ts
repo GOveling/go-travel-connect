@@ -42,20 +42,33 @@ export const useSupabaseTrips = () => {
             email,
             avatar
           ),
-          saved_places (
-            id,
-            name,
-            category,
-            rating,
-            image,
-            description,
-            estimated_time,
-            priority,
-            destination_name,
-            lat,
-            lng,
-            position_order
-          )
+            saved_places (
+              id,
+              name,
+              category,
+              rating,
+              image,
+              description,
+              estimated_time,
+              priority,
+              destination_name,
+              lat,
+              lng,
+              position_order,
+              formatted_address,
+              address_json,
+              country,
+              state,
+              region,
+              city,
+              district,
+              neighborhood,
+              postal_code,
+              street,
+              street_number,
+              place_source,
+              place_reference
+            )
         `
         )
         .order("created_at", { ascending: false });
@@ -120,6 +133,20 @@ export const useSupabaseTrips = () => {
                 lat: place.lat || 0,
                 lng: place.lng || 0,
                 positionOrder: place.position_order || 0,
+                // Address hierarchy
+                formattedAddress: place.formatted_address || undefined,
+                addressJson: place.address_json || undefined,
+                country: place.country || undefined,
+                state: place.state || undefined,
+                region: place.region || undefined,
+                city: place.city || undefined,
+                district: place.district || undefined,
+                neighborhood: place.neighborhood || undefined,
+                postalCode: place.postal_code || undefined,
+                street: place.street || undefined,
+                streetNumber: place.street_number || undefined,
+                placeSource: place.place_source || undefined,
+                placeReference: place.place_reference || undefined,
               })) || [],
         })) || [];
 

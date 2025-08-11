@@ -17,6 +17,8 @@ interface SavedPlaceCardProps {
     estimated_time?: string;
     priority?: 'high' | 'medium' | 'low';
     destination_name?: string;
+    formatted_address?: string; // snake_case from Supabase
+    formattedAddress?: string;  // camelCase if mapped in frontend
   };
   canEdit?: boolean;
   onDelete?: () => void;
@@ -101,9 +103,15 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete }: SavedPlaceCardProps
             <div className="flex-1">
               <h4 className="font-semibold text-lg mb-1">{place.name}</h4>
               {place.destination_name && (
-                <div className="flex items-center text-sm text-muted-foreground mb-2">
+                <div className="flex items-center text-sm text-muted-foreground">
                   <MapPin className="h-3 w-3 mr-1" />
                   {place.destination_name}
+                </div>
+              )}
+              {(place.formatted_address || place.formattedAddress) && (
+                <div className="flex items-center text-xs text-muted-foreground mb-2">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  {place.formatted_address || place.formattedAddress}
                 </div>
               )}
               {place.description && (

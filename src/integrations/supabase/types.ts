@@ -187,51 +187,90 @@ export type Database = {
       }
       saved_places: {
         Row: {
+          address_json: Json | null
           category: string | null
+          city: string | null
+          country: string | null
           created_at: string
           description: string | null
           destination_name: string | null
+          district: string | null
           estimated_time: string | null
+          formatted_address: string | null
           id: string
           image: string | null
           lat: number | null
           lng: number | null
           name: string
+          neighborhood: string | null
+          place_reference: string | null
+          place_source: string | null
           position_order: number | null
+          postal_code: string | null
           priority: string | null
           rating: number | null
+          region: string | null
+          state: string | null
+          street: string | null
+          street_number: string | null
           trip_id: string
         }
         Insert: {
+          address_json?: Json | null
           category?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           description?: string | null
           destination_name?: string | null
+          district?: string | null
           estimated_time?: string | null
+          formatted_address?: string | null
           id?: string
           image?: string | null
           lat?: number | null
           lng?: number | null
           name: string
+          neighborhood?: string | null
+          place_reference?: string | null
+          place_source?: string | null
           position_order?: number | null
+          postal_code?: string | null
           priority?: string | null
           rating?: number | null
+          region?: string | null
+          state?: string | null
+          street?: string | null
+          street_number?: string | null
           trip_id: string
         }
         Update: {
+          address_json?: Json | null
           category?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           description?: string | null
           destination_name?: string | null
+          district?: string | null
           estimated_time?: string | null
+          formatted_address?: string | null
           id?: string
           image?: string | null
           lat?: number | null
           lng?: number | null
           name?: string
+          neighborhood?: string | null
+          place_reference?: string | null
+          place_source?: string | null
           position_order?: number | null
+          postal_code?: string | null
           priority?: string | null
           rating?: number | null
+          region?: string | null
+          state?: string | null
+          street?: string | null
+          street_number?: string | null
           trip_id?: string
         }
         Relationships: [

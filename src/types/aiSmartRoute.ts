@@ -39,6 +39,21 @@ export interface SavedPlace {
   destinationName: string;
   lat?: number;
   lng?: number;
+  positionOrder?: number;
+  // Address hierarchy (optional)
+  formattedAddress?: string;
+  addressJson?: any;
+  country?: string;
+  state?: string;
+  region?: string;
+  city?: string;
+  district?: string;
+  neighborhood?: string;
+  postalCode?: string;
+  street?: string;
+  streetNumber?: string;
+  placeSource?: string;
+  placeReference?: string;
 }
 
 export interface OptimizedPlace extends SavedPlace {

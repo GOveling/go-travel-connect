@@ -14,6 +14,21 @@ interface Place {
   description?: string;
   lat?: number;
   lng?: number;
+  // Optional address hierarchy fields
+  address?: string;
+  formattedAddress?: string;
+  addressJson?: any;
+  country?: string;
+  state?: string;
+  region?: string;
+  city?: string;
+  district?: string;
+  neighborhood?: string;
+  postalCode?: string;
+  street?: string;
+  streetNumber?: string;
+  source?: string;
+  reference?: string;
 }
 
 export const useAddToTrip = () => {
@@ -154,6 +169,20 @@ export const useAddToTrip = () => {
         destination_name: place.location,
         lat: place.lat || null,
         lng: place.lng || null,
+        // Address hierarchy (optional)
+        formatted_address: place.formattedAddress || place.address || place.location || null,
+        address_json: place.addressJson || null,
+        country: place.country || null,
+        state: place.state || null,
+        region: place.region || null,
+        city: place.city || null,
+        district: place.district || null,
+        neighborhood: place.neighborhood || null,
+        postal_code: place.postalCode || null,
+        street: place.street || null,
+        street_number: place.streetNumber || null,
+        place_source: place.source || null,
+        place_reference: place.reference || null,
       };
 
       console.log("Attempting to insert saved place data:", savedPlaceData);
