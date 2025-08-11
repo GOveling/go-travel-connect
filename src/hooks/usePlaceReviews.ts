@@ -42,48 +42,35 @@ export const usePlaceReviews = (
 
     setLoading(true);
     try {
-      // Build query based on whether we have coordinates
-      let countQuery = supabase
-        .from("place_reviews")
-        .select("*", { count: "exact", head: true });
+      // Compute filters and call secure RPCs instead of direct table reads
+      const hasCoords = lat !== undefined && lng !== undefined;
 
-      let dataQuery = supabase.from("place_reviews").select("*");
+      // Get total count via RPC
+      const { data: countData, error: countError } = await supabase.rpc(
+        "get_place_reviews_count",
+        {
+          p_place_id: placeId,
+          p_place_name: placeName,
+          p_lat: hasCoords ? lat : null,
+          p_lng: hasCoords ? lng : null,
+        }
+      );
+      if (countError) throw countError;
+      setTotalReviews((countData as number) || 0);
 
-      // If we have coordinates, filter by exact location
-      if (lat !== undefined && lng !== undefined) {
-        const latDiff = 0.0001; // ~10 meters tolerance
-        const lngDiff = 0.0001;
-
-        countQuery = countQuery
-          .gte("lat", lat - latDiff)
-          .lte("lat", lat + latDiff)
-          .gte("lng", lng - lngDiff)
-          .lte("lng", lng + lngDiff)
-          .eq("place_name", placeName);
-
-        dataQuery = dataQuery
-          .gte("lat", lat - latDiff)
-          .lte("lat", lat + latDiff)
-          .gte("lng", lng - lngDiff)
-          .lte("lng", lng + lngDiff)
-          .eq("place_name", placeName);
-      } else {
-        // Fallback to place_id for places without coordinates
-        countQuery = countQuery.eq("place_id", placeId);
-        dataQuery = dataQuery.eq("place_id", placeId);
-      }
-
-      // Get total count
-      const { count } = await countQuery;
-      setTotalReviews(count || 0);
-
-      // Then fetch paginated reviews
+      // Then fetch paginated reviews via RPC
       const from = (page - 1) * reviewsPerPage;
-      const to = from + reviewsPerPage - 1;
-
-      const { data: reviewsData, error: reviewsError } = await dataQuery
-        .order("created_at", { ascending: false })
-        .range(from, to);
+      const { data: reviewsData, error: reviewsError } = await supabase.rpc(
+        "get_place_reviews_public",
+        {
+          p_place_id: placeId,
+          p_place_name: placeName,
+          p_lat: hasCoords ? lat : null,
+          p_lng: hasCoords ? lng : null,
+          p_offset: from,
+          p_limit: reviewsPerPage,
+        }
+      );
 
       if (reviewsError) throw reviewsError;
 

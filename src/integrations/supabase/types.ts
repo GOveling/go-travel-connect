@@ -837,6 +837,36 @@ export type Database = {
           expires_at: string
         }[]
       }
+      get_place_reviews_count: {
+        Args: {
+          p_place_id: string
+          p_place_name: string
+          p_lat?: number
+          p_lng?: number
+        }
+        Returns: number
+      }
+      get_place_reviews_public: {
+        Args: {
+          p_place_id: string
+          p_place_name: string
+          p_lat?: number
+          p_lng?: number
+          p_offset?: number
+          p_limit?: number
+        }
+        Returns: {
+          id: string
+          place_id: string
+          place_name: string
+          rating: number
+          comment: string
+          created_at: string
+          updated_at: string
+          anonymous: boolean
+          user_id: string
+        }[]
+      }
       get_trip_members: {
         Args: { p_trip_id: string }
         Returns: {
