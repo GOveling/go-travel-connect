@@ -21,7 +21,7 @@ export const ExploreHero: React.FC<ExploreHeroProps> = ({
         <h1 className="text-xl font-bold leading-tight">
           {title}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1 px-0">{subtitle}</p>
+        <p className="text-sm text-muted-foreground mt-1 px-0 mx-[55px]">{subtitle}</p>
         <div className="mt-3">
           <ButtonColorful label="Explorar ahora" onClick={onExploreClick} />
         </div>
