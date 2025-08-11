@@ -95,7 +95,14 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  /* Prevent native image/url drag overlays on mobile and desktop */
+  .no-native-drag {
+    -webkit-user-drag: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
 }
+
 
 /* Modern Mobile Menu Styles */
 .menu {

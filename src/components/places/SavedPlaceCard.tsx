@@ -96,7 +96,7 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete }: SavedPlaceCardProps
           <div className="flex items-start gap-3 flex-1">
             {canEdit && (
               <div 
-                className="flex items-center justify-center pt-1"
+                className="flex items-center justify-center pt-1 select-none no-native-drag"
                 draggable={false}
                 onDragStart={(e) => e.preventDefault()}
               >

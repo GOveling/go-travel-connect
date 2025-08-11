@@ -111,7 +111,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
           <img
             src={imageUrl}
             alt="Place"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover no-native-drag select-none"
             draggable={false}
             loading="lazy"
             onDragStart={(e) => e.preventDefault()}
@@ -160,7 +160,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
         <div 
           {...attributes}
           {...listeners}
-          className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded-md transition-colors z-10"
+          className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded-md transition-colors z-10 select-none no-native-drag"
           onClick={(e) => e.stopPropagation()}
           draggable={false}
           onDragStart={(e) => e.preventDefault()}
