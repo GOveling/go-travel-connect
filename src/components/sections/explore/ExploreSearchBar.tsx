@@ -62,7 +62,14 @@ const ExploreSearchBar = ({
   const convertEnhancedResultsToPlaces = (
     predictions: EnhancedPlace[]
   ): Place[] => {
-    return predictions.map((prediction) => ({
+    const valid = predictions.filter(
+      (p) =>
+        p &&
+        p.coordinates &&
+        Number.isFinite(p.coordinates.lat) &&
+        Number.isFinite(p.coordinates.lng)
+    );
+    return valid.map((prediction) => ({
       id: prediction.id,
       name: prediction.name,
       address: prediction.address,
@@ -104,11 +111,9 @@ const ExploreSearchBar = ({
 
   // Handle search results when predictions change
   React.useEffect(() => {
-    if (predictions.length > 0) {
-      const places = convertEnhancedResultsToPlaces(predictions);
-      onSearchResults?.(places);
-      onLoadingChange?.(false);
-    }
+    const places = convertEnhancedResultsToPlaces(predictions);
+    onSearchResults?.(places);
+    onLoadingChange?.(false);
   }, [predictions, onSearchResults, onLoadingChange]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

@@ -75,10 +75,20 @@ export const useGooglePlacesEnhanced = () => {
         }
 
         console.log("Enhanced search results:", data);
-        console.log(
-          `Source: ${data.source}, Found ${data.predictions?.length || 0} places`
+        const predictionsRaw = Array.isArray(data.predictions)
+          ? (data.predictions as EnhancedPlace[])
+          : [];
+        const predictionsWithCoords = predictionsRaw.filter(
+          (p) =>
+            p &&
+            p.coordinates &&
+            Number.isFinite(p.coordinates.lat) &&
+            Number.isFinite(p.coordinates.lng)
         );
-        setPredictions(data.predictions || []);
+        console.log(
+          `Source: ${data.source}, Found ${predictionsRaw.length} places, showing ${predictionsWithCoords.length} with coordinates`
+        );
+        setPredictions(predictionsWithCoords);
       } catch (err) {
         console.error("Error in enhanced places search:", err);
         setError(

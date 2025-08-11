@@ -126,18 +126,22 @@ const ExploreSection = ({
   // Function to handle results from the enhanced search bar
   const handleSearchResults = useCallback(
     (results: Place[], selectedId?: string) => {
-      // ALWAYS show ALL results, just reorder if there's a selected place
+      // Filtrar resultados sin coordenadas válidas
+      const hasValidCoords = (p: Place) =>
+        p &&
+        p.coordinates &&
+        Number.isFinite(p.coordinates.lat) &&
+        Number.isFinite(p.coordinates.lng);
+      const filtered = results.filter(hasValidCoords);
+
+      // Mostrar TODOS los resultados válidos; reordenar si hay uno seleccionado
       if (selectedId) {
-        // Reorder results to put selected place first, but keep ALL results
-        const selectedPlace = results.find((place) => place.id === selectedId);
-        const otherPlaces = results.filter((place) => place.id !== selectedId);
-        setSearchResults(
-          selectedPlace ? [selectedPlace, ...otherPlaces] : results
-        );
+        const selectedPlace = filtered.find((place) => place.id === selectedId);
+        const otherPlaces = filtered.filter((place) => place.id !== selectedId);
+        setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : filtered);
         setSelectedPlaceId(selectedId);
       } else {
-        // Show all results without any filtering
-        setSearchResults(results);
+        setSearchResults(filtered);
         setSelectedPlaceId(null);
       }
     },

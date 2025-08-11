@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosHeaders } from "axios";
 import { store } from "../store";
 import { setError as setAuthError } from "../store/slices/authSlice";
 import { ApiResponse, ApiError } from "./types";
@@ -30,8 +30,12 @@ class ApiService {
           const { data } = await supabase.auth.getSession();
           const accessToken = data.session?.access_token;
           if (accessToken) {
-            config.headers = config.headers || {};
-            (config.headers as any).Authorization = `Bearer ${accessToken}`;
+            const headers =
+              config.headers instanceof AxiosHeaders
+                ? (config.headers as AxiosHeaders)
+                : new AxiosHeaders(config.headers);
+            headers.set("Authorization", `Bearer ${accessToken}`);
+            config.headers = headers;
           }
         } catch (e) {
           console.error("Failed to attach auth token", e);
