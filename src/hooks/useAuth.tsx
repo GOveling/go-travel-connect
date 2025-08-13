@@ -98,6 +98,7 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
       console.log("📝 useAuth: Attempting sign up for:", email);
+      console.log("📝 useAuth: Full name provided:", fullName);
 
       const redirectUrl = getRedirectUrl("/");
       console.log("🔗 useAuth: Using redirect URL:", redirectUrl);
@@ -280,6 +281,7 @@ export const useAuth = () => {
   const signInWithGoogle = async () => {
     try {
       console.log("🔍 useAuth: Attempting Google sign in");
+      console.log("🔍 useAuth: Current user state:", user?.email || "No user");
 
       const redirectUrl = getRedirectUrl("/");
       console.log("🔗 useAuth: Using Google redirect URL:", redirectUrl);
