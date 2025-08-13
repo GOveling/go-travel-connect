@@ -734,6 +734,27 @@ export type Database = {
         }
         Relationships: []
       }
+      trips_hidden_by_user: {
+        Row: {
+          hidden_at: string
+          id: string
+          trip_id: string
+          user_id: string
+        }
+        Insert: {
+          hidden_at?: string
+          id?: string
+          trip_id: string
+          user_id: string
+        }
+        Update: {
+          hidden_at?: string
+          id?: string
+          trip_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_achievement_progress: {
         Row: {
           achievement_id: string
