@@ -1,10 +1,16 @@
 import { useLanguage } from "@/hooks/useLanguage";
+import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 
 const HomeHeader = () => {
   const { t } = useLanguage();
   
   return (
     <div className="pb-4">
+      {/* Weather Widget */}
+      <div className="mb-4">
+        <LocationWeatherWidget />
+      </div>
+      
       <div className="flex justify-center items-center mb-2 mx-0 px-0">
         {/* Logo centered */}
         <div className="flex justify-center px-0 mx-[5px]">

@@ -36,12 +36,20 @@ const LocationWeatherWidget = () => {
   }, []);
 
   useEffect(() => {
+    console.log("🌤️ LocationWeatherWidget: Checking weather conditions...", {
+      isLoading,
+      isAuthenticated,
+      hasWeatherData: !!weatherData,
+      isStale: isDataStale(),
+      error
+    });
+
     if (
       !isLoading &&
       isAuthenticated &&
-      (!weatherData || isDataStale()) &&
-      !error
+      (!weatherData || isDataStale())
     ) {
+      console.log("🌤️ LocationWeatherWidget: Triggering weather fetch...");
       fetchWeatherByLocation();
     }
   }, [
@@ -50,7 +58,6 @@ const LocationWeatherWidget = () => {
     weatherData,
     isDataStale,
     fetchWeatherByLocation,
-    error,
   ]);
 
   const formatDate = (date: Date) => {
