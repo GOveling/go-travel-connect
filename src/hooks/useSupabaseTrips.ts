@@ -390,7 +390,7 @@ export const useSupabaseTrips = () => {
     fetchTrips();
   }, [user]);
 
-  // Listen for invitation acceptance events and collaborator removal
+  // Listen for invitation acceptance events and collaborator removal with realtime
   useEffect(() => {
     const handleInvitationAccepted = () => {
       console.log('Trip invitation accepted, refreshing trips...');
@@ -404,12 +404,32 @@ export const useSupabaseTrips = () => {
 
     window.addEventListener('tripInvitationAccepted', handleInvitationAccepted);
     window.addEventListener('collaboratorRemoved', handleCollaboratorRemoved);
+
+    // Set up realtime subscription for trip_collaborators changes
+    const channel = supabase
+      .channel('trip_collaborators_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'trip_collaborators',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('Collaborator deleted realtime:', payload);
+          // Refresh trips immediately when this user is removed as collaborator
+          fetchTrips();
+        }
+      )
+      .subscribe();
     
     return () => {
       window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
       window.removeEventListener('collaboratorRemoved', handleCollaboratorRemoved);
+      supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user?.id]);
 
   return {
     trips,
