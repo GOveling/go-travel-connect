@@ -257,6 +257,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
         throw error;
       }
 
+      // Notify that a collaborator was removed to refresh trips lists
+      window.dispatchEvent(new CustomEvent('collaboratorRemoved'));
+
       setCollaborators(prev =>
         prev.filter(collab => collab.id !== collaboratorId)
       );

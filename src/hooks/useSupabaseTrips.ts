@@ -390,17 +390,24 @@ export const useSupabaseTrips = () => {
     fetchTrips();
   }, [user]);
 
-  // Listen for invitation acceptance events only (removed real-time subscriptions to fix error)
+  // Listen for invitation acceptance events and collaborator removal
   useEffect(() => {
     const handleInvitationAccepted = () => {
       console.log('Trip invitation accepted, refreshing trips...');
       fetchTrips();
     };
 
+    const handleCollaboratorRemoved = () => {
+      console.log('Collaborator removed, refreshing trips...');
+      fetchTrips();
+    };
+
     window.addEventListener('tripInvitationAccepted', handleInvitationAccepted);
+    window.addEventListener('collaboratorRemoved', handleCollaboratorRemoved);
     
     return () => {
       window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
+      window.removeEventListener('collaboratorRemoved', handleCollaboratorRemoved);
     };
   }, []);
 

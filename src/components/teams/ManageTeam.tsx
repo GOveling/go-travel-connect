@@ -354,6 +354,9 @@ export function ManageTeam({ tripId, isOpen, onClose, refreshData }: ManageTeamP
       // Update local state
       setMembers((prev) => prev.filter((mem) => mem.id !== memberId));
 
+      // Notify that a collaborator was removed to refresh trips lists
+      window.dispatchEvent(new CustomEvent('collaboratorRemoved'));
+
       // Optionally refresh parent data
       if (refreshData) refreshData();
 

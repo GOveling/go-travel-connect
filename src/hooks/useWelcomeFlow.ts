@@ -52,11 +52,9 @@ export const useWelcomeFlow = () => {
         const hasInvitationToken = localStorage.getItem('invitation_token');
         const onboardingCompleted = (profile as any)?.onboarding_completed;
         
-        // Show welcome if:
-        // 1. This is a new signup (session flag OR recently created user OR no profile)
-        // 2. Welcome hasn't been shown before for this user (persisted)
-        // 3. OR if there's an invitation token and onboarding isn't complete (force complete flow)
-        const shouldShowWelcome = ((!!isNewSignup || isNewUser || !profile) && !welcomeShown) || 
+        // Show welcome ONLY for truly new users who haven't completed onboarding
+        // Don't show again if user has completed onboarding
+        const shouldShowWelcome = (!onboardingCompleted && ((!!isNewSignup || isNewUser || !profile) && !welcomeShown)) || 
                                   (hasInvitationToken && !onboardingCompleted && !welcomeShown);
 
         // Show personal info modal if onboarding not completed and not dismissed for this session
