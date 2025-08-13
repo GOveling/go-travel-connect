@@ -232,22 +232,48 @@ export const useAuth = () => {
     try {
       console.log("👋 useAuth: Attempting sign out");
 
+      // Clear local state first
+      setUser(null);
+      setSession(null);
+
+      // Clear session storage flags
+      if (user) {
+        sessionStorage.removeItem(`new_signup_${user.id}`);
+        sessionStorage.removeItem(`welcome_shown_${user.id}`);
+      }
+
+      // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
-      if (error) {
+      
+      // If there's an AuthSessionMissingError, it means user is already logged out
+      if (error && error.message !== "Auth session missing!") {
         console.error("❌ useAuth: Sign out error:", error);
-        throw error;
+        // Don't throw error for session missing - user is effectively logged out
+        if (!error.message.includes("Auth session missing")) {
+          throw error;
+        }
       }
 
       console.log("✅ useAuth: Sign out successful");
 
-      // Toast notification removed to avoid unnecessary modal on sign out
+      // Clear any remaining local storage items
+      localStorage.removeItem('sb-auth-token');
+      
     } catch (error: any) {
       console.error("❌ useAuth: Sign out exception:", error);
-      toast({
-        title: "Error al cerrar sesión",
-        description: error.message || "Ocurrió un error al cerrar sesión",
-        variant: "destructive",
-      });
+      
+      // Even if sign out fails, clear local state to force logout
+      setUser(null);
+      setSession(null);
+      
+      // Only show error for non-session errors
+      if (!error.message?.includes("Auth session missing")) {
+        toast({
+          title: "Error al cerrar sesión",
+          description: error.message || "Ocurrió un error al cerrar sesión",
+          variant: "destructive",
+        });
+      }
     }
   };
 
