@@ -135,6 +135,7 @@ export const TripSavedPlaces = ({
                           place={place}
                           canEdit={canEdit}
                           onDelete={canEdit ? onUpdate : undefined}
+                          priorityNumber={index + 1}
                         />
                       </div>
                     )}

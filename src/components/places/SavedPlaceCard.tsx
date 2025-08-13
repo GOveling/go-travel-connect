@@ -22,9 +22,10 @@ interface SavedPlaceCardProps {
   };
   canEdit?: boolean;
   onDelete?: () => void;
+  priorityNumber?: number; // Visual position number (1, 2, 3...)
 }
 
-export const SavedPlaceCard = ({ place, canEdit, onDelete }: SavedPlaceCardProps) => {
+export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: SavedPlaceCardProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -94,6 +95,11 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete }: SavedPlaceCardProps
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start gap-3 flex-1">
+            {priorityNumber && (
+              <div className="flex items-center justify-center w-6 h-6 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full text-xs font-bold shadow-md flex-shrink-0 mt-1">
+                {priorityNumber}
+              </div>
+            )}
             {canEdit && (
               <div 
                 className="flex items-center justify-center pt-1 select-none no-native-drag"
