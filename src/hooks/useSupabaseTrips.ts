@@ -342,7 +342,7 @@ export const useSupabaseTrips = () => {
     }
   };
 
-  // Delete a trip
+  // Delete a trip (or hide it if not owner)
   const deleteTrip = async (tripId: string | number) => {
     if (!user) return false;
 
@@ -350,35 +350,67 @@ export const useSupabaseTrips = () => {
       // Use tripId directly as UUID
       const tripUUID = typeof tripId === "string" ? tripId : tripId.toString();
 
-      const { error } = await supabase
+      // First check if user is the owner
+      const { data: tripData } = await supabase
         .from("trips")
-        .delete()
-        .eq("id", tripUUID);
+        .select("user_id")
+        .eq("id", tripUUID)
+        .single();
 
-      if (error) {
-        console.error("Error deleting trip:", error);
+      if (tripData?.user_id === user.id) {
+        // User is owner - actually delete the trip
+        const { error } = await supabase
+          .from("trips")
+          .delete()
+          .eq("id", tripUUID);
+
+        if (error) {
+          console.error("Error deleting trip:", error);
+          toast({
+            title: "Error deleting trip",
+            description: error.message,
+            variant: "destructive",
+          });
+          return false;
+        }
+
         toast({
-          title: "Error deleting trip",
-          description: error.message,
-          variant: "destructive",
+          title: "Trip deleted",
+          description: "Your trip has been removed.",
         });
-        return false;
+      } else {
+        // User is not owner - hide the trip from their view
+        const { error } = await supabase
+          .from("trips_hidden_by_user")
+          .insert({
+            user_id: user.id,
+            trip_id: tripUUID,
+          });
+
+        if (error) {
+          console.error("Error hiding trip:", error);
+          toast({
+            title: "Error removing trip",
+            description: error.message,
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        toast({
+          title: "Trip removed",
+          description: "The trip has been removed from your list.",
+        });
       }
 
       // Refresh trips list
       await fetchTrips();
-
-      toast({
-        title: "Trip deleted",
-        description: "Your trip has been removed.",
-      });
-
       return true;
     } catch (error) {
       console.error("Error deleting trip:", error);
       toast({
-        title: "Error deleting trip",
-        description: "Failed to delete your trip",
+        title: "Error removing trip",
+        description: "Failed to remove your trip",
         variant: "destructive",
       });
       return false;
