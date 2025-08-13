@@ -408,7 +408,7 @@ export const useSupabaseTrips = () => {
     window.addEventListener('collaboratorRemoved', handleCollaboratorRemoved);
 
     // Create a unique channel name to avoid conflicts
-    const channelName = `trip_collaborators_${user.id}_${Date.now()}`;
+    const channelName = `trip_collaborators_${user.id}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Set up realtime subscription for trip_collaborators changes
     const channel = supabase
@@ -426,15 +426,17 @@ export const useSupabaseTrips = () => {
           // Refresh trips immediately when this user is removed as collaborator
           fetchTrips();
         }
-      )
-      .subscribe();
+      );
+
+    // Subscribe only after setting up all listeners
+    channel.subscribe();
     
     return () => {
       window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
       window.removeEventListener('collaboratorRemoved', handleCollaboratorRemoved);
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
+      // Unsubscribe and remove channel properly
+      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user?.id]);
 
