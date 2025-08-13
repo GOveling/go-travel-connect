@@ -1022,6 +1022,10 @@ export type Database = {
         Args: { trip_id: string; user_id: string }
         Returns: boolean
       }
+      is_trip_hidden_by_user: {
+        Args: { p_trip_id: string; p_user_id: string }
+        Returns: boolean
+      }
       remove_collaborator_and_archive: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: Json
