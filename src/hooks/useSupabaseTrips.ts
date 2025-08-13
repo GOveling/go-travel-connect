@@ -20,7 +20,7 @@ export const useSupabaseTrips = () => {
     try {
       setLoading(true);
 
-      // Fetch trips where user is owner or collaborator using proper PostgREST syntax
+      // Fetch trips where user is owner or collaborator using explicit filtering
       const { data: tripsData, error: tripsError } = await supabase
         .from("trips")
         .select(
@@ -70,6 +70,7 @@ export const useSupabaseTrips = () => {
             )
         `
         )
+        .or(`user_id.eq.${user.id},trip_collaborators.user_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
 
       if (tripsError) {
@@ -83,72 +84,84 @@ export const useSupabaseTrips = () => {
         return;
       }
 
-      // Transform Supabase data to Trip format
+      // Transform Supabase data to Trip format and filter properly
       const transformedTrips: Trip[] =
-        tripsData?.map((trip: any) => ({
-          id: trip.id, // Keep UUID as string for proper Supabase compatibility
-          name: trip.name,
-          destination: trip.destination,
-          dates: trip.dates,
-          status: trip.status,
-          travelers: trip.travelers || 1,
-          image: trip.image || "✈️",
-          isGroupTrip: trip.is_group_trip || false,
-          user_id: trip.user_id,
-          description: trip.description || "",
-          budget: trip.budget || "",
-          accommodation: trip.accommodation || "",
-          transportation: trip.transportation || "",
-          coordinates:
-            trip.trip_coordinates
-              ?.sort(
-                (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
-              )
-              ?.map((coord: any) => ({
-                name: coord.name,
-                lat: coord.lat || 0,
-                lng: coord.lng || 0,
+        tripsData
+          ?.filter((trip: any) => {
+            // User is owner
+            if (trip.user_id === user.id) return true;
+            
+            // User is a collaborator (check if user exists in trip_collaborators)
+            const isCollaborator = trip.trip_collaborators?.some(
+              (collab: any) => collab.user_id === user.id
+            );
+            
+            return isCollaborator;
+          })
+          ?.map((trip: any) => ({
+            id: trip.id, // Keep UUID as string for proper Supabase compatibility
+            name: trip.name,
+            destination: trip.destination,
+            dates: trip.dates,
+            status: trip.status,
+            travelers: trip.travelers || 1,
+            image: trip.image || "✈️",
+            isGroupTrip: trip.is_group_trip || false,
+            user_id: trip.user_id,
+            description: trip.description || "",
+            budget: trip.budget || "",
+            accommodation: trip.accommodation || "",
+            transportation: trip.transportation || "",
+            coordinates:
+              trip.trip_coordinates
+                ?.sort(
+                  (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+                )
+                ?.map((coord: any) => ({
+                  name: coord.name,
+                  lat: coord.lat || 0,
+                  lng: coord.lng || 0,
+                })) || [],
+            collaborators:
+              trip.trip_collaborators?.map((collab: any) => ({
+                id: collab.id,
+                name: collab.name || collab.email || "Unknown",
+                email: collab.email || "",
+                avatar: collab.avatar || "👤",
+                role: collab.role || "editor",
               })) || [],
-          collaborators:
-            trip.trip_collaborators?.map((collab: any) => ({
-              id: collab.id,
-              name: collab.name || collab.email || "Unknown",
-              email: collab.email || "",
-              avatar: collab.avatar || "👤",
-              role: collab.role || "editor",
-            })) || [],
-          savedPlaces:
-            trip.saved_places
-              ?.sort((a: any, b: any) => (a.position_order || 0) - (b.position_order || 0))
-              ?.map((place: any) => ({
-                id: place.id,
-                name: place.name,
-                category: place.category || "attraction",
-                rating: place.rating || 4.5,
-                image: place.image || "📍",
-                description: place.description || "",
-                estimatedTime: place.estimated_time || "2-3 hours",
-                priority: place.priority || "medium",
-                destinationName: place.destination_name || "",
-                lat: place.lat || 0,
-                lng: place.lng || 0,
-                positionOrder: place.position_order || 0,
-                // Address hierarchy
-                formattedAddress: place.formatted_address || undefined,
-                addressJson: place.address_json || undefined,
-                country: place.country || undefined,
-                state: place.state || undefined,
-                region: place.region || undefined,
-                city: place.city || undefined,
-                district: place.district || undefined,
-                neighborhood: place.neighborhood || undefined,
-                postalCode: place.postal_code || undefined,
-                street: place.street || undefined,
-                streetNumber: place.street_number || undefined,
-                placeSource: place.place_source || undefined,
-                placeReference: place.place_reference || undefined,
-              })) || [],
-        })) || [];
+            savedPlaces:
+              trip.saved_places
+                ?.sort((a: any, b: any) => (a.position_order || 0) - (b.position_order || 0))
+                ?.map((place: any) => ({
+                  id: place.id,
+                  name: place.name,
+                  category: place.category || "attraction",
+                  rating: place.rating || 4.5,
+                  image: place.image || "📍",
+                  description: place.description || "",
+                  estimatedTime: place.estimated_time || "2-3 hours",
+                  priority: place.priority || "medium",
+                  destinationName: place.destination_name || "",
+                  lat: place.lat || 0,
+                  lng: place.lng || 0,
+                  positionOrder: place.position_order || 0,
+                  // Address hierarchy
+                  formattedAddress: place.formatted_address || undefined,
+                  addressJson: place.address_json || undefined,
+                  country: place.country || undefined,
+                  state: place.state || undefined,
+                  region: place.region || undefined,
+                  city: place.city || undefined,
+                  district: place.district || undefined,
+                  neighborhood: place.neighborhood || undefined,
+                  postalCode: place.postal_code || undefined,
+                  street: place.street || undefined,
+                  streetNumber: place.street_number || undefined,
+                  placeSource: place.place_source || undefined,
+                  placeReference: place.place_reference || undefined,
+                })) || [],
+          })) || [];
 
       setTrips(transformedTrips);
     } catch (error) {
