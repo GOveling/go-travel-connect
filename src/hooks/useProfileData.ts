@@ -32,32 +32,15 @@ export const useProfileData = () => {
 
       console.log("Profile data fetched:", data);
 
-      // Si no existe perfil, crear uno automáticamente
-      if (!data) {
-        console.log("No profile found, creating one...");
-        console.log("User metadata:", user.user_metadata);
-        const { data: newProfile, error: insertError } = await supabase
-          .from("profiles")
-          .insert({
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || null,
-            description: null,
-            avatar_url: null,
-          })
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error("Error creating profile:", insertError);
-          throw insertError;
-        }
-
-        console.log("Profile created:", newProfile);
-        setProfile(newProfile as ProfileData);
-      } else {
+      if (data) {
         console.log("Profile found:", data);
         setProfile(data as ProfileData);
+      } else {
+        // Profile should be created automatically by trigger, but if not found, wait briefly and retry
+        console.log("No profile found, user might be newly created. Retrying in 1 second...");
+        setTimeout(() => {
+          fetchProfile();
+        }, 1000);
       }
     } catch (err) {
       console.error("Error fetching profile:", err);
