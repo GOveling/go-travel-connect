@@ -1018,6 +1018,10 @@ export type Database = {
         Args: { trip_id: string; user_id: string }
         Returns: boolean
       }
+      has_pending_invitation_to_trip: {
+        Args: { p_trip_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_trip_collaborator: {
         Args: { trip_id: string; user_id: string }
         Returns: boolean
