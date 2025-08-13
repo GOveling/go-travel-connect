@@ -10,7 +10,6 @@ export const useSupabaseTrips = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch trips from Supabase
   const fetchTrips = async () => {
     if (!user) {
       setTrips([]);
@@ -80,6 +79,7 @@ export const useSupabaseTrips = () => {
           description: tripsError.message,
           variant: "destructive",
         });
+        setTrips([]); // Clear trips on error
         return;
       }
 
