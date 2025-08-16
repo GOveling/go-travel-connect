@@ -89,7 +89,6 @@ export const useSupabaseTrips = () => {
           id: trip.id, // Keep UUID as string for proper Supabase compatibility
           name: trip.name,
           destination: trip.destination,
-          dates: trip.dates,
           startDate: trip.start_date ? new Date(trip.start_date) : undefined,
           endDate: trip.end_date ? new Date(trip.end_date) : undefined,
           status: trip.status,
@@ -177,7 +176,7 @@ export const useSupabaseTrips = () => {
           user_id: user.id,
           name: tripData.name || "New Trip",
           destination: tripData.destination || "",
-          dates: tripData.dates || "Dates TBD",
+          
           start_date: tripData.startDate ? tripData.startDate.toISOString() : null,
           end_date: tripData.endDate ? tripData.endDate.toISOString() : null,
           status: tripData.status || "planning",
@@ -282,7 +281,7 @@ export const useSupabaseTrips = () => {
         .update({
           name: tripData.name,
           destination: tripData.destination,
-          dates: tripData.dates,
+          
           start_date: tripData.startDate ? tripData.startDate.toISOString() : null,
           end_date: tripData.endDate ? tripData.endDate.toISOString() : null,
           status: tripData.status,

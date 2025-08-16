@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -671,7 +671,6 @@ export type Database = {
           budget: string | null
           collaborators_count: number | null
           created_at: string
-          dates: string
           description: string | null
           destination: Json
           end_date: string | null
@@ -693,7 +692,6 @@ export type Database = {
           budget?: string | null
           collaborators_count?: number | null
           created_at?: string
-          dates: string
           description?: string | null
           destination: Json
           end_date?: string | null
@@ -715,7 +713,6 @@ export type Database = {
           budget?: string | null
           collaborators_count?: number | null
           created_at?: string
-          dates?: string
           description?: string | null
           destination?: Json
           end_date?: string | null
@@ -891,7 +888,7 @@ export type Database = {
       }
       accept_trip_invitation: {
         Args:
-          | { invitation_id: string; user_id: string; accepted_date: string }
+          | { accepted_date: string; invitation_id: string; user_id: string }
           | { p_token: string }
           | { p_token: string; p_user_id: string }
         Returns: boolean
@@ -923,91 +920,91 @@ export type Database = {
       get_pending_invitations: {
         Args: { user_email: string }
         Returns: {
+          created_at: string
+          expires_at: string
           id: string
+          inviter_name: string
+          role: string
           token: string
           trip_id: string
           trip_name: string
-          inviter_name: string
-          role: string
-          created_at: string
-          expires_at: string
         }[]
       }
       get_place_reviews_count: {
         Args: {
-          p_place_id: string
-          p_place_name: string
           p_lat?: number
           p_lng?: number
+          p_place_id: string
+          p_place_name: string
         }
         Returns: number
       }
       get_place_reviews_public: {
         Args: {
-          p_place_id: string
-          p_place_name: string
           p_lat?: number
+          p_limit?: number
           p_lng?: number
           p_offset?: number
-          p_limit?: number
+          p_place_id: string
+          p_place_name: string
         }
         Returns: {
+          anonymous: boolean
+          comment: string
+          created_at: string
           id: string
           place_id: string
           place_name: string
           rating: number
-          comment: string
-          created_at: string
           updated_at: string
-          anonymous: boolean
           user_id: string
         }[]
       }
       get_trip_members: {
         Args: { p_trip_id: string }
         Returns: {
+          created_at: string
+          email: string
           id: string
+          name: string
+          role: string
           trip_id: string
           user_id: string
-          role: string
-          created_at: string
-          name: string
-          email: string
         }[]
       }
       get_trip_user_profile: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: {
-          id: string
-          full_name: string
-          email: string
           avatar_url: string
+          email: string
+          full_name: string
+          id: string
         }[]
       }
       get_user_achievements_with_progress: {
         Args: { p_user_id: string }
         Returns: {
           achievement_id: string
-          title: string
-          description: string
           category: string
-          icon: string
-          points: number
-          total_required: number
-          criteria: string
-          rarity: string
-          current_progress: number
-          is_completed: boolean
           completed_at: string
+          criteria: string
+          current_progress: number
+          description: string
+          icon: string
+          is_completed: boolean
+          points: number
           progress_percentage: number
+          rarity: string
+          title: string
+          total_required: number
         }[]
       }
       get_users_public_profile_min: {
         Args: { p_user_ids: string[] }
         Returns: {
-          id: string
-          full_name: string
           avatar_url: string
+          full_name: string
+          id: string
         }[]
       }
       grant_trip_member_access: {
@@ -1036,20 +1033,20 @@ export type Database = {
       }
       send_trip_invitation: {
         Args:
-          | { p_trip_id: string; p_email: string; p_role?: string }
           | {
-              p_trip_id: string
               p_email: string
               p_role?: string
               p_token?: string
+              p_trip_id: string
             }
+          | { p_email: string; p_role?: string; p_trip_id: string }
         Returns: string
       }
       update_achievement_progress: {
         Args: {
-          p_user_id: string
           p_achievement_id: string
           p_progress_increment?: number
+          p_user_id: string
         }
         Returns: undefined
       }

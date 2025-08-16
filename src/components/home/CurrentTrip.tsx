@@ -32,29 +32,12 @@ const CurrentTripContent = ({
     if (nearestUpcomingTrip && !travelingTrip) {
       const calculateCountdown = () => {
         try {
-          const startDateStr = nearestUpcomingTrip.dates.split(" - ")[0];
-          const year =
-            nearestUpcomingTrip.dates.split(", ")[1] ||
-            new Date().getFullYear().toString();
-          const month = startDateStr.split(" ")[0];
-          const day = parseInt(startDateStr.split(" ")[1]);
-
-          const monthMap: { [key: string]: number } = {
-            Jan: 0,
-            Feb: 1,
-            Mar: 2,
-            Apr: 3,
-            May: 4,
-            Jun: 5,
-            Jul: 6,
-            Aug: 7,
-            Sep: 8,
-            Oct: 9,
-            Nov: 10,
-            Dec: 11,
-          };
-
-          const startDate = new Date(parseInt(year), monthMap[month], day);
+          const startDate = nearestUpcomingTrip.startDate;
+          if (!startDate) {
+            setCountdown(null);
+            return;
+          }
+          
           const currentDate = new Date();
           const timeDifference = startDate.getTime() - currentDate.getTime();
 

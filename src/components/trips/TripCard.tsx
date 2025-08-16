@@ -11,6 +11,7 @@ import {
   Eye,
   Trash2,
 } from "lucide-react";
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -193,7 +194,7 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar size={14} />
-                      <span>{trip.dates || "Dates TBD"}</span>
+                      <span>{getFormattedDateRange(trip.startDate, trip.endDate)}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />

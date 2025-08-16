@@ -1,3 +1,4 @@
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Users, UserPlus, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,7 +80,7 @@ const TripMap = ({ trips }: TripMapProps) => {
                       </div>
                     )}
                   </div>
-                  <p className="text-gray-600 text-sm mb-2">{trip.dates}</p>
+                  <p className="text-gray-600 text-sm mb-2">{getFormattedDateRange(trip.startDate, trip.endDate)}</p>
 
                   {/* Collaborators */}
                   {trip.collaborators && trip.collaborators.length > 0 && (
