@@ -634,7 +634,21 @@ const TripDetailModal = ({
 
   // Format date range
   const getDateRange = () => {
-    return trip?.dates || 'No dates set';
+    if (!trip?.startDate && !trip?.endDate) {
+      return trip?.dates || 'No dates set';
+    }
+    
+    if (trip.startDate && trip.endDate) {
+      const startFormatted = format(trip.startDate, "MMM d, yyyy");
+      const endFormatted = format(trip.endDate, "MMM d, yyyy");
+      return `${startFormatted} - ${endFormatted}`;
+    } else if (trip.startDate) {
+      return format(trip.startDate, "MMM d, yyyy");
+    } else if (trip.endDate) {
+      return `Until ${format(trip.endDate, "MMM d, yyyy")}`;
+    }
+    
+    return 'No dates set';
   };
 
   const getPriorityColor = (priority: string) => {
