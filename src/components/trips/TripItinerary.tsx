@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Calendar, Clock } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus, Calendar, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TripItineraryProps {
   tripId: string;
@@ -13,7 +13,7 @@ export const TripItinerary = ({ tripId, userRole }: TripItineraryProps) => {
   const [itineraries, setItineraries] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const canEdit = userRole === 'owner' || userRole === 'editor';
+  const canEdit = userRole === "owner" || userRole === "editor";
 
   useEffect(() => {
     fetchItineraries();
@@ -22,15 +22,15 @@ export const TripItinerary = ({ tripId, userRole }: TripItineraryProps) => {
   const fetchItineraries = async () => {
     try {
       const { data, error } = await supabase
-        .from('ai_itineraries')
-        .select('*')
-        .eq('trip_id', tripId)
-        .order('generated_at', { ascending: false });
+        .from("ai_itineraries")
+        .select("*")
+        .eq("trip_id", tripId)
+        .order("generated_at", { ascending: false });
 
       if (error) throw error;
       setItineraries(data || []);
     } catch (error) {
-      console.error('Error fetching itineraries:', error);
+      console.error("Error fetching itineraries:", error);
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,9 @@ export const TripItinerary = ({ tripId, userRole }: TripItineraryProps) => {
             <Card key={itinerary.id}>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>{itinerary.route_type || 'Itinerario personalizado'}</span>
+                  <span>
+                    {itinerary.route_type || "Itinerario personalizado"}
+                  </span>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Clock className="h-4 w-4 mr-1" />
                     {new Date(itinerary.generated_at).toLocaleDateString()}
@@ -88,12 +90,15 @@ export const TripItinerary = ({ tripId, userRole }: TripItineraryProps) => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Itinerario generado automáticamente basado en tus lugares guardados.
+                  Itinerario generado automáticamente basado en tus lugares
+                  guardados.
                 </p>
                 {canEdit && (
                   <div className="mt-4 space-x-2">
                     <Button size="sm">Ver detalles</Button>
-                    <Button size="sm" variant="outline">Editar</Button>
+                    <Button size="sm" variant="outline">
+                      Editar
+                    </Button>
                   </div>
                 )}
               </CardContent>

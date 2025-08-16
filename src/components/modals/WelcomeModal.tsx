@@ -46,7 +46,7 @@ const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
     if (isOpen) {
       setCurrentStep(0);
       setShowConfetti(true);
-      
+
       // Auto-advance through steps
       const stepInterval = setInterval(() => {
         setCurrentStep((prev) => {
@@ -98,9 +98,11 @@ const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
           {/* Main content */}
           <div className="relative z-10 space-y-6">
             {/* Animated icon */}
-            <div className={`${currentStepData.bgColor} p-6 rounded-full inline-flex animate-scale-in`}>
-              <IconComponent 
-                size={48} 
+            <div
+              className={`${currentStepData.bgColor} p-6 rounded-full inline-flex animate-scale-in`}
+            >
+              <IconComponent
+                size={48}
                 className={`${currentStepData.color} animate-pulse`}
               />
             </div>
@@ -121,9 +123,9 @@ const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
                 <div
                   key={index}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index <= currentStep 
-                      ? 'bg-gradient-to-r from-purple-500 to-orange-500' 
-                      : 'bg-muted'
+                    index <= currentStep
+                      ? "bg-gradient-to-r from-purple-500 to-orange-500"
+                      : "bg-muted"
                   }`}
                 />
               ))}
@@ -131,9 +133,9 @@ const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
 
             {/* Loading bar at bottom */}
             <div className="w-full bg-muted rounded-full h-1">
-              <div 
+              <div
                 className="bg-gradient-to-r from-purple-500 to-orange-500 h-1 rounded-full transition-all duration-[5000ms] ease-linear"
-                style={{ width: isOpen ? '100%' : '0%' }}
+                style={{ width: isOpen ? "100%" : "0%" }}
               />
             </div>
           </div>

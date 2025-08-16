@@ -42,14 +42,18 @@ const DecisionCard = ({
   onEdit,
   onDelete,
 }: DecisionCardProps) => {
-  const { creatorProfile } = useCreatorProfile(decision.created_by, decision.trip_id);
-  
+  const { creatorProfile } = useCreatorProfile(
+    decision.created_by,
+    decision.trip_id
+  );
+
   // Calculate votes from the votes array
-  const votesByOption = decision.votes?.reduce((acc: Record<string, number>, vote: any) => {
-    acc[vote.option_index] = (acc[vote.option_index] || 0) + 1;
-    return acc;
-  }, {}) || {};
-  
+  const votesByOption =
+    decision.votes?.reduce((acc: Record<string, number>, vote: any) => {
+      acc[vote.option_index] = (acc[vote.option_index] || 0) + 1;
+      return acc;
+    }, {}) || {};
+
   const totalVotes = decision.votes?.length || 0;
 
   return (
@@ -69,9 +73,19 @@ const DecisionCard = ({
               <div className="flex items-center space-x-4 text-xs text-gray-500">
                 <span className="flex items-center space-x-1">
                   <Calendar size={12} />
-                  <span>Ends: {decision.end_date ? new Date(decision.end_date).toLocaleDateString() : 'No end date'}</span>
+                  <span>
+                    Ends:{" "}
+                    {decision.end_date
+                      ? new Date(decision.end_date).toLocaleDateString()
+                      : "No end date"}
+                  </span>
                 </span>
-                <span>By: {creatorProfile?.full_name || creatorProfile?.email || "Unknown User"}</span>
+                <span>
+                  By:{" "}
+                  {creatorProfile?.full_name ||
+                    creatorProfile?.email ||
+                    "Unknown User"}
+                </span>
               </div>
             </div>
             <div className="flex space-x-2 flex-shrink-0">
@@ -121,12 +135,16 @@ const DecisionCard = ({
           <div className="space-y-3">
             {decision.options.map((option, index) => {
               const voteCount = votesByOption[index] || 0;
-              const percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
-              
+              const percentage =
+                totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+
               // Check if current user has voted for this option
-              const hasVoted = decision.votes?.some((vote: any) => 
-                vote.option_index === index && vote.user_id === 'current-user' // Replace with actual user ID
-              ) || false;
+              const hasVoted =
+                decision.votes?.some(
+                  (vote: any) =>
+                    vote.option_index === index &&
+                    vote.user_id === "current-user" // Replace with actual user ID
+                ) || false;
 
               return (
                 <div key={index} className="space-y-2">

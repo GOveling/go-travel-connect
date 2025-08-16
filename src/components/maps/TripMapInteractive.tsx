@@ -3,7 +3,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useMapData } from "@/hooks/useMapData";
 import L from "leaflet";
-import { Bookmark, Eye, Layers, Mountain, Navigation, Satellite, Users, LocateFixed } from "lucide-react";
+import {
+  Bookmark,
+  Eye,
+  Layers,
+  Mountain,
+  Navigation,
+  Satellite,
+  Users,
+  LocateFixed,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
@@ -41,7 +50,14 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
   const [showRoutes, setShowRoutes] = useState(true);
   const [showSavedPlaces, setShowSavedPlaces] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
-  const { location, isLocating, error, getCurrentLocation, startWatching, stopWatching } = useUserLocation();
+  const {
+    location,
+    isLocating,
+    error,
+    getCurrentLocation,
+    startWatching,
+    stopWatching,
+  } = useUserLocation();
   const { toast } = useToast();
   const [showUserLocation, setShowUserLocation] = useState(false);
 
@@ -90,7 +106,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
           box-shadow: 0 2px 10px rgba(0,0,0,0.3);
           ${type === "savedPlace" ? "opacity: 0.9;" : ""}
         ">
-          ${type === "savedPlace" && positionNumber ? positionNumber : (type === "savedPlace" ? "📍" : emoji)}
+          ${type === "savedPlace" && positionNumber ? positionNumber : type === "savedPlace" ? "📍" : emoji}
         </div>
       `,
       className: "custom-marker",
@@ -310,7 +326,11 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 disabled={isLocating}
               >
                 <LocateFixed size={16} className="mr-2" />
-                {showUserLocation ? "Ocultar ubicación" : isLocating ? "Localizando..." : "Mi ubicación"}
+                {showUserLocation
+                  ? "Ocultar ubicación"
+                  : isLocating
+                    ? "Localizando..."
+                    : "Mi ubicación"}
               </Button>
             </div>
             <MapContainer
@@ -395,25 +415,26 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                         <Popup className="mobile-optimized-popup">
                           <div className="p-3 max-w-[280px] sm:min-w-[300px]">
                             {/* Image section - mejorada detección URLs */}
-                            {place.image && (
-                              place.image.includes('http') || 
-                              place.image.includes('maps.googleapis.com') || 
-                              place.image.includes('places.googleapis.com') ||
-                              place.image.includes('googleusercontent.com')
-                            ) && (
-                              <div className="mb-3 relative">
-                                <img 
-                                  src={place.image} 
-                                  alt={place.name}
-                                  className="w-full h-20 sm:h-24 object-cover rounded-lg shadow-sm"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                  loading="lazy"
-                                />
-                              </div>
-                            )}
-                            
+                            {place.image &&
+                              (place.image.includes("http") ||
+                                place.image.includes("maps.googleapis.com") ||
+                                place.image.includes("places.googleapis.com") ||
+                                place.image.includes(
+                                  "googleusercontent.com"
+                                )) && (
+                                <div className="mb-3 relative">
+                                  <img
+                                    src={place.image}
+                                    alt={place.name}
+                                    className="w-full h-20 sm:h-24 object-cover rounded-lg shadow-sm"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                    }}
+                                    loading="lazy"
+                                  />
+                                </div>
+                              )}
+
                             {/* Header con número y nombre */}
                             <div className="flex items-start space-x-2 mb-2">
                               <span className="bg-primary text-primary-foreground text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -428,7 +449,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                                 </p>
                               </div>
                             </div>
-                            
+
                             {/* Tags compactos para móvil */}
                             <div className="flex flex-wrap gap-1 mb-2">
                               <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
@@ -437,28 +458,33 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                               <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                                 ⭐ {place.rating}
                               </span>
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                place.priority === "high"
-                                  ? "bg-red-100 text-red-800"
-                                  : place.priority === "medium"
-                                    ? "bg-orange-100 text-orange-800"
-                                    : "bg-green-100 text-green-800"
-                              }`}>
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full ${
+                                  place.priority === "high"
+                                    ? "bg-red-100 text-red-800"
+                                    : place.priority === "medium"
+                                      ? "bg-orange-100 text-orange-800"
+                                      : "bg-green-100 text-green-800"
+                                }`}
+                              >
                                 {place.priority}
                               </span>
                             </div>
-                            
+
                             {/* Descripción limitada para móviles */}
-                            {place.description && place.description.length > 0 && (
-                              <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
-                                {place.description}
-                              </p>
-                            )}
-                            
+                            {place.description &&
+                              place.description.length > 0 && (
+                                <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
+                                  {place.description}
+                                </p>
+                              )}
+
                             {/* Información adicional compacta */}
                             <div className="flex items-center justify-between text-xs text-gray-500">
                               <span>⏱️ {place.estimatedTime}</span>
-                              <span className="text-purple-600">📅 {trip.name}</span>
+                              <span className="text-purple-600">
+                                📅 {trip.name}
+                              </span>
                             </div>
                           </div>
                         </Popup>
@@ -488,11 +514,18 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
 
               {showUserLocation && location && (
                 <>
-                  <Marker position={[location.lat, location.lng]} icon={userIcon} />
+                  <Marker
+                    position={[location.lat, location.lng]}
+                    icon={userIcon}
+                  />
                   <Circle
                     center={[location.lat, location.lng]}
                     radius={location.accuracy ?? 50}
-                    pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.15 }}
+                    pathOptions={{
+                      color: "#3b82f6",
+                      fillColor: "#3b82f6",
+                      fillOpacity: 0.15,
+                    }}
                   />
                 </>
               )}

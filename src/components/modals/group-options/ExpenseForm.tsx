@@ -92,9 +92,9 @@ const ExpenseForm = ({
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((part) => part[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -132,7 +132,10 @@ const ExpenseForm = ({
               placeholder="0.00"
               value={newExpense.amount.toString()}
               onChange={(e) =>
-                setNewExpense({ ...newExpense, amount: parseFloat(e.target.value) || 0 })
+                setNewExpense({
+                  ...newExpense,
+                  amount: parseFloat(e.target.value) || 0,
+                })
               }
               className="h-12 text-base"
             />
@@ -172,8 +175,12 @@ const ExpenseForm = ({
                     className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                   >
                     <Avatar className="w-6 h-6">
-                      {participant.avatar && participant.avatar.startsWith('http') ? (
-                        <AvatarImage src={participant.avatar} alt={participant.name} />
+                      {participant.avatar &&
+                      participant.avatar.startsWith("http") ? (
+                        <AvatarImage
+                          src={participant.avatar}
+                          alt={participant.name}
+                        />
                       ) : null}
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-orange-500 text-white text-xs">
                         {getInitials(participant.name)}
@@ -214,7 +221,9 @@ const ExpenseForm = ({
                 >
                   <Checkbox
                     id={`split-${participant.id}`}
-                    checked={newExpense.split_between.includes(participant.name)}
+                    checked={newExpense.split_between.includes(
+                      participant.name
+                    )}
                     onCheckedChange={(checked) =>
                       handleSplitBetweenChange(
                         participant.name,
@@ -228,8 +237,12 @@ const ExpenseForm = ({
                     className="flex items-center space-x-2 cursor-pointer flex-1 min-h-[44px]"
                   >
                     <Avatar className="w-6 h-6">
-                      {participant.avatar && participant.avatar.startsWith('http') ? (
-                        <AvatarImage src={participant.avatar} alt={participant.name} />
+                      {participant.avatar &&
+                      participant.avatar.startsWith("http") ? (
+                        <AvatarImage
+                          src={participant.avatar}
+                          alt={participant.name}
+                        />
                       ) : null}
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-orange-500 text-white text-xs">
                         {getInitials(participant.name)}
@@ -248,8 +261,8 @@ const ExpenseForm = ({
           </div>
         </div>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-          <Button 
-            onClick={editingExpenseId ? onUpdateExpense : onAddExpense} 
+          <Button
+            onClick={editingExpenseId ? onUpdateExpense : onAddExpense}
             className="flex-1 h-12"
           >
             {editingExpenseId ? "Update Expense" : "Add Expense"}

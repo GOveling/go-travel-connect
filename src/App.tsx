@@ -28,7 +28,7 @@ const App = () => {
     loading: welcomeLoading,
     completeWelcome,
     completeOnboarding,
-    skipOnboardingForNow
+    skipOnboardingForNow,
   } = useWelcomeFlow();
 
   if (loading || welcomeLoading) {

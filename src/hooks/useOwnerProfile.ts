@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useOwnerProfile = (ownerId: string | null, tripId?: string | null) => {
+export const useOwnerProfile = (
+  ownerId: string | null,
+  tripId?: string | null
+) => {
   const [ownerProfile, setOwnerProfile] = useState<{
     id: string;
     full_name: string | null;

@@ -141,7 +141,9 @@ const ExploreSection = ({
       if (selectedId) {
         const selectedPlace = filtered.find((place) => place.id === selectedId);
         const otherPlaces = filtered.filter((place) => place.id !== selectedId);
-        setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : filtered);
+        setSearchResults(
+          selectedPlace ? [selectedPlace, ...otherPlaces] : filtered
+        );
         setSelectedPlaceId(selectedId);
       } else {
         setSearchResults(filtered);
@@ -174,20 +176,20 @@ const ExploreSection = ({
       try {
         const success = await addPlaceToTrip(sourceTrip.id, placeData);
 
-          if (success) {
-            toast({
-              title: "Lugar agregado",
-              description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
-            });
-            setIsModalOpen(false);
-            onClearSourceTrip?.();
-            setShowCongrats(true);
-            setTimeout(() => {
-              // Navigate back to trips section
-              const event = new CustomEvent("navigateToTrips");
-              window.dispatchEvent(event);
-            }, 1400);
-          }
+        if (success) {
+          toast({
+            title: "Lugar agregado",
+            description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
+          });
+          setIsModalOpen(false);
+          onClearSourceTrip?.();
+          setShowCongrats(true);
+          setTimeout(() => {
+            // Navigate back to trips section
+            const event = new CustomEvent("navigateToTrips");
+            window.dispatchEvent(event);
+          }, 1400);
+        }
       } catch (error) {
         toast({
           title: "Error",
@@ -219,11 +221,11 @@ const ExploreSection = ({
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
-            <ExploreHero
-              title={t("explore.title")}
-              subtitle={t("explore.subtitle")}
-              onExploreClick={() => {}}
-            />
+          <ExploreHero
+            title={t("explore.title")}
+            subtitle={t("explore.subtitle")}
+            onExploreClick={() => {}}
+          />
 
           {/* Search Controls - Filtros y Búsqueda más juntos */}
           <div className="space-y-2">
@@ -289,7 +291,10 @@ const ExploreSection = ({
       />
 
       {/* Overlays and Ad Slot */}
-      <CongratsOverlay open={showCongrats} onClose={() => setShowCongrats(false)} />
+      <CongratsOverlay
+        open={showCongrats}
+        onClose={() => setShowCongrats(false)}
+      />
       <BottomSafeAdSlot />
     </div>
   );

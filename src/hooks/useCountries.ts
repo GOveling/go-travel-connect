@@ -20,10 +20,10 @@ export const useCountries = () => {
       console.log("Fetching countries from API...");
       const response = await apiService.getCountries();
       console.log("Countries API response:", response);
-      
+
       if (response && Array.isArray(response)) {
         // If response is directly an array
-        const sortedCountries = response.sort((a: Country, b: Country) => 
+        const sortedCountries = response.sort((a: Country, b: Country) =>
           a.country_name.localeCompare(b.country_name)
         );
         setCountries(sortedCountries);

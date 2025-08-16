@@ -37,7 +37,7 @@ const CurrentTripContent = ({
             setCountdown(null);
             return;
           }
-          
+
           const currentDate = new Date();
           const timeDifference = startDate.getTime() - currentDate.getTime();
 

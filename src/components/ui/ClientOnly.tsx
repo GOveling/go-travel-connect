@@ -13,7 +13,7 @@ const ClientOnly = ({ children, fallback = null }: ClientOnlyProps) => {
   }, []);
 
   // En producción, siempre renderizar para evitar problemas de hidratación
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     return <>{children}</>;
   }
 

@@ -2,8 +2,9 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface InvitationRequest {
@@ -15,172 +16,186 @@ interface InvitationRequest {
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     // Create Supabase client with service role key for database operations
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     // Get authorization header
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error("No authorization header");
     }
 
     // Create client with user token for auth verification
     const supabaseUser = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
         global: {
           headers: {
-            Authorization: authHeader
-          }
-        }
+            Authorization: authHeader,
+          },
+        },
       }
     );
 
     // Verify user authentication
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseUser.auth.getUser();
     if (authError || !user) {
-      throw new Error('Unauthorized');
+      throw new Error("Unauthorized");
     }
 
-    const { tripId, email, role, message }: InvitationRequest = await req.json();
+    const { tripId, email, role, message }: InvitationRequest =
+      await req.json();
 
-    console.log('Sending invitation:', { tripId, email, role, user: user.id });
+    console.log("Sending invitation:", { tripId, email, role, user: user.id });
 
     // Verify user is trip owner first
     const { data: tripData, error: tripError } = await supabaseUser
-      .from('trips')
-      .select('user_id, name, destination')
-      .eq('id', tripId)
-      .eq('user_id', user.id)
+      .from("trips")
+      .select("user_id, name, destination")
+      .eq("id", tripId)
+      .eq("user_id", user.id)
       .single();
 
     if (tripError || !tripData) {
-      console.error('Trip ownership verification failed:', tripError);
-      throw new Error('Only trip owners can send invitations');
+      console.error("Trip ownership verification failed:", tripError);
+      throw new Error("Only trip owners can send invitations");
     }
 
-    console.log('Trip ownership verified for user:', user.id);
+    console.log("Trip ownership verified for user:", user.id);
 
     // Generate secure token using crypto API (base64url encoding)
     const tokenBytes = new Uint8Array(32);
     crypto.getRandomValues(tokenBytes);
     const invitationToken = btoa(String.fromCharCode(...tokenBytes))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
 
-    console.log('Generated invitation token');
+    console.log("Generated invitation token");
 
     // Cancel any existing pending invitations for the same email and trip
     const { error: cancelError } = await supabaseUser
-      .from('trip_invitations')
-      .update({ status: 'cancelled' })
-      .eq('trip_id', tripId)
-      .eq('email', email.toLowerCase().trim())
-      .eq('status', 'pending');
+      .from("trip_invitations")
+      .update({ status: "cancelled" })
+      .eq("trip_id", tripId)
+      .eq("email", email.toLowerCase().trim())
+      .eq("status", "pending");
 
     if (cancelError) {
-      console.error('Error cancelling existing invitations:', cancelError);
+      console.error("Error cancelling existing invitations:", cancelError);
       // Don't fail the operation, just log the error
     } else {
-      console.log('Cancelled existing pending invitations for email:', email);
+      console.log("Cancelled existing pending invitations for email:", email);
     }
 
     // Call the database function to create invitation using user client
-    const { data: invitationId, error: invitationError } = await supabaseUser
-      .rpc('send_trip_invitation', {
+    const { data: invitationId, error: invitationError } =
+      await supabaseUser.rpc("send_trip_invitation", {
         p_trip_id: tripId,
         p_email: email,
         p_role: role,
-        p_token: invitationToken
+        p_token: invitationToken,
       });
 
     if (invitationError) {
-      console.error('Error creating invitation:', invitationError);
-      throw new Error(`Failed to create invitation: ${invitationError.message}`);
+      console.error("Error creating invitation:", invitationError);
+      throw new Error(
+        `Failed to create invitation: ${invitationError.message}`
+      );
     }
 
     // Get user profile for inviter name
     const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('full_name')
-      .eq('id', user.id)
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
       .single();
 
     if (profileError) {
-      console.error('Error getting user profile:', profileError);
+      console.error("Error getting user profile:", profileError);
     }
 
-    console.log('Invitation created successfully:', {
+    console.log("Invitation created successfully:", {
       id: invitationId,
       token: invitationToken,
-      trip: tripData.name
+      trip: tripData.name,
     });
 
     // Create invitation link with correct domain
-    const origin = req.headers.get('origin') || req.headers.get('referer');
-    let baseUrl = 'https://go-travel-connect.vercel.app'; // Default production URL
-    
+    const origin = req.headers.get("origin") || req.headers.get("referer");
+    let baseUrl = "https://go-travel-connect.vercel.app"; // Default production URL
+
     if (origin) {
       try {
         const url = new URL(origin);
         baseUrl = url.origin;
       } catch (e) {
-        console.log('Invalid origin URL, using default:', origin);
+        console.log("Invalid origin URL, using default:", origin);
       }
     }
-    
+
     const invitationLink = `${baseUrl}/accept-invitation?token=${invitationToken}`;
-    console.log('Generated invitation link:', invitationLink);
+    console.log("Generated invitation link:", invitationLink);
 
     // Email content
-    const destinations = Array.isArray(tripData.destination) 
-      ? tripData.destination.join(', ')
-      : tripData.destination || 'Various destinations';
+    const destinations = Array.isArray(tripData.destination)
+      ? tripData.destination.join(", ")
+      : tripData.destination || "Various destinations";
 
     const emailData = {
       to: email,
-      inviterName: profile?.full_name || 'Someone',
-      tripName: tripData.name || 'Trip',
+      inviterName: profile?.full_name || "Someone",
+      tripName: tripData.name || "Trip",
       destinations,
-      role: role === 'editor' ? 'edit and collaborate on' : 'view',
+      role: role === "editor" ? "edit and collaborate on" : "view",
       invitationLink,
-      customMessage: message || '',
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()
+      customMessage: message || "",
+      expiresAt: new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ).toLocaleDateString(),
     };
 
-    console.log('Email data prepared:', emailData);
+    console.log("Email data prepared:", emailData);
 
     // Send the invitation email
     try {
-      const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-email', {
-        body: {
-          invitationId: invitationId,
-          tripName: emailData.tripName,
-          inviterName: emailData.inviterName,
-          email: emailData.to,
-          role: role,
-          token: invitationToken
+      const { error: emailError } = await supabaseAdmin.functions.invoke(
+        "send-invitation-email",
+        {
+          body: {
+            invitationId: invitationId,
+            tripName: emailData.tripName,
+            inviterName: emailData.inviterName,
+            email: emailData.to,
+            role: role,
+            token: invitationToken,
+          },
         }
-      });
+      );
 
       if (emailError) {
-        console.error('Error sending invitation email:', emailError);
+        console.error("Error sending invitation email:", emailError);
         // Don't fail the whole operation - invitation is already created
       } else {
-        console.log('Invitation email sent successfully');
+        console.log("Invitation email sent successfully");
       }
     } catch (emailError) {
-      console.error('Error invoking send-invitation-email function:', emailError);
+      console.error(
+        "Error invoking send-invitation-email function:",
+        emailError
+      );
       // Don't fail the whole operation - invitation is already created
     }
 
@@ -190,23 +205,22 @@ serve(async (req) => {
         success: true,
         invitationId: invitationId,
         invitationLink,
-        message: 'Invitation sent successfully'
+        message: "Invitation sent successfully",
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       }
     );
-
   } catch (error) {
-    console.error('Error in send-trip-invitation function:', error);
+    console.error("Error in send-trip-invitation function:", error);
     return new Response(
       JSON.stringify({
         error: error.message,
-        success: false
+        success: false,
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       }
     );

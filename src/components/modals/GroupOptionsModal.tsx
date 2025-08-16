@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -11,8 +21,14 @@ import CreateDecisionModal from "./group-options/CreateDecisionModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
-import { useSupabaseTripExpenses, type TripExpense } from "@/hooks/useSupabaseTripExpenses";
-import { useSupabaseTripDecisions, type TripDecision } from "@/hooks/useSupabaseTripDecisions";
+import {
+  useSupabaseTripExpenses,
+  type TripExpense,
+} from "@/hooks/useSupabaseTripExpenses";
+import {
+  useSupabaseTripDecisions,
+  type TripDecision,
+} from "@/hooks/useSupabaseTripDecisions";
 
 interface GroupOptionsModalProps {
   isOpen: boolean;
@@ -28,14 +44,20 @@ interface Collaborator {
   role: string;
 }
 
-const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) => {
+const GroupOptionsModal = ({
+  isOpen,
+  onClose,
+  trip,
+}: GroupOptionsModalProps) => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { profile } = useProfileData();
   const { ownerProfile } = useOwnerProfile(trip?.user_id, trip?.id);
   const [activeTab, setActiveTab] = useState("expenses");
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
-  const [newExpense, setNewExpense] = useState<Omit<TripExpense, "id" | "created_at" | "updated_at" | "created_by">>({
+  const [newExpense, setNewExpense] = useState<
+    Omit<TripExpense, "id" | "created_at" | "updated_at" | "created_by">
+  >({
     trip_id: trip?.id || "",
     description: "",
     amount: 0,
@@ -44,13 +66,34 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   });
 
   // Use Supabase hooks for data management
-  const { expenses, loading: expensesLoading, createExpense, updateExpense, deleteExpense } = useSupabaseTripExpenses(trip?.id || "");
-  const { decisions, loading: decisionsLoading, createDecision, updateDecision, deleteDecision, vote } = useSupabaseTripDecisions(trip?.id || "");
+  const {
+    expenses,
+    loading: expensesLoading,
+    createExpense,
+    updateExpense,
+    deleteExpense,
+  } = useSupabaseTripExpenses(trip?.id || "");
+  const {
+    decisions,
+    loading: decisionsLoading,
+    createDecision,
+    updateDecision,
+    deleteDecision,
+    vote,
+  } = useSupabaseTripDecisions(trip?.id || "");
 
   // Create decision modal state
-  const [isCreateDecisionModalOpen, setIsCreateDecisionModalOpen] = useState(false);
-  const [editingDecision, setEditingDecision] = useState<TripDecision | null>(null);
-  const [newDecision, setNewDecision] = useState<Omit<TripDecision, "id" | "created_at" | "updated_at" | "created_by" | "votes">>({
+  const [isCreateDecisionModalOpen, setIsCreateDecisionModalOpen] =
+    useState(false);
+  const [editingDecision, setEditingDecision] = useState<TripDecision | null>(
+    null
+  );
+  const [newDecision, setNewDecision] = useState<
+    Omit<
+      TripDecision,
+      "id" | "created_at" | "updated_at" | "created_by" | "votes"
+    >
+  >({
     trip_id: trip?.id || "",
     title: "",
     description: "",
@@ -64,15 +107,18 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   const allParticipants = [
     {
       id: trip?.user_id || user?.id || "current-user",
-      name: trip?.user_id === user?.id 
-        ? (profile?.full_name || "You")
-        : (ownerProfile?.full_name || "Trip Owner"),
-      email: trip?.user_id === user?.id 
-        ? (user?.email || "you@example.com")
-        : (ownerProfile?.email || "owner@example.com"),
-      avatar: trip?.user_id === user?.id 
-        ? (profile?.avatar_url || "")
-        : (ownerProfile?.avatar_url || ""),
+      name:
+        trip?.user_id === user?.id
+          ? profile?.full_name || "You"
+          : ownerProfile?.full_name || "Trip Owner",
+      email:
+        trip?.user_id === user?.id
+          ? user?.email || "you@example.com"
+          : ownerProfile?.email || "owner@example.com",
+      avatar:
+        trip?.user_id === user?.id
+          ? profile?.avatar_url || ""
+          : ownerProfile?.avatar_url || "",
       role: "owner",
     },
     ...(trip?.collaborators || []).map((collaborator: any) => ({
@@ -87,11 +133,11 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   // Reset new expense when trip changes
   useEffect(() => {
     if (trip?.id) {
-      setNewExpense(prev => ({
+      setNewExpense((prev) => ({
         ...prev,
         trip_id: trip.id,
       }));
-      setNewDecision(prev => ({
+      setNewDecision((prev) => ({
         ...prev,
         trip_id: trip.id,
       }));
@@ -123,7 +169,7 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
 
   const handleAddExpense = async () => {
     if (!newExpense.description || newExpense.amount <= 0) return;
-    
+
     try {
       await createExpense(newExpense);
       setNewExpense({
@@ -150,7 +196,8 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
   };
 
   const handleUpdateExpense = async () => {
-    if (!editingExpenseId || !newExpense.description || newExpense.amount <= 0) return;
+    if (!editingExpenseId || !newExpense.description || newExpense.amount <= 0)
+      return;
 
     try {
       await updateExpense(editingExpenseId, newExpense);
@@ -215,7 +262,12 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
     setIsCreateDecisionModalOpen(true);
   };
 
-  const handleUpdateDecision = async (decisionData: Omit<TripDecision, "id" | "created_at" | "updated_at" | "created_by" | "votes">) => {
+  const handleUpdateDecision = async (
+    decisionData: Omit<
+      TripDecision,
+      "id" | "created_at" | "updated_at" | "created_by" | "votes"
+    >
+  ) => {
     try {
       if (editingDecision) {
         // Update existing decision
@@ -289,14 +341,21 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
             </ModalTitle>
           </ModalHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 px-4 md:px-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex-1 flex flex-col min-h-0 px-4 md:px-6"
+          >
             <TabsList className="grid w-full grid-cols-2 flex-shrink-0 mb-4">
               <TabsTrigger value="expenses">Split Costs</TabsTrigger>
               <TabsTrigger value="decisions">Group Decisions</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 min-h-0 overflow-hidden">
-              <TabsContent value="expenses" className="h-full overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col">
+              <TabsContent
+                value="expenses"
+                className="h-full overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col"
+              >
                 <div className="flex-1 overflow-y-auto">
                   <ExpensesTab
                     expenses={expenses}
@@ -314,7 +373,10 @@ const GroupOptionsModal = ({ isOpen, onClose, trip }: GroupOptionsModalProps) =>
                 </div>
               </TabsContent>
 
-              <TabsContent value="decisions" className="h-full overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col">
+              <TabsContent
+                value="decisions"
+                className="h-full overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col"
+              >
                 <div className="flex-1 overflow-y-auto">
                   <DecisionsTab
                     decisions={decisions}

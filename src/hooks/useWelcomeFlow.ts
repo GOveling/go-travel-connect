@@ -20,17 +20,19 @@ export const useWelcomeFlow = () => {
         // Check if this is a new signup and welcome hasn't been shown this session
         const isNewSignup = sessionStorage.getItem(`new_signup_${user.id}`);
         const welcomeShown = localStorage.getItem(`welcome_shown_${user.id}`);
-        const onboardingDismissed = sessionStorage.getItem(`onboarding_dismissed_${user.id}`);
-        
+        const onboardingDismissed = sessionStorage.getItem(
+          `onboarding_dismissed_${user.id}`
+        );
+
         // Check if user has completed onboarding
         const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('id, onboarding_completed, created_at')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("id, onboarding_completed, created_at")
+          .eq("id", user.id)
           .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error checking user profile:', error);
+        if (error && error.code !== "PGRST116") {
+          console.error("Error checking user profile:", error);
           setLoading(false);
           return;
         }
@@ -43,24 +45,32 @@ export const useWelcomeFlow = () => {
         } else if ((profile as any).created_at) {
           const profileCreatedAt = new Date((profile as any).created_at);
           const userCreatedAt = new Date(user.created_at);
-          const timeDiff = Math.abs(profileCreatedAt.getTime() - userCreatedAt.getTime());
+          const timeDiff = Math.abs(
+            profileCreatedAt.getTime() - userCreatedAt.getTime()
+          );
           // If profile was created within 30 seconds of user creation, it's a new user
           isNewUser = timeDiff < 30000;
         }
 
         // For users with invitation token, ALWAYS show complete onboarding flow first
-        const hasInvitationToken = localStorage.getItem('invitation_token');
+        const hasInvitationToken = localStorage.getItem("invitation_token");
         const onboardingCompleted = (profile as any)?.onboarding_completed;
-        
+
         // Show welcome ONLY for truly new users who haven't completed onboarding
         // Don't show again if user has completed onboarding
-        const shouldShowWelcome = (!onboardingCompleted && ((!!isNewSignup || isNewUser || !profile) && !welcomeShown)) || 
-                                  (hasInvitationToken && !onboardingCompleted && !welcomeShown);
+        const shouldShowWelcome =
+          (!onboardingCompleted &&
+            (!!isNewSignup || isNewUser || !profile) &&
+            !welcomeShown) ||
+          (hasInvitationToken && !onboardingCompleted && !welcomeShown);
 
         // Show personal info modal if onboarding not completed and not dismissed for this session
-        const shouldShowPersonalInfo = (!profile || !onboardingCompleted) && !shouldShowWelcome && !onboardingDismissed;
+        const shouldShowPersonalInfo =
+          (!profile || !onboardingCompleted) &&
+          !shouldShowWelcome &&
+          !onboardingDismissed;
 
-        console.log('Welcome flow check:', {
+        console.log("Welcome flow check:", {
           hasProfile: !!profile,
           isNewSignup: !!isNewSignup,
           isNewUser,
@@ -69,12 +79,14 @@ export const useWelcomeFlow = () => {
           welcomeShown: !!welcomeShown,
           onboardingDismissed: !!onboardingDismissed,
           shouldShowWelcome,
-          shouldShowPersonalInfo
+          shouldShowPersonalInfo,
         });
 
         // Ensure onboarding happens BEFORE processing any invitations
         if (hasInvitationToken && !onboardingCompleted) {
-          console.log('User has invitation but needs complete onboarding first - prioritizing welcome flow');
+          console.log(
+            "User has invitation but needs complete onboarding first - prioritizing welcome flow"
+          );
         }
 
         setIsNewUser(shouldShowWelcome);
@@ -82,7 +94,7 @@ export const useWelcomeFlow = () => {
         setShowPersonalInfo(shouldShowPersonalInfo && !shouldShowWelcome); // Don't show both at once
         setLoading(false);
       } catch (error) {
-        console.error('Error in welcome flow check:', error);
+        console.error("Error in welcome flow check:", error);
         setLoading(false);
       }
     };
@@ -92,7 +104,7 @@ export const useWelcomeFlow = () => {
 
   const completeWelcome = () => {
     if (user) {
-      localStorage.setItem(`welcome_shown_${user.id}`, 'true');
+      localStorage.setItem(`welcome_shown_${user.id}`, "true");
     }
     setShowWelcome(false);
     setShowPersonalInfo(true);
@@ -103,37 +115,37 @@ export const useWelcomeFlow = () => {
 
     try {
       // Update or insert the profile with onboarding completed
-      const { error: upsertError } = await supabase
-        .from('profiles')
-        .upsert({ 
-          id: user.id,
-          email: user.email,
-          onboarding_completed: true 
-        } as any);
+      const { error: upsertError } = await supabase.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        onboarding_completed: true,
+      } as any);
 
       if (upsertError) {
-        console.error('Error completing onboarding:', upsertError);
+        console.error("Error completing onboarding:", upsertError);
         return;
       }
 
       setShowPersonalInfo(false);
       setIsNewUser(false);
-      
-      console.log('Onboarding completed successfully');
-      
+
+      console.log("Onboarding completed successfully");
+
       // Check if there's a pending invitation to process after onboarding
-      const invitationToken = localStorage.getItem('invitation_token');
+      const invitationToken = localStorage.getItem("invitation_token");
       if (invitationToken) {
-        console.log('Onboarding complete, invitation will now appear in notifications');
+        console.log(
+          "Onboarding complete, invitation will now appear in notifications"
+        );
       }
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      console.error("Error completing onboarding:", error);
     }
   };
 
   const skipOnboardingForNow = () => {
     if (user) {
-      sessionStorage.setItem(`onboarding_dismissed_${user.id}`, 'true');
+      sessionStorage.setItem(`onboarding_dismissed_${user.id}`, "true");
     }
     setShowPersonalInfo(false);
   };

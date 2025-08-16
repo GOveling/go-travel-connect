@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Geolocation, PermissionStatus, Position } from "@capacitor/geolocation";
+import {
+  Geolocation,
+  PermissionStatus,
+  Position,
+} from "@capacitor/geolocation";
 
 export type UserLocation = {
   lat: number;
@@ -11,7 +15,8 @@ export function useUserLocation() {
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [permissionStatus, setPermissionStatus] = useState<PermissionStatus | null>(null);
+  const [permissionStatus, setPermissionStatus] =
+    useState<PermissionStatus | null>(null);
   const watchIdRef = useRef<string | null>(null);
 
   const toUserLocation = (position: Position): UserLocation => ({
@@ -24,7 +29,10 @@ export function useUserLocation() {
     try {
       const status = await Geolocation.checkPermissions();
       setPermissionStatus(status);
-      if (status.location !== "granted" && status.coarseLocation !== "granted") {
+      if (
+        status.location !== "granted" &&
+        status.coarseLocation !== "granted"
+      ) {
         const requested = await Geolocation.requestPermissions();
         setPermissionStatus(requested);
         return requested;

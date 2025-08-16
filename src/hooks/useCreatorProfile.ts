@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useCreatorProfile = (creatorId: string | null, tripId?: string | null) => {
+export const useCreatorProfile = (
+  creatorId: string | null,
+  tripId?: string | null
+) => {
   const [creatorProfile, setCreatorProfile] = useState<{
     id: string;
     full_name: string | null;

@@ -12,11 +12,11 @@ const HotelBookingModal = ({ isOpen, onClose }: HotelBookingModalProps) => {
         <div className="space-y-4">
           <h3 className="font-medium text-foreground">Buscar Hoteles</h3>
           <div className="w-full flex justify-center">
-            <iframe 
-              src="https://www.trip.com/partners/ad/S4621388?Allianceid=6829152&SID=242267565&trip_sub1=" 
-              style={{width: "310px", height: "465px"}} 
-              frameBorder="0" 
-              scrolling="no" 
+            <iframe
+              src="https://www.trip.com/partners/ad/S4621388?Allianceid=6829152&SID=242267565&trip_sub1="
+              style={{ width: "310px", height: "465px" }}
+              frameBorder="0"
+              scrolling="no"
               className="border-none"
               id="S4621388"
               title="Trip.com Hotel Search Widget"

@@ -24,16 +24,22 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
   useEffect(() => {
     const handleOpenTripDetailModal = (event: CustomEvent) => {
       const { tripId } = event.detail;
-      const trip = homeState.trips.find(t => t.id === tripId);
+      const trip = homeState.trips.find((t) => t.id === tripId);
       if (trip) {
         setModalTrip(trip);
         homeState.setIsTripDetailModalOpen(true);
       }
     };
 
-    window.addEventListener('openTripDetailModal', handleOpenTripDetailModal as EventListener);
+    window.addEventListener(
+      "openTripDetailModal",
+      handleOpenTripDetailModal as EventListener
+    );
     return () => {
-      window.removeEventListener('openTripDetailModal', handleOpenTripDetailModal as EventListener);
+      window.removeEventListener(
+        "openTripDetailModal",
+        handleOpenTripDetailModal as EventListener
+      );
     };
   }, [homeState]);
 
@@ -88,50 +94,51 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
     <>
       <ClientOnly fallback={<div>Loading...</div>}>
         <NotificationAlertsModal
-        isOpen={homeState.isNotificationModalOpen}
-        onClose={() => homeState.setIsNotificationModalOpen(false)}
-        notificationCount={0}
-        onMarkAllRead={handlers.handleMarkAllNotificationsRead}
-      />
+          isOpen={homeState.isNotificationModalOpen}
+          onClose={() => homeState.setIsNotificationModalOpen(false)}
+          notificationCount={0}
+          onMarkAllRead={handlers.handleMarkAllNotificationsRead}
+        />
 
-      <NewTripModal
-        isOpen={homeState.isNewTripModalOpen}
-        onClose={() => homeState.setIsNewTripModalOpen(false)}
-        onCreateTrip={handlers.handleCreateTrip}
-      />
+        <NewTripModal
+          isOpen={homeState.isNewTripModalOpen}
+          onClose={() => homeState.setIsNewTripModalOpen(false)}
+          onCreateTrip={handlers.handleCreateTrip}
+        />
 
-      <TripDetailModal
-        isOpen={homeState.isTripDetailModalOpen}
-        onClose={() => {
-          homeState.setIsTripDetailModalOpen(false);
-          setModalTrip(null);
-        }}
-        trip={modalTrip || homeState.currentTrip}
-        onUpdateTrip={handleUpdateTrip}
-      />
+        <TripDetailModal
+          isOpen={homeState.isTripDetailModalOpen}
+          onClose={() => {
+            homeState.setIsTripDetailModalOpen(false);
+            setModalTrip(null);
+          }}
+          trip={modalTrip || homeState.currentTrip}
+          onUpdateTrip={handleUpdateTrip}
+        />
 
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={homeState.isLoginModalOpen || false}
-        onClose={() =>
-          homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false)
-        }
-        onLogin={handleEmailLogin}
-        onGoogleLogin={handleGoogleAuth}
-        onSwitchToSignUp={handleSwitchToSignUp}
-      />
+        {/* Login Modal */}
+        <LoginModal
+          isOpen={homeState.isLoginModalOpen || false}
+          onClose={() =>
+            homeState.setIsLoginModalOpen &&
+            homeState.setIsLoginModalOpen(false)
+          }
+          onLogin={handleEmailLogin}
+          onGoogleLogin={handleGoogleAuth}
+          onSwitchToSignUp={handleSwitchToSignUp}
+        />
 
-      {/* Sign Up Modal */}
-      <SignUpModal
-        isOpen={homeState.isSignUpModalOpen || false}
-        onClose={() =>
-          homeState.setIsSignUpModalOpen &&
-          homeState.setIsSignUpModalOpen(false)
-        }
-        onSignUp={handleEmailSignUp}
-        onGoogleSignUp={handleGoogleAuth}
-        onSwitchToLogin={handleSwitchToLogin}
-      />
+        {/* Sign Up Modal */}
+        <SignUpModal
+          isOpen={homeState.isSignUpModalOpen || false}
+          onClose={() =>
+            homeState.setIsSignUpModalOpen &&
+            homeState.setIsSignUpModalOpen(false)
+          }
+          onSignUp={handleEmailSignUp}
+          onGoogleSignUp={handleGoogleAuth}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
       </ClientOnly>
     </>
   );

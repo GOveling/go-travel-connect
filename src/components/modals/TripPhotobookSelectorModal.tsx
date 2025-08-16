@@ -70,7 +70,13 @@ const TripPhotobookSelectorModal = ({
                           <p className="text-xs text-gray-600 truncate">
                             {trip.destination}
                           </p>
-                          <p className="text-xs text-gray-500">{trip.dates || getFormattedDateRange(trip.startDate, trip.endDate)}</p>
+                          <p className="text-xs text-gray-500">
+                            {trip.dates ||
+                              getFormattedDateRange(
+                                trip.startDate,
+                                trip.endDate
+                              )}
+                          </p>
                           <span
                             className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
                               trip.status === "upcoming"

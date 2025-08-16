@@ -139,16 +139,16 @@ const TripCard = ({
       if (firstCountry && firstCountry !== "Unknown") {
         try {
           const { data, error } = await supabase
-            .from('countries')
-            .select('image_url')
-            .eq('country_name', firstCountry)
+            .from("countries")
+            .select("image_url")
+            .eq("country_name", firstCountry)
             .single();
 
           if (data && data.image_url) {
             setCountryImage(data.image_url);
           }
         } catch (error) {
-          console.log('Country image not found:', firstCountry);
+          console.log("Country image not found:", firstCountry);
         }
       }
       setLoading(false);
@@ -164,8 +164,8 @@ const TripCard = ({
           {/* Trip Image/Icon */}
           <div className="w-full md:w-32 h-32 md:h-auto relative overflow-hidden">
             {countryImage ? (
-              <img 
-                src={countryImage} 
+              <img
+                src={countryImage}
                 alt={`${firstCountry} destination`}
                 className="w-full h-full object-contain"
               />
@@ -191,7 +191,9 @@ const TripCard = ({
                     >
                       {trip.status}
                     </Badge>
-                    {(trip.isGroupTrip || (trip.collaborators && trip.collaborators.length > 0)) && (
+                    {(trip.isGroupTrip ||
+                      (trip.collaborators &&
+                        trip.collaborators.length > 0)) && (
                       <Button
                         onClick={() => onGroupOptions(trip)}
                         className="flex items-center space-x-1 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-full h-auto"
@@ -233,7 +235,9 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar size={14} />
-                      <span>{getFormattedDateRange(trip.startDate, trip.endDate)}</span>
+                      <span>
+                        {getFormattedDateRange(trip.startDate, trip.endDate)}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />

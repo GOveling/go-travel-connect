@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const useCountryImageUpload = () => {
   const [loading, setLoading] = useState(false);
@@ -15,18 +15,21 @@ export const useCountryImageUpload = () => {
         reader.onload = () => resolve(reader.result as string);
         reader.readAsDataURL(imageFile);
       });
-      
+
       const imageData = await base64Promise;
-      const fileName = `${countryName.toLowerCase().replace(/\s+/g, '-')}.${imageFile.name.split('.').pop()}`;
+      const fileName = `${countryName.toLowerCase().replace(/\s+/g, "-")}.${imageFile.name.split(".").pop()}`;
 
       // Call edge function
-      const { data, error } = await supabase.functions.invoke('upload-country-image', {
-        body: {
-          countryName,
-          imageData,
-          fileName
+      const { data, error } = await supabase.functions.invoke(
+        "upload-country-image",
+        {
+          body: {
+            countryName,
+            imageData,
+            fileName,
+          },
         }
-      });
+      );
 
       if (error) {
         throw error;
@@ -39,10 +42,10 @@ export const useCountryImageUpload = () => {
         });
         return data.imageUrl;
       } else {
-        throw new Error(data.error || 'Error desconocido');
+        throw new Error(data.error || "Error desconocido");
       }
     } catch (error) {
-      console.error('Error uploading country image:', error);
+      console.error("Error uploading country image:", error);
       toast({
         title: "Error al subir imagen",
         description: "No se pudo subir la imagen del país. Inténtalo de nuevo.",
@@ -56,6 +59,6 @@ export const useCountryImageUpload = () => {
 
   return {
     uploadCountryImage,
-    loading
+    loading,
   };
 };

@@ -1,12 +1,5 @@
 import { useState, useMemo } from "react";
-import {
-  MapPin,
-  Star,
-  Heart,
-  Trash2,
-  Plus,
-  GripVertical,
-} from "lucide-react";
+import { MapPin, Star, Heart, Trash2, Plus, GripVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -40,17 +33,15 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { usePlaceReordering } from '@/hooks/usePlaceReordering';
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { usePlaceReordering } from "@/hooks/usePlaceReordering";
 
 // Interface for PlaceDetailModal
 interface PlaceForModal {
@@ -84,7 +75,14 @@ interface SortablePlaceItemProps {
   isRemoving: string | null;
 }
 
-const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocation, isRemoving }: SortablePlaceItemProps) => {
+const SortablePlaceItem = ({
+  place,
+  index,
+  onViewDetails,
+  onRemove,
+  onShowLocation,
+  isRemoving,
+}: SortablePlaceItemProps) => {
   const {
     attributes,
     listeners,
@@ -147,7 +145,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
     <Card
       ref={setNodeRef}
       style={style}
-      className={`cursor-pointer hover:shadow-lg transition-all relative ${isDragging ? 'z-50' : ''}`}
+      className={`cursor-pointer hover:shadow-lg transition-all relative ${isDragging ? "z-50" : ""}`}
       onClick={() => onViewDetails(place)}
     >
       <CardContent className="p-3 sm:p-4">
@@ -155,9 +153,9 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
         <div className="absolute -top-2 -left-2 w-6 h-6 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-10">
           {index + 1}
         </div>
-        
+
         {/* Drag handle */}
-        <div 
+        <div
           {...attributes}
           {...listeners}
           className="absolute top-2 right-2 cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded-md transition-colors z-10 select-none no-native-drag"
@@ -168,7 +166,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
         >
           <GripVertical size={16} className="text-gray-400" />
         </div>
-        
+
         <div className="flex items-start space-x-3">
           <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
             {renderPlaceImage(place.image)}
@@ -203,10 +201,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
 
             <div className="flex items-center space-x-2 mb-2">
               <div className="flex items-center">
-                <Star
-                  size={14}
-                  className="text-yellow-400 fill-current"
-                />
+                <Star size={14} className="text-yellow-400 fill-current" />
                 <span className="text-sm text-gray-600 ml-1">
                   {place.rating || "N/A"}
                 </span>
@@ -228,7 +223,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
             </p>
           </div>
         </div>
-        
+
         {/* Location button - bottom right corner */}
         {place.lat && place.lng && (
           <Button
@@ -256,13 +251,16 @@ const SavedPlacesModal = ({
 }: SavedPlacesModalProps) => {
   const { toast } = useToast();
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceForModal | null>(
+    null
+  );
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
   const [draggedPlace, setDraggedPlace] = useState<SavedPlace | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
-  const [selectedPlaceForMap, setSelectedPlaceForMap] = useState<SavedPlace | null>(null);
+  const [selectedPlaceForMap, setSelectedPlaceForMap] =
+    useState<SavedPlace | null>(null);
   const { isReordering, reorderPlaces } = usePlaceReordering();
 
   // Configure sensors for better mobile experience
@@ -350,7 +348,7 @@ const SavedPlacesModal = ({
   // Handle drag start
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const place = trip?.savedPlaces?.find(p => p.id === active.id);
+    const place = trip?.savedPlaces?.find((p) => p.id === active.id);
     setDraggedPlace(place || null);
   };
 
@@ -363,14 +361,18 @@ const SavedPlacesModal = ({
       return;
     }
 
-    const oldIndex = trip.savedPlaces.findIndex(place => place.id === active.id);
-    const newIndex = trip.savedPlaces.findIndex(place => place.id === over.id);
+    const oldIndex = trip.savedPlaces.findIndex(
+      (place) => place.id === active.id
+    );
+    const newIndex = trip.savedPlaces.findIndex(
+      (place) => place.id === over.id
+    );
 
     if (oldIndex === -1 || newIndex === -1) return;
 
     // Optimistically update the UI
     const reorderedPlaces = arrayMove(trip.savedPlaces, oldIndex, newIndex);
-    
+
     if (onUpdateTrip) {
       onUpdateTrip({
         ...trip,
@@ -476,7 +478,8 @@ const SavedPlacesModal = ({
                   Your Saved Places
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600">
-                  Long press and drag to reorder • Places numbered for map reference
+                  Long press and drag to reorder • Places numbered for map
+                  reference
                 </p>
               </div>
               <Button
@@ -497,7 +500,8 @@ const SavedPlacesModal = ({
                   No saved places yet
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Start exploring and save places you want to visit on your trip!
+                  Start exploring and save places you want to visit on your
+                  trip!
                 </p>
                 <Button
                   onClick={handleNavigateToExplore}
@@ -515,47 +519,58 @@ const SavedPlacesModal = ({
                 onDragEnd={handleDragEnd}
               >
                 <div className="space-y-6">
-                  {Object.entries(savedPlacesByCountry).map(([country, places]) => (
-                    <div key={country}>
-                      <div className="flex items-center space-x-2 mb-4">
-                        <MapPin size={20} className="text-blue-600" />
-                        <h4 className="text-lg font-semibold text-gray-800">
-                          {country}
-                        </h4>
-                        <Badge variant="outline" className="bg-blue-50 border-blue-200">
-                          {places.length} place{places.length > 1 ? "s" : ""}
-                        </Badge>
-                        {isReordering && (
-                          <Badge variant="secondary" className="animate-pulse">
-                            Updating...
+                  {Object.entries(savedPlacesByCountry).map(
+                    ([country, places]) => (
+                      <div key={country}>
+                        <div className="flex items-center space-x-2 mb-4">
+                          <MapPin size={20} className="text-blue-600" />
+                          <h4 className="text-lg font-semibold text-gray-800">
+                            {country}
+                          </h4>
+                          <Badge
+                            variant="outline"
+                            className="bg-blue-50 border-blue-200"
+                          >
+                            {places.length} place{places.length > 1 ? "s" : ""}
                           </Badge>
-                        )}
-                      </div>
-
-                      <SortableContext
-                        items={places.map(p => p.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                          {places.map((place, index) => {
-                            // Calculate global index across all countries
-                            const globalIndex = trip.savedPlaces?.findIndex(p => p.id === place.id) || 0;
-                            return (
-                              <SortablePlaceItem
-                                key={place.id}
-                                place={place}
-                                index={globalIndex}
-                                onViewDetails={handleViewPlaceDetails}
-                                onRemove={handleRemovePlace}
-                                onShowLocation={handleShowLocationMap}
-                                isRemoving={isRemoving}
-                              />
-                            );
-                          })}
+                          {isReordering && (
+                            <Badge
+                              variant="secondary"
+                              className="animate-pulse"
+                            >
+                              Updating...
+                            </Badge>
+                          )}
                         </div>
-                      </SortableContext>
-                    </div>
-                  ))}
+
+                        <SortableContext
+                          items={places.map((p) => p.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                            {places.map((place, index) => {
+                              // Calculate global index across all countries
+                              const globalIndex =
+                                trip.savedPlaces?.findIndex(
+                                  (p) => p.id === place.id
+                                ) || 0;
+                              return (
+                                <SortablePlaceItem
+                                  key={place.id}
+                                  place={place}
+                                  index={globalIndex}
+                                  onViewDetails={handleViewPlaceDetails}
+                                  onRemove={handleRemovePlace}
+                                  onShowLocation={handleShowLocationMap}
+                                  isRemoving={isRemoving}
+                                />
+                              );
+                            })}
+                          </div>
+                        </SortableContext>
+                      </div>
+                    )
+                  )}
                 </div>
 
                 <DragOverlay>
@@ -564,7 +579,9 @@ const SavedPlacesModal = ({
                       <CardContent className="p-3 sm:p-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
-                            <span className="text-2xl">{draggedPlace.image || "📍"}</span>
+                            <span className="text-2xl">
+                              {draggedPlace.image || "📍"}
+                            </span>
                           </div>
                           <div>
                             <h5 className="text-sm sm:text-base font-semibold text-gray-800">
@@ -602,13 +619,19 @@ const SavedPlacesModal = ({
           setShowLocationModal(false);
           setSelectedPlaceForMap(null);
         }}
-        place={selectedPlaceForMap ? {
-          id: selectedPlaceForMap.id,
-          name: selectedPlaceForMap.name,
-          lat: selectedPlaceForMap.lat,
-          lng: selectedPlaceForMap.lng,
-          address: selectedPlaceForMap.destinationName || selectedPlaceForMap.category
-        } : null}
+        place={
+          selectedPlaceForMap
+            ? {
+                id: selectedPlaceForMap.id,
+                name: selectedPlaceForMap.name,
+                lat: selectedPlaceForMap.lat,
+                lng: selectedPlaceForMap.lng,
+                address:
+                  selectedPlaceForMap.destinationName ||
+                  selectedPlaceForMap.category,
+              }
+            : null
+        }
       />
 
       {/* Remove Confirmation Dialog */}

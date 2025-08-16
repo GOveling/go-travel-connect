@@ -37,7 +37,9 @@ export const useProfileData = () => {
         setProfile(data as ProfileData);
       } else {
         // Profile should be created automatically by trigger, but if not found, wait briefly and retry
-        console.log("No profile found, user might be newly created. Retrying in 1 second...");
+        console.log(
+          "No profile found, user might be newly created. Retrying in 1 second..."
+        );
         setTimeout(() => {
           fetchProfile();
         }, 1000);

@@ -22,7 +22,7 @@ export function useSupabaseTripExpenses(tripId: string) {
 
   const fetchExpenses = async () => {
     if (!tripId) return;
-    
+
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -32,14 +32,16 @@ export function useSupabaseTripExpenses(tripId: string) {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      
+
       // Transform the data to match our interface
-      const transformedData = (data || []).map(item => ({
+      const transformedData = (data || []).map((item) => ({
         ...item,
-        paid_by: Array.isArray(item.paid_by) ? item.paid_by as string[] : [],
-        split_between: Array.isArray(item.split_between) ? item.split_between as string[] : [],
+        paid_by: Array.isArray(item.paid_by) ? (item.paid_by as string[]) : [],
+        split_between: Array.isArray(item.split_between)
+          ? (item.split_between as string[])
+          : [],
       }));
-      
+
       setExpenses(transformedData);
     } catch (error) {
       console.error("Error fetching expenses:", error);
@@ -49,7 +51,12 @@ export function useSupabaseTripExpenses(tripId: string) {
     }
   };
 
-  const createExpense = async (expenseData: Omit<TripExpense, "id" | "created_at" | "updated_at" | "created_by">) => {
+  const createExpense = async (
+    expenseData: Omit<
+      TripExpense,
+      "id" | "created_at" | "updated_at" | "created_by"
+    >
+  ) => {
     if (!user) return;
 
     try {
@@ -63,15 +70,17 @@ export function useSupabaseTripExpenses(tripId: string) {
         .single();
 
       if (error) throw error;
-      
+
       // Transform the data to match our interface
       const transformedData = {
         ...data,
-        paid_by: Array.isArray(data.paid_by) ? data.paid_by as string[] : [],
-        split_between: Array.isArray(data.split_between) ? data.split_between as string[] : [],
+        paid_by: Array.isArray(data.paid_by) ? (data.paid_by as string[]) : [],
+        split_between: Array.isArray(data.split_between)
+          ? (data.split_between as string[])
+          : [],
       };
-      
-      setExpenses(prev => [transformedData, ...prev]);
+
+      setExpenses((prev) => [transformedData, ...prev]);
       toast.success("Expense added successfully");
       return data;
     } catch (error) {
@@ -81,7 +90,10 @@ export function useSupabaseTripExpenses(tripId: string) {
     }
   };
 
-  const updateExpense = async (id: string, expenseData: Partial<TripExpense>) => {
+  const updateExpense = async (
+    id: string,
+    expenseData: Partial<TripExpense>
+  ) => {
     try {
       const { data, error } = await supabase
         .from("trip_expenses")
@@ -91,17 +103,19 @@ export function useSupabaseTripExpenses(tripId: string) {
         .single();
 
       if (error) throw error;
-      
+
       // Transform the data to match our interface
       const transformedData = {
         ...data,
-        paid_by: Array.isArray(data.paid_by) ? data.paid_by as string[] : [],
-        split_between: Array.isArray(data.split_between) ? data.split_between as string[] : [],
+        paid_by: Array.isArray(data.paid_by) ? (data.paid_by as string[]) : [],
+        split_between: Array.isArray(data.split_between)
+          ? (data.split_between as string[])
+          : [],
       };
-      
-      setExpenses(prev => prev.map(expense => 
-        expense.id === id ? transformedData : expense
-      ));
+
+      setExpenses((prev) =>
+        prev.map((expense) => (expense.id === id ? transformedData : expense))
+      );
       toast.success("Expense updated successfully");
       return data;
     } catch (error) {
@@ -119,8 +133,8 @@ export function useSupabaseTripExpenses(tripId: string) {
         .eq("id", id);
 
       if (error) throw error;
-      
-      setExpenses(prev => prev.filter(expense => expense.id !== id));
+
+      setExpenses((prev) => prev.filter((expense) => expense.id !== id));
       toast.success("Expense deleted successfully");
     } catch (error) {
       console.error("Error deleting expense:", error);

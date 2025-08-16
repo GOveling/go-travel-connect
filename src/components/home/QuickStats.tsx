@@ -1,4 +1,3 @@
-
 import { MapPin, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useHomeData } from "@/hooks/state/useHomeData";
@@ -13,7 +12,7 @@ const QuickStats = () => {
 
   // Calculate upcoming trips (trips with status 'upcoming' or 'planning')
   const upcomingTrips = trips.filter(
-    trip => trip.status === 'upcoming' || trip.status === 'planning'
+    (trip) => trip.status === "upcoming" || trip.status === "planning"
   ).length;
 
   return (
