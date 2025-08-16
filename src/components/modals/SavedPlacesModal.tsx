@@ -176,7 +176,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
           <div className="flex-1 min-w-0 pr-8">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0 mr-2">
-                <h5 className="text-sm sm:text-base font-semibold text-gray-800 truncate break-words">
+                <h5 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 break-words overflow-hidden">
                   {place.name}
                 </h5>
                 <p className="text-xs sm:text-sm text-gray-600 mb-2 truncate">
