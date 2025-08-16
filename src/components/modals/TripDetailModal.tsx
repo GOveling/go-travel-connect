@@ -1154,10 +1154,6 @@ const TripDetailModal = ({
                       Edit Trip
                     </Button>
                   )}
-                  <Button variant="outline" className="flex-1">
-                    <Share2 size={16} className="mr-2" />
-                    Share
-                  </Button>
                 </>
               )}
             </div>
