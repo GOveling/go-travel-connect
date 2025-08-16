@@ -227,7 +227,6 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
         name: formData.name,
         description: formData.description || '',
         location: formData.location || '',
-        dates: formatDateRange(), // Update the dates display field
         start_date: formData.start_date?.toISOString(),
         end_date: formData.end_date?.toISOString(),
         budget: formData.budget || '',
@@ -252,7 +251,13 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
       });
 
       // Update the trip data and close modal
-      const updatedTrip = { ...trip, ...updateData };
+      const updatedTrip = { 
+        ...trip, 
+        ...updateData,
+        startDate: formData.start_date,
+        endDate: formData.end_date,
+        dates: formatDateRange()
+      };
       onUpdate(updatedTrip);
       onClose();
       
