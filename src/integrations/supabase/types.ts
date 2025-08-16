@@ -86,6 +86,36 @@ export type Database = {
         }
         Relationships: []
       }
+      countries: {
+        Row: {
+          country_code: string | null
+          country_name: string
+          created_at: string
+          flag_emoji: string | null
+          id: string
+          image_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          country_code?: string | null
+          country_name: string
+          created_at?: string
+          flag_emoji?: string | null
+          id?: string
+          image_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string | null
+          country_name?: string
+          created_at?: string
+          flag_emoji?: string | null
+          id?: string
+          image_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null

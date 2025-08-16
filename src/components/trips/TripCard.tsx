@@ -11,6 +11,7 @@ import {
   Eye,
   Trash2,
 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 import type { Trip, TripCardProps } from "@/types";
 
 const TripCard = ({
@@ -124,17 +126,54 @@ const TripCard = ({
     return countryFlags[country] || "🌍";
   };
 
+  const [countryImage, setCountryImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const countries = getCountriesFromDestination(trip.destination);
   const firstCountry = countries[0] || "Unknown";
   const countryFlag = getCountryFlag(firstCountry);
+
+  // Fetch country image from Supabase
+  useEffect(() => {
+    const fetchCountryImage = async () => {
+      if (firstCountry && firstCountry !== "Unknown") {
+        try {
+          const { data, error } = await supabase
+            .from('countries')
+            .select('image_url')
+            .eq('country_name', firstCountry)
+            .single();
+
+          if (data && data.image_url) {
+            setCountryImage(data.image_url);
+          }
+        } catch (error) {
+          console.log('Country image not found:', firstCountry);
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchCountryImage();
+  }, [firstCountry]);
 
   return (
     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-white overflow-hidden">
       <CardContent className="p-0">
         <div className="flex flex-col md:flex-row">
           {/* Trip Image/Icon */}
-          <div className="w-full md:w-32 h-32 md:h-auto bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center">
-            <span className="text-4xl md:text-5xl">{trip.image}</span>
+          <div className="w-full md:w-32 h-32 md:h-auto relative overflow-hidden">
+            {countryImage ? (
+              <img 
+                src={countryImage} 
+                alt={`${firstCountry} destination`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center">
+                <span className="text-4xl md:text-5xl">{trip.image}</span>
+              </div>
+            )}
           </div>
 
           {/* Trip Content */}
