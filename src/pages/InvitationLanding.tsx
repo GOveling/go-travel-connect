@@ -7,12 +7,14 @@ import { MapPin, Calendar, Users, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import AuthHeader from '@/components/auth/AuthHeader';
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 
 interface TripDetails {
   id: string;
   name: string;
   destination: any;
-  dates: string;
+  start_date?: string | null;
+  end_date?: string | null;
   travelers: number;
   status: string;
   image?: string;
@@ -88,7 +90,7 @@ const InvitationLanding = () => {
       // Get trip details
       const { data: tripData } = await supabase
         .from('trips')
-        .select('id, name, destination, dates, travelers, status, image')
+        .select('id, name, destination, start_date, end_date, travelers, status, image')
         .eq('id', invitationData.trip_id)
         .single();
 
@@ -218,7 +220,7 @@ const InvitationLanding = () => {
                   
                   <div className="flex items-center text-gray-600">
                     <Calendar className="h-5 w-5 mr-2" />
-                    <span>{trip?.dates}</span>
+                    <span>{getFormattedDateRange(trip?.start_date ? new Date(trip.start_date) : undefined, trip?.end_date ? new Date(trip.end_date) : undefined)}</span>
                   </div>
                   
                   <div className="flex items-center text-gray-600">

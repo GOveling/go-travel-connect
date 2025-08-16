@@ -42,62 +42,16 @@ export const findCurrentTrip = (tripsWithStatus: Trip[]): Trip => {
   const upcomingTrips = tripsWithStatus
     .filter((trip) => trip.status === "upcoming")
     .sort((a, b) => {
-      const getStartDate = (dates: string) => {
-        try {
-          const startDateStr = dates.split(" - ")[0];
-          const year =
-            dates.split(", ")[1] || new Date().getFullYear().toString();
-          const month = startDateStr.split(" ")[0];
-          const day = parseInt(startDateStr.split(" ")[1]);
-
-          const monthMap: { [key: string]: number } = {
-            Jan: 0,
-            Feb: 1,
-            Mar: 2,
-            Apr: 3,
-            May: 4,
-            Jun: 5,
-            Jul: 6,
-            Aug: 7,
-            Sep: 8,
-            Oct: 9,
-            Nov: 10,
-            Dec: 11,
-          };
-
-          return new Date(parseInt(year), monthMap[month], day);
-        } catch {
-          return new Date();
-        }
-      };
-
-      return getStartDate(a.dates).getTime() - getStartDate(b.dates).getTime();
+      const aTime = a.startDate ? a.startDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const bTime = b.startDate ? b.startDate.getTime() : Number.MAX_SAFE_INTEGER;
+      return aTime - bTime;
     });
 
   const nearestUpcomingTrip = upcomingTrips.find((trip) => {
     try {
-      const startDateStr = trip.dates.split(" - ")[0];
-      const year =
-        trip.dates.split(", ")[1] || new Date().getFullYear().toString();
-      const month = startDateStr.split(" ")[0];
-      const day = parseInt(startDateStr.split(" ")[1]);
+      const startDate = trip.startDate;
+      if (!startDate) return false;
 
-      const monthMap: { [key: string]: number } = {
-        Jan: 0,
-        Feb: 1,
-        Mar: 2,
-        Apr: 3,
-        May: 4,
-        Jun: 5,
-        Jul: 6,
-        Aug: 7,
-        Sep: 8,
-        Oct: 9,
-        Nov: 10,
-        Dec: 11,
-      };
-
-      const startDate = new Date(parseInt(year), monthMap[month], day);
       const currentDate = new Date();
       const daysDifference = Math.ceil(
         (startDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)

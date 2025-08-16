@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 export const useSupabaseTrips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,3 @@
-import { getStartDate } from "@/utils/dateHelpers";
 import { Trip } from "@/types";
 import {
   calculateTripsWithDynamicStatus,
@@ -14,36 +13,9 @@ export const useTripCalculations = (trips: Trip[]) => {
   const upcomingTrips = tripsWithDynamicStatus
     .filter((trip) => trip.status === "upcoming")
     .sort((a, b) => {
-      const getStartDate = (dates: string) => {
-        try {
-          const startDateStr = dates.split(" - ")[0];
-          const year =
-            dates.split(", ")[1] || new Date().getFullYear().toString();
-          const month = startDateStr.split(" ")[0];
-          const day = parseInt(startDateStr.split(" ")[1]);
-
-          const monthMap: { [key: string]: number } = {
-            Jan: 0,
-            Feb: 1,
-            Mar: 2,
-            Apr: 3,
-            May: 4,
-            Jun: 5,
-            Jul: 6,
-            Aug: 7,
-            Sep: 8,
-            Oct: 9,
-            Nov: 10,
-            Dec: 11,
-          };
-
-          return new Date(parseInt(year), monthMap[month], day);
-        } catch {
-          return new Date();
-        }
-      };
-
-      return getStartDate(a).getTime() - getStartDate(b).getTime();
+      const aTime = a.startDate ? a.startDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const bTime = b.startDate ? b.startDate.getTime() : Number.MAX_SAFE_INTEGER;
+      return aTime - bTime;
     });
 
   const nearestUpcomingTrip = upcomingTrips.find((trip) => {

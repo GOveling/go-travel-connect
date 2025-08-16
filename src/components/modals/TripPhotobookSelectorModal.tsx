@@ -8,15 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface Trip {
-  id: string;
-  name: string;
-  destination: string;
-  dates: string;
-  status: string;
-  image: string;
-}
+import { Trip } from "@/types";
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 
 interface TripPhotobookSelectorModalProps {
   isOpen: boolean;
@@ -77,7 +70,7 @@ const TripPhotobookSelectorModal = ({
                           <p className="text-xs text-gray-600 truncate">
                             {trip.destination}
                           </p>
-                          <p className="text-xs text-gray-500">{trip.dates}</p>
+                          <p className="text-xs text-gray-500">{trip.dates || getFormattedDateRange(trip.startDate, trip.endDate)}</p>
                           <span
                             className={`inline-block px-2 py-1 rounded-full text-xs font-medium mt-1 ${
                               trip.status === "upcoming"

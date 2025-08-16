@@ -11,13 +11,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfileValidation } from "@/hooks/useProfileValidation";
 import { MapPin, Users, Calendar, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
 import NewUserPersonalInfoModal from "@/components/modals/NewUserPersonalInfoModal";
-
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 interface TripDetails {
   id: string;
   name: string;
   description?: string;
   destination: string[];
-  dates: string;
+  dates?: string;
+  start_date?: string | null;
+  end_date?: string | null;
   image?: string;
   travelers: number;
   status: string;
@@ -548,7 +550,10 @@ const AcceptInvitation = () => {
                         {t("trips.dates") || "Fechas"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {tripDetails?.dates}
+                        {getFormattedDateRange(
+                          tripDetails?.start_date ? new Date(tripDetails.start_date) : undefined,
+                          tripDetails?.end_date ? new Date(tripDetails.end_date) : undefined
+                        )}
                       </p>
                     </div>
                   </div>

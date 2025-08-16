@@ -123,8 +123,8 @@ const AddMemoryModal = ({
       <TripPhotobookSelectorModal
         isOpen={isTripPhotobookSelectorOpen}
         onClose={() => setIsTripPhotobookSelectorOpen(false)}
-        trips={trips}
-        onSelectTrip={handleTripSelect}
+        trips={trips as any}
+        onSelectTrip={handleTripSelect as any}
       />
     </>
   );
