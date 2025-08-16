@@ -174,9 +174,9 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
             {renderPlaceImage(place.image)}
           </div>
           <div className="flex-1 min-w-0 pr-8">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0 mr-2">
-                <h5 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 break-words overflow-hidden">
+                <h5 className="text-sm sm:text-base font-semibold text-gray-800 truncate overflow-hidden text-ellipsis break-all">
                   {place.name}
                 </h5>
                 <p className="text-xs sm:text-sm text-gray-600 mb-2 truncate">
@@ -186,7 +186,7 @@ const SortablePlaceItem = ({ place, index, onViewDetails, onRemove, onShowLocati
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 sm:h-8 sm:w-8 p-0 ml-2 relative z-20"
+                className="shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 sm:h-8 sm:w-8 p-0 ml-2 relative z-20"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(place);
