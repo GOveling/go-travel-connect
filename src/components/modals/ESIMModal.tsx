@@ -27,7 +27,7 @@ const STEPS = ["Checklist", "Instalar", "Activar", "Consejos"];
 const ESIMModal = ({ 
   isOpen, 
   onClose, 
-  affiliateUrl = "https://holafly.com/?ref=TU_AFILIADO",
+  affiliateUrl = "https://holafly.sjv.io/OeZdVn",
   onFinished 
 }: ESIMModalProps) => {
   const [step, setStep] = useState<number>(0);
@@ -109,20 +109,12 @@ const ESIMModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className="w-[95vw] max-w-md mx-auto max-h-[90vh] overflow-hidden p-0 rounded-[5px]">
         {/* Header */}
-        <div className="px-5 pt-4 pb-2 flex justify-between items-center border-b border-gray-200">
-          <h2 className="text-lg font-bold text-slate-900 flex-1 pr-2">
+        <div className="px-4 pt-4 pb-2 flex items-center border-b border-gray-200">
+          <h2 className="text-base font-bold text-slate-900 flex-1">
             Comprar e instalar tu eSIM (HolaFly)
           </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="p-2 h-auto text-slate-500 hover:text-slate-700"
-          >
-            <X size={20} />
-          </Button>
         </div>
 
         {/* Stepper */}
@@ -149,8 +141,8 @@ const ESIMModal = ({
         </div>
 
         {/* Body */}
-        <div className="px-5 pt-3 pb-6 overflow-y-auto max-h-[60vh]">
-          <h3 className="text-base font-bold text-slate-900 mb-3">{stepTitle}</h3>
+        <div className="px-4 pt-3 pb-4 overflow-y-auto max-h-[60vh]">
+          <h3 className="text-sm font-bold text-slate-900 mb-3">{stepTitle}</h3>
 
           {step === 0 && (
             <div className="space-y-3">
@@ -160,8 +152,20 @@ const ESIMModal = ({
               <Bullet>Guardarás el <B>QR/activation code</B> (no transferible).</Bullet>
               <Note text="Algunos planes se activan al instalar y otros al conectarte en destino. Revísalo durante la compra." />
               <div className="mt-3 bg-slate-50 border border-gray-200 rounded-lg p-3">
-                <p className="text-slate-900">
+                <p className="text-sm text-slate-900">
                   Serás redirigido a HolaFly. Comprando desde este enlace apoyas a GOveling.
+                </p>
+              </div>
+              <div className="mt-3 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🎉</span>
+                  <p className="text-sm font-bold text-orange-800">¡Descuento Exclusivo!</p>
+                </div>
+                <p className="text-sm text-orange-700 mb-2">
+                  Usa el código <span className="font-bold text-orange-800 bg-orange-200 px-1 rounded">GOVELING5</span> y obtén un <B>5% de descuento</B> en esta y futuras compras.
+                </p>
+                <p className="text-xs text-orange-600">
+                  💡 Compártelo con amigos y familiares para que también ahorren
                 </p>
               </div>
             </div>
@@ -266,19 +270,19 @@ const ESIMModal = ({
         </div>
 
         {/* Footer CTAs */}
-        <div className="px-4 pt-3 pb-4 flex gap-3 border-t border-gray-200">
+        <div className="px-4 pt-3 pb-4 flex flex-col gap-2 border-t border-gray-200">
+          <Button
+            onClick={handlePrimaryCTA}
+            className="w-full bg-[#2946bf] hover:bg-[#2946bf]/90 text-sm py-2"
+          >
+            {primaryLabel}
+          </Button>
           <Button
             variant="outline"
             onClick={onSecondary}
-            className="flex-1 border-[#2946bf] text-[#2946bf] hover:bg-[#2946bf]/5"
+            className="w-full border-[#2946bf] text-[#2946bf] hover:bg-[#2946bf]/5 text-sm py-2"
           >
             {secondaryLabel}
-          </Button>
-          <Button
-            onClick={handlePrimaryCTA}
-            className="flex-1 bg-[#2946bf] hover:bg-[#2946bf]/90"
-          >
-            {primaryLabel}
           </Button>
         </div>
       </DialogContent>
