@@ -89,6 +89,10 @@ export const useSupabaseTrips = () => {
           id: trip.id, // Keep UUID as string for proper Supabase compatibility
           name: trip.name,
           destination: trip.destination,
+          dates: getFormattedDateRange(
+            trip.start_date ? new Date(trip.start_date) : undefined,
+            trip.end_date ? new Date(trip.end_date) : undefined
+          ),
           startDate: trip.start_date ? new Date(trip.start_date) : undefined,
           endDate: trip.end_date ? new Date(trip.end_date) : undefined,
           status: trip.status,

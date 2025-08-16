@@ -21,6 +21,7 @@ import {
   getSavedPlacesByDestination,
   calculateDestinationDays,
 } from "@/utils/aiSmartRoute";
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { useMapData } from "@/hooks/useMapData";
 import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";

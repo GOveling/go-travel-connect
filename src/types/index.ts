@@ -55,7 +55,7 @@ export interface Trip {
   id: string;
   name: string;
   destination: string;
-  // dates field removed - use startDate and endDate instead
+  dates?: string; // Derived display range
   startDate?: Date; // Start date as Date object
   endDate?: Date; // End date as Date object
   status: string;
