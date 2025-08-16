@@ -31,7 +31,7 @@ export const addPlaceToTripUtil = (
 export const calculateTripsWithDynamicStatus = (trips: Trip[]) => {
   return trips.map((trip) => ({
     ...trip,
-    status: calculateTripStatus(trip.dates),
+    status: calculateTripStatus(trip),
   }));
 };
 
@@ -115,7 +115,8 @@ export const findCurrentTrip = (tripsWithStatus: Trip[]): Trip => {
       id: "1",
       name: "European Adventure",
       destination: "Paris → Rome → Barcelona",
-      dates: "Dec 15 - Dec 25, 2024",
+      startDate: new Date('2024-12-15'),
+      endDate: new Date('2024-12-25'),
       status: "upcoming",
       travelers: 2,
       image: "🇪🇺",

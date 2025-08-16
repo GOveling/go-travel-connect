@@ -1,3 +1,4 @@
+import { getStartDate } from "@/utils/dateHelpers";
 import { Trip } from "@/types";
 import {
   calculateTripsWithDynamicStatus,
@@ -42,33 +43,14 @@ export const useTripCalculations = (trips: Trip[]) => {
         }
       };
 
-      return getStartDate(a.dates).getTime() - getStartDate(b.dates).getTime();
+      return getStartDate(a).getTime() - getStartDate(b).getTime();
     });
 
   const nearestUpcomingTrip = upcomingTrips.find((trip) => {
     try {
-      const startDateStr = trip.dates.split(" - ")[0];
-      const year =
-        trip.dates.split(", ")[1] || new Date().getFullYear().toString();
-      const month = startDateStr.split(" ")[0];
-      const day = parseInt(startDateStr.split(" ")[1]);
-
-      const monthMap: { [key: string]: number } = {
-        Jan: 0,
-        Feb: 1,
-        Mar: 2,
-        Apr: 3,
-        May: 4,
-        Jun: 5,
-        Jul: 6,
-        Aug: 7,
-        Sep: 8,
-        Oct: 9,
-        Nov: 10,
-        Dec: 11,
-      };
-
-      const startDate = new Date(parseInt(year), monthMap[month], day);
+      const startDate = trip.startDate;
+      if (!startDate) return false;
+      
       const currentDate = new Date();
       const daysDifference = Math.ceil(
         (startDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)

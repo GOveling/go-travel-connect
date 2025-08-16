@@ -2,7 +2,8 @@ export interface Trip {
   id: string;
   name: string;
   destination: string;
-  dates: string;
+  startDate?: Date;
+  endDate?: Date;
   status: string;
   travelers: number;
   image: string;

@@ -250,7 +250,7 @@ const AISmartRouteModal = ({
     0
   );
   const destinationDays = calculateDestinationDays(
-    workingTrip.dates,
+    getFormattedDateRange(workingTrip.startDate, workingTrip.endDate),
     workingTrip.coordinates.length,
     workingTrip
   );

@@ -635,7 +635,7 @@ const TripDetailModal = ({
   // Format date range
   const getDateRange = () => {
     if (!trip?.startDate && !trip?.endDate) {
-      return trip?.dates || 'No dates set';
+      return 'No dates set';
     }
     
     if (trip.startDate && trip.endDate) {

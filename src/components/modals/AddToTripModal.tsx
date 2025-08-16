@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { getFormattedDateRange } from "@/utils/dateHelpers";
 import type { Trip, AddToTripModalProps } from "@/types";
 
 const AddToTripModal = ({
@@ -136,7 +137,7 @@ const AddToTripModal = ({
                             </div>
                             <div className="flex items-center space-x-1 text-xs text-gray-600">
                               <Calendar size={10} />
-                              <span>{trip.dates}</span>
+                              <span>{getFormattedDateRange(trip.startDate, trip.endDate)}</span>
                             </div>
                           </div>
                         </div>

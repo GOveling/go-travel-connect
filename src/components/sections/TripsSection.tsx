@@ -46,7 +46,7 @@ const TripsSection = () => {
   // Calculate automatic status for each trip
   const tripsWithAutoStatus = trips.map((trip) => ({
     ...trip,
-    status: calculateTripStatus(trip.dates),
+    status: calculateTripStatus(trip),
   }));
 
   const handleViewDetails = (trip: any) => {
