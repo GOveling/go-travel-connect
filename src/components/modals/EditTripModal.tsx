@@ -210,12 +210,24 @@ export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModal
     try {
       setSaving(true);
       
+      // Create formatted dates string for display
+      const formatDateRange = () => {
+        if (!formData.start_date) return "Dates TBD";
+        if (formData.start_date && formData.end_date) {
+          const startFormatted = format(formData.start_date, "MMM d, yyyy");
+          const endFormatted = format(formData.end_date, "MMM d, yyyy");
+          return `${startFormatted} - ${endFormatted}`;
+        }
+        return format(formData.start_date, "MMM d, yyyy");
+      };
+
       // Create update object with all fields
       // Convert arrays back to comma-separated strings for database storage
       const updateData = {
         name: formData.name,
         description: formData.description || '',
         location: formData.location || '',
+        dates: formatDateRange(), // Update the dates display field
         start_date: formData.start_date?.toISOString(),
         end_date: formData.end_date?.toISOString(),
         budget: formData.budget || '',

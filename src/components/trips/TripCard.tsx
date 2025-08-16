@@ -193,7 +193,7 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar size={14} />
-                      <span>{trip.dates}</span>
+                      <span>{trip.dates || "Dates TBD"}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />

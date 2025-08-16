@@ -122,6 +122,8 @@ export const useNewTripForm = (
       name: formData.name,
       destination: "To be defined",
       dates: formatTripDates(),
+      startDate: formData.startDate,
+      endDate: formData.endDate,
       status: "planning",
       travelers: 1,
       image: "🌍",

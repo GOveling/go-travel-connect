@@ -56,6 +56,8 @@ export interface Trip {
   name: string;
   destination: string;
   dates: string;
+  startDate?: Date; // Start date as Date object
+  endDate?: Date; // End date as Date object
   status: string;
   travelers: number;
   image: string;
