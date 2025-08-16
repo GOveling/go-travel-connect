@@ -29,7 +29,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-2xl mx-auto max-h-[90vh] overflow-y-auto rounded-[5px]">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-gray-800 flex items-center justify-center gap-2">
             <Plane className="text-blue-600" size={20} />
