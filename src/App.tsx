@@ -3,7 +3,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { TravelModeDebug } from "./components/travel/TravelModeDebug";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import Index from "./pages/Index";
 import InvitationLanding from "./pages/InvitationLanding";
@@ -91,7 +90,6 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Index onSignOut={signOut} />} />
                 <Route path="/travel-mode" element={<TravelModePage />} />
-                <Route path="/travel-debug" element={<TravelModeDebug />} />
                 <Route
                   path="/accept-invitation"
                   element={<AcceptInvitation />}

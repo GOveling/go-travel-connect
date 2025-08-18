@@ -23,6 +23,7 @@ interface TravelNotification {
 class TravelNotificationService {
   private notificationHistory: TravelNotification[] = [];
   private sentNotifications: Set<string> = new Set();
+  private lastNotificationTime: Map<string, number> = new Map();
 
   /**
    * Initialize notification service
@@ -44,6 +45,40 @@ class TravelNotificationService {
   }
 
   /**
+   * Send welcome notification when Travel Mode is activated
+   */
+  async sendCustomWelcomeNotification(): Promise<boolean> {
+    try {
+      console.log("📱 Enviando notificación de bienvenida del Travel Mode");
+
+      const notificationId = Date.now();
+      // Add 1 second to ensure it's in the future
+      const scheduleTime = new Date(Date.now() + 1000);
+
+      const result: ScheduleResult = await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: "🧭 Travel Mode Activado",
+            body: "¡Perfecto! Ahora recibirás notificaciones cuando estés cerca de lugares interesantes durante tu viaje.",
+            id: notificationId,
+            schedule: { at: scheduleTime },
+            extra: {
+              type: "welcome",
+              timestamp: Date.now(),
+            },
+          },
+        ],
+      });
+
+      console.log("✅ Welcome notification scheduled:", result);
+      return true;
+    } catch (error) {
+      console.error("❌ Error sending welcome notification:", error);
+      return false;
+    }
+  }
+
+  /**
    * Send proximity notification with smart deduplication
    */
   async sendProximityNotification(
@@ -52,19 +87,29 @@ class TravelNotificationService {
     threshold: number
   ): Promise<boolean> {
     try {
-      // Create unique key for this notification
+      // Create unique key
       const notificationKey = `${place.id}-${threshold}`;
+      const now = Date.now();
 
-      // Prevent duplicate notifications within 5 minutes
+      // Check if we already sent this notification recently (within 5 minutes)
+      const lastSent = this.lastNotificationTime.get(notificationKey);
+      if (lastSent && now - lastSent < 5 * 60 * 1000) {
+        console.log(
+          `🔄 Skipping duplicate notification for ${place.name} at ${threshold}m (sent ${Math.round((now - lastSent) / 1000)}s ago)`
+        );
+        return false;
+      }
+
+      // Double-check with the Set as well
       if (this.sentNotifications.has(notificationKey)) {
         console.log(
-          `Skipping duplicate notification for ${place.name} at ${threshold}m`
+          `🔄 Skipping already sent notification for ${place.name} at ${threshold}m`
         );
         return false;
       }
 
       const distanceText = this.formatDistance(distance);
-      const notificationId = Date.now();
+      const notificationId = Date.now() + Math.random(); // Ensure unique ID
 
       const notification: TravelNotification = {
         id: notificationId,
@@ -75,38 +120,42 @@ class TravelNotificationService {
           tripId: place.tripId,
           distance,
           threshold,
-          timestamp: Date.now(),
+          timestamp: now,
         },
         scheduledAt: new Date(),
       };
 
+      // Mark as sent BEFORE scheduling to prevent race conditions
+      this.sentNotifications.add(notificationKey);
+      this.lastNotificationTime.set(notificationKey, now);
+
       // Schedule the notification
+      const scheduleTime = new Date(now + 1000); // Add 1 second to ensure it's in the future
       const result: ScheduleResult = await LocalNotifications.schedule({
         notifications: [
           {
             title: notification.title,
             body: notification.body,
             id: notification.id,
-            schedule: { at: new Date() },
+            schedule: { at: scheduleTime },
             extra: notification.data,
           },
         ],
       });
 
-      // Track sent notification
-      this.sentNotifications.add(notificationKey);
       this.notificationHistory.push(notification);
 
-      // Clean up old entries after 5 minutes
+      // Clean up old entries after 10 minutes
       setTimeout(
         () => {
           this.sentNotifications.delete(notificationKey);
+          this.lastNotificationTime.delete(notificationKey);
         },
-        5 * 60 * 1000
+        10 * 60 * 1000
       );
 
       console.log(
-        `📱 Notification sent: ${place.name} at ${distanceText}`,
+        `📱 Notification sent: ${place.name} at ${distanceText} (threshold: ${threshold}m)`,
         result
       );
 
@@ -118,26 +167,42 @@ class TravelNotificationService {
   }
 
   /**
-   * Send arrival notification when user reaches destination
+   * Send arrival notification when user reaches destination (less than 10m)
    */
   async sendArrivalNotification(
     place: SavedPlace & { tripId: string; tripName: string }
   ): Promise<boolean> {
     try {
-      const notificationId = Date.now();
+      const notificationKey = `${place.id}-arrival`;
+      const now = Date.now();
+
+      // Check if we already sent arrival notification recently (within 10 minutes)
+      const lastSent = this.lastNotificationTime.get(notificationKey);
+      if (lastSent && now - lastSent < 10 * 60 * 1000) {
+        console.log(
+          `🔄 Skipping duplicate arrival notification for ${place.name}`
+        );
+        return false;
+      }
+
+      const notificationId = now + Math.random();
+
+      // Mark as sent BEFORE scheduling
+      this.lastNotificationTime.set(notificationKey, now);
+      this.sentNotifications.add(notificationKey);
 
       await LocalNotifications.schedule({
         notifications: [
           {
             title: `🎯 ¡Has llegado a ${place.name}!`,
-            body: `Disfruta tu visita a ${place.name}. ¿Quieres marcarla como visitada?`,
+            body: `Bienvenido a ${place.name}. ¡Disfruta tu visita!`,
             id: notificationId,
-            schedule: { at: new Date() },
+            schedule: { at: new Date(now + 1000) },
             extra: {
               placeId: place.id,
               tripId: place.tripId,
               type: "arrival",
-              timestamp: Date.now(),
+              timestamp: now,
             },
           },
         ],

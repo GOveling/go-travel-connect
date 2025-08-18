@@ -30,9 +30,9 @@ interface NearbyPlace extends SavedPlace {
 
 const DEFAULT_CONFIG: TravelModeConfig = {
   isEnabled: false,
-  proximityRadius: 2000, // 2km
-  checkInterval: 30000, // 30 seconds
-  notificationThresholds: [1000, 500, 100], // 1km, 500m, 100m
+  proximityRadius: 3000, // 3km - increased from 2km to catch more places
+  checkInterval: 10000, // 10 seconds for testing - was 30 seconds
+  notificationThresholds: [2000, 1000, 500, 100], // 2km, 1km, 500m, 100m
 };
 
 // Storage keys
@@ -63,11 +63,12 @@ class TravelModeManager {
   }
 
   constructor() {
-    this.loadFromStorage();
-    // Auto-resume tracking if it was enabled
-    if (this.config.isEnabled && !this.isTracking) {
-      this.startTracking();
-    }
+    console.log(
+      "🔍 OLD TravelModeManager constructor - COMPLETELY DISABLED FOR TESTING"
+    );
+    // Don't load from storage or auto-start tracking
+    this.config = { ...DEFAULT_CONFIG, isEnabled: false };
+    this.isTracking = false;
   }
 
   private loadFromStorage() {
@@ -161,87 +162,8 @@ class TravelModeManager {
   }
 
   async startTracking(): Promise<boolean> {
-    try {
-      console.log("🚗 Starting travel mode tracking...");
-
-      const hasPermissions = await this.requestPermissions();
-      if (!hasPermissions) {
-        console.error("Permissions not granted");
-        return false;
-      }
-
-      const isWebMode = isWeb();
-
-      if (isWebMode) {
-        console.log("🌐 Starting tracking with Web Geolocation API");
-
-        // Get initial position
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            console.log("📍 Initial position obtained:", position);
-            this.currentPosition = position;
-            this.saveToStorage();
-            this.notifySubscribers();
-          },
-          (error) => {
-            console.error("Error getting initial position:", error);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 300000,
-          }
-        );
-
-        // Start watching position
-        this.watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            console.log("📍 New position detected:", position);
-            this.currentPosition = position;
-            this.saveToStorage();
-            this.notifySubscribers();
-          },
-          (error) => {
-            console.error("Error in watchPosition:", error);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 60000,
-          }
-        ) as unknown as string;
-      } else {
-        console.log("📱 Starting tracking with Capacitor");
-        this.watchId = await Geolocation.watchPosition(
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-          },
-          (position) => {
-            if (position) {
-              console.log("📍 New position (Capacitor):", position);
-              this.currentPosition = position;
-              this.saveToStorage();
-              this.notifySubscribers();
-            }
-          }
-        );
-      }
-
-      // Start periodic proximity checks
-      this.interval = setInterval(() => {
-        this.checkProximity();
-      }, this.config.checkInterval);
-
-      this.isTracking = true;
-      this.saveToStorage();
-      this.notifySubscribers();
-      console.log("🚗 Travel mode started successfully");
-      return true;
-    } catch (error) {
-      console.error("Error starting tracking:", error);
-      return false;
-    }
+    console.log("� OLD SYSTEM DISABLED - No tracking started");
+    return false; // Completely disable old system
   }
 
   async stopTracking() {
@@ -284,10 +206,22 @@ class TravelModeManager {
       const success = await this.startTracking();
       if (success) {
         this.config.isEnabled = true;
+        // Enviar notificación de bienvenida
+        await this.sendWelcomeNotification();
       }
     }
     this.saveToStorage();
     this.notifySubscribers();
+  }
+
+  private async sendWelcomeNotification(): Promise<void> {
+    try {
+      console.log("📱 Enviando notificación de bienvenida del Travel Mode");
+      await travelNotificationService.sendCustomWelcomeNotification();
+      console.log("✅ Notificación de bienvenida enviada");
+    } catch (error) {
+      console.error("❌ Error enviando notificación de bienvenida:", error);
+    }
   }
 
   private async requestPermissions(): Promise<boolean> {
@@ -312,8 +246,22 @@ class TravelModeManager {
   }
 
   private checkProximity() {
-    // This will be called by the hook with trips data
-    // Moving this logic to the hook level
+    // TEMPORALMENTE DESHABILITADO PARA TESTING
+    // This method is called by the interval but the actual logic
+    // is handled at the hook level. We force a location update
+    // to trigger proximity checks via the useEffect dependency
+    console.log("🔍 OLD Manager checkProximity - DISABLED FOR TESTING");
+    return; // Early return to disable old system
+
+    // Force a new location check
+    this.getCurrentLocation().then((position) => {
+      if (position && position !== this.currentPosition) {
+        console.log("🔄 Location updated from manual check:", position);
+        this.currentPosition = position;
+        this.saveToStorage();
+        this.notifySubscribers();
+      }
+    });
   }
 
   async getCurrentLocation(): Promise<Position | null> {
@@ -441,16 +389,42 @@ export const useTravelMode = () => {
 
   // Check proximity to saved places
   const checkProximity = useCallback(async () => {
-    if (!state.currentPosition || !state.config.isEnabled || !trips) return;
+    console.log("🔍 checkProximity called:", {
+      hasPosition: !!state.currentPosition,
+      isEnabled: state.config.isEnabled,
+      hasTrips: !!trips,
+      timestamp: new Date().toLocaleTimeString(),
+    });
+
+    if (!state.currentPosition || !state.config.isEnabled || !trips) {
+      console.log("🔍 Proximity check skipped:", {
+        hasPosition: !!state.currentPosition,
+        isEnabled: state.config.isEnabled,
+        hasTrips: !!trips,
+      });
+      return;
+    }
 
     // Throttle checks to avoid excessive processing
     const now = Date.now();
-    if (now - lastCheckRef.current < 5000) return; // Min 5 seconds between checks
+    const timeSinceLastCheck = now - lastCheckRef.current;
+    if (timeSinceLastCheck < 5000) {
+      console.log(
+        `🔍 Throttled: Only ${timeSinceLastCheck}ms since last check (min 5000ms)`
+      );
+      return;
+    }
     lastCheckRef.current = now;
 
     const allPlaces = getAllSavedPlaces();
     const userLat = state.currentPosition.coords.latitude;
     const userLng = state.currentPosition.coords.longitude;
+
+    console.log(`🔍 Checking proximity for ${allPlaces.length} places`);
+    console.log(
+      `📍 User location: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`
+    );
+    console.log(`📏 Search radius: ${state.config.proximityRadius}m`);
 
     const nearby: NearbyPlace[] = [];
 
@@ -463,7 +437,12 @@ export const useTravelMode = () => {
           place.lng
         );
 
+        console.log(`📏 ${place.name}: ${distance.toFixed(0)}m away`);
+
         if (distance <= state.config.proximityRadius) {
+          console.log(
+            `🎯 Found nearby place: ${place.name} (${distance.toFixed(0)}m)`
+          );
           const nearbyPlace: NearbyPlace = {
             ...place,
             distance,
