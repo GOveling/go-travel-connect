@@ -28,6 +28,7 @@ interface MapFiltersProps {
     totalTrips: number;
     upcomingTrips: number;
     planningTrips: number;
+    travelingTrips: number;
     completedTrips: number;
     groupTrips: number;
     totalDestinations: number;
@@ -58,6 +59,12 @@ const MapFilters = ({
       label: t("trips.map.planning"),
       color: "bg-purple-600",
       count: stats.planningTrips,
+    },
+    {
+      value: "traveling",
+      label: t("trips.map.traveling"),
+      color: "bg-blue-500",
+      count: stats.travelingTrips,
     },
     {
       value: "completed",
@@ -195,7 +202,7 @@ const MapFilters = ({
           </div>
 
           {/* Active Filters Summary */}
-          {(filters.status.length !== 3 ||
+          {(filters.status.length !== 4 ||
             filters.isGroupTrip !== null ||
             filters.dateRange !== "all" ||
             filters.selectedTripId) && (
