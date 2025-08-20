@@ -135,9 +135,17 @@ export const TripOverview = ({
         <>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">{trip.name}</h2>
-            <Badge variant={getBadgeProps().variant}>
-              {getBadgeProps().label}
-            </Badge>
+            <div className="flex items-center space-x-2">
+              <Badge variant={getBadgeProps().variant}>
+                {getBadgeProps().label}
+              </Badge>
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${getStatusColor(getTripStatus())}`}></div>
+                <Badge variant={getStatusBadgeVariant(getTripStatus())}>
+                  {getTripStatus()}
+                </Badge>
+              </div>
+            </div>
           </div>
           
           <div className="space-y-4">
@@ -209,16 +217,6 @@ export const TripOverview = ({
               </div>
             )}
             
-            {/* Status badge */}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t">
-              <span className="text-sm text-muted-foreground">Status</span>
-              <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${getStatusColor(getTripStatus())}`}></div>
-                <Badge variant={getStatusBadgeVariant(getTripStatus())}>
-                  {getTripStatus()}
-                </Badge>
-              </div>
-            </div>
           </div>
         </>
       )}
