@@ -8,8 +8,14 @@ export const calculateTripStatus = (trip: { startDate?: Date; endDate?: Date }):
 
   // Zero out time for comparison
   start.setHours(0,0,0,0);
-  const endDate = end ? new Date(end) : new Date(start);
-  endDate.setHours(0,0,0,0);
+  let endDate: Date;
+  if (end) {
+    endDate = new Date(end);
+    endDate.setHours(23,59,59,999); // Set to end of day for end date
+  } else {
+    endDate = new Date(start);
+    endDate.setHours(23,59,59,999); // If no end date, trip lasts the whole start day
+  }
   currentDate.setHours(0,0,0,0);
 
   if (currentDate > endDate) return "completed";
