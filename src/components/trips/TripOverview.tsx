@@ -48,28 +48,32 @@ export const TripOverview = ({
     fetchMemberCount();
   }, [trip.id]);
 
-  // Get trip status using the same logic as the map
+  // Get trip status using the trip status utility with proper date conversion
   const getTripStatus = () => {
-    const status = calculateTripStatus({
+    const tripData = {
       startDate: trip.start_date ? new Date(trip.start_date) : undefined,
       endDate: trip.end_date ? new Date(trip.end_date) : undefined
-    });
+    };
+    
+    console.log('Trip data for status calculation:', tripData);
+    const status = calculateTripStatus(tripData);
+    console.log('Calculated status:', status);
+    
     return getStatusDisplayText(status);
   };
 
   // Get status color to match map view
   const getStatusColor = (status: string) => {
-    const normalizedStatus = status.toLowerCase();
+    const normalizedStatus = status.toLowerCase().replace(' ', '');
     switch (normalizedStatus) {
       case 'upcoming':
         return 'bg-green-500';
       case 'planning':
         return 'bg-purple-600';
       case 'traveling':
-      case 'in progress':
-        return 'bg-blue-500';
+      case 'tripcompleted': // Handle "Trip Completed" case
+        return normalizedStatus === 'traveling' ? 'bg-blue-500' : 'bg-gray-500';
       case 'completed':
-      case 'complete':
         return 'bg-gray-500';
       default:
         return 'bg-gray-500';
@@ -78,17 +82,16 @@ export const TripOverview = ({
 
   // Get badge variant based on status
   const getStatusBadgeVariant = (status: string) => {
-    const normalizedStatus = status.toLowerCase();
+    const normalizedStatus = status.toLowerCase().replace(' ', '');
     switch (normalizedStatus) {
       case 'upcoming':
         return 'default';
       case 'planning':
         return 'secondary';
       case 'traveling':
-      case 'in progress':
         return 'outline';
       case 'completed':
-      case 'complete':
+      case 'tripcompleted':
         return 'destructive';
       default:
         return 'outline';
@@ -122,6 +125,8 @@ export const TripOverview = ({
     const endDate = format(new Date(trip.end_date), 'MMM d, yyyy');
     return `${startDate} - ${endDate}`;
   };
+
+  const currentStatus = getTripStatus();
   
   return (
     <Card className="p-6">
@@ -140,9 +145,9 @@ export const TripOverview = ({
                 {getBadgeProps().label}
               </Badge>
               <div className="flex items-center space-x-2">
-                <div className={`w-3 h-3 rounded-full ${getStatusColor(getTripStatus())}`}></div>
-                <Badge variant={getStatusBadgeVariant(getTripStatus())}>
-                  {getTripStatus()}
+                <div className={`w-3 h-3 rounded-full ${getStatusColor(currentStatus)}`}></div>
+                <Badge variant={getStatusBadgeVariant(currentStatus)}>
+                  {currentStatus}
                 </Badge>
               </div>
             </div>
