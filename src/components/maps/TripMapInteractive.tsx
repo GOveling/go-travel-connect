@@ -70,7 +70,9 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
         ? "#10b981"
         : status === "planning"
           ? "#8b5cf6"
-          : "#6b7280";
+          : status === "traveling"
+            ? "#3b82f6"
+            : "#6b7280";
 
     const size = type === "savedPlace" ? 30 : 40;
     const borderWidth = type === "savedPlace" ? 2 : 3;
@@ -150,6 +152,8 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
         return "#10b981";
       case "planning":
         return "#8b5cf6";
+      case "traveling":
+        return "#3b82f6";
       case "completed":
         return "#6b7280";
       default:
@@ -512,7 +516,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
               <h5 className="text-sm font-medium text-gray-700 mb-2">
                 {t("trips.map.legend.tripStatus")}
               </h5>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 rounded-full bg-green-500"></div>
                   <span className="text-sm text-gray-700">
@@ -523,6 +527,12 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                   <div className="w-4 h-4 rounded-full bg-purple-600"></div>
                   <span className="text-sm text-gray-700">
                     {t("trips.map.legend.inPlanning")}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                  <span className="text-sm text-gray-700">
+                    {t("trips.map.traveling")}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
