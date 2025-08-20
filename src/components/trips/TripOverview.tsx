@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Users, MapPin, Plane, Hotel, CreditCard } from 'lucide-react';
 import { format, isPast, isFuture } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { calculateTripStatus, getStatusDisplayText } from '@/utils/tripStatusUtils';
 
 export const TripOverview = ({
   trip,
@@ -47,16 +48,51 @@ export const TripOverview = ({
     fetchMemberCount();
   }, [trip.id]);
 
-  // Get trip status based on dates
+  // Get trip status using the same logic as the map
   const getTripStatus = () => {
-    if (!trip.start_date) return 'Planning';
-    
-    const startDate = new Date(trip.start_date);
-    const endDate = trip.end_date ? new Date(trip.end_date) : null;
-    
-    if (endDate && isPast(endDate)) return 'Complete';
-    if (isFuture(startDate)) return 'Upcoming';
-    return 'In Progress';
+    const status = calculateTripStatus({
+      startDate: trip.start_date ? new Date(trip.start_date) : undefined,
+      endDate: trip.end_date ? new Date(trip.end_date) : undefined
+    });
+    return getStatusDisplayText(status);
+  };
+
+  // Get status color to match map view
+  const getStatusColor = (status: string) => {
+    const normalizedStatus = status.toLowerCase();
+    switch (normalizedStatus) {
+      case 'upcoming':
+        return 'bg-green-500';
+      case 'planning':
+        return 'bg-purple-600';
+      case 'traveling':
+      case 'in progress':
+        return 'bg-blue-500';
+      case 'completed':
+      case 'complete':
+        return 'bg-gray-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  // Get badge variant based on status
+  const getStatusBadgeVariant = (status: string) => {
+    const normalizedStatus = status.toLowerCase();
+    switch (normalizedStatus) {
+      case 'upcoming':
+        return 'default';
+      case 'planning':
+        return 'secondary';
+      case 'traveling':
+      case 'in progress':
+        return 'outline';
+      case 'completed':
+      case 'complete':
+        return 'destructive';
+      default:
+        return 'outline';
+    }
   };
   
   // Get traveler count
@@ -176,12 +212,12 @@ export const TripOverview = ({
             {/* Status badge */}
             <div className="flex items-center justify-between mt-4 pt-4 border-t">
               <span className="text-sm text-muted-foreground">Status</span>
-              <Badge variant={
-                getTripStatus() === 'Complete' ? 'default' : 
-                getTripStatus() === 'Upcoming' ? 'secondary' : 'outline'
-              }>
-                {getTripStatus()}
-              </Badge>
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${getStatusColor(getTripStatus())}`}></div>
+                <Badge variant={getStatusBadgeVariant(getTripStatus())}>
+                  {getTripStatus()}
+                </Badge>
+              </div>
             </div>
           </div>
         </>
