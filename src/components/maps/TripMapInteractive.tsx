@@ -544,30 +544,6 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
               </div>
             </div>
 
-            {/* Marker Types */}
-            <div className="pt-3 border-t">
-              <h5 className="text-sm font-medium text-gray-700 mb-2">
-                {t("trips.map.legend.markerTypes")}
-              </h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs">
-                    ✈️
-                  </div>
-                  <span className="text-sm text-gray-700">
-                    {t("trips.map.legend.tripDestinations")}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs">
-                    📍
-                  </div>
-                  <span className="text-sm text-gray-700">
-                    {t("trips.map.legend.savedPlacesSmall")}
-                  </span>
-                </div>
-              </div>
-            </div>
 
             {/* Routes Legend */}
             {showRoutes && (
