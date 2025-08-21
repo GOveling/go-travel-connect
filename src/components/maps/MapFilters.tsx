@@ -90,7 +90,7 @@ const MapFilters = ({
       </DropdownMenuTrigger>
       
       <DropdownMenuContent 
-        className="w-80 max-w-[90vw] p-0 bg-white border border-gray-200 shadow-lg rounded-lg z-50"
+        className="w-80 max-w-[90vw] max-h-[70vh] overflow-y-auto p-0 bg-white border border-gray-200 shadow-lg rounded-lg z-50"
         align="start"
         sideOffset={4}
       >
