@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { format, isPast, isFuture } from 'date-fns';
+import { calculateTripStatus, getStatusDisplayText } from '@/utils/tripStatusUtils';
 import {
   Dialog,
   DialogContent,
@@ -574,32 +575,15 @@ const TripDetailModal = ({
     }
   };
 
-  // Get trip status based on dates
+  // Get trip status based on dates using the utility function
   const getTripStatus = () => {
-    if (!trip?.dates) return 'Planning';
+    const tripData = {
+      startDate: trip.startDate ? new Date(trip.startDate) : undefined,
+      endDate: trip.endDate ? new Date(trip.endDate) : undefined
+    };
     
-    try {
-      // Parse the dates string like "Dec 15 - Dec 25, 2024"
-      const dateRange = trip.dates.split(" - ");
-      if (dateRange.length !== 2) return 'Planning';
-      
-      const endDateStr = dateRange[1];
-      const year = endDateStr.split(", ")[1] || new Date().getFullYear().toString();
-      const endMonth = endDateStr.split(" ")[0];
-      const endDay = parseInt(endDateStr.split(" ")[1].split(",")[0]);
-      
-      const monthMap: { [key: string]: number } = {
-        Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-        Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
-      };
-      
-      const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
-      
-      if (isPast(endDate)) return 'Complete';
-      return 'Upcoming';
-    } catch {
-      return 'Planning';
-    }
+    const status = calculateTripStatus(tripData);
+    return getStatusDisplayText(status);
   };
   
   // Get traveler count
@@ -607,14 +591,20 @@ const TripDetailModal = ({
     return trip?.isGroupTrip ? memberCount + 1 : 1; // +1 for owner
   };
   
-  // Get badge color based on status
+  // Get badge color and variant based on status to match map view
   const getStatusBadgeColor = () => {
     const status = getTripStatus();
-    switch(status) {
-      case 'Complete':
+    const normalizedStatus = status.toLowerCase().replace(' ', '');
+    switch (normalizedStatus) {
+      case 'upcoming':
         return 'default';
-      case 'Upcoming':
+      case 'planning':
         return 'secondary';
+      case 'traveling':
+        return 'outline';
+      case 'completed':
+      case 'tripcompleted':
+        return 'destructive';
       default:
         return 'outline';
     }
