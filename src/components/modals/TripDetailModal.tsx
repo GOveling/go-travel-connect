@@ -555,6 +555,8 @@ const TripDetailModal = ({
         return "bg-green-100 text-green-800";
       case "planning":
         return "bg-blue-100 text-blue-800";
+      case "traveling":
+        return "bg-green-100 text-green-800";
       case "completed":
         return "bg-purple-100 text-purple-800";
       default:
@@ -670,8 +672,8 @@ const TripDetailModal = ({
                 <Badge variant={getUserRoleBadgeProps().variant}>
                   {getUserRoleBadgeProps().label}
                 </Badge>
-                <Badge variant={getStatusBadgeColor()}>
-                  {getTripStatus()}
+                <Badge className={`text-xs px-2 py-1 rounded-full ${getStatusColor((trip.status || '').toLowerCase())}`}>
+                  {getStatusDisplayText((trip.status || '').toLowerCase())}
                 </Badge>
               </div>
             </div>
