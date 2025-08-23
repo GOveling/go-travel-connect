@@ -1,3 +1,4 @@
+
 import CurrentTrip from "@/components/home/CurrentTrip";
 import HomeModals from "@/components/home/HomeModals";
 import HomePopularPlace from "@/components/home/HomePopularPlace";
@@ -92,7 +93,7 @@ const HomeSection = () => {
         <div className="flex-1">
           <LocationWeatherWidget />
         </div>
-        <NotificationBell />
+        <NotificationBell onNotificationClick={handlers.handleNotificationClick} />
       </div>
 
       {/* Quick Stats */}
