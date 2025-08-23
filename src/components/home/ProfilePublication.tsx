@@ -1,7 +1,9 @@
+
 import { MapPin, Plus, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProfilePost, ProfilePublicationProps } from "@/types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const ProfilePublication = ({
   posts,
@@ -9,26 +11,28 @@ const ProfilePublication = ({
   onAddToTrip,
   formatTimeAgo,
 }: ProfilePublicationProps) => {
+  const { t } = useLanguage();
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg">Profile Publications</CardTitle>
+        <CardTitle className="text-lg">{t("home.profilePublication.title")}</CardTitle>
         <Button
           onClick={onProfilePublicationClick}
           size="sm"
           className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
         >
           <Plus size={16} className="mr-1" />
-          Add Post
+          {t("home.profilePublication.addPost")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         {posts.length === 0 ? (
           <div className="text-center py-8">
             <Share size={32} className="mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-500">No publications yet</p>
+            <p className="text-gray-500">{t("home.profilePublication.noPublications")}</p>
             <p className="text-xs text-gray-400">
-              Share your travel memories with the world!
+              {t("home.profilePublication.shareMemories")}
             </p>
           </div>
         ) : (
@@ -67,7 +71,7 @@ const ProfilePublication = ({
                       <span>{post.location}</span>
                       {post.tripId && (
                         <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                          Added to trip
+                          {t("home.profilePublication.addedToTrip")}
                         </span>
                       )}
                     </div>
@@ -79,7 +83,7 @@ const ProfilePublication = ({
                         className="h-6 px-2 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
                       >
                         <Plus size={12} className="mr-1" />
-                        Add to Trip
+                        {t("home.profilePublication.addToTrip")}
                       </Button>
                     )}
                   </div>
@@ -93,7 +97,7 @@ const ProfilePublication = ({
         )}
         {posts.length > 3 && (
           <Button variant="outline" className="w-full">
-            View All Publications
+            {t("home.profilePublication.viewAllPublications")}
           </Button>
         )}
       </CardContent>
