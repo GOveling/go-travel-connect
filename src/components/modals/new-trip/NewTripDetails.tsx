@@ -1,10 +1,8 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MultiSelectPopover from "./MultiSelectPopover";
 import { NewTripFormData } from "@/hooks/useNewTripForm";
-import { useAccommodationOptions, useTransportationOptions } from "./constants";
-import { useLanguage } from "@/hooks/useLanguage";
+import { accommodationOptions, transportationOptions } from "./constants";
 
 interface NewTripDetailsProps {
   formData: NewTripFormData;
@@ -12,10 +10,6 @@ interface NewTripDetailsProps {
 }
 
 const NewTripDetails = ({ formData, onInputChange }: NewTripDetailsProps) => {
-  const { t } = useLanguage();
-  const accommodationOptions = useAccommodationOptions();
-  const transportationOptions = useTransportationOptions();
-
   const handleAccommodationSelect = (item: string) => {
     if (!formData.accommodation.includes(item)) {
       onInputChange("accommodation", [...formData.accommodation, item]);
@@ -44,13 +38,11 @@ const NewTripDetails = ({ formData, onInputChange }: NewTripDetailsProps) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-700">
-        {t("trips.newTripModal.details.title")}
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-700">Trip Details</h3>
 
       <div>
         <Label htmlFor="budget" className="text-sm font-medium">
-          {t("trips.newTripModal.details.budgetLabel")}
+          Budget (optional)
         </Label>
         <Input
           id="budget"
@@ -64,27 +56,27 @@ const NewTripDetails = ({ formData, onInputChange }: NewTripDetailsProps) => {
               value === "" ? "" : parseFloat(value) || ""
             );
           }}
-          placeholder={t("trips.newTripModal.details.budgetPlaceholder")}
+          placeholder="Enter budget amount"
           className="mt-1"
         />
       </div>
 
       <MultiSelectPopover
-        label={t("trips.newTripModal.details.accommodationLabel")}
+        label="Accommodation Preferences (optional)"
         options={accommodationOptions}
         selectedItems={formData.accommodation}
         onItemSelect={handleAccommodationSelect}
         onItemRemove={handleAccommodationRemove}
-        placeholder={t("trips.newTripModal.details.accommodationPlaceholder")}
+        placeholder="Select accommodation types"
       />
 
       <MultiSelectPopover
-        label={t("trips.newTripModal.details.transportationLabel")}
+        label="Transportation (optional)"
         options={transportationOptions}
         selectedItems={formData.transportation}
         onItemSelect={handleTransportationSelect}
         onItemRemove={handleTransportationRemove}
-        placeholder={t("trips.newTripModal.details.transportationPlaceholder")}
+        placeholder="Select transportation types"
       />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ import {
 } from "@internationalized/date";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface NewTripDatePickerProps {
   startDate?: Date;
@@ -38,7 +36,6 @@ const NewTripDatePicker = ({
   onNotSureYet,
   onSetDatesNow,
 }: NewTripDatePickerProps) => {
-  const { t } = useLanguage();
   const [isDateRangeOpen, setIsDateRangeOpen] = useState(false);
 
   const getDateRangeValue = () => {
@@ -60,9 +57,9 @@ const NewTripDatePicker = ({
     if (startDate && endDate) {
       return `${format(startDate, "dd/MM/yyyy")} - ${format(endDate, "dd/MM/yyyy")}`;
     } else if (startDate) {
-      return `${format(startDate, "dd/MM/yyyy")} - ${t("trips.newTripModal.dates.selectEndDate")}`;
+      return `${format(startDate, "dd/MM/yyyy")} - Seleccionar fin`;
     }
-    return t("trips.newTripModal.dates.selectDateRange");
+    return "Seleccionar fechas del viaje";
   };
 
   const handleDateRangeChange = (
@@ -78,13 +75,13 @@ const NewTripDatePicker = ({
     <div className="space-y-3">
       <Label className="text-sm font-medium flex items-center gap-1">
         <Calendar size={16} />
-        {t("trips.newTripModal.dates.title")}
+        Travel Dates
       </Label>
 
       {datesNotSet ? (
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-700 mb-2">
-            {t("trips.newTripModal.dates.notSetMessage")}
+            Dates will be decided later
           </p>
           <Button
             type="button"
@@ -93,7 +90,7 @@ const NewTripDatePicker = ({
             onClick={onSetDatesNow}
             className="text-blue-600 border-blue-300"
           >
-            {t("trips.newTripModal.dates.setDatesButton")}
+            Set Dates Now
           </Button>
         </div>
       ) : (
@@ -129,7 +126,7 @@ const NewTripDatePicker = ({
             onClick={onNotSureYet}
             className="w-full text-gray-600 border-gray-300 hover:bg-gray-50"
           >
-            {t("trips.newTripModal.dates.notSureButton")}
+            Not sure yet
           </Button>
         </div>
       )}

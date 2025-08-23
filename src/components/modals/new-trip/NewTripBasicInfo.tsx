@@ -1,4 +1,3 @@
-
 import { AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,7 +6,6 @@ import { cn } from "@/lib/utils";
 import NewTripDatePicker from "./NewTripDatePicker";
 import { NewTripFormData } from "@/hooks/useNewTripForm";
 import { CalendarDate } from "@internationalized/date";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface NewTripBasicInfoProps {
   formData: NewTripFormData;
@@ -28,27 +26,23 @@ const NewTripBasicInfo = ({
   onDateRangeChange,
   onNotSureYet,
 }: NewTripBasicInfoProps) => {
-  const { t } = useLanguage();
-
   const handleSetDatesNow = () => {
     onInputChange("datesNotSet", false);
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-700">
-        {t("trips.newTripModal.basicInfo.title")}
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-700">Basic Information</h3>
 
       <div>
         <Label htmlFor="tripName" className="text-sm font-medium">
-          {t("trips.newTripModal.basicInfo.nameLabel")}
+          Trip Name *
         </Label>
         <Input
           id="tripName"
           value={formData.name}
           onChange={onNameChange}
-          placeholder={t("trips.newTripModal.basicInfo.namePlaceholder")}
+          placeholder="e.g., European Adventure"
           className={cn(
             "mt-1 transition-all duration-200",
             nameError && "border-destructive focus-visible:ring-destructive"
@@ -58,7 +52,7 @@ const NewTripBasicInfo = ({
           <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-destructive/10 border border-destructive/20 rounded-md animate-fade-in">
             <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />
             <span className="text-sm font-medium text-destructive">
-              {t("trips.newTripModal.basicInfo.nameRequired")}
+              Trip name is required to continue
             </span>
           </div>
         )}
@@ -66,13 +60,13 @@ const NewTripBasicInfo = ({
 
       <div>
         <Label htmlFor="description" className="text-sm font-medium">
-          {t("trips.newTripModal.basicInfo.descriptionLabel")}
+          Description (optional)
         </Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => onInputChange("description", e.target.value)}
-          placeholder={t("trips.newTripModal.basicInfo.descriptionPlaceholder")}
+          placeholder="Tell us about your trip plans..."
           className="mt-1 min-h-[100px]"
           maxLength={250}
         />

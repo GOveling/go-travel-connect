@@ -1,4 +1,3 @@
-
 import { Plane } from "lucide-react";
 import {
   Dialog,
@@ -10,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useNewTripForm } from "@/hooks/useNewTripForm";
 import NewTripBasicInfo from "./new-trip/NewTripBasicInfo";
 import NewTripDetails from "./new-trip/NewTripDetails";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface NewTripModalProps {
   isOpen: boolean;
@@ -19,7 +17,6 @@ interface NewTripModalProps {
 }
 
 const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
-  const { t } = useLanguage();
   const {
     formData,
     nameError,
@@ -36,7 +33,7 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-bold text-center text-gray-800 flex items-center justify-center gap-2">
             <Plane className="text-blue-600" size={20} />
-            <span>{t("trips.newTripModal.title")}</span>
+            <span>Create New Trip</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -63,13 +60,13 @@ const NewTripModal = ({ isOpen, onClose, onCreateTrip }: NewTripModalProps) => {
               onClick={onClose}
               className="flex-1"
             >
-              {t("trips.newTripModal.cancel")}
+              Cancel
             </Button>
             <Button
               type="submit"
               className="flex-1 bg-gradient-to-r from-blue-500 to-orange-500"
             >
-              {t("trips.newTripModal.createButton")}
+              Create Trip
             </Button>
           </div>
         </form>

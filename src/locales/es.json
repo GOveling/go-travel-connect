@@ -1,4 +1,3 @@
-
 {
   "navigation": {
     "home": "Inicio",
@@ -27,8 +26,7 @@
     "no": "No",
     "viewMore": "Ver Más",
     "loadMore": "Cargar Más",
-    "seeAll": "Ver Todo",
-    "selected": "seleccionados"
+    "seeAll": "Ver Todo"
   },
   "auth": {
     "signIn": "Iniciar Sesión",
@@ -236,62 +234,6 @@
     "noTripsYet": "Aún no hay viajes",
     "createFirstTripDescription": "¡Crea tu primer viaje para comenzar!",
     "createFirstTrip": "Crear Tu Primer Viaje",
-    "newTripModal": {
-      "title": "Crear Nuevo Viaje",
-      "createButton": "Crear Viaje",
-      "cancel": "Cancelar",
-      "basicInfo": {
-        "title": "Información Básica",
-        "nameLabel": "Nombre del Viaje *",
-        "namePlaceholder": "ej. Aventura Europea",
-        "nameRequired": "El nombre del viaje es obligatorio para continuar",
-        "descriptionLabel": "Descripción (opcional)",
-        "descriptionPlaceholder": "Cuéntanos sobre tus planes de viaje..."
-      },
-      "dates": {
-        "title": "Fechas del Viaje",
-        "selectDateRange": "Seleccionar fechas del viaje",
-        "selectEndDate": "Seleccionar fin",
-        "notSetMessage": "Las fechas se decidirán más tarde",
-        "setDatesButton": "Establecer Fechas Ahora",
-        "notSureButton": "Aún no estoy seguro"
-      },
-      "details": {
-        "title": "Detalles del Viaje",
-        "budgetLabel": "Presupuesto (opcional)",
-        "budgetPlaceholder": "Ingresa el monto del presupuesto",
-        "accommodationLabel": "Preferencias de Alojamiento (opcional)",
-        "accommodationPlaceholder": "Selecciona tipos de alojamiento",
-        "transportationLabel": "Transporte (opcional)",
-        "transportationPlaceholder": "Selecciona tipos de transporte"
-      },
-      "accommodation": {
-        "hotels": "Hoteles",
-        "hostels": "Hostales",
-        "vacationRentals": "Alquileres Vacacionales",
-        "bedAndBreakfast": "Pensión",
-        "resorts": "Resorts",
-        "apartments": "Apartamentos",
-        "guesthouses": "Casas de Huéspedes",
-        "camping": "Camping",
-        "motels": "Moteles"
-      },
-      "transportation": {
-        "flights": "Vuelos",
-        "train": "Tren",
-        "carRental": "Alquiler de Auto",
-        "bus": "Autobús",
-        "taxiRideshare": "Taxi/Uber",
-        "metroSubway": "Metro/Subte",
-        "walking": "Caminando",
-        "bicycle": "Bicicleta",
-        "ferry": "Ferry",
-        "motorcycle": "Motocicleta"
-      },
-      "multiSelect": {
-        "selected": "seleccionados"
-      }
-    },
     "quickStats": {
       "upcoming": "Próximos",
       "inProgress": "En Progreso",
