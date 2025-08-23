@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import MultiSelectPopover from './new-trip/MultiSelectPopover';
-import { accommodationOptions, transportationOptions } from './new-trip/constants';
+import { useAccommodationOptions, useTransportationOptions } from './new-trip/constants';
 import { format, isPast, isFuture } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { 
@@ -43,6 +43,8 @@ interface EditTripModalProps {
 export function EditTripModal({ trip, isOpen, onClose, onUpdate }: EditTripModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const accommodationOptions = useAccommodationOptions();
+  const transportationOptions = useTransportationOptions();
   
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
