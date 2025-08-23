@@ -1,3 +1,4 @@
+
 {
   "trips": {
     "title": "My Trips",
@@ -9,6 +10,62 @@
     "noTripsYet": "No trips yet",
     "createFirstTripDescription": "Create your first trip to get started!",
     "createFirstTrip": "Create Your First Trip",
+    "newTripModal": {
+      "title": "Create New Trip",
+      "createButton": "Create Trip",
+      "cancel": "Cancel",
+      "basicInfo": {
+        "title": "Basic Information",
+        "nameLabel": "Trip Name *",
+        "namePlaceholder": "e.g., European Adventure",
+        "nameRequired": "Trip name is required to continue",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "Tell us about your trip plans..."
+      },
+      "dates": {
+        "title": "Travel Dates",
+        "selectDateRange": "Select trip dates",
+        "selectEndDate": "Select end date",
+        "notSetMessage": "Dates will be decided later",
+        "setDatesButton": "Set Dates Now",
+        "notSureButton": "Not sure yet"
+      },
+      "details": {
+        "title": "Trip Details",
+        "budgetLabel": "Budget (optional)",
+        "budgetPlaceholder": "Enter budget amount",
+        "accommodationLabel": "Accommodation Preferences (optional)",
+        "accommodationPlaceholder": "Select accommodation types",
+        "transportationLabel": "Transportation (optional)",
+        "transportationPlaceholder": "Select transportation types"
+      },
+      "accommodation": {
+        "hotels": "Hotels",
+        "hostels": "Hostels",
+        "vacationRentals": "Vacation Rentals",
+        "bedAndBreakfast": "Bed & Breakfast",
+        "resorts": "Resorts",
+        "apartments": "Apartments",
+        "guesthouses": "Guesthouses",
+        "camping": "Camping",
+        "motels": "Motels"
+      },
+      "transportation": {
+        "flights": "Flights",
+        "train": "Train",
+        "carRental": "Car Rental",
+        "bus": "Bus",
+        "taxiRideshare": "Taxi/Rideshare",
+        "metroSubway": "Metro/Subway",
+        "walking": "Walking",
+        "bicycle": "Bicycle",
+        "ferry": "Ferry",
+        "motorcycle": "Motorcycle"
+      },
+      "multiSelect": {
+        "selected": "selected"
+      }
+    },
     "map": {
       "interactiveMap": "Interactive Map",
       "tripSelector": "Trip Selector",

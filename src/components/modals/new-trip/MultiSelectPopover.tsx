@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface MultiSelectPopoverProps {
   label: string;
@@ -26,6 +28,7 @@ const MultiSelectPopover = ({
   onItemRemove,
   placeholder,
 }: MultiSelectPopoverProps) => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleItemToggle = (item: string) => {
@@ -47,7 +50,7 @@ const MultiSelectPopover = ({
             className="w-full justify-start text-left font-normal mt-1"
           >
             {selectedItems.length > 0
-              ? `${selectedItems.length} selected`
+              ? `${selectedItems.length} ${t("trips.newTripModal.multiSelect.selected")}`
               : placeholder}
           </Button>
         </PopoverTrigger>
