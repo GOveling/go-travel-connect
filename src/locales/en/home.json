@@ -1,3 +1,4 @@
+
 {
   "home": {
     "welcomeBack": "Welcome Back",
@@ -7,7 +8,9 @@
       "title": "Quick Stats",
       "tripsPlanned": "Trips Planned",
       "placesVisited": "Places Visited",
-      "countriesExplored": "Countries Explored"
+      "countriesExplored": "Countries Explored",
+      "placesSaved": "Places Saved",
+      "upcomingTrips": "Upcoming Trips"
     },
     "currentTrip": {
       "currentTrip": "Current Trip",
@@ -16,18 +19,48 @@
       "planNewTrip": "Plan New Trip",
       "noTrips": "No trips planned yet",
       "startPlanning": "Start planning your adventure!",
-      "viewAllTrips": "View All Trips"
+      "viewAllTrips": "View All Trips",
+      "aiSmartRouteActive": "AI Smart Route Active",
+      "followingOptimizedRoute": "Following optimized route",
+      "traveling": "Traveling",
+      "nextOptimizedDestination": "Next: Optimized destination in route",
+      "viewAIRouteDetails": "View AI Route Details",
+      "tripCountdown": "Trip Countdown",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "untilTripBegins": "Until your trip begins!",
+      "viewTripDetails": "View Trip Details",
+      "previewAISmartRoute": "Preview AI Smart Route",
+      "planYourNextAdventure": "Plan Your Next Adventure",
+      "noUpcomingTrips": "No upcoming trips planned",
+      "readyForNextJourney": "Ready for your next journey?",
+      "createTripPlan": "Create a trip plan and let AI optimize your route"
     },
     "quickActions": {
       "title": "Quick Actions",
       "bookFlight": "Book Flight",
       "findHotel": "Find Hotel",
       "exploreDestinations": "Explore Destinations",
-      "viewTrips": "View My Trips"
+      "viewTrips": "View My Trips",
+      "nearbyAlerts": "Nearby Alerts"
     },
     "popularPlaces": {
       "title": "Popular Places",
-      "subtitle": "Discover amazing destinations around the world"
+      "subtitle": "Discover amazing destinations around the world",
+      "popularPlaceGlobally": "Popular Place Globally",
+      "next": "Next",
+      "refresh": "Refresh",
+      "saves": "saves"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "savedPlace": "Saved {{placeName}}",
+      "bookedHotel": "Booked hotel in {{city}}",
+      "timeAgo": {
+        "hoursAgo": "{{count}} hours ago",
+        "daysAgo": "{{count}} day ago"
+      }
     },
     "weather": {
       "fallbackMessages": {

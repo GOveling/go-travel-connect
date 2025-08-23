@@ -8,7 +8,9 @@
       "title": "Estadísticas Rápidas",
       "tripsPlanned": "Viajes Planeados",
       "placesVisited": "Lugares Visitados",
-      "countriesExplored": "Países Explorados"
+      "countriesExplored": "Países Explorados",
+      "placesSaved": "Lugares Guardados",
+      "upcomingTrips": "Próximos Viajes"
     },
     "currentTrip": {
       "currentTrip": "Viaje Actual",
@@ -17,18 +19,48 @@
       "planNewTrip": "Planear Nuevo Viaje",
       "noTrips": "Aún no hay viajes planeados",
       "startPlanning": "¡Comienza a planear tu aventura!",
-      "viewAllTrips": "Ver Todos los Viajes"
+      "viewAllTrips": "Ver Todos los Viajes",
+      "aiSmartRouteActive": "Ruta IA Inteligente Activa",
+      "followingOptimizedRoute": "Siguiendo ruta optimizada",
+      "traveling": "Viajando",
+      "nextOptimizedDestination": "Siguiente: Destino optimizado en la ruta",
+      "viewAIRouteDetails": "Ver Detalles de Ruta IA",
+      "tripCountdown": "Cuenta Regresiva del Viaje",
+      "days": "Días",
+      "hours": "Horas",
+      "minutes": "Minutos",
+      "untilTripBegins": "¡Hasta que comience tu viaje!",
+      "viewTripDetails": "Ver Detalles del Viaje",
+      "previewAISmartRoute": "Vista Previa de Ruta IA Inteligente",
+      "planYourNextAdventure": "Planea Tu Próxima Aventura",
+      "noUpcomingTrips": "No hay próximos viajes planeados",
+      "readyForNextJourney": "¿Listo para tu próximo viaje?",
+      "createTripPlan": "Crea un plan de viaje y deja que la IA optimice tu ruta"
     },
     "quickActions": {
       "title": "Acciones Rápidas",
       "bookFlight": "Reservar Vuelo",
       "findHotel": "Encontrar Hotel",
       "exploreDestinations": "Explorar Destinos",
-      "viewTrips": "Ver Mis Viajes"
+      "viewTrips": "Ver Mis Viajes",
+      "nearbyAlerts": "Alertas Cercanas"
     },
     "popularPlaces": {
       "title": "Lugares Populares",
-      "subtitle": "Descubre destinos increíbles alrededor del mundo"
+      "subtitle": "Descubre destinos increíbles alrededor del mundo",
+      "popularPlaceGlobally": "Lugar Popular Globalmente",
+      "next": "Siguiente",
+      "refresh": "Actualizar",
+      "saves": "guardados"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "savedPlace": "Guardó {{placeName}}",
+      "bookedHotel": "Reservó hotel en {{city}}",
+      "timeAgo": {
+        "hoursAgo": "hace {{count}} horas",
+        "daysAgo": "hace {{count}} día"
+      }
     },
     "weather": {
       "fallbackMessages": {
