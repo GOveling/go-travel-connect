@@ -1,0 +1,44 @@
+
+{
+  "explore": {
+    "title": "Explorar Lugares",
+    "subtitle": "Descubre destinos de ensueño para tu próxima aventura",
+    "searchPlaceholder": "Buscar tu próximo destino...",
+    "searchCategories": "Buscar Categorías",
+    "categories": {
+      "all": "Todo",
+      "attractions": "Atracciones",
+      "restaurants": "Restaurantes",
+      "hotels": "Hoteles",
+      "activities": "Actividades",
+      "nature": "Naturaleza",
+      "culture": "Cultura",
+      "nightlife": "Vida Nocturna",
+      "shopping": "Compras"
+    },
+    "filters": {
+      "title": "Filtros",
+      "rating": "Calificación",
+      "priceRange": "Rango de Precio",
+      "location": "Ubicación",
+      "openNow": "Abierto Ahora",
+      "apply": "Aplicar Filtros",
+      "clear": "Limpiar Todo"
+    },
+    "addToTrip": "Agregar al Viaje",
+    "nearbyPlaces": {
+      "title": "Lugares Cercanos",
+      "subtitle": "Recomendados para ti",
+      "description": "Descubre lugares recomendados cerca de tu ubicación",
+      "exploreNow": "Explorar Ahora",
+      "viewDetails": "Ver Detalles",
+      "samplePlaces": {
+        "park": "Hermoso parque urbano perfecto para paseos y ejercicio.",
+        "museum": "Impresionante colección de arte contemporáneo y clásico.",
+        "cafe": "Cafetería acogedora con gran ambiente y café de especialidad.",
+        "plaza": "Hermosa plaza de arquitectura colonial con eventos culturales.",
+        "market": "Mercado tradicional con productos locales y comida auténtica."
+      }
+    }
+  }
+}

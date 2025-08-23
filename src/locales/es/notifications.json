@@ -1,0 +1,12 @@
+
+{
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar como leído",
+    "noNotifications": "No hay notificaciones",
+    "achievement": "¡Logro desbloqueado!",
+    "explorerBadge": "¡Insignia de Explorador ganada!",
+    "recommendation": "Nueva recomendación",
+    "restaurantSuggestion": "Sugerencia de restaurante"
+  }
+}
