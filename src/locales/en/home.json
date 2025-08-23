@@ -81,29 +81,6 @@
         "unforgettableExperience": "unforgettable experience",
         "timeToTravel": "time to travel"
       }
-    },
-    "profilePublication": {
-      "title": "Profile Publications",
-      "addPost": "Add Post",
-      "noPublications": "No publications yet",
-      "shareMemories": "Share your travel memories with the world!",
-      "addedToTrip": "Added to trip",
-      "addToTrip": "Add to Trip",
-      "viewAllPublications": "View All Publications"
-    },
-    "notifications": {
-      "title": "Notifications",
-      "noNotifications": "No new notifications",
-      "markAllAsRead": "Mark all as read"
-    },
-    "followedFriends": {
-      "title": "Friend Updates",
-      "noUpdates": "No recent updates from friends",
-      "followFriends": "Follow friends to see their latest adventures!",
-      "viewAllUpdates": "View All Updates",
-      "friendSaved": "{{friendName}} saved {{placeName}}",
-      "friendVisited": "{{friendName}} visited {{placeName}}",
-      "friendPosted": "{{friendName}} shared photos from {{location}}"
     }
   }
 }

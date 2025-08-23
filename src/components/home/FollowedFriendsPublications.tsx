@@ -1,144 +1,258 @@
-
-import { Users, Heart, MessageCircle, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MapPin, Heart, MessageCircle, Share2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/hooks/useLanguage";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useState } from "react";
+import PublicationPhotosModal from "@/components/modals/PublicationPhotosModal";
+import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import type {
+  FriendPublication,
+  FollowedFriendsPublicationsProps,
+} from "@/types";
 
-interface FriendUpdate {
-  id: string;
-  friendName: string;
-  friendAvatar: string;
-  action: 'saved' | 'visited' | 'posted';
-  placeName?: string;
-  location?: string;
-  images?: string[];
-  text?: string;
-  timestamp: Date;
-  likes: number;
-  comments: number;
-}
-
-interface FollowedFriendsPublicationsProps {
-  updates: FriendUpdate[];
-  onViewAllUpdates: () => void;
-}
-
-const FollowedFriendsPublications = ({ 
-  updates, 
-  onViewAllUpdates 
+const FollowedFriendsPublications = ({
+  publications,
+  onLike,
+  onComment,
+  onShare,
+  formatTimeAgo,
+  trips = [],
+  onAddToExistingTrip = () => {},
+  onCreateNewTrip = () => {},
 }: FollowedFriendsPublicationsProps) => {
-  const { t } = useLanguage();
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedFriendName, setSelectedFriendName] = useState("");
+  const [selectedPublication, setSelectedPublication] =
+    useState<FriendPublication | null>(null);
+  const [isPhotosModalOpen, setIsPhotosModalOpen] = useState(false);
+  const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
 
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 24) {
-      return t("home.recentActivity.timeAgo.hoursAgo", { count: diffInHours });
-    } else {
-      const diffInDays = Math.floor(diffInHours / 24);
-      return t("home.recentActivity.timeAgo.daysAgo", { count: diffInDays });
-    }
+  // Extract the first and most visible initial from name
+  const getInitials = (name: string): string => {
+    return name.charAt(0).toUpperCase();
   };
 
-  const getUpdateText = (update: FriendUpdate) => {
-    switch (update.action) {
-      case 'saved':
-        return t("home.followedFriends.friendSaved", { 
-          friendName: update.friendName, 
-          placeName: update.placeName 
-        });
-      case 'visited':
-        return t("home.followedFriends.friendVisited", { 
-          friendName: update.friendName, 
-          placeName: update.placeName 
-        });
-      case 'posted':
-        return t("home.followedFriends.friendPosted", { 
-          friendName: update.friendName, 
-          location: update.location 
-        });
-      default:
-        return `${update.friendName} shared an update`;
+  const handleImageClick = (
+    images: string[],
+    imageIndex: number,
+    friendName: string,
+    publication: FriendPublication
+  ) => {
+    setSelectedImages(images);
+    setSelectedImageIndex(imageIndex);
+    setSelectedFriendName(friendName);
+    setSelectedPublication(publication);
+    setIsPhotosModalOpen(true);
+  };
+
+  const handleAddToTripClick = (
+    publication: FriendPublication,
+    e?: React.MouseEvent
+  ) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    if (publication.location) {
+      const place = {
+        name: publication.location,
+        location: publication.location,
+        rating: 4.5,
+        image: publication.images[0] || "📍",
+        category: "recommended",
+        description: `Recommended by ${publication.friendName}: ${publication.text}`,
+        lat: 0,
+        lng: 0,
+      };
+      setSelectedPlace(place);
+      setIsAddToTripModalOpen(true);
+      setIsPhotosModalOpen(false);
     }
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg">{t("home.followedFriends.title")}</CardTitle>
-        <Button variant="ghost" size="sm" onClick={onViewAllUpdates}>
-          <Users size={16} />
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {updates.length === 0 ? (
-          <div className="text-center py-8">
-            <Users size={32} className="mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-500">{t("home.followedFriends.noUpdates")}</p>
-            <p className="text-xs text-gray-400">
-              {t("home.followedFriends.followFriends")}
-            </p>
-          </div>
-        ) : (
-          updates.slice(0, 3).map((update) => (
-            <div key={update.id} className="border rounded-lg p-3 space-y-3">
-              <div className="flex items-start space-x-3">
-                <img
-                  src={update.friendAvatar}
-                  alt={update.friendName}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-800">
-                    {getUpdateText(update)}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {formatTimeAgo(update.timestamp)}
-                  </p>
-                </div>
-              </div>
-              
-              {update.images && update.images.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
-                  {update.images.slice(0, 3).map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Update image ${index + 1}`}
-                      className="w-full h-20 object-cover rounded"
-                    />
-                  ))}
-                </div>
-              )}
-              
-              {update.text && (
-                <p className="text-sm text-gray-700">{update.text}</p>
-              )}
-              
-              <div className="flex items-center space-x-4 pt-2">
-                <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500 transition-colors">
-                  <Heart size={14} />
-                  <span className="text-xs">{update.likes}</span>
-                </button>
-                <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 transition-colors">
-                  <MessageCircle size={14} />
-                  <span className="text-xs">{update.comments}</span>
-                </button>
-                <button className="flex items-center space-x-1 text-gray-500 hover:text-green-500 transition-colors">
-                  <Share2 size={14} />
-                </button>
-              </div>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-lg">Friends' Publications</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {publications.length === 0 ? (
+            <div className="text-center py-8">
+              <Share2 size={32} className="mx-auto text-gray-400 mb-2" />
+              <p className="text-gray-500">No friend publications yet</p>
+              <p className="text-xs text-gray-400">
+                Follow more friends to see their travel memories!
+              </p>
             </div>
-          ))
-        )}
-        {updates.length > 3 && (
-          <Button variant="outline" className="w-full" onClick={onViewAllUpdates}>
-            {t("home.followedFriends.viewAllUpdates")}
-          </Button>
-        )}
-      </CardContent>
-    </Card>
+          ) : (
+            publications.map((publication) => (
+              <div
+                key={publication.id}
+                className="border rounded-lg p-3 space-y-3"
+              >
+                {/* Friend info */}
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    {publication.friendAvatar ? (
+                      <AvatarImage
+                        src={publication.friendAvatar}
+                        alt={publication.friendName}
+                      />
+                    ) : (
+                      <AvatarFallback>
+                        {getInitials(publication.friendName)}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div>
+                    <p className="font-medium text-sm">
+                      {publication.friendName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatTimeAgo(publication.createdAt)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Publication content */}
+                <p className="text-sm text-gray-700">{publication.text}</p>
+
+                {/* Images */}
+                <div className="grid grid-cols-2 gap-2">
+                  {publication.images.slice(0, 2).map((image, index) => (
+                    <div key={index} className="relative group">
+                      <button
+                        onClick={() =>
+                          handleImageClick(
+                            publication.images,
+                            index,
+                            publication.friendName,
+                            publication
+                          )
+                        }
+                        className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
+                      >
+                        <img
+                          src={image}
+                          alt={`Publication image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                      {publication.location && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => handleAddToTripClick(publication, e)}
+                          className="absolute top-2 right-2 h-7 w-7 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md"
+                          variant="ghost"
+                        >
+                          <Plus size={14} />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {publication.images.length > 2 && (
+                    <div className="relative col-span-2 group">
+                      <button
+                        onClick={() =>
+                          handleImageClick(
+                            publication.images,
+                            2,
+                            publication.friendName,
+                            publication
+                          )
+                        }
+                        className="w-full h-32 rounded overflow-hidden hover:scale-105 transition-transform duration-200"
+                      >
+                        <img
+                          src={publication.images[2]}
+                          alt="More images"
+                          className="w-full h-full object-cover"
+                        />
+                        {publication.images.length > 3 && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center">
+                            <span className="text-white text-sm font-medium">
+                              +{publication.images.length - 3} more
+                            </span>
+                          </div>
+                        )}
+                      </button>
+                      {publication.location && (
+                        <Button
+                          size="sm"
+                          onClick={(e) => handleAddToTripClick(publication, e)}
+                          className="absolute top-2 right-2 h-7 w-7 p-0 bg-white/90 hover:bg-white text-gray-700 hover:text-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-md"
+                          variant="ghost"
+                        >
+                          <Plus size={14} />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Location */}
+                {publication.location && (
+                  <div className="flex items-center space-x-1 text-xs text-gray-500">
+                    <MapPin size={12} />
+                    <span>{publication.location}</span>
+                  </div>
+                )}
+
+                {/* Interaction buttons */}
+                <div className="flex justify-between pt-2 border-t">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`flex gap-1 ${publication.liked ? "text-red-500" : ""}`}
+                    onClick={() => onLike(publication.id)}
+                  >
+                    <Heart
+                      size={16}
+                      className={publication.liked ? "fill-current" : ""}
+                    />
+                    <span>{publication.likes}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex gap-1"
+                    onClick={() => onComment(publication.id)}
+                  >
+                    <MessageCircle size={16} />
+                    <span>{publication.comments}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onShare(publication.id)}
+                  >
+                    <Share2 size={16} />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <PublicationPhotosModal
+        isOpen={isPhotosModalOpen}
+        onClose={() => setIsPhotosModalOpen(false)}
+        images={selectedImages}
+        initialIndex={selectedImageIndex}
+        friendName={selectedFriendName}
+        publication={selectedPublication}
+        onAddToTrip={handleAddToTripClick}
+      />
+
+      <ExploreAddToTripModal
+        isOpen={isAddToTripModalOpen}
+        onClose={() => setIsAddToTripModalOpen(false)}
+        selectedPlace={selectedPlace}
+      />
+    </>
   );
 };
 
