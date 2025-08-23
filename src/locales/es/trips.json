@@ -10,6 +10,62 @@
     "noTripsYet": "Aún no hay viajes",
     "createFirstTripDescription": "¡Crea tu primer viaje para comenzar!",
     "createFirstTrip": "Crear Tu Primer Viaje",
+    "newTripModal": {
+      "title": "Crear Nuevo Viaje",
+      "basicInfo": {
+        "title": "Información Básica",
+        "nameLabel": "Nombre del Viaje *",
+        "namePlaceholder": "ej. Aventura Europea",
+        "nameRequired": "El nombre del viaje es obligatorio para continuar",
+        "descriptionLabel": "Descripción (opcional)",
+        "descriptionPlaceholder": "Cuéntanos sobre tus planes de viaje..."
+      },
+      "dates": {
+        "travelDates": "Fechas del Viaje",
+        "selectDateRange": "Selecciona las fechas del viaje",
+        "selectEndDate": "Seleccionar fecha de fin",
+        "notSetMessage": "Las fechas se decidirán más tarde",
+        "setDatesButton": "Establecer Fechas Ahora",
+        "notSureButton": "Aún no estoy seguro"
+      },
+      "details": {
+        "title": "Detalles del Viaje",
+        "budgetLabel": "Presupuesto (opcional)",
+        "budgetPlaceholder": "Ingresa el monto del presupuesto",
+        "accommodationLabel": "Preferencias de Alojamiento (opcional)",
+        "accommodationPlaceholder": "Selecciona tipos de alojamiento",
+        "transportationLabel": "Transporte (opcional)",
+        "transportationPlaceholder": "Selecciona tipos de transporte",
+        "selected": "seleccionados"
+      },
+      "accommodation": {
+        "hotels": "Hoteles",
+        "hostels": "Hostales",
+        "vacationRentals": "Alquileres Vacacionales",
+        "bedAndBreakfast": "Bed & Breakfast",
+        "resorts": "Resorts",
+        "apartments": "Apartamentos",
+        "guesthouses": "Casas de Huéspedes",
+        "camping": "Camping",
+        "motels": "Moteles"
+      },
+      "transportation": {
+        "flights": "Vuelos",
+        "train": "Tren",
+        "carRental": "Alquiler de Auto",
+        "bus": "Autobús",
+        "taxiRideshare": "Taxi/Viaje Compartido",
+        "metroSubway": "Metro/Subterráneo",
+        "walking": "Caminando",
+        "bicycle": "Bicicleta",
+        "ferry": "Ferry",
+        "motorcycle": "Motocicleta"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "createTrip": "Crear Viaje"
+      }
+    },
     "quickStats": {
       "upcoming": "Próximos",
       "inProgress": "En Progreso",
