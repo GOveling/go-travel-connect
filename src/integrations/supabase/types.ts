@@ -947,6 +947,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_collaborator_profile_safe: {
+        Args: { p_user_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
       get_pending_invitations: {
         Args: { user_email: string }
         Returns: {
