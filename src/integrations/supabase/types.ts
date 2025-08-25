@@ -931,6 +931,10 @@ export type Database = {
         Args: { p_token: string }
         Returns: Json
       }
+      are_trip_collaborators: {
+        Args: { user1_id: string; user2_id: string }
+        Returns: boolean
+      }
       calculate_age: {
         Args: { birth_date: string }
         Returns: number
@@ -996,6 +1000,15 @@ export type Database = {
           rating: number
           updated_at: string
           user_id: string
+        }[]
+      }
+      get_trip_collaborator_profiles: {
+        Args: { p_trip_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+          role: string
         }[]
       }
       get_trip_members: {
