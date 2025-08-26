@@ -39,6 +39,8 @@ interface ExploreSearchBarProps {
   onSearchResults?: (results: Place[], selectedId?: string) => void;
   onLoadingChange?: (loading: boolean) => void;
   selectedCategories: string[];
+  userLocation?: { lat: number; lng: number } | null;
+  isNearbyEnabled?: boolean;
 }
 
 const ExploreSearchBar = ({
@@ -48,6 +50,8 @@ const ExploreSearchBar = ({
   onSearchResults,
   onLoadingChange,
   selectedCategories,
+  userLocation,
+  isNearbyEnabled = false,
 }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,8 +102,12 @@ const ExploreSearchBar = ({
       onSearchSubmit?.(searchQuery);
 
       try {
-        // Start the enhanced search
-        await searchPlaces(searchQuery, selectedCategories);
+        // Start the enhanced search with location if nearby is enabled
+        await searchPlaces(
+          searchQuery, 
+          selectedCategories, 
+          isNearbyEnabled && userLocation ? userLocation : undefined
+        );
 
         // The search results will be handled by the useEffect below
       } catch (error) {

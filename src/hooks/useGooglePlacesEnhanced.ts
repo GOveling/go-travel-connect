@@ -37,7 +37,11 @@ export const useGooglePlacesEnhanced = () => {
   const [error, setError] = useState<string | null>(null);
 
   const searchPlaces = useCallback(
-    async (input: string, selectedCategories: string[] = []) => {
+    async (
+      input: string, 
+      selectedCategories: string[] = [], 
+      userLocation?: { lat: number; lng: number }
+    ) => {
       if (!input.trim()) {
         setPredictions([]);
         return;
@@ -51,7 +55,9 @@ export const useGooglePlacesEnhanced = () => {
           "Enhanced search for:",
           input,
           "with categories:",
-          selectedCategories
+          selectedCategories,
+          "near location:",
+          userLocation
         );
 
         const { data, error: functionError } = await supabase.functions.invoke(
@@ -60,6 +66,7 @@ export const useGooglePlacesEnhanced = () => {
             body: {
               input: input.trim(),
               selectedCategories,
+              userLocation,
             },
           }
         );

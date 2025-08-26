@@ -142,14 +142,12 @@ const ExploreSection = ({
         Number.isFinite(p.coordinates.lng);
       const filtered = results.filter(hasValidCoords);
 
-      // Store all results for potential filtering
+      // Store all results for potential reference
       setAllSearchResults(filtered);
 
-      // Apply location filter if nearby is enabled
-      let finalResults = filtered;
-      if (isNearbyEnabled && userLocation) {
-        finalResults = filterPlacesByDistance(filtered, userLocation, 1); // 1 km radius
-      }
+      // If nearby is enabled, the API already filtered by location
+      // No need to do additional filtering here
+      const finalResults = filtered;
 
       // Mostrar TODOS los resultados válidos; reordenar si hay uno seleccionado
       if (selectedId) {
@@ -162,7 +160,7 @@ const ExploreSection = ({
         setSelectedPlaceId(null);
       }
     },
-    [isNearbyEnabled, userLocation]
+    []
   );
 
   const handleLoadingChange = useCallback((isLoading: boolean) => {
@@ -171,26 +169,20 @@ const ExploreSection = ({
 
   const handleNearbyToggle = useCallback((enabled: boolean) => {
     setIsNearbyEnabled(enabled);
-    
-    // Re-filter results when toggling nearby mode
-    if (allSearchResults.length > 0) {
-      let filteredResults = allSearchResults;
-      if (enabled && userLocation) {
-        filteredResults = filterPlacesByDistance(allSearchResults, userLocation, 1);
-      }
-      setSearchResults(filteredResults);
-    }
-  }, [allSearchResults, userLocation]);
+    // When toggling, clear current results to force a new search
+    // This ensures the search will use the new location preference
+    setSearchResults([]);
+    setAllSearchResults([]);
+  }, []);
 
   const handleLocationChange = useCallback((location: { lat: number; lng: number } | null) => {
     setUserLocation(location);
-    
-    // Re-filter results when location changes
-    if (isNearbyEnabled && location && allSearchResults.length > 0) {
-      const filteredResults = filterPlacesByDistance(allSearchResults, location, 1);
-      setSearchResults(filteredResults);
+    // When location changes, clear current results to force a new search
+    if (isNearbyEnabled) {
+      setSearchResults([]);
+      setAllSearchResults([]);
     }
-  }, [isNearbyEnabled, allSearchResults]);
+  }, [isNearbyEnabled]);
 
   const handleAddToTrip = useCallback(async () => {
     if (!selectedPlace) return;
@@ -282,6 +274,8 @@ const ExploreSection = ({
               onShowRelatedPlaces={handleShowRelatedPlaces}
               onSearchResults={handleSearchResults}
               onLoadingChange={handleLoadingChange}
+              userLocation={userLocation}
+              isNearbyEnabled={isNearbyEnabled}
             />
           </div>
         </div>

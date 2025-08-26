@@ -98,7 +98,8 @@ interface EnhancedPlace {
 async function searchPlacesWithGoogle(
   query: string,
   selectedCategories: string[],
-  googleApiKey: string
+  googleApiKey: string,
+  userLocation?: { lat: number; lng: number }
 ): Promise<EnhancedPlace[]> {
   const results: EnhancedPlace[] = [];
   const processedPlaceIds = new Set<string>();
@@ -130,6 +131,17 @@ async function searchPlacesWithGoogle(
                   includedType: googleTypes[0], // Use primary type for category
                   languageCode: "en",
                   maxResultCount: 5,
+                  ...(userLocation && {
+                    locationBias: {
+                      circle: {
+                        center: {
+                          latitude: userLocation.lat,
+                          longitude: userLocation.lng,
+                        },
+                        radius: 1000, // 1km radius
+                      },
+                    },
+                  }),
                 }),
               }
             );
@@ -179,6 +191,17 @@ async function searchPlacesWithGoogle(
               textQuery: query,
               languageCode: "en",
               maxResultCount: 10,
+              ...(userLocation && {
+                locationBias: {
+                  circle: {
+                    center: {
+                      latitude: userLocation.lat,
+                      longitude: userLocation.lng,
+                    },
+                    radius: 1000, // 1km radius
+                  },
+                },
+              }),
             }),
           }
         );
@@ -373,7 +396,7 @@ serve(async (req) => {
   }
 
   try {
-    const { input, selectedCategories = [] } = await req.json();
+    const { input, selectedCategories = [], userLocation } = await req.json();
     const googleApiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
 
     if (!input || input.trim().length < 2) {
@@ -392,7 +415,9 @@ serve(async (req) => {
       "Enhanced search for:",
       input,
       "Categories:",
-      selectedCategories
+      selectedCategories,
+      "User location:",
+      userLocation
     );
 
     let results: EnhancedPlace[] = [];
@@ -403,7 +428,8 @@ serve(async (req) => {
         results = await searchPlacesWithGoogle(
           input,
           selectedCategories,
-          googleApiKey
+          googleApiKey,
+          userLocation
         );
         console.log(`Google Places returned ${results.length} results`);
       } catch (error) {
