@@ -11,6 +11,8 @@ import ExploreSearchBar from "./explore/ExploreSearchBar";
 import ExploreHero from "./explore/ExploreHero";
 import BottomSafeAdSlot from "@/components/ads/BottomSafeAdSlot";
 import CongratsOverlay from "@/components/feedback/CongratsOverlay";
+import { NearbyLocationToggle } from "./explore/NearbyLocationToggle";
+import { filterPlacesByDistance } from "@/utils/locationUtils";
 interface Place {
   id: string;
   name: string;
@@ -50,6 +52,7 @@ const ExploreSection = ({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);
+  const [allSearchResults, setAllSearchResults] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +62,8 @@ const ExploreSection = ({
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [selectedLocationPlace, setSelectedLocationPlace] = useState<any>(null);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [isNearbyEnabled, setIsNearbyEnabled] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -137,23 +142,55 @@ const ExploreSection = ({
         Number.isFinite(p.coordinates.lng);
       const filtered = results.filter(hasValidCoords);
 
+      // Store all results for potential filtering
+      setAllSearchResults(filtered);
+
+      // Apply location filter if nearby is enabled
+      let finalResults = filtered;
+      if (isNearbyEnabled && userLocation) {
+        finalResults = filterPlacesByDistance(filtered, userLocation, 1); // 1 km radius
+      }
+
       // Mostrar TODOS los resultados válidos; reordenar si hay uno seleccionado
       if (selectedId) {
-        const selectedPlace = filtered.find((place) => place.id === selectedId);
-        const otherPlaces = filtered.filter((place) => place.id !== selectedId);
-        setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : filtered);
+        const selectedPlace = finalResults.find((place) => place.id === selectedId);
+        const otherPlaces = finalResults.filter((place) => place.id !== selectedId);
+        setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : finalResults);
         setSelectedPlaceId(selectedId);
       } else {
-        setSearchResults(filtered);
+        setSearchResults(finalResults);
         setSelectedPlaceId(null);
       }
     },
-    []
+    [isNearbyEnabled, userLocation]
   );
 
   const handleLoadingChange = useCallback((isLoading: boolean) => {
     setLoading(isLoading);
   }, []);
+
+  const handleNearbyToggle = useCallback((enabled: boolean) => {
+    setIsNearbyEnabled(enabled);
+    
+    // Re-filter results when toggling nearby mode
+    if (allSearchResults.length > 0) {
+      let filteredResults = allSearchResults;
+      if (enabled && userLocation) {
+        filteredResults = filterPlacesByDistance(allSearchResults, userLocation, 1);
+      }
+      setSearchResults(filteredResults);
+    }
+  }, [allSearchResults, userLocation]);
+
+  const handleLocationChange = useCallback((location: { lat: number; lng: number } | null) => {
+    setUserLocation(location);
+    
+    // Re-filter results when location changes
+    if (isNearbyEnabled && location && allSearchResults.length > 0) {
+      const filteredResults = filterPlacesByDistance(allSearchResults, location, 1);
+      setSearchResults(filteredResults);
+    }
+  }, [isNearbyEnabled, allSearchResults]);
 
   const handleAddToTrip = useCallback(async () => {
     if (!selectedPlace) return;
@@ -231,6 +268,12 @@ const ExploreSection = ({
               selectedCategories={selectedCategories}
               onCategoryToggle={handleCategoryToggle}
               onClearFilters={handleClearFilters}
+            />
+
+            <NearbyLocationToggle
+              isNearbyEnabled={isNearbyEnabled}
+              onToggle={handleNearbyToggle}
+              onLocationChange={handleLocationChange}
             />
 
             <ExploreSearchBar

@@ -3,6 +3,12 @@
     "title": "探索",
     "subtitle": "发现世界各地的精彩地点",
     "searchPlaceholder": "搜索目的地、活动...",
+    "nearbyLocation": {
+      "title": "附近位置",
+      "subtitle": "1公里内的地点",
+      "permissionDenied": "位置权限被拒绝",
+      "locationError": "获取位置时出错"
+    },
     "categories": {
       "all": "全部",
       "attractions": "景点",

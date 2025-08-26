@@ -4,6 +4,12 @@
     "subtitle": "Discover dream destinations for your next adventure",
     "searchPlaceholder": "Search your next destination...",
     "searchCategories": "Search Categories",
+    "nearbyLocation": {
+      "title": "Near my location",
+      "subtitle": "Places within 1 km",
+      "permissionDenied": "Location permission denied",
+      "locationError": "Error getting location"
+    },
     "categories": {
       "all": "All",
       "attractions": "Attractions",
