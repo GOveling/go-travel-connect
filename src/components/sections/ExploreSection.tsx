@@ -334,6 +334,8 @@ const ExploreSection = ({
         places={searchResults}
         isOpen={isExploreMapModalOpen}
         onClose={() => setIsExploreMapModalOpen(false)}
+        sourceTrip={sourceTrip}
+        onAddToTrip={handleAddToTrip}
       />
 
       {/* Overlays and Ad Slot */}

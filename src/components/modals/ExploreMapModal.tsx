@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { LocateFixed } from "lucide-react";
+import { LocateFixed, Info } from "lucide-react";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { useToast } from "@/hooks/use-toast";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 
 // Custom icon for search results
 const resultIcon = L.divIcon({
@@ -45,19 +46,37 @@ interface Place {
   address: string;
   coordinates: { lat: number; lng: number };
   category: string;
+  rating?: number;
+  image?: string;
+  description?: string;
+  hours?: string;
+  phone?: string;
+  website?: string;
+  priceLevel?: number;
+  business_status?: string;
+  photos?: string[];
+  reviews_count?: number;
+  opening_hours?: {
+    open_now: boolean;
+    weekday_text: string[];
+  };
 }
 
 interface ExploreMapModalProps {
   isOpen: boolean;
   onClose: () => void;
   places: Place[];
+  sourceTrip?: any;
+  onAddToTrip?: (place: any) => void;
 }
 
-const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
+const ExploreMapModal = ({ isOpen, onClose, places, sourceTrip, onAddToTrip }: ExploreMapModalProps) => {
   const mapRef = useRef<any>(null);
   const { location, getCurrentLocation, isLocating, error, startWatching, stopWatching } = useUserLocation();
   const { toast } = useToast();
   const [showUserLocation, setShowUserLocation] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [isPlaceDetailModalOpen, setIsPlaceDetailModalOpen] = useState(false);
 
   const handleToggleUserLocation = async () => {
     try {
@@ -77,6 +96,41 @@ const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
         description: error || "No se pudo obtener tu ubicación",
         variant: "destructive",
       });
+    }
+  };
+
+  const handlePlaceClick = (place: Place) => {
+    // Convert to enhanced format for modal, using the same logic as ExploreSection
+    const enhancedPlace = {
+      id: place.id,
+      name: place.name,
+      location: place.address,
+      description: place.description || `${place.category} in ${place.address}`,
+      rating: place.rating,
+      image: place.image,
+      category: place.category,
+      hours: place.opening_hours?.open_now
+        ? "Open now"
+        : place.hours || "Hours vary",
+      website: place.website || "",
+      phone: place.phone || "",
+      lat: place.coordinates.lat,
+      lng: place.coordinates.lng,
+      business_status: place.business_status,
+      photos: place.photos || [],
+      reviews_count: place.reviews_count,
+      priceLevel: place.priceLevel,
+      opening_hours: place.opening_hours,
+    };
+
+    setSelectedPlace(enhancedPlace);
+    setIsPlaceDetailModalOpen(true);
+  };
+
+  const handleAddToTripFromModal = () => {
+    if (onAddToTrip && selectedPlace) {
+      onAddToTrip(selectedPlace);
+      setIsPlaceDetailModalOpen(false);
     }
   };
 
@@ -136,10 +190,18 @@ const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
                 icon={resultIcon}
               >
                 <Popup>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-sm">{place.name}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{place.address}</p>
-                    <p className="text-xs text-blue-600 font-medium mt-1">{place.category}</p>
+                  <div className="text-center min-w-[180px]">
+                    <h3 className="font-semibold text-sm mb-1">{place.name}</h3>
+                    <p className="text-xs text-gray-600 mb-1">{place.address}</p>
+                    <p className="text-xs text-blue-600 font-medium mb-3">{place.category}</p>
+                    <Button
+                      size="sm"
+                      onClick={() => handlePlaceClick(place)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 h-7"
+                    >
+                      <Info size={12} className="mr-1" />
+                      Ver detalles
+                    </Button>
                   </div>
                 </Popup>
               </Marker>
@@ -170,6 +232,15 @@ const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
             </Button>
           </div>
         </div>
+
+        {/* Place Detail Modal */}
+        <PlaceDetailModal
+          place={selectedPlace}
+          isOpen={isPlaceDetailModalOpen}
+          onClose={() => setIsPlaceDetailModalOpen(false)}
+          onAddToTrip={handleAddToTripFromModal}
+          sourceTrip={sourceTrip}
+        />
       </DialogContent>
     </Dialog>
   );
