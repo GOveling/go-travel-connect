@@ -1,8 +1,12 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { LocateFixed } from "lucide-react";
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { useToast } from "@/hooks/use-toast";
 
 // Custom icon for search results
 const resultIcon = L.divIcon({
@@ -18,6 +22,21 @@ const resultIcon = L.divIcon({
   iconSize: [20, 20],
   iconAnchor: [10, 20],
   className: "custom-div-icon",
+});
+
+// User location icon
+const userIcon = L.divIcon({
+  html: `<div style="
+    background-color: #3b82f6;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.25);
+    border: 2px solid white;
+  "></div>`,
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  className: "custom-user-icon",
 });
 
 interface Place {
@@ -36,6 +55,30 @@ interface ExploreMapModalProps {
 
 const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
   const mapRef = useRef<any>(null);
+  const { location, getCurrentLocation, isLocating, error, startWatching, stopWatching } = useUserLocation();
+  const { toast } = useToast();
+  const [showUserLocation, setShowUserLocation] = useState(false);
+
+  const handleToggleUserLocation = async () => {
+    try {
+      if (!showUserLocation) {
+        await startWatching();
+        const loc = await getCurrentLocation();
+        if (loc && mapRef.current?.setView) {
+          mapRef.current.setView([loc.lat, loc.lng], 16);
+        }
+      } else {
+        await stopWatching();
+      }
+      setShowUserLocation((prev) => !prev);
+    } catch (e) {
+      toast({
+        title: "Ubicación no disponible",
+        description: error || "No se pudo obtener tu ubicación",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     // Clean up the map when component unmounts
@@ -79,7 +122,7 @@ const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
             center={center}
             zoom={places.length === 1 ? 16 : 12}
             style={{ height: "100%", width: "100%" }}
-            zoomControl={false}
+            zoomControl={true}
             ref={mapRef}
           >
             <TileLayer
@@ -101,7 +144,31 @@ const ExploreMapModal = ({ isOpen, onClose, places }: ExploreMapModalProps) => {
                 </Popup>
               </Marker>
             ))}
+
+            {showUserLocation && location && (
+              <>
+                <Marker position={[location.lat, location.lng]} icon={userIcon} />
+                <Circle
+                  center={[location.lat, location.lng]}
+                  radius={location.accuracy ?? 50}
+                  pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.15 }}
+                />
+              </>
+            )}
           </MapContainer>
+
+          <div className="absolute top-3 right-3 z-[1000]">
+            <Button
+              size="sm"
+              variant={showUserLocation ? "default" : "outline"}
+              onClick={handleToggleUserLocation}
+              className="h-9"
+              disabled={isLocating}
+            >
+              <LocateFixed size={16} className="mr-2" />
+              {showUserLocation ? "Ocultar ubicación" : isLocating ? "Localizando..." : "Mi ubicación"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
