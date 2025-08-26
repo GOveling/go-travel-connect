@@ -1,6 +1,7 @@
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Map } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { useEffect } from "react";
@@ -10,12 +11,16 @@ interface NearbyLocationToggleProps {
   isNearbyEnabled: boolean;
   onToggle: (enabled: boolean) => void;
   onLocationChange: (location: { lat: number; lng: number } | null) => void;
+  onShowMap?: () => void;
+  hasResults?: boolean;
 }
 
 export const NearbyLocationToggle = ({
   isNearbyEnabled,
   onToggle,
   onLocationChange,
+  onShowMap,
+  hasResults = false,
 }: NearbyLocationToggleProps) => {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -72,13 +77,26 @@ export const NearbyLocationToggle = ({
           </p>
         </div>
       </div>
-      <Switch
-        id="nearby-toggle"
-        checked={isNearbyEnabled}
-        onCheckedChange={handleToggle}
-        disabled={isLocating}
-        className="data-[state=checked]:bg-blue-600"
-      />
+      <div className="flex items-center gap-2">
+        {hasResults && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onShowMap}
+            className="h-9 px-3"
+          >
+            <Map size={16} className="mr-1" />
+            Mapa
+          </Button>
+        )}
+        <Switch
+          id="nearby-toggle"
+          checked={isNearbyEnabled}
+          onCheckedChange={handleToggle}
+          disabled={isLocating}
+          className="data-[state=checked]:bg-blue-600"
+        />
+      </div>
     </div>
   );
 };

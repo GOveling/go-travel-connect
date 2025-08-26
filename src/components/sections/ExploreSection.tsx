@@ -1,6 +1,7 @@
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import PlaceMapModal from "@/components/modals/PlaceMapModal";
+import ExploreMapModal from "@/components/modals/ExploreMapModal";
 import { useToast } from "@/hooks/use-toast";
 import { useAddToTrip } from "@/hooks/useAddToTrip";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -64,6 +65,7 @@ const ExploreSection = ({
   const [showCongrats, setShowCongrats] = useState(false);
   const [isNearbyEnabled, setIsNearbyEnabled] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [isExploreMapModalOpen, setIsExploreMapModalOpen] = useState(false);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -266,6 +268,8 @@ const ExploreSection = ({
               isNearbyEnabled={isNearbyEnabled}
               onToggle={handleNearbyToggle}
               onLocationChange={handleLocationChange}
+              onShowMap={() => setIsExploreMapModalOpen(true)}
+              hasResults={searchResults.length > 0}
             />
 
             <ExploreSearchBar
@@ -323,6 +327,13 @@ const ExploreSection = ({
           setIsLocationModalOpen(false);
           setSelectedLocationPlace(null);
         }}
+      />
+
+      {/* Explore Results Map Modal */}
+      <ExploreMapModal
+        places={searchResults}
+        isOpen={isExploreMapModalOpen}
+        onClose={() => setIsExploreMapModalOpen(false)}
       />
 
       {/* Overlays and Ad Slot */}
