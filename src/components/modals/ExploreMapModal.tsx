@@ -7,7 +7,7 @@ import "leaflet/dist/leaflet.css";
 import { LocateFixed, Info } from "lucide-react";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { useToast } from "@/hooks/use-toast";
-import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+
 
 // Custom icon for search results
 const resultIcon = L.divIcon({
@@ -66,17 +66,14 @@ interface ExploreMapModalProps {
   isOpen: boolean;
   onClose: () => void;
   places: Place[];
-  sourceTrip?: any;
-  onAddToTrip?: (place: any) => void;
+  onPlaceSelect?: (place: Place) => void;
 }
 
-const ExploreMapModal = ({ isOpen, onClose, places, sourceTrip, onAddToTrip }: ExploreMapModalProps) => {
+const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapModalProps) => {
   const mapRef = useRef<any>(null);
   const { location, getCurrentLocation, isLocating, error, startWatching, stopWatching } = useUserLocation();
   const { toast } = useToast();
   const [showUserLocation, setShowUserLocation] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
-  const [isPlaceDetailModalOpen, setIsPlaceDetailModalOpen] = useState(false);
 
   const handleToggleUserLocation = async () => {
     try {
@@ -100,39 +97,11 @@ const ExploreMapModal = ({ isOpen, onClose, places, sourceTrip, onAddToTrip }: E
   };
 
   const handlePlaceClick = (place: Place) => {
-    // Convert to enhanced format for modal, using the same logic as ExploreSection
-    const enhancedPlace = {
-      id: place.id,
-      name: place.name,
-      location: place.address,
-      description: place.description || `${place.category} in ${place.address}`,
-      rating: place.rating,
-      image: place.image,
-      category: place.category,
-      hours: place.opening_hours?.open_now
-        ? "Open now"
-        : place.hours || "Hours vary",
-      website: place.website || "",
-      phone: place.phone || "",
-      lat: place.coordinates.lat,
-      lng: place.coordinates.lng,
-      business_status: place.business_status,
-      photos: place.photos || [],
-      reviews_count: place.reviews_count,
-      priceLevel: place.priceLevel,
-      opening_hours: place.opening_hours,
-    };
-
-    setSelectedPlace(enhancedPlace);
-    setIsPlaceDetailModalOpen(true);
-  };
-
-  const handleAddToTripFromModal = () => {
-    if (onAddToTrip && selectedPlace) {
-      onAddToTrip(selectedPlace);
-      setIsPlaceDetailModalOpen(false);
+    if (onPlaceSelect) {
+      onPlaceSelect(place);
     }
   };
+
 
   useEffect(() => {
     // Clean up the map when component unmounts
@@ -233,14 +202,6 @@ const ExploreMapModal = ({ isOpen, onClose, places, sourceTrip, onAddToTrip }: E
           </div>
         </div>
 
-        {/* Place Detail Modal */}
-        <PlaceDetailModal
-          place={selectedPlace}
-          isOpen={isPlaceDetailModalOpen}
-          onClose={() => setIsPlaceDetailModalOpen(false)}
-          onAddToTrip={handleAddToTripFromModal}
-          sourceTrip={sourceTrip}
-        />
       </DialogContent>
     </Dialog>
   );

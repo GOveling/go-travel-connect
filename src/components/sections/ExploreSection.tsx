@@ -66,6 +66,7 @@ const ExploreSection = ({
   const [isNearbyEnabled, setIsNearbyEnabled] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isExploreMapModalOpen, setIsExploreMapModalOpen] = useState(false);
+  const [placeFromMap, setPlaceFromMap] = useState<Place | null>(null);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -234,6 +235,35 @@ const ExploreSection = ({
     }
   }, [selectedPlace, sourceTrip, onClearSourceTrip, toast, addPlaceToTrip]);
 
+  const handlePlaceSelectFromMap = useCallback((place: Place) => {
+    // Convert map place to modal format and open detail modal
+    const enhancedPlace = {
+      id: place.id,
+      name: place.name,
+      location: place.address,
+      description: place.description || `${place.category} in ${place.address}`,
+      rating: place.rating,
+      image: place.image,
+      category: place.category,
+      hours: place.opening_hours?.open_now
+        ? "Open now"
+        : place.hours || "Hours vary",
+      website: place.website || "",
+      phone: place.phone || "",
+      lat: place.coordinates.lat,
+      lng: place.coordinates.lng,
+      business_status: place.business_status,
+      photos: place.photos || [],
+      reviews_count: place.reviews_count,
+      priceLevel: place.priceLevel,
+      opening_hours: place.opening_hours,
+    };
+
+    setSelectedPlace(enhancedPlace);
+    setPlaceFromMap(place);
+    setIsModalOpen(true);
+  }, []);
+
   const handleShowLocation = (place: Place) => {
     setSelectedLocationPlace({
       id: place.id,
@@ -334,8 +364,7 @@ const ExploreSection = ({
         places={searchResults}
         isOpen={isExploreMapModalOpen}
         onClose={() => setIsExploreMapModalOpen(false)}
-        sourceTrip={sourceTrip}
-        onAddToTrip={handleAddToTrip}
+        onPlaceSelect={handlePlaceSelectFromMap}
       />
 
       {/* Overlays and Ad Slot */}
