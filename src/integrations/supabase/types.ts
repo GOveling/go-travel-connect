@@ -1101,6 +1101,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      validate_profile_access: {
+        Args: { profile_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
