@@ -9,7 +9,6 @@ interface State {
   hasError: boolean;
   error?: Error;
   errorInfo?: ErrorInfo;
-  isSecurityError?: boolean;
 }
 
 class SecurityErrorBoundary extends Component<Props, State> {
@@ -19,99 +18,35 @@ class SecurityErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    // Check if this is actually a security-related error
-    const securityKeywords = ['xss', 'injection', 'csrf', 'unauthorized', 'forbidden', 'security'];
-    const isSecurityError = securityKeywords.some(keyword => 
-      error.message.toLowerCase().includes(keyword) || 
-      error.name.toLowerCase().includes(keyword)
-    );
-
-    // For development, log all errors but only treat actual security issues as security errors
-    const isDevelopment = import.meta.env.DEV;
-    
-    if (isDevelopment) {
-      console.warn('ErrorBoundary caught error:', error);
-    }
-
-    // Only treat as security error if it contains security keywords
-    return {
-      hasError: true,
-      error: error,
-      errorInfo: undefined,
-      isSecurityError: isSecurityError
+    // Log security-related errors without exposing sensitive information
+    const sanitizedError = {
+      message: 'An error occurred while processing your request',
+      stack: 'Error details have been logged for security review'
     };
+    
+    console.error('Security Error Boundary - Error caught:', sanitizedError);
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Check if this is actually a security-related error
-    const securityKeywords = ['xss', 'injection', 'csrf', 'unauthorized', 'forbidden', 'security'];
-    const isSecurityError = securityKeywords.some(keyword => 
-      error.message.toLowerCase().includes(keyword) || 
-      error.name.toLowerCase().includes(keyword)
-    );
-
-    if (isSecurityError) {
-      // Enhanced error logging for security monitoring
-      const securityContext = {
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        errorType: error.name,
-        hasStack: !!error.stack,
-        componentStack: errorInfo.componentStack?.split('\n')[0] // Only first line for security
-      };
-      
-      console.error('Security Error Boundary - Full context:', securityContext);
-    } else {
-      console.error('React Error:', error, errorInfo);
-    }
+    // Enhanced error logging for security monitoring
+    const securityContext = {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      errorType: error.name,
+      hasStack: !!error.stack,
+      componentStack: errorInfo.componentStack?.split('\n')[0] // Only first line for security
+    };
     
-    this.setState({ errorInfo, isSecurityError });
+    console.error('Security Error Boundary - Full context:', securityContext);
+    
+    // In production, this should be sent to a secure logging service
+    this.setState({ errorInfo });
   }
 
   render() {
     if (this.state.hasError) {
-      // If it's not actually a security error, show a more helpful error message
-      if (!this.state.isSecurityError) {
-        return this.props.fallback || (
-          <div className="min-h-screen flex items-center justify-center bg-background">
-            <div className="text-center p-8 max-w-md">
-              <h2 className="text-2xl font-bold text-foreground mb-4">
-                Oops! Something went wrong
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                We encountered an unexpected error. Please try refreshing the page.
-              </p>
-              <div className="space-y-3">
-                <button 
-                  onClick={() => this.setState({ hasError: false, error: undefined, errorInfo: undefined })}
-                  className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                >
-                  Try Again
-                </button>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="w-full px-4 py-2 border border-border text-foreground rounded-md hover:bg-muted transition-colors"
-                >
-                  Reload Page
-                </button>
-              </div>
-              {import.meta.env.DEV && this.state.error && (
-                <details className="mt-4 text-left">
-                  <summary className="cursor-pointer text-sm text-muted-foreground">
-                    Error Details (Development)
-                  </summary>
-                  <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
-                    {this.state.error.message}
-                  </pre>
-                </details>
-              )}
-            </div>
-          </div>
-        );
-      }
-
-      // Only show security error for actual security issues
       return this.props.fallback || (
         <div className="p-6 bg-red-50 border border-red-200 rounded-lg max-w-md mx-auto">
           <div className="flex items-center space-x-3 mb-4">

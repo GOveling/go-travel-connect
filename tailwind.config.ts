@@ -66,7 +66,7 @@ export default {
         brand: {
           primary: "#EA6123",
           secondary: "#D94300",
-          dark: "#512888",
+          dark: "#51288",
           black: "#000000",
         },
       },
