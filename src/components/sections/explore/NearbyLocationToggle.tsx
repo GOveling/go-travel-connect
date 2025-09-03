@@ -86,7 +86,7 @@ export const NearbyLocationToggle = ({
             className="h-9 px-3"
           >
             <Map size={16} className="mr-1" />
-            Mapa
+            {t("explore.mapButton")}
           </Button>
         )}
         <Switch

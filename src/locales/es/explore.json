@@ -6,7 +6,7 @@
     "searchPlaceholder": "Buscar tu próximo destino...",
     "searchCategories": "Buscar Categorías",
     "nearbyLocation": {
-      "title": "Cerca de mi ubicación",
+      "title": "Cerca de mi ubicación actual",
       "subtitle": "",
       "permissionDenied": "Permiso de ubicación denegado",
       "locationError": "Error al obtener ubicación"
@@ -38,6 +38,7 @@
       "general": "General",
       "specificPlaces": "Lugares Específicos"
     },
+    "mapButton": "Mapa",
     "addToTrip": "Agregar al Viaje",
     "nearbyPlaces": {
       "title": "Lugares Cercanos",

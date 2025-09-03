@@ -36,6 +36,7 @@
       "general": "常规",
       "specificPlaces": "特定地点"
     },
+    "mapButton": "地图",
     "addToTrip": "添加到旅行",
     "nearbyPlaces": {
       "title": "附近地点",

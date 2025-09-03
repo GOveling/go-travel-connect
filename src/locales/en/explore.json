@@ -37,6 +37,7 @@
       "general": "General",
       "specificPlaces": "Specific Places"
     },
+    "mapButton": "Map",
     "addToTrip": "Add to Trip",
     "nearbyPlaces": {
       "title": "Nearby Places",
