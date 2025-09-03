@@ -3,6 +3,7 @@ import { MapPin, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useHomeData } from "@/hooks/state/useHomeData";
 import { useLanguage } from "@/hooks/useLanguage";
+import { calculateTripStatus } from "@/utils/tripStatusUtils";
 
 const QuickStats = () => {
   const { trips } = useHomeData();
@@ -13,9 +14,9 @@ const QuickStats = () => {
     return total + (trip.savedPlaces?.length || 0);
   }, 0);
 
-  // Calculate upcoming trips (exclude completed trips)
+  // Active trips count = all except completed (derive from dates)
   const upcomingTrips = trips.filter(
-    trip => trip.status !== 'completed'
+    (trip) => calculateTripStatus(trip) !== "completed"
   ).length;
 
   return (
