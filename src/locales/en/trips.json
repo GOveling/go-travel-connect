@@ -131,6 +131,8 @@
     },
     "status": {
       "upcoming": "Upcoming",
+      "planning": "Planning",
+      "traveling": "Traveling",
       "inProgress": "In Progress",
       "completed": "Completed"
     },

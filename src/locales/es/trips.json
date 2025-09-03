@@ -76,8 +76,9 @@
     },
     "status": {
       "upcoming": "Próximo",
-      "inProgress": "En Progreso",
+      "planning": "Planificando",
       "traveling": "Viajando",
+      "inProgress": "En Progreso",
       "completed": "Completado"
     },
     "actions": {
