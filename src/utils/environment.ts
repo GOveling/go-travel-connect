@@ -9,8 +9,13 @@ export type Environment =
   | "capacitor";
 
 export const detectEnvironment = (): Environment => {
+  // Server-side rendering check
+  if (typeof window === "undefined") {
+    return "production";
+  }
+
   // Detectar si estamos en Capacitor
-  if (typeof window !== "undefined" && (window as any).Capacitor) {
+  if ((window as any).Capacitor) {
     return "capacitor";
   }
 
@@ -25,10 +30,19 @@ export const detectEnvironment = (): Environment => {
     return "lovable";
   }
 
+  if (hostname.includes("vercel.app") || hostname.includes("vercel.com")) {
+    return "production";
+  }
+
   return "production";
 };
 
 export const getBaseUrl = (): string => {
+  // Server-side rendering fallback
+  if (typeof window === "undefined") {
+    return "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com";
+  }
+
   const env = detectEnvironment();
 
   if (env === "capacitor") {
@@ -39,6 +53,11 @@ export const getBaseUrl = (): string => {
 };
 
 export const getRedirectUrl = (path: string = ""): string => {
+  // Server-side rendering fallback
+  if (typeof window === "undefined") {
+    return `https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com${path}`;
+  }
+
   const env = detectEnvironment();
 
   if (env === "capacitor") {

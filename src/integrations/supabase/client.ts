@@ -14,11 +14,11 @@ export const supabase = createClient<Database>(
   SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
-      storage: window.localStorage,
+      storage: typeof window !== "undefined" ? window.localStorage : undefined,
       storageKey: "sb-auth-token",
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
+      detectSessionInUrl: typeof window !== "undefined",
       flowType: "pkce",
     },
     global: {
