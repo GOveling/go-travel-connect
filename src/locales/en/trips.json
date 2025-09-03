@@ -139,7 +139,27 @@
       "inviteFriends": "Invite Friends",
       "groupOptions": "Group Options",
       "aiSmartRoute": "AI Smart Route",
-      "viewSavedPlaces": "View Saved Places"
+      "viewSavedPlaces": "View Saved Places",
+      "accommodation": "Accommodation"
+    },
+    "accommodation": {
+      "title": "Accommodation for",
+      "searchAccommodation": "Search hotels, hostels, apartments...",
+      "searchResults": "Search results",
+      "currentAccommodation": "Current accommodation",
+      "noAccommodation": "No accommodation added for this trip",
+      "searchPlaceholder": "Search and add where you'll stay",
+      "add": "Add",
+      "remove": "Remove",
+      "confirmed": "Confirmed stay",
+      "accommodationAdded": "Accommodation added",
+      "accommodationAddedDescription": "was added as accommodation for",
+      "accommodationRemoved": "Accommodation removed",
+      "accommodationRemovedDescription": "The accommodation was removed from the trip",
+      "errorAdding": "Could not add accommodation",
+      "errorRemoving": "Could not remove accommodation",
+      "errorSearching": "Could not search accommodations. Please try again.",
+      "close": "Close"
     },
     "templates": {
       "title": "Trip Templates",

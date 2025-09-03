@@ -391,7 +391,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                         position={[place.lat, place.lng]}
                         icon={createCustomIcon(
                           trip.status,
-                          place.image || "📍",
+                          place.category === 'accommodation' ? "🏨" : (place.image || "📍"),
                           "savedPlace",
                           place.positionOrder || index + 1
                         )}
@@ -435,8 +435,12 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                             
                             {/* Tags compactos para móvil */}
                             <div className="flex flex-wrap gap-1 mb-2">
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                {place.category}
+                              <span className={`text-xs px-2 py-1 rounded-full ${
+                                place.category === 'accommodation' 
+                                  ? "bg-purple-100 text-purple-800" 
+                                  : "bg-blue-100 text-blue-800"
+                              }`}>
+                                {place.category === 'accommodation' ? '🏨 Estadía' : place.category}
                               </span>
                               <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                                 ⭐ {place.rating}

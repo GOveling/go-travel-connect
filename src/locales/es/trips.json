@@ -85,7 +85,27 @@
       "inviteFriends": "Invitar Amigos",
       "groupOptions": "Opciones de Grupo",
       "aiSmartRoute": "Ruta Inteligente IA",
-      "viewSavedPlaces": "Ver Lugares Guardados"
+      "viewSavedPlaces": "Ver Lugares Guardados",
+      "accommodation": "Estadía"
+    },
+    "accommodation": {
+      "title": "Estadía para",
+      "searchAccommodation": "Buscar hoteles, hostales, apartamentos...",
+      "searchResults": "Resultados de búsqueda",
+      "currentAccommodation": "Alojamiento actual",
+      "noAccommodation": "No hay alojamiento agregado para este viaje",
+      "searchPlaceholder": "Busca y agrega donde te vas a quedar",
+      "add": "Agregar",
+      "remove": "Eliminar",
+      "confirmed": "Estadía confirmada",
+      "accommodationAdded": "Alojamiento agregado",
+      "accommodationAddedDescription": "fue agregado como estadía para",
+      "accommodationRemoved": "Alojamiento eliminado",
+      "accommodationRemovedDescription": "El alojamiento fue eliminado del viaje",
+      "errorAdding": "No se pudo agregar el alojamiento",
+      "errorRemoving": "No se pudo eliminar el alojamiento",
+      "errorSearching": "No se pudieron buscar alojamientos. Inténtalo de nuevo.",
+      "close": "Cerrar"
     },
     "templates": {
       "title": "Plantillas de Viaje",
