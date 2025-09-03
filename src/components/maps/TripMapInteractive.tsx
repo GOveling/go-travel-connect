@@ -334,6 +334,98 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 }
               />
 
+              {/* Accommodation Markers - shown with special hotel icon */}
+              {showSavedPlaces &&
+                filteredTrips.map((trip) =>
+                  trip.savedPlaces
+                    ?.filter((place: any) => place.lat && place.lng && place.category === 'accommodation')
+                    .map((place: any, index: number) => (
+                      <Marker
+                        key={`accommodation-${trip.id}-${place.id}`}
+                        position={[place.lat, place.lng]}
+                        icon={L.divIcon({
+                          html: `
+                            <div style="
+                              background-color: #9333ea;
+                              width: 35px;
+                              height: 35px;
+                              border-radius: 50%;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 16px;
+                              border: 3px solid white;
+                              box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                            ">
+                              🏨
+                            </div>
+                          `,
+                          className: "custom-accommodation-marker",
+                          iconSize: [35, 35],
+                          iconAnchor: [17.5, 17.5],
+                        })}
+                      >
+                        <Popup className="mobile-optimized-popup">
+                          <div className="p-3 max-w-[280px] sm:min-w-[300px]">
+                            {/* Image section */}
+                            {place.image && (
+                              place.image.includes('http') || 
+                              place.image.includes('maps.googleapis.com') || 
+                              place.image.includes('places.googleapis.com') ||
+                              place.image.includes('googleusercontent.com')
+                            ) && (
+                              <div className="mb-3 relative">
+                                <img 
+                                  src={place.image} 
+                                  alt={place.name}
+                                  className="w-full h-20 sm:h-24 object-cover rounded-lg shadow-sm"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                  loading="lazy"
+                                />
+                              </div>
+                            )}
+                            
+                            {/* Header */}
+                            <div className="flex items-start space-x-2 mb-2">
+                              <span className="bg-purple-600 text-white text-lg rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                🏨
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-base sm:text-lg leading-tight text-gray-900 break-words">
+                                  {place.name}
+                                </h4>
+                                <p className="text-xs sm:text-sm text-gray-600 mt-0.5">
+                                  📍 {place.destinationName}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Tags for accommodation */}
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                🏨 Estadía Confirmada
+                              </span>
+                              {place.rating > 0 && (
+                                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                                  ⭐ {place.rating}
+                                </span>
+                              )}
+                            </div>
+                            
+                            {/* Description */}
+                            {place.description && place.description.length > 0 && (
+                              <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                                {place.description}
+                              </p>
+                            )}
+                          </div>
+                        </Popup>
+                      </Marker>
+                    ))
+                )}
+
               {/* Trip Markers - Destinations */}
               {filteredTrips.map((trip) =>
                 trip.coordinates?.map((coord: any, index: number) => (
@@ -380,11 +472,11 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 ))
               )}
 
-              {/* Saved Places Markers */}
+              {/* Saved Places Markers (excluding accommodations shown separately) */}
               {showSavedPlaces &&
                 filteredTrips.map((trip) =>
                   trip.savedPlaces
-                    ?.filter((place: any) => place.lat && place.lng)
+                    ?.filter((place: any) => place.lat && place.lng && place.category !== 'accommodation')
                     .map((place: any, index: number) => (
                       <Marker
                         key={`saved-${trip.id}-${place.id}`}

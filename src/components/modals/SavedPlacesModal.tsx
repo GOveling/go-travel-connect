@@ -311,21 +311,23 @@ const SavedPlacesModal = ({
     }
   };
 
-  // Group saved places by country and sort by position_order
+  // Group saved places by country and sort by position_order (exclude accommodations)
   const savedPlacesByCountry = useMemo(() => {
     if (!trip?.savedPlaces) return {};
 
-    // First sort all places by position_order, then by id for consistency
-    const sortedPlaces = [...trip.savedPlaces].sort((a, b) => {
-      const posA = a.position_order || 0;
-      const posB = b.position_order || 0;
-      if (posA === posB) {
-        return a.id.localeCompare(b.id);
-      }
-      return posA - posB;
-    });
+    // Filter out accommodation places and sort by position_order
+    const filteredPlaces = trip.savedPlaces
+      .filter(place => place.category !== 'accommodation')
+      .sort((a, b) => {
+        const posA = a.position_order || 0;
+        const posB = b.position_order || 0;
+        if (posA === posB) {
+          return a.id.localeCompare(b.id);
+        }
+        return posA - posB;
+      });
 
-    return sortedPlaces.reduce(
+    return filteredPlaces.reduce(
       (acc, place) => {
         const destinationName = place.destinationName || "Other";
         const country = destinationName.includes(",")
@@ -342,15 +344,18 @@ const SavedPlacesModal = ({
     );
   }, [trip?.savedPlaces]);
 
-  // Get total saved places count
+  // Get total saved places count (excluding accommodations)
   const totalSavedPlaces = useMemo(() => {
-    return trip?.savedPlaces?.length || 0;
+    return trip?.savedPlaces?.filter(place => place.category !== 'accommodation').length || 0;
   }, [trip?.savedPlaces]);
 
-  // Handle drag start
+  // Handle drag start (prevent dragging accommodations)
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const place = trip?.savedPlaces?.find(p => p.id === active.id);
+    if (place?.category === 'accommodation') {
+      return;
+    }
     setDraggedPlace(place || null);
   };
 
@@ -365,6 +370,14 @@ const SavedPlacesModal = ({
 
     const oldIndex = trip.savedPlaces.findIndex(place => place.id === active.id);
     const newIndex = trip.savedPlaces.findIndex(place => place.id === over.id);
+    
+    // Only allow reordering of non-accommodation places
+    const activePlace = trip.savedPlaces.find(place => place.id === active.id);
+    const overPlace = trip.savedPlaces.find(place => place.id === over.id);
+    
+    if (activePlace?.category === 'accommodation' || overPlace?.category === 'accommodation') {
+      return;
+    }
 
     if (oldIndex === -1 || newIndex === -1) return;
 
