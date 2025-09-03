@@ -266,6 +266,7 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
             setShowPlaceDetailModal(false);
             setSelectedPlace(null);
           }}
+          isFromSavedPlaces={true}
           onAddToTrip={() => {
             // Accommodation is already added, just close modal
             setShowPlaceDetailModal(false);
