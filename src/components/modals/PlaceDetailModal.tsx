@@ -29,6 +29,7 @@ import { usePlaceReviews } from "@/hooks/usePlaceReviews";
 import { useAuth } from "@/hooks/useAuth";
 import useEmblaCarousel from "embla-carousel-react";
 import PlaceMapModal from "./PlaceMapModal";
+import { sanitizeUserInput, escapeHtml } from "../../utils/security";
 
 interface PlaceDetailModalProps {
   place: {
