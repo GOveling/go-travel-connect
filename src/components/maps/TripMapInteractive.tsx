@@ -63,8 +63,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
     status: string,
     emoji: string,
     type: "destination" | "savedPlace" = "destination",
-    positionNumber?: number,
-    category?: string
+    positionNumber?: number
   ) => {
     const color =
       status === "upcoming"
@@ -77,18 +76,6 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
 
     const size = type === "savedPlace" ? 30 : 40;
     const borderWidth = type === "savedPlace" ? 2 : 3;
-    
-    // Determine icon based on category for saved places
-    let displayIcon = emoji;
-    if (type === "savedPlace") {
-      if (category === "hotel") {
-        displayIcon = "🏨";
-      } else if (positionNumber) {
-        displayIcon = positionNumber.toString();
-      } else {
-        displayIcon = "📍";
-      }
-    }
 
     return L.divIcon({
       html: `
@@ -105,7 +92,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
           box-shadow: 0 2px 10px rgba(0,0,0,0.3);
           ${type === "savedPlace" ? "opacity: 0.9;" : ""}
         ">
-          ${displayIcon}
+          ${type === "savedPlace" && positionNumber ? positionNumber : (type === "savedPlace" ? "📍" : emoji)}
         </div>
       `,
       className: "custom-marker",
@@ -406,8 +393,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                           trip.status,
                           place.image || "📍",
                           "savedPlace",
-                          place.positionOrder || index + 1,
-                          place.category
+                          place.positionOrder || index + 1
                         )}
                       >
                         <Popup className="mobile-optimized-popup">
@@ -449,12 +435,8 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                             
                             {/* Tags compactos para móvil */}
                             <div className="flex flex-wrap gap-1 mb-2">
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                place.category === 'hotel' 
-                                  ? "bg-purple-100 text-purple-800" 
-                                  : "bg-blue-100 text-blue-800"
-                              }`}>
-                                {place.category === 'hotel' ? '🏨 Hotel' : place.category}
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                {place.category}
                               </span>
                               <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                                 ⭐ {place.rating}

@@ -10,7 +10,6 @@ import InviteFriendsModal from "@/components/modals/InviteFriendsModal";
 import MountainTripModal from "@/components/modals/MountainTripModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import SavedPlacesModal from "@/components/modals/SavedPlacesModal";
-import { TripHotelModal } from "@/components/modals/TripHotelModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import QuickStats from "@/components/trips/QuickStats";
 import ShareSection from "@/components/trips/ShareSection";
@@ -39,7 +38,6 @@ const TripsSection = () => {
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [showSavedPlacesModal, setShowSavedPlacesModal] = useState(false);
-  const [showTripHotelModal, setShowTripHotelModal] = useState(false);
   const [tripToDelete, setTripToDelete] = useState(null);
 
   // Use Supabase trips instead of local state
@@ -97,11 +95,6 @@ const TripsSection = () => {
   const handleViewSavedPlaces = (trip: any) => {
     setSelectedTrip(trip);
     setShowSavedPlacesModal(true);
-  };
-
-  const handleAddHotel = (trip: any) => {
-    setSelectedTrip(trip);
-    setShowTripHotelModal(true);
   };
 
   const handleDeleteTripRequest = (trip: any) => {
@@ -238,7 +231,6 @@ const TripsSection = () => {
               onGroupOptions={handleGroupOptions}
               onAISmartRoute={handleAISmartRoute}
               onViewSavedPlaces={handleViewSavedPlaces}
-              onAddHotel={handleAddHotel}
               onDeleteTrip={handleDeleteTripRequest}
             />
           ))
@@ -342,19 +334,6 @@ const TripsSection = () => {
           setSelectedTrip(null);
         }}
         onUpdateTrip={handleUpdateTripData}
-      />
-
-      <TripHotelModal
-        isOpen={showTripHotelModal}
-        onClose={() => {
-          setShowTripHotelModal(false);
-          setSelectedTrip(null);
-        }}
-        trip={selectedTrip}
-        onHotelAdded={() => {
-          // Refresh trip data or trigger state update
-          console.log("Hotel added successfully");
-        }}
       />
 
       <DeleteTripConfirmationModal

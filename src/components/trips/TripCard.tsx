@@ -10,7 +10,6 @@ import {
   MoreHorizontal,
   Eye,
   Trash2,
-  Hotel,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getFormattedDateRange } from "@/utils/dateHelpers";
@@ -25,7 +24,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import type { Trip, TripCardProps } from "@/types";
-import { useLanguage } from "@/hooks/useLanguage";
 
 const TripCard = ({
   trip,
@@ -36,9 +34,7 @@ const TripCard = ({
   onAISmartRoute,
   onViewSavedPlaces,
   onDeleteTrip,
-  onAddHotel,
 }: TripCardProps) => {
-  const { t } = useLanguage();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -321,9 +317,9 @@ const TripCard = ({
                   </div>
                 )}
 
-              {/* Action Buttons - Now showing four buttons including Hotel */}
+              {/* Action Buttons - Now showing three buttons instead of four */}
               <div className="pt-2 space-y-2">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <Button
                     className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-sm"
                     onClick={() => onViewDetails(trip)}
@@ -345,14 +341,6 @@ const TripCard = ({
                   >
                     <Route size={14} className="mr-1" />
                     AI Smart Route
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-green-300 text-green-600 hover:bg-green-50 text-sm"
-                    onClick={() => onAddHotel && onAddHotel(trip)}
-                  >
-                    <Hotel size={14} className="mr-1" />
-                    {t("trips.actions.hotel")}
                   </Button>
                 </div>
               </div>
