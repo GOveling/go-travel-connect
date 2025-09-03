@@ -241,9 +241,9 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />
-                      <span>
-                        {totalTravelers} traveler{totalTravelers > 1 ? "s" : ""}
-                      </span>
+                       <span>
+                         {totalTravelers} {totalTravelers === 1 ? t("trips.travelers") : t("trips.travelers_plural")}
+                       </span>
                     </div>
                   </div>
                 </div>

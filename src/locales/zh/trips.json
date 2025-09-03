@@ -9,7 +9,8 @@
       "upcoming": "即将到来",
       "inProgress": "进行中",
       "completed": "已完成",
-      "total": "总旅行数"
+      "total": "总旅行数",
+      "groupTrips": "团体旅行"
     },
     "status": {
       "upcoming": "即将到来",
@@ -23,7 +24,8 @@
       "groupOptions": "群组选项",
       "aiSmartRoute": "AI智能路线",
       "viewSavedPlaces": "查看保存的地点",
-      "accommodation": "住宿"
+      "accommodation": "住宿",
+      "deleteTrip": "删除旅行"
     },
     "accommodation": {
       "title": "住宿",
@@ -109,6 +111,8 @@
       "invitationAccepted": "已接受",
       "cancel": "取消",
       "confirmRemove": "确定要从旅行中移除此协作者吗？"
-    }
+    },
+    "travelers": "旅行者",
+    "travelers_plural": "旅行者"
   }
 }

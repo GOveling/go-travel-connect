@@ -7,6 +7,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface BookingCategoriesGridProps {
   onFlightClick: () => void;
@@ -25,51 +26,53 @@ const BookingCategoriesGrid = ({
   onESIMClick,
   onRestaurantClick,
 }: BookingCategoriesGridProps) => {
+  const { t } = useLanguage();
+  
   const bookingCategories = [
     {
       icon: Plane,
-      title: "Flights",
-      subtitle: "Find the best deals",
+      title: t("booking.categories.flights"),
+      subtitle: t("booking.categories.flightsSubtitle"),
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50",
       action: onFlightClick,
     },
     {
       icon: Building,
-      title: "Hotels",
-      subtitle: "Comfortable stays",
+      title: t("booking.categories.hotels"),
+      subtitle: t("booking.categories.hotelsSubtitle"),
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50",
       action: onHotelClick,
     },
     {
       icon: Car,
-      title: "Transportation",
-      subtitle: "Multiple travel options",
+      title: t("booking.categories.transportation"),
+      subtitle: t("booking.categories.transportationSubtitle"),
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-50",
       action: onCarRentalClick,
     },
     {
       icon: MapPin,
-      title: "Tours",
-      subtitle: "Guided experiences",
+      title: t("booking.categories.tours"),
+      subtitle: t("booking.categories.toursSubtitle"),
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-50",
       action: onToursClick,
     },
     {
       icon: Smartphone,
-      title: "eSIMs",
-      subtitle: "Stay connected",
+      title: t("booking.categories.esim"),
+      subtitle: t("booking.categories.esimSubtitle"),
       color: "from-pink-500 to-pink-600",
       bgColor: "bg-pink-50",
       action: onESIMClick,
     },
     {
       icon: Utensils,
-      title: "Restaurants",
-      subtitle: "Reserve tables",
+      title: t("booking.categories.restaurants"),
+      subtitle: t("booking.categories.restaurantsSubtitle"),
       color: "from-red-500 to-red-600",
       bgColor: "bg-red-50",
       action: onRestaurantClick,

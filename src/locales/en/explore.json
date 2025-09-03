@@ -19,7 +19,12 @@
       "nature": "Nature",
       "culture": "Culture",
       "nightlife": "Nightlife",
-      "shopping": "Shopping"
+      "shopping": "Shopping",
+      "landmarks": "Landmarks",
+      "museums": "Museums",
+      "parks": "Parks",
+      "beaches": "Beaches",
+      "lakes": "Lakes"
     },
     "filters": {
       "title": "Filters",
@@ -28,7 +33,9 @@
       "location": "Location",
       "openNow": "Open Now",
       "apply": "Apply Filters",
-      "clear": "Clear All"
+      "clear": "Clear All",
+      "general": "General",
+      "specificPlaces": "Specific Places"
     },
     "addToTrip": "Add to Trip",
     "nearbyPlaces": {

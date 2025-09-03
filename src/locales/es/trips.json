@@ -71,7 +71,8 @@
       "inProgress": "En Progreso",
       "traveling": "Viajando",
       "completed": "Completados",
-      "total": "Total de Viajes"
+      "total": "Total de Viajes",
+      "groupTrips": "Viajes Grupales"
     },
     "status": {
       "upcoming": "Próximo",
@@ -86,7 +87,8 @@
       "groupOptions": "Opciones de Grupo",
       "aiSmartRoute": "Ruta Inteligente IA",
       "viewSavedPlaces": "Ver Lugares Guardados",
-      "accommodation": "Estadía"
+      "accommodation": "Estadía",
+      "deleteTrip": "Eliminar Viaje"
     },
     "accommodation": {
       "title": "Estadía para",
@@ -228,6 +230,8 @@
       "invitationAccepted": "Aceptada",
       "cancel": "Cancelar",
       "confirmRemove": "¿Estás seguro de que deseas eliminar este colaborador del viaje?"
-    }
+    },
+    "travelers": "viajero",
+    "travelers_plural": "viajeros"
   }
 }

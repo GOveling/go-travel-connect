@@ -10,11 +10,18 @@
     },
     "categories": {
       "flights": "Vuelos",
+      "flightsSubtitle": "Encuentra las mejores ofertas",
       "hotels": "Hoteles",
+      "hotelsSubtitle": "Estadías cómodas",
       "carRental": "Alquiler de Autos",
+      "transportation": "Transporte",
+      "transportationSubtitle": "Múltiples opciones de viaje",
       "tours": "Tours y Actividades",
+      "toursSubtitle": "Experiencias guiadas",
       "restaurants": "Restaurantes",
-      "esim": "eSIM y Datos"
+      "restaurantsSubtitle": "Reservar mesas",
+      "esim": "eSIMs",
+      "esimSubtitle": "Mantente conectado"
     },
     "quickBook": {
       "title": "Reserva Rápida",

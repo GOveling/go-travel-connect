@@ -126,7 +126,8 @@
       "upcoming": "Upcoming",
       "inProgress": "In Progress",
       "completed": "Completed",
-      "total": "Total Trips"
+      "total": "Total Trips",
+      "groupTrips": "Group Trips"
     },
     "status": {
       "upcoming": "Upcoming",
@@ -140,7 +141,8 @@
       "groupOptions": "Group Options",
       "aiSmartRoute": "AI Smart Route",
       "viewSavedPlaces": "View Saved Places",
-      "accommodation": "Accommodation"
+      "accommodation": "Accommodation",
+      "deleteTrip": "Delete Trip"
     },
     "accommodation": {
       "title": "Accommodation for",
@@ -226,6 +228,8 @@
       "invitationAccepted": "Accepted",
       "cancel": "Cancel",
       "confirmRemove": "Are you sure you want to remove this collaborator from the trip?"
-    }
+    },
+    "travelers": "traveler",
+    "travelers_plural": "travelers"
   }
 }

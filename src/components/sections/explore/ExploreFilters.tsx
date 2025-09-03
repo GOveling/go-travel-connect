@@ -151,6 +151,39 @@ const ExploreFilters = ({
     },
   ];
 
+  const getSpecificCategories = () => [
+    {
+      id: "landmark",
+      label: t("explore.categories.landmarks"),
+      icon: <Landmark size={18} />,
+      color: "bg-amber-100 text-amber-800",
+    },
+    {
+      id: "museum",
+      label: t("explore.categories.museums"),
+      icon: <Building2 size={18} />,
+      color: "bg-slate-100 text-slate-800",
+    },
+    {
+      id: "park",
+      label: t("explore.categories.parks"),
+      icon: <TreePine size={18} />,
+      color: "bg-emerald-100 text-emerald-800",
+    },
+    {
+      id: "beach",
+      label: t("explore.categories.beaches"),
+      icon: <Waves size={18} />,
+      color: "bg-sky-100 text-sky-800",
+    },
+    {
+      id: "lake",
+      label: t("explore.categories.lakes"),
+      icon: <Mountain size={18} />,
+      color: "bg-teal-100 text-teal-800",
+    },
+  ];
+
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
   };
@@ -191,7 +224,7 @@ const ExploreFilters = ({
             className="text-gray-500 hover:text-gray-700 ml-2"
           >
             <X size={16} className="mr-1" />
-            <span className="hidden sm:inline">Clear All</span>
+            <span className="hidden sm:inline">{t("explore.filters.clear")}</span>
           </Button>
         )}
       </div>
@@ -204,7 +237,7 @@ const ExploreFilters = ({
             {/* Main Categories Column */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-gray-600 mb-2">
-                General
+                {t("explore.filters.general")}
               </h4>
               <div className="grid grid-cols-1 gap-2">
                 {getMainCategories().map((category) => {
@@ -233,10 +266,10 @@ const ExploreFilters = ({
             {/* Specific Categories Column */}
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-gray-600 mb-2">
-                Specific Places
+                {t("explore.filters.specificPlaces")}
               </h4>
               <div className="grid grid-cols-1 gap-2">
-                {specificCategories.map((category) => {
+                {getSpecificCategories().map((category) => {
                   const isSelected = selectedCategories.includes(category.id);
                   return (
                     <Button
@@ -270,7 +303,7 @@ const ExploreFilters = ({
       {selectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedCategories.map((categoryId) => {
-            const category = [...mainCategories, ...specificCategories].find(
+            const category = [...getMainCategories(), ...getSpecificCategories()].find(
               (c) => c.id === categoryId
             );
             return category ? (

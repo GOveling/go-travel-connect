@@ -20,7 +20,12 @@
       "nature": "Naturaleza",
       "culture": "Cultura",
       "nightlife": "Vida Nocturna",
-      "shopping": "Compras"
+      "shopping": "Compras",
+      "landmarks": "Monumentos",
+      "museums": "Museos",
+      "parks": "Parques",
+      "beaches": "Playas",
+      "lakes": "Lagos"
     },
     "filters": {
       "title": "Filtros",
@@ -29,7 +34,9 @@
       "location": "Ubicación",
       "openNow": "Abierto Ahora",
       "apply": "Aplicar Filtros",
-      "clear": "Limpiar Todo"
+      "clear": "Limpiar Todo",
+      "general": "General",
+      "specificPlaces": "Lugares Específicos"
     },
     "addToTrip": "Agregar al Viaje",
     "nearbyPlaces": {
