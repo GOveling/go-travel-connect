@@ -161,6 +161,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          address_encrypted: string | null
           age: number | null
           avatar_url: string | null
           birth_date: string | null
@@ -174,11 +175,13 @@ export type Database = {
           gender: string | null
           id: string
           mobile_phone: string | null
+          mobile_phone_encrypted: string | null
           onboarding_completed: boolean | null
           updated_at: string | null
         }
         Insert: {
           address?: string | null
+          address_encrypted?: string | null
           age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
@@ -192,11 +195,13 @@ export type Database = {
           gender?: string | null
           id: string
           mobile_phone?: string | null
+          mobile_phone_encrypted?: string | null
           onboarding_completed?: boolean | null
           updated_at?: string | null
         }
         Update: {
           address?: string | null
+          address_encrypted?: string | null
           age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
@@ -210,6 +215,7 @@ export type Database = {
           gender?: string | null
           id?: string
           mobile_phone?: string | null
+          mobile_phone_encrypted?: string | null
           onboarding_completed?: boolean | null
           updated_at?: string | null
         }
@@ -312,6 +318,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_audit_log: {
+        Row: {
+          action_type: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          table_name: string
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          table_name: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          table_name?: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       trip_access_log: {
         Row: {
@@ -942,6 +978,18 @@ export type Database = {
       can_edit_trip: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
+      }
+      cleanup_old_audit_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      decrypt_sensitive_field: {
+        Args: { encrypted_value: string }
+        Returns: string
+      }
+      encrypt_sensitive_field: {
+        Args: { field_value: string }
+        Returns: string
       }
       extract_country_from_destination: {
         Args: { destination_name: string }
