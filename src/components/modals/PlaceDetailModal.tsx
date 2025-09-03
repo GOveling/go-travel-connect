@@ -184,14 +184,14 @@ const PlaceDetailModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border-0 bg-white">
+        <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="text-xl font-bold text-gray-800">
             {place.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-6 pb-6">
           {/* Source Trip Banner */}
           {sourceTrip && (
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
