@@ -53,6 +53,7 @@ const PersonalInformationModal = ({
   showIntroMessage = false,
 }: PersonalInformationModalProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { countries, loading: countriesLoading } = useCountries();
   const {
     cities,
