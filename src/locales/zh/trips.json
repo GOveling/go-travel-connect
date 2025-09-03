@@ -113,6 +113,8 @@
       "confirmRemove": "确定要从旅行中移除此协作者吗？"
     },
     "travelers": "旅行者",
-    "travelers_plural": "旅行者"
+    "travelers_plural": "旅行者",
+    "noDestinations": "无目的地",
+    "shareTrip": "分享旅行"
   }
 }

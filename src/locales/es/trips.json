@@ -232,6 +232,8 @@
       "confirmRemove": "¿Estás seguro de que deseas eliminar este colaborador del viaje?"
     },
     "travelers": "viajero",
-    "travelers_plural": "viajeros"
+    "travelers_plural": "viajeros",
+    "noDestinations": "Sin destinos",
+    "shareTrip": "Compartir Viaje"
   }
 }

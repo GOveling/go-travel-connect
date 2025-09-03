@@ -230,6 +230,8 @@
       "confirmRemove": "Are you sure you want to remove this collaborator from the trip?"
     },
     "travelers": "traveler",
-    "travelers_plural": "travelers"
+    "travelers_plural": "travelers",
+    "noDestinations": "No destinations",
+    "shareTrip": "Share Trip"
   }
 }
