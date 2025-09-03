@@ -9,10 +9,12 @@ const QuickStats = () => {
   const { trips } = useHomeData();
   const { t } = useLanguage();
 
-  // Calculate total saved places across all trips
-  const totalSavedPlaces = trips.reduce((total, trip) => {
-    return total + (trip.savedPlaces?.length || 0);
-  }, 0);
+  // Calculate total saved places across all trips (excluding completed trips)
+  const totalSavedPlaces = trips
+    .filter((trip) => calculateTripStatus(trip) !== "completed")
+    .reduce((total, trip) => {
+      return total + (trip.savedPlaces?.length || 0);
+    }, 0);
 
   // Active trips count = all except completed (derive from dates)
   const upcomingTrips = trips.filter(
