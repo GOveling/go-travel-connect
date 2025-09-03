@@ -5,6 +5,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useState, useEffect } from "react";
@@ -27,6 +37,8 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
   const [loading, setLoading] = useState(true);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [accommodationToDelete, setAccommodationToDelete] = useState<any>(null);
 
   // Load existing accommodations
   useEffect(() => {
@@ -112,6 +124,19 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
 
     setSelectedPlace(placeForModal);
     setShowPlaceDetailModal(true);
+  };
+
+  const handleDeleteClick = (accommodation: any) => {
+    setAccommodationToDelete(accommodation);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (accommodationToDelete) {
+      await removeAccommodation(accommodationToDelete.id);
+      setShowDeleteConfirm(false);
+      setAccommodationToDelete(null);
+    }
   };
 
   if (loading) {
@@ -212,7 +237,7 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
                                 variant="ghost"
                                 onClick={(e) => {
                                   e.stopPropagation(); // Prevent card click when deleting
-                                  removeAccommodation(accommodation.id);
+                                  handleDeleteClick(accommodation);
                                 }}
                                 className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-2"
                               >
@@ -273,6 +298,35 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
           }}
           sourceTrip={trip}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent className="rounded-3xl border-0 shadow-2xl max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl font-bold text-gray-900 flex items-center">
+                <div className="bg-red-100 p-2 rounded-xl mr-3">
+                  <Trash2 className="h-5 w-5 text-red-600" />
+                </div>
+                Eliminar alojamiento
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-600 leading-relaxed">
+                ¿Estás seguro de que deseas eliminar <strong>{accommodationToDelete?.name}</strong> de tu viaje? 
+                Esta acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="space-x-3">
+              <AlertDialogCancel className="rounded-2xl border-2 border-gray-300 px-6 py-2 hover:bg-gray-50">
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDelete}
+                className="bg-red-500 hover:bg-red-600 text-white rounded-2xl px-6 py-2 font-semibold"
+              >
+                Eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );
