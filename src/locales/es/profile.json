@@ -39,6 +39,10 @@
       "settings": {
         "title": "Configuración",
         "subtitle": "Preferencias de la app"
+      },
+      "personalInformation": {
+        "title": "Información Personal",
+        "subtitle": "Administra tus datos personales"
       }
     }
   }

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import type { Trip, TripCardProps } from "@/types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const TripCard = ({
   trip,
@@ -37,6 +38,7 @@ const TripCard = ({
   onDeleteTrip,
   onAddAccommodation,
 }: TripCardProps) => {
+  const { t } = useLanguage();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -350,7 +352,7 @@ const TripCard = ({
                     onClick={() => onAddAccommodation?.(trip)}
                   >
                     <Home size={14} className="mr-1" />
-                    Estadía
+                    {t("trips.actions.accommodation")}
                   </Button>
                 </div>
               </div>

@@ -38,6 +38,10 @@
       "settings": {
         "title": "设置",
         "subtitle": "应用偏好设置"
+      },
+      "personalInformation": {
+        "title": "个人信息",
+        "subtitle": "管理您的个人数据"
       }
     }
   }

@@ -35,8 +35,8 @@ export const useProfileMenuConfig = ({
   return [
     {
       icon: User,
-      title: "Información Personal",
-      subtitle: "Administra tus datos personales",
+      title: t("profile.menu.personalInformation.title"),
+      subtitle: t("profile.menu.personalInformation.subtitle"),
       color: "text-emerald-600",
       onClick: () => modalState.setIsPersonalInformationModalOpen(true),
     },
