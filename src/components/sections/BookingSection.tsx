@@ -9,7 +9,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import BookingHeader from "./booking/BookingHeader";
 import SpecialOfferCard from "./booking/SpecialOfferCard";
 import BookingCategoriesGrid from "./booking/BookingCategoriesGrid";
-import QuickBookSection from "./booking/QuickBookSection";
+
 import RecentBookingsSection from "./booking/RecentBookingsSection";
 
 const BookingSection = () => {
@@ -35,11 +35,6 @@ const BookingSection = () => {
         onToursClick={() => setIsToursModalOpen(true)}
         onESIMClick={() => setIsESIMModalOpen(true)}
         onRestaurantClick={() => setIsRestaurantModalOpen(true)}
-      />
-
-      <QuickBookSection
-        onFlightClick={() => setIsFlightModalOpen(true)}
-        onHotelClick={() => setIsHotelModalOpen(true)}
       />
 
       <RecentBookingsSection />
