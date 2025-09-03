@@ -117,7 +117,7 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-lg rounded-3xl shadow-2xl border-0">
           <div className="flex justify-center items-center py-8">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600" />
           </div>
@@ -128,110 +128,116 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="flex items-center space-x-2">
-            <Hotel className="h-5 w-5 text-green-600" />
-            <span>Estadía para {trip?.name}</span>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col rounded-3xl shadow-2xl border-0 bg-white">
+        <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4">
+          <DialogTitle className="flex items-center space-x-3">
+            <div className="bg-green-100 p-2 rounded-2xl">
+              <Hotel className="h-6 w-6 text-green-600" />
+            </div>
+            <span className="text-xl font-bold text-gray-800">Estadía para {trip?.name}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-4">
           {accommodations.length === 0 ? (
             // No accommodation - Show add button
-            <div className="text-center py-12">
-              <Hotel className="h-16 w-16 mx-auto mb-6 text-gray-300" />
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                No hay alojamiento seleccionado
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Agrega un hotel, hostal o residencia donde te vas a quedar durante este viaje.
-              </p>
-              <Button 
-                onClick={addAccommodation}
-                className="bg-green-600 hover:bg-green-700"
-                size="lg"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Agregar Estadía
-              </Button>
+            <div className="text-center py-16">
+              <div className="bg-gray-50 rounded-3xl p-8 mx-auto max-w-sm">
+                <Hotel className="h-20 w-20 mx-auto mb-6 text-gray-300" />
+                <h3 className="text-xl font-bold text-gray-800 mb-3">
+                  No hay alojamiento seleccionado
+                </h3>
+                <p className="text-gray-600 mb-8 leading-relaxed">
+                  Agrega un hotel, hostal o residencia donde te vas a quedar durante este viaje.
+                </p>
+                <Button 
+                  onClick={addAccommodation}
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-2xl px-8 py-3 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  size="lg"
+                >
+                  <Plus className="h-5 w-5 mr-3" />
+                  Agregar Estadía
+                </Button>
+              </div>
             </div>
           ) : (
             // Show current accommodations
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-800">
+                <h3 className="text-xl font-bold text-gray-800">
                   Tu alojamiento
                 </h3>
                 <Button 
                   onClick={addAccommodation}
                   variant="outline"
-                  size="sm"
-                  className="border-green-600 text-green-600 hover:bg-green-50"
+                  className="border-2 border-green-500 text-green-600 hover:bg-green-50 rounded-2xl px-6 py-2 font-semibold"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="h-4 w-4 mr-2" />
                   Agregar otro
                 </Button>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {accommodations.map((accommodation) => (
-                  <Card key={accommodation.id} className="border-l-4 border-l-green-500 cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4" onClick={() => handleAccommodationClick(accommodation)}>
-                      <div className="flex space-x-4">
-                        {accommodation.image && (
-                          <div className="flex-shrink-0">
-                            <img
-                              src={accommodation.image}
-                              alt={accommodation.name}
-                              className="w-20 h-20 object-cover rounded-lg"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        )}
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900 text-lg">
-                                {accommodation.name}
-                              </h4>
-                              <div className="flex items-center space-x-2 text-sm text-gray-600 mt-1">
-                                <MapPin className="h-3 w-3" />
-                                <span>{accommodation.destination_name}</span>
+                  <Card key={accommodation.id} className="border-0 shadow-lg hover:shadow-xl cursor-pointer transition-all duration-300 rounded-2xl overflow-hidden bg-gradient-to-r from-green-50 to-emerald-50">
+                    <CardContent className="p-0" onClick={() => handleAccommodationClick(accommodation)}>
+                      <div className="bg-green-500 h-2 w-full"></div>
+                      <div className="p-6">
+                        <div className="flex space-x-4">
+                          {accommodation.image && (
+                            <div className="flex-shrink-0">
+                              <img
+                                src={accommodation.image}
+                                alt={accommodation.name}
+                                className="w-24 h-24 object-cover rounded-xl shadow-md"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          )}
+                          <div className="flex-1 space-y-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-bold text-gray-900 text-xl mb-1">
+                                  {accommodation.name}
+                                </h4>
+                                <div className="flex items-center space-x-2 text-gray-600 mb-2">
+                                  <MapPin className="h-4 w-4" />
+                                  <span className="text-sm">{accommodation.destination_name}</span>
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent card click when deleting
+                                  removeAccommodation(accommodation.id);
+                                }}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-2"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            
+                            <div className="flex items-center space-x-3">
+                              {accommodation.rating > 0 && (
+                                <div className="flex items-center bg-yellow-100 px-3 py-1 rounded-full">
+                                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                                  <span className="text-sm font-semibold text-yellow-800">{accommodation.rating}</span>
+                                </div>
+                              )}
+                              <div className="bg-green-100 px-4 py-1 rounded-full">
+                                <span className="text-sm font-semibold text-green-800">🏨 Estadía confirmada</span>
                               </div>
                             </div>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent card click when deleting
-                                removeAccommodation(accommodation.id);
-                              }}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            {accommodation.rating > 0 && (
-                              <Badge variant="secondary" className="flex items-center space-x-1">
-                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                <span>{accommodation.rating}</span>
-                              </Badge>
+                            
+                            {accommodation.description && (
+                              <p className="text-sm text-gray-700 bg-white/50 p-3 rounded-xl">
+                                {accommodation.description}
+                              </p>
                             )}
-                            <Badge className="bg-green-100 text-green-800">
-                              🏨 Estadía confirmada
-                            </Badge>
                           </div>
-                          
-                          {accommodation.description && (
-                            <p className="text-sm text-gray-600 mt-2">
-                              {accommodation.description}
-                            </p>
-                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -242,8 +248,12 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
           )}
         </div>
 
-        <div className="flex-shrink-0 flex justify-end space-x-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex-shrink-0 flex justify-end space-x-3 px-6 py-4 bg-gray-50 rounded-b-3xl">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="px-8 py-2 rounded-2xl border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
+          >
             Cerrar
           </Button>
         </div>
