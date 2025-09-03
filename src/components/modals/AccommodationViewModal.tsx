@@ -12,6 +12,7 @@ import { X, Hotel, Plus, MapPin, Star, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import PlaceDetailModal from "./PlaceDetailModal";
 
 interface AccommodationViewModalProps {
   trip: any;
@@ -24,6 +25,8 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
   const { t } = useLanguage();
   const [accommodations, setAccommodations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [showPlaceDetailModal, setShowPlaceDetailModal] = useState(false);
 
   // Load existing accommodations
   useEffect(() => {
@@ -88,6 +91,29 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
     onClose();
   };
 
+  const handleAccommodationClick = (accommodation: any) => {
+    // Convert accommodation data to place format for modal
+    const placeForModal = {
+      id: accommodation.id,
+      name: accommodation.name,
+      location: accommodation.destination_name || accommodation.formatted_address || "Ubicación no disponible",
+      description: accommodation.description || `Alojamiento en ${accommodation.destination_name}`,
+      rating: accommodation.rating || 0,
+      image: accommodation.image || '',
+      category: 'accommodation',
+      hours: "Estadía confirmada",
+      website: "",
+      phone: "",
+      lat: accommodation.lat,
+      lng: accommodation.lng,
+      photos: accommodation.image ? [accommodation.image] : [],
+      priceLevel: accommodation.price_level,
+    };
+
+    setSelectedPlace(placeForModal);
+    setShowPlaceDetailModal(true);
+  };
+
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -150,8 +176,8 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
               
               <div className="space-y-3">
                 {accommodations.map((accommodation) => (
-                  <Card key={accommodation.id} className="border-l-4 border-l-green-500">
-                    <CardContent className="p-4">
+                  <Card key={accommodation.id} className="border-l-4 border-l-green-500 cursor-pointer hover:shadow-md transition-shadow">
+                    <CardContent className="p-4" onClick={() => handleAccommodationClick(accommodation)}>
                       <div className="flex space-x-4">
                         {accommodation.image && (
                           <div className="flex-shrink-0">
@@ -179,7 +205,10 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => removeAccommodation(accommodation.id)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent card click when deleting
+                                removeAccommodation(accommodation.id);
+                              }}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -218,6 +247,21 @@ const AccommodationViewModal = ({ trip, isOpen, onClose }: AccommodationViewModa
             Cerrar
           </Button>
         </div>
+
+        {/* Place Detail Modal */}
+        <PlaceDetailModal
+          place={selectedPlace}
+          isOpen={showPlaceDetailModal}
+          onClose={() => {
+            setShowPlaceDetailModal(false);
+            setSelectedPlace(null);
+          }}
+          onAddToTrip={() => {
+            // Accommodation is already added, just close modal
+            setShowPlaceDetailModal(false);
+          }}
+          sourceTrip={trip}
+        />
       </DialogContent>
     </Dialog>
   );
