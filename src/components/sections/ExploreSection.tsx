@@ -40,11 +40,13 @@ interface Place {
 
 interface ExploreSectionProps {
   sourceTrip?: any;
+  searchType?: string;
   onClearSourceTrip?: () => void;
 }
 
 const ExploreSection = ({
   sourceTrip,
+  searchType,
   onClearSourceTrip,
 }: ExploreSectionProps) => {
   const { toast } = useToast();
@@ -195,7 +197,7 @@ const ExploreSection = ({
       location: selectedPlace.location,
       rating: selectedPlace.rating,
       image: selectedPlace.image,
-      category: selectedPlace.category,
+      category: searchType === 'accommodation' ? 'accommodation' : selectedPlace.category,
       description: selectedPlace.description,
       lat: selectedPlace.lat,
       lng: selectedPlace.lng,
@@ -207,9 +209,16 @@ const ExploreSection = ({
         const success = await addPlaceToTrip(sourceTrip.id, placeData);
 
           if (success) {
+            const toastTitle = searchType === 'accommodation' 
+              ? "Alojamiento agregado"
+              : "Lugar agregado";
+            const toastDescription = searchType === 'accommodation'
+              ? `${selectedPlace.name} fue agregado como estadía para ${sourceTrip.name}`
+              : `${selectedPlace.name} fue agregado a ${sourceTrip.name}`;
+              
             toast({
-              title: "Lugar agregado",
-              description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
+              title: toastTitle,
+              description: toastDescription,
             });
             setIsModalOpen(false);
             onClearSourceTrip?.();
@@ -221,9 +230,13 @@ const ExploreSection = ({
             }, 1400);
           }
       } catch (error) {
+        const errorMessage = searchType === 'accommodation'
+          ? "No se pudo agregar el alojamiento al viaje"
+          : "No se pudo agregar el lugar al viaje";
+          
         toast({
           title: "Error",
-          description: "No se pudo agregar el lugar al viaje",
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -233,7 +246,7 @@ const ExploreSection = ({
       setIsAddToTripModalOpen(true);
       setIsModalOpen(false);
     }
-  }, [selectedPlace, sourceTrip, onClearSourceTrip, toast, addPlaceToTrip]);
+  }, [selectedPlace, sourceTrip, searchType, onClearSourceTrip, toast, addPlaceToTrip]);
 
   const handlePlaceSelectFromMap = useCallback((place: Place) => {
     // Convert map place to modal format and open detail modal
@@ -280,6 +293,20 @@ const ExploreSection = ({
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
+          {sourceTrip && searchType === 'accommodation' ? (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-800 text-sm font-medium">
+                🏨 Buscando alojamiento para: <span className="font-bold">{sourceTrip.name}</span>
+              </p>
+            </div>
+          ) : sourceTrip ? (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-800 text-sm font-medium">
+                ✈️ Agregando lugares a: <span className="font-bold">{sourceTrip.name}</span>
+              </p>
+            </div>
+          ) : null}
+          
             <ExploreHero
               title={t("explore.title")}
               subtitle={t("explore.subtitle")}
@@ -303,7 +330,7 @@ const ExploreSection = ({
             />
 
             <ExploreSearchBar
-              selectedCategories={selectedCategories}
+              selectedCategories={searchType === 'accommodation' ? ['lodging'] : selectedCategories}
               onSearchSubmit={handleSearchSubmit}
               onShowRelatedPlaces={handleShowRelatedPlaces}
               onSearchResults={handleSearchResults}

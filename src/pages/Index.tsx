@@ -6,7 +6,7 @@ import ProfileSection from "@/components/sections/ProfileSection";
 import TravelersSection from "@/components/sections/TravelersSection";
 import TripsSection from "@/components/sections/TripsSection";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface IndexProps {
   onSignOut?: () => void;
@@ -14,23 +14,31 @@ interface IndexProps {
 
 const Index = ({ onSignOut }: IndexProps) => {
   const [activeSection, setActiveSection] = useState("home");
-  const [sourceTrip, setSourceTrip] = useState<object | null>(null);
+  const [exploreContext, setExploreContext] = useState<any>(null);
   const { t } = useLanguage();
 
-  // Listen for navigation events
-  const handleNavigateToTrips = () => {
-    setActiveSection("trips");
-  };
+  useEffect(() => {
+    // Listen for navigation events
+    const handleNavigateToTrips = () => {
+      setActiveSection("trips");
+    };
 
-  const handleNavigateToExplore = (event: CustomEvent) => {
-    const tripDetail = event.detail?.sourceTrip;
-    setSourceTrip(tripDetail);
-    setActiveSection("explore");
-  };
+    const handleNavigateToExplore = (event: CustomEvent) => {
+      setActiveSection("explore");
+      if (event.detail) {
+        setExploreContext(event.detail);
+      }
+    };
 
-  // Add event listeners for navigation
-  window.addEventListener("navigateToTrips", handleNavigateToTrips);
-  window.addEventListener("navigateToExplore", handleNavigateToExplore);
+    // Add event listeners for navigation
+    window.addEventListener("navigateToTrips", handleNavigateToTrips);
+    window.addEventListener("navigateToExplore", handleNavigateToExplore as EventListener);
+
+    return () => {
+      window.removeEventListener("navigateToTrips", handleNavigateToTrips);
+      window.removeEventListener("navigateToExplore", handleNavigateToExplore as EventListener);
+    };
+  }, []);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -41,8 +49,9 @@ const Index = ({ onSignOut }: IndexProps) => {
       case "explore":
         return (
           <ExploreSection
-            sourceTrip={sourceTrip}
-            onClearSourceTrip={() => setSourceTrip(null)}
+            sourceTrip={exploreContext?.sourceTrip}
+            searchType={exploreContext?.searchType}
+            onClearSourceTrip={() => setExploreContext(null)}
           />
         );
       case "booking":
