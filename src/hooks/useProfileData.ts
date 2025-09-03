@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileData } from "@/types/profile";
+import { logSecurityEvent, isValidUser } from "@/utils/securityUtils";
 
 export const useProfileData = () => {
   const { user } = useAuth();
@@ -10,7 +11,8 @@ export const useProfileData = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = async () => {
-    if (!user) {
+    if (!user || !isValidUser(user.id)) {
+      logSecurityEvent("Invalid user attempting profile access", { userId: user?.id });
       setLoading(false);
       return;
     }
@@ -19,6 +21,7 @@ export const useProfileData = () => {
       setLoading(true);
       console.log("Fetching profile for user:", user.id);
 
+      // Secure profile fetch with explicit user validation
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -26,6 +29,7 @@ export const useProfileData = () => {
         .maybeSingle();
 
       if (error) {
+        logSecurityEvent("Profile fetch error", { error: error.message, userId: user.id });
         console.error("Supabase error:", error);
         throw error;
       }
@@ -33,6 +37,15 @@ export const useProfileData = () => {
       console.log("Profile data fetched:", data);
 
       if (data) {
+        // Validate that returned profile belongs to authenticated user
+        if (data.id !== user.id) {
+          logSecurityEvent("Profile ID mismatch", { 
+            expectedId: user.id, 
+            receivedId: data.id 
+          });
+          throw new Error("Security violation: Profile ID mismatch");
+        }
+        
         console.log("Profile found:", data);
         setProfile(data as ProfileData);
       } else {
@@ -45,6 +58,7 @@ export const useProfileData = () => {
     } catch (err) {
       console.error("Error fetching profile:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch profile");
+      logSecurityEvent("Profile fetch failed", { error: err, userId: user.id });
     } finally {
       setLoading(false);
     }

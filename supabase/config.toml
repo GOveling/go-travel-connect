@@ -32,9 +32,9 @@ double_confirm_changes = true
 enable_confirmations = true
 
 [auth.password]
+min_length = 8
 enable_password_strength = true
 enable_leaked_password_protection = true
-min_length = 8
 
 [auth.external.google]
 enabled = true
