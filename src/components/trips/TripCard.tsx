@@ -171,11 +171,40 @@ const TripCard = ({
               <img 
                 src={countryImage} 
                 alt={`${firstCountry} destination`}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to emoji display if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                  const parent = target.parentElement;
+                  if (parent) {
+                    const fallbackDiv = document.createElement('div');
+                    fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center';
+                    const countryElement = document.createElement('div');
+                    countryElement.className = 'text-center';
+                    const flagSpan = document.createElement('span');
+                    flagSpan.className = 'text-3xl md:text-4xl block mb-1';
+                    flagSpan.textContent = countryFlag;
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'text-xs text-white font-medium';
+                    nameSpan.textContent = firstCountry;
+                    countryElement.appendChild(flagSpan);
+                    countryElement.appendChild(nameSpan);
+                    fallbackDiv.appendChild(countryElement);
+                    parent.appendChild(fallbackDiv);
+                  }
+                }}
               />
+            ) : loading ? (
+              <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                <span className="text-2xl">🌍</span>
+              </div>
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-purple-600 to-orange-500 flex items-center justify-center">
-                <span className="text-4xl md:text-5xl">{trip.image}</span>
+                <div className="text-center">
+                  <span className="text-3xl md:text-4xl block mb-1">{countryFlag}</span>
+                  <span className="text-xs text-white font-medium">{firstCountry}</span>
+                </div>
               </div>
             )}
           </div>
