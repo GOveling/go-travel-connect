@@ -6,7 +6,7 @@
     "searchCategories": "Search Categories",
     "nearbyLocation": {
       "title": "Near my location",
-      "subtitle": "Places within 1 km",
+      "subtitle": "",
       "permissionDenied": "Location permission denied",
       "locationError": "Error getting location"
     },

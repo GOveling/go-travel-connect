@@ -7,7 +7,7 @@
     "searchCategories": "Buscar Categorías",
     "nearbyLocation": {
       "title": "Cerca de mi ubicación",
-      "subtitle": "Lugares dentro de 1 km",
+      "subtitle": "",
       "permissionDenied": "Permiso de ubicación denegado",
       "locationError": "Error al obtener ubicación"
     },
