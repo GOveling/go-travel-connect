@@ -606,6 +606,8 @@ const SavedPlacesModal = ({
           setShowPlaceDetailModal(false);
           setSelectedPlace(null);
         }}
+        isFromSavedPlaces={true}
+        sourceTrip={trip}
       />
 
       {/* Place Map Modal */}
