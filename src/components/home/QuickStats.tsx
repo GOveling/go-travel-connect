@@ -13,9 +13,9 @@ const QuickStats = () => {
     return total + (trip.savedPlaces?.length || 0);
   }, 0);
 
-  // Calculate upcoming trips (trips with status 'upcoming' or 'planning')
+  // Calculate upcoming trips (exclude completed trips)
   const upcomingTrips = trips.filter(
-    trip => trip.status === 'upcoming' || trip.status === 'planning'
+    trip => trip.status !== 'completed'
   ).length;
 
   return (
