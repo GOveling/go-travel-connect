@@ -11,6 +11,7 @@ import MountainTripModal from "@/components/modals/MountainTripModal";
 import NewTripModal from "@/components/modals/NewTripModal";
 import SavedPlacesModal from "@/components/modals/SavedPlacesModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
+import AccommodationViewModal from "@/components/modals/AccommodationViewModal";
 import QuickStats from "@/components/trips/QuickStats";
 import ShareSection from "@/components/trips/ShareSection";
 import TripCard from "@/components/trips/TripCard";
@@ -38,6 +39,7 @@ const TripsSection = () => {
   const [showEditTripModal, setShowEditTripModal] = useState(false);
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [showSavedPlacesModal, setShowSavedPlacesModal] = useState(false);
+  const [showAccommodationModal, setShowAccommodationModal] = useState(false);
   const [tripToDelete, setTripToDelete] = useState(null);
 
   // Use Supabase trips instead of local state
@@ -103,14 +105,8 @@ const TripsSection = () => {
   };
 
   const handleAddAccommodation = (trip: any) => {
-    // Navigate to Explore section with accommodation context
-    const event = new CustomEvent("navigateToExplore", { 
-      detail: { 
-        sourceTrip: trip,
-        searchType: 'accommodation'
-      } 
-    });
-    window.dispatchEvent(event);
+    setSelectedTrip(trip);
+    setShowAccommodationModal(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -346,6 +342,15 @@ const TripsSection = () => {
           setSelectedTrip(null);
         }}
         onUpdateTrip={handleUpdateTripData}
+      />
+
+      <AccommodationViewModal
+        trip={selectedTrip}
+        isOpen={showAccommodationModal}
+        onClose={() => {
+          setShowAccommodationModal(false);
+          setSelectedTrip(null);
+        }}
       />
 
       <DeleteTripConfirmationModal
