@@ -288,6 +288,7 @@ export interface TripCardProps {
   onAISmartRoute: (trip: Trip) => void;
   onViewSavedPlaces: (trip: Trip) => void;
   onDeleteTrip?: (trip: Trip) => void;
+  onAddHotel?: (trip: Trip) => void;
 }
 
 export interface ProfilePublicationProps {

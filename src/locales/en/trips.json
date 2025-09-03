@@ -139,7 +139,8 @@
       "inviteFriends": "Invite Friends",
       "groupOptions": "Group Options",
       "aiSmartRoute": "AI Smart Route",
-      "viewSavedPlaces": "View Saved Places"
+      "viewSavedPlaces": "View Saved Places",
+      "hotel": "Hotel"
     },
     "templates": {
       "title": "Trip Templates",

@@ -22,7 +22,8 @@
       "inviteFriends": "邀请朋友",
       "groupOptions": "群组选项",
       "aiSmartRoute": "AI智能路线",
-      "viewSavedPlaces": "查看保存的地点"
+      "viewSavedPlaces": "查看保存的地点",
+      "hotel": "酒店"
     },
     "templates": {
       "title": "旅行模板",

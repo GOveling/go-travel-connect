@@ -85,7 +85,8 @@
       "inviteFriends": "Invitar Amigos",
       "groupOptions": "Opciones de Grupo",
       "aiSmartRoute": "Ruta Inteligente IA",
-      "viewSavedPlaces": "Ver Lugares Guardados"
+      "viewSavedPlaces": "Ver Lugares Guardados",
+      "hotel": "Hotel"
     },
     "templates": {
       "title": "Plantillas de Viaje",
