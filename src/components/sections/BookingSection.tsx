@@ -10,7 +10,7 @@ import BookingHeader from "./booking/BookingHeader";
 import SpecialOfferCard from "./booking/SpecialOfferCard";
 import BookingCategoriesGrid from "./booking/BookingCategoriesGrid";
 
-import RecentBookingsSection from "./booking/RecentBookingsSection";
+
 
 const BookingSection = () => {
   const { t } = useLanguage();
@@ -37,7 +37,6 @@ const BookingSection = () => {
         onRestaurantClick={() => setIsRestaurantModalOpen(true)}
       />
 
-      <RecentBookingsSection />
 
       {/* All Modals */}
       <FlightBookingModal
