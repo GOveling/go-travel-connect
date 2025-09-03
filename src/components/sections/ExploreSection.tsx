@@ -288,8 +288,11 @@ const ExploreSection = ({
     setIsLocationModalOpen(true);
   };
 
+  // Determine if scrolling should be allowed
+  const shouldAllowScroll = !loading && (searchResults.length > 0 || !searchQuery);
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-28">
+    <div className={`min-h-screen bg-gray-50 pb-28 ${!shouldAllowScroll ? 'overflow-hidden' : ''}`}>
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
