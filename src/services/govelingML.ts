@@ -1,5 +1,5 @@
 import type { SavedPlace, Trip } from "@/types";
-import { govelingMLConfig, getApiEndpointUrl, debugLog } from "@/config/govelingML";
+import { govelingMLConfig, getApiEndpointUrl, debugLog } from "../config/govelingML";
 
 // API Configuration
 const API_BASE_URL = govelingMLConfig.baseUrl;

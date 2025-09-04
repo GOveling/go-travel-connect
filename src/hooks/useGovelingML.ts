@@ -8,8 +8,8 @@ import {
   type GovelingMLResponse,
   type GovelingMLPreferences,
   type GovelingMLUserLocation
-} from "@/services/govelingML";
-import { debugLog } from "@/config/govelingML";
+} from "../services/govelingML";
+import { debugLog } from "../config/govelingML";
 import type { Trip } from "@/types";
 
 export interface UseGovelingMLProps {

@@ -1,5 +1,5 @@
 import { useGovelingML } from "@/hooks/useGovelingML";
-import { GovelingMLService } from "@/services/govelingML";
+import { GovelingMLService } from "../../services/govelingML";
 import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types";
 

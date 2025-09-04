@@ -11,14 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useGovelingML } from "@/hooks/useGovelingML";
+import { useGovelingML } from "../../hooks/useGovelingML";
 import type {
   Trip,
   DayItinerary,
   AISmartRouteModalProps,
   SavedPlace,
 } from "@/types";
-import type { GovelingMLResponse, GovelingMLAnalytics } from "@/services/govelingML";
+import type { GovelingMLResponse, GovelingMLAnalytics } from "../../services/govelingML";
 import { getRouteConfigurations } from "@/utils/routeGenerator";
 import {
   getSavedPlacesByDestination,

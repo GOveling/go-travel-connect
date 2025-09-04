@@ -1,5 +1,5 @@
 // Test file to verify the exact payload being sent to your API
-import { GovelingMLService } from "@/services/govelingML";
+import { GovelingMLService } from "../services/govelingML";
 import type { Trip } from "@/types";
 
 // Recreate your Antofagasta trip based on your Postman data

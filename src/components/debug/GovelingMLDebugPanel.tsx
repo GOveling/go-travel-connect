@@ -27,8 +27,8 @@ import {
   govelingMLConfig, 
   isGovelingMLConfigured, 
   getConfigMessage 
-} from "@/config/govelingML";
-import type { GovelingMLResponse } from "@/services/govelingML";
+} from "../../config/govelingML";
+import type { GovelingMLResponse } from "../../services/govelingML";
 
 interface GovelingMLDebugPanelProps {
   lastResponse?: GovelingMLResponse | null;
