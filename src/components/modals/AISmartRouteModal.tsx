@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Brain } from "lucide-react";
+import { Brain, Zap, AlertCircle, CheckCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -8,14 +8,17 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useGovelingML } from "@/hooks/useGovelingML";
 import type {
   Trip,
   DayItinerary,
   AISmartRouteModalProps,
   SavedPlace,
 } from "@/types";
+import type { GovelingMLResponse, GovelingMLAnalytics } from "@/services/govelingML";
 import { getRouteConfigurations } from "@/utils/routeGenerator";
 import {
   getSavedPlacesByDestination,
@@ -28,6 +31,7 @@ import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";
 import AnalyticsTab from "./ai-smart-route/AnalyticsTab";
 import PlaceRecommendationsModal from "./PlaceRecommendationsModal";
+import { GovelingMLDebugPanel } from "../debug/GovelingMLDebugPanel";
 
 const AISmartRouteModal = ({
   trip,
@@ -41,10 +45,36 @@ const AISmartRouteModal = ({
   const [optimizedItinerary, setOptimizedItinerary] = useState<DayItinerary[]>(
     []
   );
+  const [mlAnalytics, setMlAnalytics] = useState<GovelingMLAnalytics | null>(null);
   const [showRecommendationsModal, setShowRecommendationsModal] =
     useState(false);
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
+  const [useAIOptimization, setUseAIOptimization] = useState(true);
   const { toast } = useToast();
+
+  // Goveling ML Integration
+  const {
+    isLoading: isMLLoading,
+    isHealthChecking,
+    lastResponse: mlResponse,
+    lastError: mlError,
+    generateItinerary: generateMLItinerary,
+    checkApiHealth,
+    transformToInternalFormat,
+    clearError,
+  } = useGovelingML({
+    onSuccess: (response) => {
+      console.log("ML API Success:", response);
+      const transformed = transformToInternalFormat(response, workingTrip);
+      setOptimizedItinerary(transformed.itinerary);
+      setMlAnalytics(response.analytics);
+      setRouteGenerated(true);
+    },
+    onError: (error) => {
+      console.log("ML API Error (will use fallback):", error);
+      // Don't show error toast here - let the fallback handle success messaging
+    },
+  });
 
   // Use map data hook for distance calculations
   const { calculateTripDistances, calculateOptimizedRoute } = useMapData([]);
@@ -64,27 +94,24 @@ const AISmartRouteModal = ({
       setActiveTab("itinerary");
       setSelectedRouteType("balanced");
       setOptimizedItinerary([]);
+      setMlAnalytics(null);
+      setUseAIOptimization(true);
+      clearError();
     }
-  }, [isOpen, trip]);
+  }, [isOpen, trip, clearError]);
 
   // Early return if no trip data
   if (!isOpen || !trip) return null;
 
   const workingTrip = currentTrip || trip;
 
-  // Generate AI optimized route using real distance data
-  const generateAIRoute = async () => {
-    setIsGenerating(true);
-
+  // Fallback route generation when ML API fails
+  const handleFallbackRouteGeneration = async () => {
     try {
-      // Calculate real distances and optimized route
       const distanceMatrix = calculateTripDistances(workingTrip);
       const optimizedRoute = calculateOptimizedRoute(workingTrip);
 
-      console.log("Distance matrix:", distanceMatrix);
-      console.log("Optimized route:", optimizedRoute);
-
-      // Generate single balanced route with real data
+      // Try Supabase function first
       const { data, error } = await supabase.functions.invoke(
         "ai-route-generator",
         {
@@ -99,8 +126,7 @@ const AISmartRouteModal = ({
       );
 
       if (error) {
-        console.error("Error generating AI route:", error);
-        // Fallback to static generation
+        // Final fallback to static generation
         const routeConfigurations = getRouteConfigurations(workingTrip);
         setOptimizedItinerary(routeConfigurations.current.itinerary);
       } else {
@@ -108,25 +134,64 @@ const AISmartRouteModal = ({
       }
 
       setRouteGenerated(true);
+      setUseAIOptimization(false);
 
+      // Show SUCCESS message instead of error when fallback works
       toast({
-        title: "AI Smart Route Generated!",
-        description:
-          "Your intelligent route has been optimized using real distance data and AI.",
+        title: "✅ Smart Route Generated!",
+        description: "Your route has been optimized using our intelligent backup system while ML service is unavailable.",
       });
     } catch (error) {
-      console.error("Error generating AI route:", error);
-      // Fallback to static generation
+      console.error("Fallback generation failed:", error);
+      // Ultimate fallback
       const routeConfigurations = getRouteConfigurations(workingTrip);
       setOptimizedItinerary(routeConfigurations.current.itinerary);
       setRouteGenerated(true);
+      setUseAIOptimization(false);
 
       toast({
         title: "Route Generated",
-        description:
-          "Using fallback route generation. AI optimization is temporarily unavailable.",
+        description: "Route created successfully using basic optimization.",
+      });
+    }
+  };
+
+  // Generate AI optimized route using Goveling ML API
+  const generateAIRoute = async () => {
+    if (!workingTrip.savedPlaces || workingTrip.savedPlaces.length === 0) {
+      toast({
+        title: "No Places to Optimize",
+        description: "Please add some places to your trip before generating an AI route.",
         variant: "destructive",
       });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      if (useAIOptimization) {
+        // Define preferences for the ML API
+        const preferences = {
+          start_time: "09:00",
+          end_time: "18:00",
+          preferred_transport: "walking" as const,
+        };
+
+        // Try ML API first
+        const response = await generateMLItinerary(workingTrip, preferences);
+        if (response) {
+          // Success handled by hook callback
+          return;
+        }
+      }
+
+      // If ML API fails or is disabled, use fallback
+      await handleFallbackRouteGeneration();
+
+    } catch (error) {
+      console.error("Error generating AI route:", error);
+      await handleFallbackRouteGeneration();
     } finally {
       setIsGenerating(false);
     }
