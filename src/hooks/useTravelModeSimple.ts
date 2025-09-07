@@ -23,7 +23,7 @@ interface NearbyPlace extends SavedPlace {
 
 const DEFAULT_CONFIG: TravelModeConfig = {
   isEnabled: false,
-  proximityRadius: 15000, // 15km para detectar puntos lejanos
+  proximityRadius: 20000, // 20km para asegurar detección (incrementado de 15km)
   baseCheckInterval: 30000, // 30 segundos como base
   notificationThresholds: [10000, 5000, 2000, 1000, 500, 100, 50, 10], // Agregamos 10m para notificación de llegada
 };
@@ -148,7 +148,10 @@ export const useTravelModeSimple = () => {
   // Get all saved places from active trip only
   const getActiveTripPlaces = useCallback((): NearbyPlace[] => {
     const activeTrip = getActiveTripToday();
-    if (!activeTrip) return [];
+    if (!activeTrip) {
+      console.log("❌ No active trip found for places");
+      return [];
+    }
 
     const allPlaces: NearbyPlace[] = [];
 
@@ -162,8 +165,15 @@ export const useTravelModeSimple = () => {
             tripName: activeTrip.name,
             hasNotified: {},
           });
+          console.log(
+            `📍 Added place: ${place.name} at ${place.lat.toFixed(6)}, ${place.lng.toFixed(6)}`
+          );
+        } else {
+          console.log(`⚠️ Skipping place ${place.name} - missing coordinates`);
         }
       });
+    } else {
+      console.log("⚠️ Active trip has no savedPlaces");
     }
 
     console.log(
@@ -272,6 +282,12 @@ export const useTravelModeSimple = () => {
         );
 
         console.log(`📏 ${place.name}: ${distance.toFixed(0)}m away`);
+        console.log(
+          `   📍 Place coords: ${place.lat.toFixed(6)}, ${place.lng.toFixed(6)}`
+        );
+        console.log(
+          `   📏 Distance check: ${distance.toFixed(0)}m <= ${config.proximityRadius}m = ${distance <= config.proximityRadius}`
+        );
 
         if (distance <= config.proximityRadius) {
           console.log(
@@ -284,75 +300,142 @@ export const useTravelModeSimple = () => {
             hasNotified: {},
           };
 
-          // Check each threshold
-          config.notificationThresholds.forEach((threshold) => {
-            const notificationKey = `${place.id}-${threshold}`;
+          // Check each threshold with smart logic
+          // 1. Only notify for the NEXT appropriate threshold (not all previous ones)
+          // 2. Once arrived (≤10m), stop all further notifications for this place
 
-            if (
-              distance <= threshold &&
-              !notifiedPlacesRef.current.has(notificationKey)
-            ) {
+          // Check if user has already "arrived" at this place (≤10m)
+          const hasArrived = distance <= 10;
+          const arrivalKey = `${place.id}-10`;
+          const hasArrivedBefore = notifiedPlacesRef.current.has(arrivalKey);
+
+          if (hasArrived && hasArrivedBefore) {
+            console.log(
+              `🏁 User has already arrived at ${place.name} - skipping all notifications`
+            );
+            return; // Skip all notifications for this place
+          }
+
+          // Find the appropriate threshold to notify (smallest threshold greater than current distance)
+          const appropriateThreshold = config.notificationThresholds
+            .filter((threshold) => distance <= threshold)
+            .sort((a, b) => a - b)[0]; // Get the smallest threshold that applies
+
+          if (!appropriateThreshold) {
+            console.log(
+              `📏 ${place.name}: Too far (${distance.toFixed(0)}m) for any threshold`
+            );
+            return;
+          }
+
+          // Only process the appropriate threshold
+          const notificationKey = `${place.id}-${appropriateThreshold}`;
+
+          console.log(
+            `🔍 Processing threshold ${appropriateThreshold}m for ${place.name}:`
+          );
+          console.log(`   - Distance: ${distance.toFixed(0)}m`);
+          console.log(`   - Selected threshold: ${appropriateThreshold}m`);
+          console.log(
+            `   - Within threshold: ${distance <= appropriateThreshold}`
+          );
+          console.log(
+            `   - Already notified: ${notifiedPlacesRef.current.has(notificationKey)}`
+          );
+          console.log(`   - Notification key: ${notificationKey}`);
+
+          if (
+            distance <= appropriateThreshold &&
+            !notifiedPlacesRef.current.has(notificationKey)
+          ) {
+            console.log(
+              `🔔 SENDING NOTIFICATION: ${place.name} at ${appropriateThreshold}m threshold`
+            );
+
+            // Marcar como notificado INMEDIATAMENTE para evitar duplicados
+            notifiedPlacesRef.current.add(notificationKey);
+            nearbyPlace.hasNotified[appropriateThreshold] = true;
+
+            console.log(`📝 Added to notified set: ${notificationKey}`);
+            console.log(
+              `📝 Current notified set size: ${notifiedPlacesRef.current.size}`
+            );
+
+            // Enviar notificación especial para llegada (10m)
+            if (appropriateThreshold === 10) {
+              console.log(`🎯 Sending ARRIVAL notification for ${place.name}`);
+              travelNotificationService
+                .sendArrivalNotification({
+                  ...nearbyPlace,
+                  tripId: place.tripId,
+                  tripName: place.tripName,
+                })
+                .then((success) => {
+                  console.log(
+                    `🎯 Arrival notification ${success ? "SUCCESS" : "FAILED"} for ${place.name}`
+                  );
+                  // Si falla, remover de la lista para permitir reintento
+                  if (!success) {
+                    notifiedPlacesRef.current.delete(notificationKey);
+                  }
+                })
+                .catch((error) => {
+                  console.error(
+                    `❌ Failed to send arrival notification:`,
+                    error
+                  );
+                  // Si falla, remover de la lista para permitir reintento
+                  notifiedPlacesRef.current.delete(notificationKey);
+                });
+            } else {
+              // Enviar notificación de proximidad normal
               console.log(
-                `🔔 SENDING NOTIFICATION: ${place.name} at ${threshold}m threshold`
+                `📱 Sending PROXIMITY notification for ${place.name} at ${appropriateThreshold}m`
               );
-
-              // Marcar como notificado INMEDIATAMENTE para evitar duplicados
-              notifiedPlacesRef.current.add(notificationKey);
-              nearbyPlace.hasNotified[threshold] = true;
-
-              // Enviar notificación especial para llegada (10m)
-              if (threshold === 10) {
-                travelNotificationService
-                  .sendArrivalNotification({
+              travelNotificationService
+                .sendProximityNotification(
+                  {
                     ...nearbyPlace,
                     tripId: place.tripId,
                     tripName: place.tripName,
-                  })
-                  .then(() => {
-                    console.log(
-                      `🎯 Arrival notification sent for ${place.name}`
-                    );
-                  })
-                  .catch((error) => {
-                    console.error(
-                      `❌ Failed to send arrival notification:`,
-                      error
-                    );
-                  });
-              } else {
-                // Enviar notificación de proximidad normal
-                travelNotificationService
-                  .sendProximityNotification(
-                    {
-                      ...nearbyPlace,
-                      tripId: place.tripId,
-                      tripName: place.tripName,
-                    },
-                    distance,
-                    threshold
-                  )
-                  .then(() => {
-                    console.log(
-                      `✅ Notification sent for ${place.name} at ${threshold}m`
-                    );
-                  })
-                  .catch((error) => {
-                    console.error(`❌ Failed to send notification:`, error);
-                  });
-              }
+                  },
+                  distance,
+                  appropriateThreshold
+                )
+                .then((success) => {
+                  console.log(
+                    `✅ Proximity notification ${success ? "SUCCESS" : "FAILED"} for ${place.name} at ${appropriateThreshold}m`
+                  );
+                  // Si falla, remover de la lista para permitir reintento
+                  if (!success) {
+                    notifiedPlacesRef.current.delete(notificationKey);
+                  }
+                })
+                .catch((error) => {
+                  console.error(`❌ Failed to send notification:`, error);
+                  // Si falla, remover de la lista para permitir reintento
+                  notifiedPlacesRef.current.delete(notificationKey);
+                });
+            }
 
-              // Clean up notification tracking after 10 minutes (más tiempo para evitar re-notificaciones)
+            // Clean up notification tracking after 5 minutes (reducido de 10)
+            // Exception: arrival notifications (10m) are permanent to prevent re-notifications
+            if (appropriateThreshold !== 10) {
               setTimeout(
                 () => {
                   notifiedPlacesRef.current.delete(notificationKey);
                   console.log(
-                    `🧹 Cleaned up notification tracking for ${place.name} at ${threshold}m`
+                    `🧹 Cleaned up notification tracking for ${place.name} at ${appropriateThreshold}m`
                   );
                 },
-                10 * 60 * 1000
+                5 * 60 * 1000
+              );
+            } else {
+              console.log(
+                `🔒 Arrival notification marked as permanent for ${place.name}`
               );
             }
-          });
+          }
 
           nearby.push(nearbyPlace);
         }
@@ -417,6 +500,14 @@ export const useTravelModeSimple = () => {
       }
 
       console.log(`✅ Active trip found: ${activeTrip.name}`);
+
+      // Clear any previous notification tracking state
+      await travelNotificationService.clearNotificationTracking();
+
+      // Clear previous deduplication state
+      notifiedPlacesRef.current.clear();
+
+      console.log("🧹 Cleared previous notification state");
 
       // Initialize notification service
       await travelNotificationService.initialize();

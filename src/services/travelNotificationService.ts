@@ -30,17 +30,23 @@ class TravelNotificationService {
    */
   async initialize(): Promise<void> {
     try {
+      console.log("🔧 Initializing Travel Notification Service...");
+
       // Request permissions
       const permissionResult = await LocalNotifications.requestPermissions();
 
+      console.log("📱 Notification permission result:", permissionResult);
+      console.log("📱 Display permission:", permissionResult.display);
+
       if (permissionResult.display !== "granted") {
-        console.warn("Notification permissions not granted");
+        console.warn("❌ Notification permissions not granted");
+        console.warn("📱 Current permission status:", permissionResult);
         return;
       }
 
-      console.log("✅ Travel Notification Service initialized");
+      console.log("✅ Travel Notification Service initialized successfully");
     } catch (error) {
-      console.error("Error initializing notification service:", error);
+      console.error("❌ Error initializing notification service:", error);
     }
   }
 
@@ -79,7 +85,17 @@ class TravelNotificationService {
   }
 
   /**
-   * Send proximity notification with smart deduplication
+   * Clear all notification tracking (useful when restarting Travel Mode)
+   */
+  clearNotificationTracking(): void {
+    console.log("🧹 Clearing all notification tracking state...");
+    this.sentNotifications.clear();
+    this.lastNotificationTime.clear();
+    console.log("✅ Notification tracking state cleared");
+  }
+
+  /**
+   * Send proximity notification with robust deduplication
    */
   async sendProximityNotification(
     place: SavedPlace & { tripId: string; tripName: string },
@@ -87,29 +103,32 @@ class TravelNotificationService {
     threshold: number
   ): Promise<boolean> {
     try {
+      console.log(`📱 ===== PROXIMITY NOTIFICATION ATTEMPT =====`);
+      console.log(`Place: ${place.name}`);
+      console.log(`Distance: ${distance.toFixed(0)}m`);
+      console.log(`Threshold: ${threshold}m`);
+
       // Create unique key
       const notificationKey = `${place.id}-${threshold}`;
       const now = Date.now();
 
-      // Check if we already sent this notification recently (within 5 minutes)
+      console.log(`🔑 Notification key: ${notificationKey}`);
+
+      // Check if we already sent this notification recently (within 3 minutes - reduced time)
       const lastSent = this.lastNotificationTime.get(notificationKey);
-      if (lastSent && now - lastSent < 5 * 60 * 1000) {
+      if (lastSent && now - lastSent < 3 * 60 * 1000) {
         console.log(
           `🔄 Skipping duplicate notification for ${place.name} at ${threshold}m (sent ${Math.round((now - lastSent) / 1000)}s ago)`
         );
         return false;
       }
 
-      // Double-check with the Set as well
-      if (this.sentNotifications.has(notificationKey)) {
-        console.log(
-          `🔄 Skipping already sent notification for ${place.name} at ${threshold}m`
-        );
-        return false;
-      }
+      console.log(`✅ Notification checks passed, proceeding to send...`);
 
       const distanceText = this.formatDistance(distance);
-      const notificationId = Date.now() + Math.random(); // Ensure unique ID
+      const notificationId = Math.floor(Date.now() + Math.random() * 1000); // Ensure unique INTEGER ID
+
+      console.log(`🆔 Generated notification ID: ${notificationId}`);
 
       const notification: TravelNotification = {
         id: notificationId,
@@ -125,12 +144,16 @@ class TravelNotificationService {
         scheduledAt: new Date(),
       };
 
-      // Mark as sent BEFORE scheduling to prevent race conditions
-      this.sentNotifications.add(notificationKey);
-      this.lastNotificationTime.set(notificationKey, now);
+      console.log(`📝 Notification content:`);
+      console.log(`   Title: ${notification.title}`);
+      console.log(`   Body: ${notification.body}`);
 
-      // Schedule the notification
+      // Schedule the notification FIRST
       const scheduleTime = new Date(now + 1000); // Add 1 second to ensure it's in the future
+      console.log(
+        `⏰ Scheduling notification for: ${scheduleTime.toISOString()}`
+      );
+
       const result: ScheduleResult = await LocalNotifications.schedule({
         notifications: [
           {
@@ -143,25 +166,42 @@ class TravelNotificationService {
         ],
       });
 
-      this.notificationHistory.push(notification);
+      console.log(`📱 LocalNotifications.schedule result:`, result);
 
-      // Clean up old entries after 10 minutes
-      setTimeout(
-        () => {
-          this.sentNotifications.delete(notificationKey);
-          this.lastNotificationTime.delete(notificationKey);
-        },
-        10 * 60 * 1000
-      );
+      // Only mark as sent AFTER successful scheduling
+      if (result && result.notifications && result.notifications.length > 0) {
+        this.sentNotifications.add(notificationKey);
+        this.lastNotificationTime.set(notificationKey, now);
+        this.notificationHistory.push(notification);
 
-      console.log(
-        `📱 Notification sent: ${place.name} at ${distanceText} (threshold: ${threshold}m)`,
-        result
-      );
+        console.log(`✅ Marked as sent after successful scheduling`);
 
-      return true;
+        // Clean up old entries after 5 minutes (reduced time)
+        setTimeout(
+          () => {
+            this.sentNotifications.delete(notificationKey);
+            this.lastNotificationTime.delete(notificationKey);
+            console.log(
+              `🧹 Cleaned up notification tracking for ${notificationKey}`
+            );
+          },
+          5 * 60 * 1000
+        );
+
+        console.log(
+          `📱 ✅ Notification sent successfully: ${place.name} at ${distanceText} (threshold: ${threshold}m)`
+        );
+
+        return true;
+      } else {
+        console.error(
+          `❌ Failed to schedule notification - invalid result:`,
+          result
+        );
+        return false;
+      }
     } catch (error) {
-      console.error("Error sending proximity notification:", error);
+      console.error("❌ Error sending proximity notification:", error);
       return false;
     }
   }
@@ -185,7 +225,7 @@ class TravelNotificationService {
         return false;
       }
 
-      const notificationId = now + Math.random();
+      const notificationId = Math.floor(now + Math.random() * 1000); // Ensure unique INTEGER ID
 
       // Mark as sent BEFORE scheduling
       this.lastNotificationTime.set(notificationKey, now);
@@ -234,7 +274,7 @@ class TravelNotificationService {
           {
             title: "📊 Resumen de tu viaje",
             body: `Visitaste ${visitedPlaces} lugares, recorriste ${this.formatDistance(totalDistance)} en ${timeText}`,
-            id: Date.now(),
+            id: Math.floor(Date.now() + Math.random() * 1000), // Ensure unique INTEGER ID
             schedule: { at: new Date() },
             extra: {
               type: "travel_summary",

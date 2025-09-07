@@ -9,7 +9,7 @@ import {
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../../hooks/useI18n";
-import { useTravelMode } from "../../hooks/useTravelMode";
+import { useTravelModeSimple } from "../../hooks/useTravelModeSimple";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -21,7 +21,6 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Separator } from "../ui/separator";
-import { Slider } from "../ui/slider";
 import { Switch } from "../ui/switch";
 
 interface TravelModeProps {
@@ -38,9 +37,13 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     isTracking,
     loading,
     toggleTravelMode,
-    updateConfig,
-    getCurrentLocation,
-  } = useTravelMode();
+    checkProximity,
+  } = useTravelModeSimple();
+
+  // Función temporal para obtener ubicación actual
+  const getCurrentLocation = () => {
+    checkProximity();
+  };
 
   const formatDistance = (distance: number): string => {
     if (distance >= 1000) {
@@ -251,93 +254,13 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
         </CardContent>
       </Card>
 
-      {/* Configuration Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-gray-600" />
-            {t("home.travelMode.configuration")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Proximity Radius */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="font-medium">
-                {t("home.travelMode.proximityRadius")}
-              </label>
-              <span className="text-sm text-gray-600">
-                {formatDistance(config.proximityRadius)}
-              </span>
-            </div>
-            <Slider
-              value={[config.proximityRadius]}
-              onValueChange={([value]) =>
-                updateConfig({ proximityRadius: value })
-              }
-              min={500}
-              max={5000}
-              step={100}
-              className="w-full"
-            />
-            <p className="text-xs text-gray-600">
-              {t("home.travelMode.maxDistance")}
-            </p>
-          </div>
-
-          <Separator />
-
-          {/* Check Interval */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="font-medium">
-                {t("home.travelMode.checkInterval")}
-              </label>
-              <span className="text-sm text-gray-600">
-                {config.checkInterval / 1000}s
-              </span>
-            </div>
-            <Slider
-              value={[config.checkInterval]}
-              onValueChange={([value]) =>
-                updateConfig({ checkInterval: value })
-              }
-              min={10000}
-              max={60000}
-              step={5000}
-              className="w-full"
-            />
-            <p className="text-xs text-gray-600">
-              {t("home.travelMode.checkIntervalDescription")}
-            </p>
-          </div>
-
-          <Separator />
-
-          {/* Notification Thresholds */}
-          <div className="space-y-3">
-            <label className="font-medium">Distancias de Notificación</label>
-            <div className="flex gap-2 flex-wrap">
-              {config.notificationThresholds.map((threshold, index) => (
-                <Badge key={index} variant="secondary">
-                  {formatDistance(threshold)}
-                </Badge>
-              ))}
-            </div>
-            <p className="text-xs text-gray-600">
-              Recibirás notificaciones a estas distancias
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Nearby Places Card */}
       {nearbyPlaces.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-orange-600" />
-              Lugares Cercanos
+              {t("home.travelMode.nearbyPlaces")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -363,7 +286,9 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
               ))}
               {nearbyPlaces.length > 5 && (
                 <p className="text-center text-sm text-gray-500 py-2">
-                  Y {nearbyPlaces.length - 5} lugares más...
+                  {t("home.travelMode.moreNearbyPlaces", {
+                    count: nearbyPlaces.length - 5,
+                  })}
                 </p>
               )}
             </div>
@@ -386,6 +311,65 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
           </CardContent>
         </Card>
       )}
+
+      {/* How it Works Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5 text-gray-600" />
+            {t("home.travelMode.howItWorks")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Detection Radius (read-only) */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="font-medium text-sm">
+                {t("home.travelMode.proximityRadius")}
+              </label>
+              <span className="text-sm text-gray-600">
+                {formatDistance(config.proximityRadius)}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">
+              {t("home.travelMode.maxDistance")}
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* Notification Thresholds (read-only) */}
+          <div className="space-y-2">
+            <label className="font-medium text-sm">
+              {t("home.travelMode.notificationDistances")}
+            </label>
+            <div className="flex gap-1 flex-wrap">
+              {config.notificationThresholds.map((threshold, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {formatDistance(threshold)}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">
+              {t("home.travelMode.progressiveNotifications")}
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* System Info */}
+          <div className="space-y-2">
+            <label className="font-medium text-sm">
+              {t("home.travelMode.automaticOptimization")}
+            </label>
+            <div className="text-xs text-gray-600 space-y-1">
+              <p>• {t("home.travelMode.dynamicIntervals")}</p>
+              <p>• {t("home.travelMode.higherFrequencyNear")}</p>
+              <p>• {t("home.travelMode.lowerBatteryFar")}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
