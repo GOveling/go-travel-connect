@@ -129,7 +129,15 @@
         "tip6": "Menor frecuencia cuando estás lejos de lugares",
         "tip7": "Guarda lugares de interés antes de viajar",
         "tip8": "Funciona mejor en áreas con buena cobertura GPS"
-      }
+      },
+      "distanceUnit": "m",
+      "kmUnit": "km",
+      "accessTravelMode": "Acceder a Modo Travel",
+      "travelModeActive": "Modo Travel activo - monitoreando lugares cercanos",
+      "travelModeInactive": "Modo Travel inactivo - actívalo para monitorear lugares",
+      "locationPermissions": "Permisos de ubicación",
+      "notificationPermissions": "Permisos de notificaciones",
+      "check": "Verificar"
     }
   }
 }

@@ -305,10 +305,39 @@ export const TravelModeModal: React.FC<TravelModeModalProps> = ({
 
           {/* Status Info */}
           {status && (
-            <div className="text-xs text-gray-500 p-3 bg-gray-50 rounded">
-              {status}
-            </div>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  {t("home.travelMode.systemStatus")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${status.hasLocationPermission ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <span>{t("home.travelMode.locationPermissions")}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${status.hasNotificationPermission ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                  <span>{t("home.travelMode.notificationPermissions")}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${status.hasActiveTrip ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <span>{t("home.currentTrip.currentTrip")}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${status.isLocationAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <span>GPS</span>
+                </div>
+                {status.lastError && (
+                  <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                    <strong>Error:</strong> {status.lastError}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
+
 
           {loading && (
             <div className="text-center text-sm text-blue-600">
