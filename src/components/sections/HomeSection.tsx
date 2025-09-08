@@ -7,6 +7,7 @@ import QuickStats from "@/components/home/QuickStats";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import { TravelModeModal } from "@/components/modals/TravelModeModal";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
@@ -112,12 +113,11 @@ const HomeSection = () => {
       {/* Development: Quick access to Travel Mode for web testing */}
       {typeof window !== "undefined" && !window.Capacitor && (
         <div className="px-4 py-2">
-          <button
-            onClick={() => (window.location.href = "/travel-mode")}
-            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors"
-          >
-            🧭 Travel Mode (Dev)
-          </button>
+          <TravelModeModal>
+            <button className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors">
+              🧭 Travel Mode (Dev)
+            </button>
+          </TravelModeModal>
         </div>
       )}
 

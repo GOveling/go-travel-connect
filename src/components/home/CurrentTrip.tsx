@@ -6,6 +6,7 @@ import type { Trip } from "@/types";
 import { Calendar, MapPin, Navigation, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { TravelModeModal } from "@/components/modals/TravelModeModal";
 
 interface CurrentTripContentProps {
   currentTrip: Trip | null;
@@ -111,13 +112,12 @@ const CurrentTripContent = ({
             </span>
           </div>
           <div className="space-y-2">
-            <Button
-              className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
-              onClick={() => navigate("/travel-mode")}
-            >
-              <Navigation className="w-4 h-4 mr-2" />
-              {t("home.travelMode.accessTravelMode")}
-            </Button>
+            <TravelModeModal>
+              <Button className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600">
+                <Navigation className="w-4 h-4 mr-2" />
+                {t("home.travelMode.accessTravelMode")}
+              </Button>
+            </TravelModeModal>
             <Button variant="outline" className="w-full" onClick={onViewDetail}>
               {t("home.currentTrip.viewDetails")}
             </Button>
