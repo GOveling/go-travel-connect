@@ -159,6 +159,11 @@ const CurrentTripContent = memo(({
             {t("home.currentTrip.viewAIRouteDetails")}
           </Button>
         </CardContent>
+
+        <TravelModeModal 
+          isOpen={isTravelModeModalOpen} 
+          onClose={() => setIsTravelModeModalOpen(false)} 
+        />
       </Card>
     );
   }
@@ -222,6 +227,11 @@ const CurrentTripContent = memo(({
             </Button>
           </div>
         </CardContent>
+
+        <TravelModeModal 
+          isOpen={isTravelModeModalOpen} 
+          onClose={() => setIsTravelModeModalOpen(false)} 
+        />
       </Card>
     );
   }
