@@ -40,6 +40,7 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     toggleTravelMode,
     checkProximity,
     checkLocationPermissions,
+    checkNotificationPermissions,
     getActiveTripToday,
   } = useTravelModeSimple();
 

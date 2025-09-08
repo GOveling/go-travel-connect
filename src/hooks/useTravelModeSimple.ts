@@ -145,6 +145,20 @@ export const useTravelModeSimple = () => {
     }
   }, [isNative, toast]);
 
+  // Check notification permissions
+  const checkNotificationPermissions = useCallback(async (): Promise<boolean> => {
+    try {
+      console.log("🔔 Checking notification permissions...");
+      const hasPermission = await travelNotificationService.initialize();
+      setStatus(prev => ({ ...prev, hasNotificationPermission: !!hasPermission }));
+      return !!hasPermission;
+    } catch (error) {
+      console.error("❌ Error checking notification permissions:", error);
+      setStatus(prev => ({ ...prev, hasNotificationPermission: false }));
+      return false;
+    }
+  }, []);
+
   // Get current location manually with enhanced error handling
   const getCurrentLocation = useCallback(async (): Promise<Position | null> => {
     try {
@@ -647,6 +661,7 @@ export const useTravelModeSimple = () => {
     checkProximity,
     getActiveTripToday,
     getDynamicInterval,
+    isNative,
   ]);
 
   // Stop Travel Mode
@@ -680,20 +695,63 @@ export const useTravelModeSimple = () => {
     lastPositionRef.current = null;
 
     console.log("✅ Travel Mode stopped");
-  }, []);
+  }, [isNative]);
 
-  // Toggle Travel Mode
+  // Toggle Travel Mode with comprehensive validation
   const toggleTravelMode = useCallback(async () => {
-    if (isTracking) {
-      setConfig((prev) => ({ ...prev, isEnabled: false }));
+    console.log(`🔄 Toggle Travel Mode called - current: ${config.isEnabled}`);
+
+    if (config.isEnabled) {
+      console.log("🛑 Stopping Travel Mode...");
       await stopTravelMode();
+      setConfig((prev) => ({ ...prev, isEnabled: false }));
     } else {
+      console.log("🚀 Starting Travel Mode...");
+      
+      // Reset error state
+      setStatus(prev => ({ ...prev, lastError: null }));
+      
+      // Check all prerequisites
+      const activeTrip = getActiveTripToday();
+      if (!activeTrip) {
+        toast({
+          title: "Viaje requerido",
+          description: "Necesitas un viaje activo para usar Travel Mode. Crea uno primero.",
+          variant: "destructive",
+        });
+        setStatus(prev => ({ 
+          ...prev, 
+          lastError: "No hay viaje activo para hoy"
+        }));
+        return;
+      }
+
+      // Check location permissions
+      const hasLocationPermission = await checkLocationPermissions();
+      if (!hasLocationPermission) {
+        return; // Error already shown by checkLocationPermissions
+      }
+
+      // Check notification permissions (optional)
+      await checkNotificationPermissions();
+
+      // Try to get initial location
+      const position = await getCurrentLocation();
+      if (!position) {
+        toast({
+          title: "Error de ubicación",
+          description: "No se pudo obtener tu ubicación actual. Verifica que esté activado el GPS.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const success = await startTravelMode();
       if (success) {
         setConfig((prev) => ({ ...prev, isEnabled: true }));
       }
     }
-  }, [isTracking, startTravelMode, stopTravelMode]);
+  }, [config.isEnabled, startTravelMode, stopTravelMode, getActiveTripToday, checkLocationPermissions, checkNotificationPermissions, getCurrentLocation, toast]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -715,7 +773,7 @@ export const useTravelModeSimple = () => {
         }
       }
     };
-  }, []);
+  }, [isNative]);
 
   // Update status on trips change
   useEffect(() => {
@@ -737,6 +795,7 @@ export const useTravelModeSimple = () => {
     stopTravelMode,
     checkProximity: () => checkProximity(),
     checkLocationPermissions,
+    checkNotificationPermissions,
     getActiveTripToday,
 
     // Utils
