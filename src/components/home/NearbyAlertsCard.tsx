@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTravelModeContext } from "@/contexts/TravelModeContext";
-import PlaceLocationModal from "@/components/modals/PlaceLocationModal";
+import NearbyPlacesMapModal from "@/components/modals/NearbyPlacesMapModal";
 
 interface NearbyAlertsCardProps {
   onToggleTravelMode?: () => void;
@@ -15,23 +15,9 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
   const { t } = useLanguage();
   const { isTracking, nearbyPlaces, config } = useTravelModeContext();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
-
-  const handlePlaceClick = (place: any) => {
-    setSelectedPlace(place);
-    setIsMapModalOpen(true);
-  };
 
   const handleShowMap = () => {
     if (nearbyPlaces.length > 0) {
-      // Show map with all nearby places
-      setSelectedPlace({
-        id: "nearby-places-map",
-        name: t("home.quickActions.nearbyAlerts"),
-        lat: nearbyPlaces[0].lat,
-        lng: nearbyPlaces[0].lng,
-        places: nearbyPlaces
-      });
       setIsMapModalOpen(true);
     }
   };
@@ -126,7 +112,6 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
             {nearbyPlaces.slice(0, 3).map((place, index) => (
               <div
                 key={place.id || index}
-                onClick={() => handlePlaceClick(place)}
                 className="flex items-center space-x-3 p-2 rounded-lg bg-white border border-green-100 hover:border-green-200 cursor-pointer transition-colors"
               >
                 {/* Proximity Number Badge */}
@@ -169,11 +154,11 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
         </CardContent>
       </Card>
 
-      {/* Place Location Modal */}
-      <PlaceLocationModal
+      {/* Nearby Places Map Modal */}
+      <NearbyPlacesMapModal
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
-        place={selectedPlace}
+        places={nearbyPlaces}
       />
     </>
   );
