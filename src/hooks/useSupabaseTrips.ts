@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,10 +9,40 @@ export const useSupabaseTrips = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Cache for mobile performance optimization
+  const cacheRef = useRef<{
+    data: Trip[] | null;
+    timestamp: number;
+    userId: string | null;
+  }>({
+    data: null,
+    timestamp: 0,
+    userId: null,
+  });
+  
+  // Cache duration: 5 minutes for mobile performance
+  const CACHE_DURATION = 5 * 60 * 1000;
 
-  const fetchTrips = async () => {
+  const fetchTrips = useCallback(async (forceRefresh = false) => {
     if (!user) {
       setTrips([]);
+      setLoading(false);
+      return;
+    }
+
+    // Check cache for mobile optimization
+    const now = Date.now();
+    const cache = cacheRef.current;
+    
+    if (
+      !forceRefresh &&
+      cache.data &&
+      cache.userId === user.id &&
+      (now - cache.timestamp) < CACHE_DURATION
+    ) {
+      console.log("🚀 Using cached trips data for mobile performance");
+      setTrips(cache.data);
       setLoading(false);
       return;
     }
@@ -158,6 +188,13 @@ export const useSupabaseTrips = () => {
               })) || [],
         })) || [];
 
+      // Update cache for mobile performance
+      cacheRef.current = {
+        data: transformedTrips,
+        timestamp: now,
+        userId: user.id,
+      };
+      
       setTrips(transformedTrips);
     } catch (error) {
       console.error("Error fetching trips:", error);
@@ -169,7 +206,7 @@ export const useSupabaseTrips = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast, CACHE_DURATION]);
 
   // Create a new trip
   const createTrip = async (tripData: any) => {
@@ -254,8 +291,8 @@ export const useSupabaseTrips = () => {
         }
       }
 
-      // Refresh trips list
-      await fetchTrips();
+      // Refresh trips list with cache invalidation
+      await fetchTrips(true);
 
       toast({
         title: "Trip created!",
@@ -338,8 +375,8 @@ export const useSupabaseTrips = () => {
         }
       }
 
-      // Refresh trips list
-      await fetchTrips();
+      // Refresh trips list with cache invalidation
+      await fetchTrips(true);
 
       toast({
         title: "Trip updated!",
@@ -417,8 +454,8 @@ export const useSupabaseTrips = () => {
         });
       }
 
-      // Refresh trips list
-      await fetchTrips();
+      // Refresh trips list with cache invalidation
+      await fetchTrips(true);
       return true;
     } catch (error) {
       console.error("Error deleting trip:", error);
@@ -442,12 +479,12 @@ export const useSupabaseTrips = () => {
 
     const handleInvitationAccepted = () => {
       console.log("Trip invitation accepted, refreshing trips...");
-      fetchTrips();
+      fetchTrips(true);
     };
 
     const handleCollaboratorRemoved = () => {
       console.log("Collaborator removed, refreshing trips...");
-      fetchTrips();
+      fetchTrips(true);
     };
 
     window.addEventListener("tripInvitationAccepted", handleInvitationAccepted);
@@ -468,7 +505,7 @@ export const useSupabaseTrips = () => {
       (payload) => {
         console.log("Collaborator deleted realtime:", payload);
         // Refresh trips immediately when this user is removed as collaborator
-        fetchTrips();
+        fetchTrips(true);
       }
     );
 

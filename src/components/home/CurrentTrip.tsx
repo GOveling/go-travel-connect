@@ -4,7 +4,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useTravelModeContext } from "@/contexts/TravelModeContext";
 import type { Trip } from "@/types";
 import { Calendar, MapPin, Navigation, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface CurrentTripContentProps {
@@ -16,7 +16,7 @@ interface CurrentTripContentProps {
   onNavigateToTrips: () => void;
 }
 
-const CurrentTripContent = ({
+const CurrentTripContent = memo(({
   currentTrip,
   travelingTrip,
   nearestUpcomingTrip,
@@ -33,42 +33,69 @@ const CurrentTripContent = ({
     minutes: number;
   } | null>(null);
 
-  // Calculate countdown for upcoming trip
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleNavigateToTravelMode = useCallback(() => {
+    navigate("/travel-mode");
+  }, [navigate]);
+
+  const handleViewDetail = useCallback(() => {
+    onViewDetail();
+  }, [onViewDetail]);
+
+  const handlePlanNewTrip = useCallback(() => {
+    onPlanNewTrip();
+  }, [onPlanNewTrip]);
+
+  const handleNavigateToTrips = useCallback(() => {
+    onNavigateToTrips();
+  }, [onNavigateToTrips]);
+
+  // Memoized countdown calculation for better performance
+  const countdownData = useMemo(() => {
+    if (!nearestUpcomingTrip || travelingTrip) return null;
+    
+    try {
+      const startDate = nearestUpcomingTrip.startDate;
+      if (!startDate) return null;
+
+      const currentDate = new Date();
+      const timeDifference = startDate.getTime() - currentDate.getTime();
+
+      if (timeDifference > 0) {
+        const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+          (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor(
+          (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+        );
+
+        return { days, hours, minutes };
+      }
+    } catch (error) {
+      console.warn("Error calculating countdown:", error);
+    }
+    return null;
+  }, [nearestUpcomingTrip, travelingTrip]);
+
+  // Optimized countdown updater with reduced frequency for mobile
   useEffect(() => {
-    if (nearestUpcomingTrip && !travelingTrip) {
-      const calculateCountdown = () => {
-        try {
-          const startDate = nearestUpcomingTrip.startDate;
-          if (!startDate) {
-            setCountdown(null);
-            return;
-          }
-
-          const currentDate = new Date();
-          const timeDifference = startDate.getTime() - currentDate.getTime();
-
-          if (timeDifference > 0) {
-            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor(
-              (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-            );
-            const minutes = Math.floor(
-              (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
-            );
-
-            setCountdown({ days, hours, minutes });
-          }
-        } catch (error) {
-          setCountdown(null);
+    if (countdownData) {
+      setCountdown(countdownData);
+      
+      // Update every 2 minutes instead of 1 minute for battery optimization
+      const interval = setInterval(() => {
+        const updatedCountdown = countdownData;
+        if (updatedCountdown) {
+          setCountdown({ ...updatedCountdown });
         }
-      };
-
-      calculateCountdown();
-      const interval = setInterval(calculateCountdown, 60000); // Update every minute
+      }, 120000); // 2 minutes for mobile battery optimization
 
       return () => clearInterval(interval);
+    } else {
+      setCountdown(null);
     }
-  }, [nearestUpcomingTrip, travelingTrip]);
+  }, [countdownData]);
 
   // Case 1: Currently traveling - show Travel Mode access
   if (travelingTrip) {
@@ -113,12 +140,12 @@ const CurrentTripContent = ({
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
-              onClick={() => navigate("/travel-mode")}
+              onClick={handleNavigateToTravelMode}
             >
               <Navigation className="w-4 h-4 mr-2" />
               {t("home.travelMode.accessTravelMode")}
             </Button>
-            <Button variant="outline" className="w-full" onClick={onViewDetail}>
+            <Button variant="outline" className="w-full" onClick={handleViewDetail}>
               {t("home.currentTrip.viewDetails")}
             </Button>
           </div>
@@ -127,7 +154,7 @@ const CurrentTripContent = ({
           </p>
           <Button
             className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
-            onClick={onViewDetail}
+            onClick={handleViewDetail}
           >
             {t("home.currentTrip.viewAIRouteDetails")}
           </Button>
@@ -186,11 +213,11 @@ const CurrentTripContent = ({
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-to-r from-purple-600 to-orange-500 border-0 hover:from-purple-700 hover:to-orange-600"
-              onClick={onNavigateToTrips}
+              onClick={handleNavigateToTrips}
             >
               {t("home.currentTrip.viewTripDetails")}
             </Button>
-            <Button variant="outline" className="w-full" onClick={onViewDetail}>
+            <Button variant="outline" className="w-full" onClick={handleViewDetail}>
               {t("home.currentTrip.previewAISmartRoute")}
             </Button>
           </div>
@@ -227,7 +254,7 @@ const CurrentTripContent = ({
         </div>
         <Button
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 border-0 hover:from-blue-700 hover:to-purple-700"
-          onClick={onPlanNewTrip}
+          onClick={handlePlanNewTrip}
         >
           <Plus className="w-4 h-4 mr-2" />
           {t("home.currentTrip.planNewTrip")}
@@ -235,6 +262,8 @@ const CurrentTripContent = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+CurrentTripContent.displayName = "CurrentTripContent";
 
 export default CurrentTripContent;
