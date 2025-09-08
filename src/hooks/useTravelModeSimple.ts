@@ -694,6 +694,9 @@ export const useTravelModeSimple = () => {
     notifiedPlacesRef.current.clear();
     lastPositionRef.current = null;
 
+    // Clear persisted state when manually stopped
+    localStorage.removeItem('travelModeEnabled');
+
     console.log("✅ Travel Mode stopped");
   }, [isNative]);
 
@@ -753,9 +756,29 @@ export const useTravelModeSimple = () => {
     }
   }, [config.isEnabled, startTravelMode, stopTravelMode, getActiveTripToday, checkLocationPermissions, checkNotificationPermissions, getCurrentLocation, toast]);
 
-  // Cleanup on unmount
+  // Persist Travel Mode state
+  useEffect(() => {
+    localStorage.setItem('travelModeEnabled', JSON.stringify(config.isEnabled));
+  }, [config.isEnabled]);
+
+  // Restore Travel Mode state on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('travelModeEnabled');
+    if (savedState === 'true') {
+      console.log("🔄 Restoring Travel Mode state...");
+      setConfig(prev => ({ ...prev, isEnabled: true }));
+      // Restart tracking if was previously enabled
+      setTimeout(() => {
+        startTravelMode();
+      }, 500); // Small delay to ensure everything is initialized
+    }
+  }, [startTravelMode]);
+
+  // Clean up tracking resources only (but don't disable Travel Mode)
   useEffect(() => {
     return () => {
+      // Only clear intervals and watches, but don't disable Travel Mode
+      // Travel Mode should remain active until user manually disables it
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
