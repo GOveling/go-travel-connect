@@ -88,7 +88,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   } = useTravelModeSimple({ 
     config: {
       isEnabled: false, // Travel mode disabled by default
-      proximityRadius: 100,
+      proximityRadius: 5000, // 5km detection radius
       baseCheckInterval: 15000,
       notificationCooldown: 300000,
       notificationThresholds: [10000, 5000, 2000, 1000, 500, 100, 50, 10],
@@ -145,7 +145,7 @@ export const useTravelModeContext = () => {
     return {
       config: { 
         isEnabled: false, 
-        proximityRadius: 100, 
+        proximityRadius: 5000, // 5km detection radius
         baseCheckInterval: 15000, 
         notificationCooldown: 300000, 
         notificationThresholds: [] 
