@@ -109,6 +109,7 @@ export const useTravelModeSimple = ({
   const getDynamicInterval = useCallback(
     (minDistanceToPlace: number): number => {
       // Intervalos dinámicos basados en distancia:
+      if (minDistanceToPlace <= 10) return 1000; // 1 segundo - llegada inmediata
       if (minDistanceToPlace <= 50) return 2000; // 2 segundos - muy cerca
       if (minDistanceToPlace <= 100) return 3000; // 3 segundos - cerca
       if (minDistanceToPlace <= 500) return 5000; // 5 segundos - proximidad media
@@ -195,6 +196,7 @@ export const useTravelModeSimple = ({
           navigator.geolocation.getCurrentPosition(
             (position) => {
               console.log("📍 Location obtained (Web):", position.coords);
+              console.log("🎯 GPS Accuracy:", position.coords.accuracy, "meters");
               setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
               resolve(position);
             },
@@ -208,18 +210,19 @@ export const useTravelModeSimple = ({
               resolve(null);
             },
             {
-              enableHighAccuracy: false,
-              timeout: 15000,
-              maximumAge: 15000,
+              enableHighAccuracy: true,
+              timeout: 20000,
+              maximumAge: 0,
             }
           );
         });
       } else {
         const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: false,
-          timeout: 15000,
+          enableHighAccuracy: true,
+          timeout: 20000,
         });
         console.log("📍 Location obtained (Capacitor):", position.coords);
+        console.log("🎯 GPS Accuracy:", position.coords.accuracy, "meters");
         setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
         return position;
       }
@@ -447,17 +450,30 @@ export const useTravelModeSimple = ({
             hasNotified: {},
           };
 
-          // Check if user has already "arrived" at this place (≤10m)
+          // Check if user has arrived at this place (≤10m) and trigger arrival modal
           const hasArrived = distance <= 10;
-          const arrivalKey = `${place.id}-10`;
+          const arrivalKey = `${place.id}-arrival`;
           const hasArrivedBefore = notifiedPlacesRef.current.has(arrivalKey);
 
-          if (hasArrived && hasArrivedBefore) {
-            console.log(
-              `🏁 User has already arrived at ${place.name} - skipping all notifications`
-            );
-            nearby.push(nearbyPlace);
-            return; // Skip notifications but add to nearby list
+          if (hasArrived && !hasArrivedBefore && onPlaceArrival) {
+            console.log(`🎉 User arrived at ${place.name}! Triggering arrival modal`);
+            
+            // Mark as arrived to prevent duplicate modals
+            notifiedPlacesRef.current.add(arrivalKey);
+            
+            // Trigger arrival modal
+            onPlaceArrival({
+              id: place.id,
+              name: place.name,
+              distance: Math.round(distance),
+              category: place.category,
+              image: place.image,
+              tripId: place.tripId,
+              country: place.country,
+              city: place.city,
+              formatted_address: place.formattedAddress,
+              rating: place.rating,
+            });
           }
 
           // Find the appropriate threshold to notify (smallest threshold greater than current distance)
