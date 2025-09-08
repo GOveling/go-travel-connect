@@ -80,6 +80,54 @@
         "unforgettableExperience": "experiencia inolvidable",
         "timeToTravel": "momento para viajar"
       }
+    },
+    "travelMode": {
+      "title": "Modo Travel",
+      "enabled": "Activado",
+      "disabled": "Desactivado",
+      "monitoring": "Monitoreando tu ubicación",
+      "enableTravelMode": "Activa para recibir notificaciones inteligentes",
+      "currentLocation": "Ubicación Actual",
+      "update": "Actualizar",
+      "accuracy": "Precisión",
+      "nearbyPlaces": "Lugares Cercanos",
+      "noNearbyPlacesTitle": "No hay lugares cercanos",
+      "noPlacesFound": "No se encontraron lugares guardados en un radio de",
+      "howItWorks": "Cómo Funciona",
+      "proximityRadius": "Radio de Detección",
+      "maxDistance": "Distancia máxima para detectar lugares",
+      "notificationDistances": "Distancias de Notificación",
+      "progressiveNotifications": "Notificaciones progresivas mientras te acercas",
+      "automaticOptimization": "Optimización Automática",
+      "dynamicIntervals": "Intervalos dinámicos según distancia",
+      "higherFrequencyNear": "Mayor frecuencia cerca de lugares",
+      "lowerBatteryFar": "Menor consumo de batería lejos",
+      "systemStatus": "Estado del Sistema",
+      "moreNearbyPlaces": "y {{count}} más...",
+      "infoModalTitle": "Información del Modo Travel",
+      "betaFunction": "Función Beta",
+      "betaWarning": "Esta función está en desarrollo y puede tener comportamientos inesperados.",
+      "betaDescription": "Ayúdanos a mejorarla reportando cualquier problema que encuentres.",
+      "infoSteps": {
+        "step1": "Activa el Modo Travel antes de comenzar tu viaje",
+        "step2": "El sistema detectará automáticamente cuando te acerques a lugares guardados",
+        "step3": "Recibirás notificaciones progresivas según la distancia",
+        "step4": "Las notificaciones se optimizan para ahorrar batería"
+      },
+      "usageTips": "Consejos de Uso",
+      "optimizationTips": "Optimización",
+      "batteryTips": "Batería",
+      "bestPracticesTips": "Mejores Prácticas",
+      "tips": {
+        "tip1": "Funciona mejor con viajes activos programados",
+        "tip2": "Mantén los permisos de ubicación activados",
+        "tip3": "Las notificaciones son opcionales pero recomendadas",
+        "tip4": "El sistema se adapta automáticamente a tu velocidad",
+        "tip5": "Optimiza automáticamente el uso de batería",
+        "tip6": "Menor frecuencia cuando estás lejos de lugares",
+        "tip7": "Guarda lugares de interés antes de viajar",
+        "tip8": "Funciona mejor en áreas con buena cobertura GPS"
+      }
     }
   }
 }

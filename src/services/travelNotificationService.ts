@@ -28,7 +28,7 @@ class TravelNotificationService {
   /**
    * Initialize notification service
    */
-  async initialize(): Promise<void> {
+  async initialize(): Promise<boolean> {
     try {
       console.log("🔧 Initializing Travel Notification Service...");
 
@@ -41,12 +41,14 @@ class TravelNotificationService {
       if (permissionResult.display !== "granted") {
         console.warn("❌ Notification permissions not granted");
         console.warn("📱 Current permission status:", permissionResult);
-        return;
+        return false;
       }
 
       console.log("✅ Travel Notification Service initialized successfully");
+      return true;
     } catch (error) {
       console.error("❌ Error initializing notification service:", error);
+      return false;
     }
   }
 

@@ -36,8 +36,11 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     nearbyPlaces,
     isTracking,
     loading,
+    status,
     toggleTravelMode,
     checkProximity,
+    checkLocationPermissions,
+    getActiveTripToday,
   } = useTravelModeSimple();
 
   // Función temporal para obtener ubicación actual
@@ -251,6 +254,61 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
               </p>
             </div>
           )}
+
+          {/* Debug Status Panel */}
+          <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+            <h4 className="font-medium text-gray-900 flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              {t("home.travelMode.systemStatus")}
+            </h4>
+            
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${status.hasLocationPermission ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>Ubicación</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${status.hasNotificationPermission ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                <span>Notificaciones</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${status.hasActiveTrip ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>Viaje activo</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${status.isLocationAvailable ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>GPS disponible</span>
+              </div>
+            </div>
+
+            {status.lastError && (
+              <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+                <strong>Error:</strong> {status.lastError}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={checkLocationPermissions}
+                className="text-xs"
+              >
+                Verificar permisos
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={getCurrentLocation}
+                className="text-xs"
+              >
+                Actualizar ubicación
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

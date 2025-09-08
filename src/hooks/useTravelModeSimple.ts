@@ -3,15 +3,22 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { travelNotificationService } from "../services/travelNotificationService";
 import { SavedPlace, Trip } from "../types";
 import { useSupabaseTrips } from "./useSupabaseTrips";
-
-// Helper function to check if running on web
-const isWeb = () => typeof window !== "undefined" && !window.Capacitor;
+import { getCapacitorConfig } from "../utils/capacitor";
+import { useToast } from "./use-toast";
 
 interface TravelModeConfig {
   isEnabled: boolean;
   proximityRadius: number; // meters
   baseCheckInterval: number; // base interval in milliseconds
   notificationThresholds: number[]; // distances in meters
+}
+
+interface TravelModeStatus {
+  hasLocationPermission: boolean;
+  hasNotificationPermission: boolean;
+  hasActiveTrip: boolean;
+  isLocationAvailable: boolean;
+  lastError: string | null;
 }
 
 interface NearbyPlace extends SavedPlace {
@@ -34,7 +41,16 @@ export const useTravelModeSimple = () => {
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [isTracking, setIsTracking] = useState(false);
+  const [status, setStatus] = useState<TravelModeStatus>({
+    hasLocationPermission: false,
+    hasNotificationPermission: false,
+    hasActiveTrip: false,
+    isLocationAvailable: false,
+    lastError: null,
+  });
   const { trips, loading } = useSupabaseTrips();
+  const { toast } = useToast();
+  const { isNative } = getCapacitorConfig();
 
   // Refs for intervals and tracking
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -79,42 +95,110 @@ export const useTravelModeSimple = () => {
     [config.baseCheckInterval]
   );
 
-  // Get current location manually with caching
+  // Check and request location permissions
+  const checkLocationPermissions = useCallback(async (): Promise<boolean> => {
+    try {
+      console.log("🔍 Checking location permissions...");
+      
+      if (isNative) {
+        const permissions = await Geolocation.checkPermissions();
+        console.log("📱 Current permissions:", permissions);
+        
+        if (permissions.location !== 'granted' && permissions.coarseLocation !== 'granted') {
+          console.log("🔐 Requesting location permissions...");
+          const requested = await Geolocation.requestPermissions();
+          console.log("📱 Requested permissions result:", requested);
+          
+          const hasPermission = requested.location === 'granted' || requested.coarseLocation === 'granted';
+          setStatus(prev => ({ ...prev, hasLocationPermission: hasPermission }));
+          
+          if (!hasPermission) {
+            toast({
+              title: "Permisos requeridos",
+              description: "Travel Mode requiere permisos de ubicación para funcionar.",
+              variant: "destructive",
+            });
+            return false;
+          }
+        } else {
+          setStatus(prev => ({ ...prev, hasLocationPermission: true }));
+        }
+      } else {
+        // Web - permissions are handled differently
+        setStatus(prev => ({ ...prev, hasLocationPermission: true }));
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("❌ Error checking location permissions:", error);
+      setStatus(prev => ({ 
+        ...prev, 
+        hasLocationPermission: false,
+        lastError: `Error de permisos: ${error}`
+      }));
+      toast({
+        title: "Error de permisos",
+        description: "No se pudieron verificar los permisos de ubicación.",
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [isNative, toast]);
+
+  // Get current location manually with enhanced error handling
   const getCurrentLocation = useCallback(async (): Promise<Position | null> => {
     try {
       console.log("🔍 Getting current location...");
 
-      if (isWeb()) {
+      if (!isNative) {
         return new Promise<Position | null>((resolve) => {
           navigator.geolocation.getCurrentPosition(
             (position) => {
               console.log("📍 Location obtained (Web):", position.coords);
+              setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
               resolve(position);
             },
             (error) => {
               console.error("❌ Error getting location (Web):", error);
+              setStatus(prev => ({ 
+                ...prev, 
+                isLocationAvailable: false,
+                lastError: `Error de ubicación: ${error.message}`
+              }));
               resolve(null);
             },
             {
-              enableHighAccuracy: false, // Reduced accuracy to save battery and reduce GPS flashing
+              enableHighAccuracy: false,
               timeout: 15000,
-              maximumAge: 15000, // Reduced cache to 15 seconds for testing
+              maximumAge: 15000,
             }
           );
         });
       } else {
         const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: false, // Reduced accuracy to save battery
+          enableHighAccuracy: false,
           timeout: 15000,
         });
         console.log("📍 Location obtained (Capacitor):", position.coords);
+        setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
         return position;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Error getting current location:", error);
+      const errorMessage = error?.message || "No se pudo obtener la ubicación";
+      setStatus(prev => ({ 
+        ...prev, 
+        isLocationAvailable: false,
+        lastError: errorMessage
+      }));
+      toast({
+        title: "Error de ubicación",
+        description: errorMessage,
+        variant: "destructive",
+      });
       return null;
     }
-  }, []);
+  }, [isNative, toast]);
 
   // Check if there's an active trip today
   const getActiveTripToday = useCallback((): Trip | null => {
@@ -133,6 +217,9 @@ export const useTravelModeSimple = () => {
 
       return todayStr >= startDateStr && todayStr <= endDateStr;
     });
+
+    const hasActiveTrip = !!activeTrip;
+    setStatus(prev => ({ ...prev, hasActiveTrip }));
 
     if (activeTrip) {
       console.log(
@@ -513,7 +600,7 @@ export const useTravelModeSimple = () => {
       await travelNotificationService.initialize();
 
       // Request location permissions
-      if (!isWeb()) {
+      if (isNative) {
         const locationPermission = await Geolocation.requestPermissions();
         console.log("📱 Location permission:", locationPermission);
         if (locationPermission.location !== "granted") {
@@ -573,7 +660,7 @@ export const useTravelModeSimple = () => {
 
     if (watchIdRef.current) {
       try {
-        if (isWeb()) {
+        if (!isNative) {
           navigator.geolocation.clearWatch(
             watchIdRef.current as unknown as number
           );
@@ -616,7 +703,7 @@ export const useTravelModeSimple = () => {
       }
       if (watchIdRef.current) {
         try {
-          if (isWeb()) {
+          if (!isNative) {
             navigator.geolocation.clearWatch(
               watchIdRef.current as unknown as number
             );
@@ -630,6 +717,11 @@ export const useTravelModeSimple = () => {
     };
   }, []);
 
+  // Update status on trips change
+  useEffect(() => {
+    getActiveTripToday(); // This will update the hasActiveTrip status
+  }, [trips, getActiveTripToday]);
+
   return {
     // State
     config,
@@ -637,12 +729,15 @@ export const useTravelModeSimple = () => {
     nearbyPlaces,
     isTracking,
     loading,
+    status,
 
     // Actions
     toggleTravelMode,
     startTravelMode,
     stopTravelMode,
     checkProximity: () => checkProximity(),
+    checkLocationPermissions,
+    getActiveTripToday,
 
     // Utils
     calculateDistance,

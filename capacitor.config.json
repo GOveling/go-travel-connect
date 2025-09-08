@@ -2,6 +2,10 @@
   "appId": "app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8",
   "appName": "goveling-mvp",
   "webDir": "dist",
+  "server": {
+    "url": "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
