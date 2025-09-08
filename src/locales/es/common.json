@@ -22,10 +22,6 @@
     "place": "lugar",
     "places": "lugares",
     "viewMap": "Ver Mapa",
-    "morePlaces": "lugares más",
-    "myLocation": "Mi Ubicación",
-    "yourLocation": "Tu Ubicación",
-    "legend": "Leyenda",
-    "nearbyPlaces": "Lugares Cercanos"
+    "morePlaces": "lugares más"
   }
 }

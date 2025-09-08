@@ -24,10 +24,6 @@
     "place": "place",
     "places": "places",
     "viewMap": "View Map",
-    "morePlaces": "more places",
-    "myLocation": "My Location",
-    "yourLocation": "Your Location",
-    "legend": "Legend",
-    "nearbyPlaces": "Nearby Places"
+    "morePlaces": "more places"
   }
 }
