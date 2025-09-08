@@ -869,11 +869,12 @@ export const useTravelModeSimple = ({
 
   // Restore Travel Mode state on mount with better validation
   useEffect(() => {
+    // Travel Mode should be disabled by default unless explicitly enabled by user
     const savedState = localStorage.getItem('travelModeEnabled');
     if (savedState === 'true' && !config.isEnabled && !isInitializingRef.current) {
-      console.log("🔄 Restoring Travel Mode state...");
+      console.log("🔄 User had previously enabled Travel Mode, checking conditions...");
       
-      // Check if we have necessary conditions for restoration
+      // Only restore if we have necessary conditions
       const activeTrip = getActiveTripToday();
       if (activeTrip) {
         setConfig(prev => ({ ...prev, isEnabled: true }));
