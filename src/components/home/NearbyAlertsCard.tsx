@@ -141,7 +141,12 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
                       {place.category || t("common.place")}
                     </span>
                     <span className="text-xs font-medium text-green-600">
-                      ~{place.distance}
+                      {typeof place.distance === 'string' 
+                        ? place.distance 
+                        : place.distance >= 1000 
+                          ? `${(place.distance / 1000).toFixed(1)} ${t("home.travelMode.kmUnit")}`
+                          : `${Math.round(place.distance)} ${t("home.travelMode.distanceUnit")}`
+                      }
                     </span>
                   </div>
                 </div>
