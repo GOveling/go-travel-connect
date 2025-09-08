@@ -85,6 +85,11 @@ export const useTravelModeSimple = ({
   const isInitializingRef = useRef<boolean>(false);
   const minDistanceRef = useRef<number>(Infinity); // Track minimum distance for dynamic intervals
   const lastToggleTimeRef = useRef<number>(0); // Prevent rapid toggling
+  
+  // GPS stabilization refs
+  const locationBufferRef = useRef<Position[]>([]);
+  const nearPlacesStateRef = useRef<Map<string, { isNear: boolean, consecutiveCount: number }>>(new Map());
+  const lastStablePositionRef = useRef<Position | null>(null);
 
   // Haversine formula to calculate distance between two coordinates
   const calculateDistance = useCallback(
@@ -105,11 +110,78 @@ export const useTravelModeSimple = ({
     []
   );
 
+  // GPS stabilization utilities
+  const addToLocationBuffer = useCallback((position: Position) => {
+    const buffer = locationBufferRef.current;
+    buffer.push(position);
+    
+    // Keep only last 5 readings
+    if (buffer.length > 5) {
+      buffer.shift();
+    }
+  }, []);
+
+  const getStablePosition = useCallback((): Position | null => {
+    const buffer = locationBufferRef.current;
+    if (buffer.length === 0) return null;
+    
+    // If we only have one reading, use it
+    if (buffer.length === 1) return buffer[0];
+    
+    // Filter out readings with poor accuracy (>30m)
+    const goodReadings = buffer.filter(pos => pos.coords.accuracy <= 30);
+    const readings = goodReadings.length > 0 ? goodReadings : buffer;
+    
+    // Calculate average position
+    const avgLat = readings.reduce((sum, pos) => sum + pos.coords.latitude, 0) / readings.length;
+    const avgLng = readings.reduce((sum, pos) => sum + pos.coords.longitude, 0) / readings.length;
+    const avgAccuracy = readings.reduce((sum, pos) => sum + pos.coords.accuracy, 0) / readings.length;
+    
+    // Create stable position using the most recent reading as template
+    const latestReading = readings[readings.length - 1];
+    return {
+      ...latestReading,
+      coords: {
+        ...latestReading.coords,
+        latitude: avgLat,
+        longitude: avgLng,
+        accuracy: avgAccuracy,
+      }
+    };
+  }, []);
+
+  const validateNewReading = useCallback((position: Position): boolean => {
+    // Check accuracy - reject readings with poor accuracy
+    if (position.coords.accuracy > 50) {
+      console.log(`⚠️ Rejecting GPS reading with poor accuracy: ${position.coords.accuracy}m`);
+      return false;
+    }
+    
+    // Check for large jumps from previous position
+    if (lastStablePositionRef.current) {
+      const distance = calculateDistance(
+        lastStablePositionRef.current.coords.latitude,
+        lastStablePositionRef.current.coords.longitude,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      
+      // Reject readings that show >100m jump unless accuracy is very good
+      if (distance > 100 && position.coords.accuracy > 10) {
+        console.log(`⚠️ Rejecting GPS reading with large jump: ${distance.toFixed(0)}m`);
+        return false;
+      }
+    }
+    
+    return true;
+  }, [calculateDistance]);
+
   // Calculate dynamic check interval based on distance to nearest place
   const getDynamicInterval = useCallback(
     (minDistanceToPlace: number): number => {
       // Intervalos dinámicos basados en distancia:
-      if (minDistanceToPlace <= 10) return 1000; // 1 segundo - llegada inmediata
+      if (minDistanceToPlace <= 10) return 5000; // 5 segundos - modo estabilización en llegada
+      if (minDistanceToPlace <= 20) return 3000; // 3 segundos - muy muy cerca
       if (minDistanceToPlace <= 50) return 2000; // 2 segundos - muy cerca
       if (minDistanceToPlace <= 100) return 3000; // 3 segundos - cerca
       if (minDistanceToPlace <= 500) return 5000; // 5 segundos - proximidad media
@@ -186,19 +258,20 @@ export const useTravelModeSimple = ({
     }
   }, []);
 
-  // Get current location manually with enhanced error handling
+  // Get current location manually with enhanced error handling and GPS stabilization
   const getCurrentLocation = useCallback(async (): Promise<Position | null> => {
     try {
       console.log("🔍 Getting current location...");
 
+      let position: Position | null = null;
+
       if (!isNative) {
-        return new Promise<Position | null>((resolve) => {
+        position = await new Promise<Position | null>((resolve) => {
           navigator.geolocation.getCurrentPosition(
-            (position) => {
-              console.log("📍 Location obtained (Web):", position.coords);
-              console.log("🎯 GPS Accuracy:", position.coords.accuracy, "meters");
-              setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
-              resolve(position);
+            (pos) => {
+              console.log("📍 Location obtained (Web):", pos.coords);
+              console.log("🎯 GPS Accuracy:", pos.coords.accuracy, "meters");
+              resolve(pos);
             },
             (error) => {
               console.error("❌ Error getting location (Web):", error);
@@ -217,15 +290,40 @@ export const useTravelModeSimple = ({
           );
         });
       } else {
-        const position = await Geolocation.getCurrentPosition({
+        position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
           timeout: 20000,
         });
         console.log("📍 Location obtained (Capacitor):", position.coords);
         console.log("🎯 GPS Accuracy:", position.coords.accuracy, "meters");
-        setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
-        return position;
       }
+
+      if (!position) {
+        return null;
+      }
+
+      // Validate the new reading
+      if (!validateNewReading(position)) {
+        console.log("⚠️ GPS reading rejected, using last stable position");
+        return lastStablePositionRef.current;
+      }
+
+      // Add to buffer and get stable position
+      addToLocationBuffer(position);
+      const stablePosition = getStablePosition();
+      
+      if (stablePosition) {
+        lastStablePositionRef.current = stablePosition;
+        setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
+        console.log("📍 Stable position calculated:", {
+          lat: stablePosition.coords.latitude.toFixed(6),
+          lng: stablePosition.coords.longitude.toFixed(6),
+          accuracy: stablePosition.coords.accuracy.toFixed(1),
+          bufferSize: locationBufferRef.current.length
+        });
+      }
+
+      return stablePosition;
     } catch (error: any) {
       console.error("❌ Error getting current location:", error);
       const errorMessage = error?.message || "No se pudo obtener la ubicación";
@@ -241,7 +339,7 @@ export const useTravelModeSimple = ({
       });
       return null;
     }
-  }, [isNative, toast]);
+  }, [isNative, toast, validateNewReading, addToLocationBuffer, getStablePosition]);
 
   // Check if there's an active trip today (only for owned trips)
   const getActiveTripToday = useCallback((): Trip | null => {
@@ -435,13 +533,60 @@ export const useTravelModeSimple = ({
         console.log(
           `   📍 Place coords: ${place.lat.toFixed(6)}, ${place.lng.toFixed(6)}`
         );
+
+        // Implement hysteresis and consecutive confirmation system
+        const placeStateKey = place.id;
+        const currentState = nearPlacesStateRef.current.get(placeStateKey) || { 
+          isNear: false, 
+          consecutiveCount: 0 
+        };
+        
+        // Define proximity thresholds with hysteresis
+        const NEAR_THRESHOLD = 15; // meters - threshold to be considered "near"
+        const FAR_THRESHOLD = 25;  // meters - threshold to be considered "far" again (hysteresis)
+        const ARRIVAL_THRESHOLD = 10; // meters - threshold for arrival
+        const CONSECUTIVE_REQUIRED = 2; // readings required to confirm state change
+        
+        let shouldBeNear = false;
+        
+        // Determine if place should be considered near based on hysteresis
+        if (currentState.isNear) {
+          // Currently near - use higher threshold to determine if we've moved away
+          shouldBeNear = distance <= FAR_THRESHOLD;
+        } else {
+          // Currently far - use lower threshold to determine if we've moved closer
+          shouldBeNear = distance <= NEAR_THRESHOLD;
+        }
+        
+        // Update consecutive count
+        if (shouldBeNear === currentState.isNear) {
+          // State hasn't changed, reset counter
+          currentState.consecutiveCount = 0;
+        } else {
+          // State wants to change, increment counter
+          currentState.consecutiveCount++;
+        }
+        
+        // Update state only if we have enough consecutive confirmations
+        let actuallyNear = currentState.isNear;
+        if (currentState.consecutiveCount >= CONSECUTIVE_REQUIRED) {
+          actuallyNear = shouldBeNear;
+          currentState.isNear = shouldBeNear;
+          currentState.consecutiveCount = 0;
+          console.log(`🔄 ${place.name}: State changed to ${shouldBeNear ? 'NEAR' : 'FAR'} after ${CONSECUTIVE_REQUIRED} consecutive readings`);
+        }
+        
+        // Update the state map
+        nearPlacesStateRef.current.set(placeStateKey, currentState);
+
         console.log(
-          `   📏 Distance check: ${distance.toFixed(0)}m <= ${config.proximityRadius}m = ${distance <= config.proximityRadius}`
+          `   📏 Distance: ${distance.toFixed(0)}m | State: ${actuallyNear ? 'NEAR' : 'FAR'} | Consecutive: ${currentState.consecutiveCount}/${CONSECUTIVE_REQUIRED}`
         );
 
-        if (distance <= config.proximityRadius) {
+        // Only process places that are actually considered near with our stabilized system
+        if (actuallyNear || distance <= config.proximityRadius) {
           console.log(
-            `🎯 NEARBY PLACE: ${place.name} (${distance.toFixed(0)}m)`
+            `🎯 NEARBY PLACE: ${place.name} (${distance.toFixed(0)}m) - Stable: ${actuallyNear}`
           );
 
           const nearbyPlace: NearbyPlace = {
@@ -451,12 +596,14 @@ export const useTravelModeSimple = ({
           };
 
           // Check if user has arrived at this place (≤10m) and trigger arrival modal
-          const hasArrived = distance <= 10;
+          // Use consecutive confirmation for arrival too
+          const hasArrived = distance <= ARRIVAL_THRESHOLD;
           const arrivalKey = `${place.id}-arrival`;
           const hasArrivedBefore = notifiedPlacesRef.current.has(arrivalKey);
-
-          if (hasArrived && !hasArrivedBefore && onPlaceArrival) {
-            console.log(`🎉 User arrived at ${place.name}! Triggering arrival modal`);
+          
+          // For arrival, require the place to be stably near AND within arrival threshold
+          if (hasArrived && actuallyNear && !hasArrivedBefore && onPlaceArrival) {
+            console.log(`🎉 User arrived at ${place.name}! Triggering arrival modal (stable reading)`);
             
             // Mark as arrived to prevent duplicate modals
             notifiedPlacesRef.current.add(arrivalKey);
