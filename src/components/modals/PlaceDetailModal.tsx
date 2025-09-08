@@ -184,14 +184,14 @@ const PlaceDetailModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border-0 bg-white">
+        <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="text-xl font-bold text-gray-800">
             {place.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-6 pb-6">
           {/* Source Trip Banner */}
           {sourceTrip && (
             <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
@@ -494,19 +494,21 @@ const PlaceDetailModal = ({
             {!isFromSavedPlaces && (
               <Button
                 onClick={handleAddToTrip}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 px-4"
+                size="sm"
               >
-                <Plus size={16} className="mr-2" />
+                <Plus size={16} className="mr-1" />
                 Add to Trip
               </Button>
             )}
             <Button
               variant="outline"
               onClick={() => setShowReviewForm(!showReviewForm)}
-              className={`${isFromSavedPlaces ? "flex-1" : "flex-1"} border-purple-200 text-purple-700 hover:bg-purple-50`}
+              className="border-purple-200 text-purple-700 hover:bg-purple-50 px-4"
+              size="sm"
             >
-              <Edit3 size={16} className="mr-2" />
-              Write Review
+              <Edit3 size={16} className="mr-1" />
+              Review
             </Button>
             {place.lat && place.lng && (
               <Button

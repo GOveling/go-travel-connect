@@ -1,4 +1,7 @@
+import BottomSafeAdSlot from "@/components/ads/BottomSafeAdSlot";
+import CongratsOverlay from "@/components/feedback/CongratsOverlay";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import ExploreMapModal from "@/components/modals/ExploreMapModal";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import PlaceMapModal from "@/components/modals/PlaceMapModal";
 import { useToast } from "@/hooks/use-toast";
@@ -6,11 +9,10 @@ import { useAddToTrip } from "@/hooks/useAddToTrip";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCallback, useState } from "react";
 import ExploreFilters from "./explore/ExploreFilters";
+import ExploreHero from "./explore/ExploreHero";
 import ExploreResults from "./explore/ExploreResults";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
-import ExploreHero from "./explore/ExploreHero";
-import BottomSafeAdSlot from "@/components/ads/BottomSafeAdSlot";
-import CongratsOverlay from "@/components/feedback/CongratsOverlay";
+import { NearbyLocationToggle } from "./explore/NearbyLocationToggle";
 interface Place {
   id: string;
   name: string;
@@ -37,11 +39,13 @@ interface Place {
 
 interface ExploreSectionProps {
   sourceTrip?: any;
+  searchType?: string;
   onClearSourceTrip?: () => void;
 }
 
 const ExploreSection = ({
   sourceTrip,
+  searchType,
   onClearSourceTrip,
 }: ExploreSectionProps) => {
   const { toast } = useToast();
@@ -50,6 +54,7 @@ const ExploreSection = ({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);
+  const [allSearchResults, setAllSearchResults] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,6 +64,13 @@ const ExploreSection = ({
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [selectedLocationPlace, setSelectedLocationPlace] = useState<any>(null);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [isNearbyEnabled, setIsNearbyEnabled] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [isExploreMapModalOpen, setIsExploreMapModalOpen] = useState(false);
+  const [placeFromMap, setPlaceFromMap] = useState<Place | null>(null);
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -137,16 +149,27 @@ const ExploreSection = ({
         Number.isFinite(p.coordinates.lng);
       const filtered = results.filter(hasValidCoords);
 
+      // Store all results for potential reference
+      setAllSearchResults(filtered);
+
+      // If nearby is enabled, the API already filtered by location
+      // No need to do additional filtering here
+      const finalResults = filtered;
+
       // Mostrar TODOS los resultados válidos; reordenar si hay uno seleccionado
       if (selectedId) {
-        const selectedPlace = filtered.find((place) => place.id === selectedId);
-        const otherPlaces = filtered.filter((place) => place.id !== selectedId);
+        const selectedPlace = finalResults.find(
+          (place) => place.id === selectedId
+        );
+        const otherPlaces = finalResults.filter(
+          (place) => place.id !== selectedId
+        );
         setSearchResults(
-          selectedPlace ? [selectedPlace, ...otherPlaces] : filtered
+          selectedPlace ? [selectedPlace, ...otherPlaces] : finalResults
         );
         setSelectedPlaceId(selectedId);
       } else {
-        setSearchResults(filtered);
+        setSearchResults(finalResults);
         setSelectedPlaceId(null);
       }
     },
@@ -157,6 +180,26 @@ const ExploreSection = ({
     setLoading(isLoading);
   }, []);
 
+  const handleNearbyToggle = useCallback((enabled: boolean) => {
+    setIsNearbyEnabled(enabled);
+    // When toggling, clear current results to force a new search
+    // This ensures the search will use the new location preference
+    setSearchResults([]);
+    setAllSearchResults([]);
+  }, []);
+
+  const handleLocationChange = useCallback(
+    (location: { lat: number; lng: number } | null) => {
+      setUserLocation(location);
+      // When location changes, clear current results to force a new search
+      if (isNearbyEnabled) {
+        setSearchResults([]);
+        setAllSearchResults([]);
+      }
+    },
+    [isNearbyEnabled]
+  );
+
   const handleAddToTrip = useCallback(async () => {
     if (!selectedPlace) return;
 
@@ -165,7 +208,10 @@ const ExploreSection = ({
       location: selectedPlace.location,
       rating: selectedPlace.rating,
       image: selectedPlace.image,
-      category: selectedPlace.category,
+      category:
+        searchType === "accommodation"
+          ? "accommodation"
+          : selectedPlace.category,
       description: selectedPlace.description,
       lat: selectedPlace.lat,
       lng: selectedPlace.lng,
@@ -177,9 +223,18 @@ const ExploreSection = ({
         const success = await addPlaceToTrip(sourceTrip.id, placeData);
 
         if (success) {
+          const toastTitle =
+            searchType === "accommodation"
+              ? "Alojamiento agregado"
+              : "Lugar agregado";
+          const toastDescription =
+            searchType === "accommodation"
+              ? `${selectedPlace.name} fue agregado como estadía para ${sourceTrip.name}`
+              : `${selectedPlace.name} fue agregado a ${sourceTrip.name}`;
+
           toast({
-            title: "Lugar agregado",
-            description: `${selectedPlace.name} fue agregado a ${sourceTrip.name}`,
+            title: toastTitle,
+            description: toastDescription,
           });
           setIsModalOpen(false);
           onClearSourceTrip?.();
@@ -191,9 +246,14 @@ const ExploreSection = ({
           }, 1400);
         }
       } catch (error) {
+        const errorMessage =
+          searchType === "accommodation"
+            ? "No se pudo agregar el alojamiento al viaje"
+            : "No se pudo agregar el lugar al viaje";
+
         toast({
           title: "Error",
-          description: "No se pudo agregar el lugar al viaje",
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -203,7 +263,43 @@ const ExploreSection = ({
       setIsAddToTripModalOpen(true);
       setIsModalOpen(false);
     }
-  }, [selectedPlace, sourceTrip, onClearSourceTrip, toast, addPlaceToTrip]);
+  }, [
+    selectedPlace,
+    sourceTrip,
+    searchType,
+    onClearSourceTrip,
+    toast,
+    addPlaceToTrip,
+  ]);
+
+  const handlePlaceSelectFromMap = useCallback((place: Place) => {
+    // Convert map place to modal format and open detail modal
+    const enhancedPlace = {
+      id: place.id,
+      name: place.name,
+      location: place.address,
+      description: place.description || `${place.category} in ${place.address}`,
+      rating: place.rating,
+      image: place.image,
+      category: place.category,
+      hours: place.opening_hours?.open_now
+        ? "Open now"
+        : place.hours || "Hours vary",
+      website: place.website || "",
+      phone: place.phone || "",
+      lat: place.coordinates.lat,
+      lng: place.coordinates.lng,
+      business_status: place.business_status,
+      photos: place.photos || [],
+      reviews_count: place.reviews_count,
+      priceLevel: place.priceLevel,
+      opening_hours: place.opening_hours,
+    };
+
+    setSelectedPlace(enhancedPlace);
+    setPlaceFromMap(place);
+    setIsModalOpen(true);
+  }, []);
 
   const handleShowLocation = (place: Place) => {
     setSelectedLocationPlace({
@@ -216,11 +312,33 @@ const ExploreSection = ({
     setIsLocationModalOpen(true);
   };
 
+  // Determine if scrolling should be allowed
+  const shouldAllowScroll =
+    !loading && (searchResults.length > 0 || !searchQuery);
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-28">
+    <div
+      className={`min-h-screen bg-gray-50 pb-28 ${!shouldAllowScroll ? "overflow-hidden" : ""}`}
+    >
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
+          {sourceTrip && searchType === "accommodation" ? (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-800 text-sm font-medium">
+                🏨 Buscando alojamiento para:{" "}
+                <span className="font-bold">{sourceTrip.name}</span>
+              </p>
+            </div>
+          ) : sourceTrip ? (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-800 text-sm font-medium">
+                ✈️ Agregando lugares a:{" "}
+                <span className="font-bold">{sourceTrip.name}</span>
+              </p>
+            </div>
+          ) : null}
+
           <ExploreHero
             title={t("explore.title")}
             subtitle={t("explore.subtitle")}
@@ -235,12 +353,26 @@ const ExploreSection = ({
               onClearFilters={handleClearFilters}
             />
 
+            <NearbyLocationToggle
+              isNearbyEnabled={isNearbyEnabled}
+              onToggle={handleNearbyToggle}
+              onLocationChange={handleLocationChange}
+              onShowMap={() => setIsExploreMapModalOpen(true)}
+              hasResults={searchResults.length > 0}
+            />
+
             <ExploreSearchBar
-              selectedCategories={selectedCategories}
+              selectedCategories={
+                searchType === "accommodation"
+                  ? ["lodging"]
+                  : selectedCategories
+              }
               onSearchSubmit={handleSearchSubmit}
               onShowRelatedPlaces={handleShowRelatedPlaces}
               onSearchResults={handleSearchResults}
               onLoadingChange={handleLoadingChange}
+              userLocation={userLocation}
+              isNearbyEnabled={isNearbyEnabled}
             />
           </div>
         </div>
@@ -288,6 +420,14 @@ const ExploreSection = ({
           setIsLocationModalOpen(false);
           setSelectedLocationPlace(null);
         }}
+      />
+
+      {/* Explore Results Map Modal */}
+      <ExploreMapModal
+        places={searchResults}
+        isOpen={isExploreMapModalOpen}
+        onClose={() => setIsExploreMapModalOpen(false)}
+        onPlaceSelect={handlePlaceSelectFromMap}
       />
 
       {/* Overlays and Ad Slot */}

@@ -39,6 +39,8 @@ interface ExploreSearchBarProps {
   onSearchResults?: (results: Place[], selectedId?: string) => void;
   onLoadingChange?: (loading: boolean) => void;
   selectedCategories: string[];
+  userLocation?: { lat: number; lng: number } | null;
+  isNearbyEnabled?: boolean;
 }
 
 const ExploreSearchBar = ({
@@ -48,6 +50,8 @@ const ExploreSearchBar = ({
   onSearchResults,
   onLoadingChange,
   selectedCategories,
+  userLocation,
+  isNearbyEnabled = false,
 }: ExploreSearchBarProps) => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,7 +71,12 @@ const ExploreSearchBar = ({
         p &&
         p.coordinates &&
         Number.isFinite(p.coordinates.lat) &&
-        Number.isFinite(p.coordinates.lng)
+        Number.isFinite(p.coordinates.lng) &&
+        // Exclude invalid coordinates (0,0) or very close to (0,0)
+        (Math.abs(p.coordinates.lat) > 0.001 || Math.abs(p.coordinates.lng) > 0.001) &&
+        // Exclude obviously invalid coordinates
+        Math.abs(p.coordinates.lat) <= 90 &&
+        Math.abs(p.coordinates.lng) <= 180
     );
     return valid.map((prediction) => ({
       id: prediction.id,
@@ -98,8 +107,12 @@ const ExploreSearchBar = ({
       onSearchSubmit?.(searchQuery);
 
       try {
-        // Start the enhanced search
-        await searchPlaces(searchQuery, selectedCategories);
+        // Start the enhanced search with location if nearby is enabled
+        await searchPlaces(
+          searchQuery, 
+          selectedCategories, 
+          isNearbyEnabled && userLocation ? userLocation : undefined
+        );
 
         // The search results will be handled by the useEffect below
       } catch (error) {

@@ -1,11 +1,3 @@
-import { useState, useMemo } from "react";
-import { MapPin, Star, Heart, Trash2, Plus, GripVertical } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,32 +8,40 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import PlaceDetailModal from "./PlaceDetailModal";
-import PlaceMapModal from "./PlaceMapModal";
-import { Trip, SavedPlace } from "@/types";
 import {
-  DndContext,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { usePlaceReordering } from "@/hooks/usePlaceReordering";
+import { supabase } from "@/integrations/supabase/client";
+import { SavedPlace, Trip } from "@/types";
+import {
   closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
+  DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { usePlaceReordering } from "@/hooks/usePlaceReordering";
+import { GripVertical, Heart, MapPin, Plus, Star, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import PlaceDetailModal from "./PlaceDetailModal";
+import PlaceMapModal from "./PlaceMapModal";
 
 // Interface for PlaceDetailModal
 interface PlaceForModal {
@@ -62,7 +62,7 @@ interface SavedPlacesModalProps {
   trip: Trip | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateTrip?: (tripData: any) => void;
+  onUpdateTrip?: (tripData: Trip) => void;
 }
 
 // Sortable Place Item Component
@@ -309,21 +309,23 @@ const SavedPlacesModal = ({
     }
   };
 
-  // Group saved places by country and sort by position_order
+  // Group saved places by country and sort by position_order (exclude accommodations)
   const savedPlacesByCountry = useMemo(() => {
     if (!trip?.savedPlaces) return {};
 
-    // First sort all places by position_order, then by id for consistency
-    const sortedPlaces = [...trip.savedPlaces].sort((a, b) => {
-      const posA = a.position_order || 0;
-      const posB = b.position_order || 0;
-      if (posA === posB) {
-        return a.id.localeCompare(b.id);
-      }
-      return posA - posB;
-    });
+    // Filter out accommodation places and sort by position_order
+    const filteredPlaces = trip.savedPlaces
+      .filter((place) => place.category !== "accommodation")
+      .sort((a, b) => {
+        const posA = a.position_order || 0;
+        const posB = b.position_order || 0;
+        if (posA === posB) {
+          return a.id.localeCompare(b.id);
+        }
+        return posA - posB;
+      });
 
-    return sortedPlaces.reduce(
+    return filteredPlaces.reduce(
       (acc, place) => {
         const destinationName = place.destinationName || "Other";
         const country = destinationName.includes(",")
@@ -340,15 +342,21 @@ const SavedPlacesModal = ({
     );
   }, [trip?.savedPlaces]);
 
-  // Get total saved places count
+  // Get total saved places count (excluding accommodations)
   const totalSavedPlaces = useMemo(() => {
-    return trip?.savedPlaces?.length || 0;
+    return (
+      trip?.savedPlaces?.filter((place) => place.category !== "accommodation")
+        .length || 0
+    );
   }, [trip?.savedPlaces]);
 
-  // Handle drag start
+  // Handle drag start (prevent dragging accommodations)
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const place = trip?.savedPlaces?.find((p) => p.id === active.id);
+    if (place?.category === "accommodation") {
+      return;
+    }
     setDraggedPlace(place || null);
   };
 
@@ -367,6 +375,19 @@ const SavedPlacesModal = ({
     const newIndex = trip.savedPlaces.findIndex(
       (place) => place.id === over.id
     );
+
+    // Only allow reordering of non-accommodation places
+    const activePlace = trip.savedPlaces.find(
+      (place) => place.id === active.id
+    );
+    const overPlace = trip.savedPlaces.find((place) => place.id === over.id);
+
+    if (
+      activePlace?.category === "accommodation" ||
+      overPlace?.category === "accommodation"
+    ) {
+      return;
+    }
 
     if (oldIndex === -1 || newIndex === -1) return;
 
@@ -610,6 +631,8 @@ const SavedPlacesModal = ({
           setShowPlaceDetailModal(false);
           setSelectedPlace(null);
         }}
+        isFromSavedPlaces={true}
+        sourceTrip={trip}
       />
 
       {/* Place Map Modal */}

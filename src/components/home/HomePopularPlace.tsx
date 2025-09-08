@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Users, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface PopularPlace {
   id: string;
@@ -108,6 +109,7 @@ const popularPlaces: PopularPlace[] = [
 ];
 
 const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
+  const { t } = useLanguage();
   const [currentPlace, setCurrentPlace] = useState<PopularPlace>(
     popularPlaces[0]
   );
@@ -162,12 +164,12 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
         <div className="flex items-center gap-2">
           <TrendingUp className="text-orange-500" size={20} />
           <h3 className="text-xl font-semibold text-gray-800">
-            Popular Place Globally
+            {t("home.popularPlaces.popularPlaceGlobally")}
           </h3>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-500">
-            Next: {formatTime(timeRemaining)}
+            {t("home.popularPlaces.next")}: {formatTime(timeRemaining)}
           </span>
           <Button
             variant="ghost"
@@ -175,7 +177,7 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
             onClick={handleRefresh}
             className="text-purple-600 h-8"
           >
-            Refresh
+            {t("home.popularPlaces.refresh")}
           </Button>
         </div>
       </div>
@@ -221,7 +223,7 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
                 <div className="flex items-center gap-1">
                   <Users size={12} className="text-purple-600" />
                   <span className="text-xs font-medium text-purple-600">
-                    {currentPlace.globalSaves.toLocaleString()} saves
+                    {currentPlace.globalSaves.toLocaleString()} {t("home.popularPlaces.saves")}
                   </span>
                 </div>
                 <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">

@@ -9,10 +9,13 @@
       "upcoming": "即将到来",
       "inProgress": "进行中",
       "completed": "已完成",
-      "total": "总旅行数"
+      "total": "总旅行数",
+      "groupTrips": "团体旅行"
     },
     "status": {
       "upcoming": "即将到来",
+      "planning": "规划中",
+      "traveling": "旅行中",
       "inProgress": "进行中",
       "completed": "已完成"
     },
@@ -22,7 +25,28 @@
       "inviteFriends": "邀请朋友",
       "groupOptions": "群组选项",
       "aiSmartRoute": "AI智能路线",
-      "viewSavedPlaces": "查看保存的地点"
+      "viewSavedPlaces": "查看保存的地点",
+      "accommodation": "住宿",
+      "deleteTrip": "删除旅行"
+    },
+    "accommodation": {
+      "title": "住宿",
+      "searchAccommodation": "搜索酒店、旅社、公寓...",
+      "searchResults": "搜索结果",
+      "currentAccommodation": "当前住宿",
+      "noAccommodation": "此旅行尚未添加住宿",
+      "searchPlaceholder": "搜索并添加您将住宿的地方",
+      "add": "添加",
+      "remove": "删除",
+      "confirmed": "已确认住宿",
+      "accommodationAdded": "住宿已添加",
+      "accommodationAddedDescription": "已添加为住宿",
+      "accommodationRemoved": "住宿已删除",
+      "accommodationRemovedDescription": "住宿已从旅行中删除",
+      "errorAdding": "无法添加住宿",
+      "errorRemoving": "无法删除住宿",
+      "errorSearching": "无法搜索住宿。请重试。",
+      "close": "关闭"
     },
     "templates": {
       "title": "旅行模板",
@@ -89,6 +113,10 @@
       "invitationAccepted": "已接受",
       "cancel": "取消",
       "confirmRemove": "确定要从旅行中移除此协作者吗？"
-    }
+    },
+    "travelers": "旅行者",
+    "travelers_plural": "旅行者",
+    "noDestinations": "无目的地",
+    "shareTrip": "分享旅行"
   }
 }

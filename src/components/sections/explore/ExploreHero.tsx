@@ -1,6 +1,7 @@
-import React from "react";
-import { cn } from "@/lib/utils";
 import { ButtonColorful } from "@/components/ui/button-colorful";
+import { useLanguage } from "@/hooks/useLanguage";
+import { cn } from "@/lib/utils";
+import React from "react";
 interface ExploreHeroProps {
   title?: string;
   subtitle?: string;
@@ -12,10 +13,11 @@ interface ExploreHeroProps {
  * Usa el logo adjunto como elemento principal.
  */
 export const ExploreHero: React.FC<ExploreHeroProps> = ({
-  title = "Explora lugares increíbles",
-  subtitle = "Inspírate y planifica tu próxima aventura",
+  title,
+  subtitle,
   onExploreClick,
 }) => {
+  const { t } = useLanguage();
   return (
     <header className="relative overflow-hidden rounded-2xl">
       <div
@@ -24,10 +26,17 @@ export const ExploreHero: React.FC<ExploreHeroProps> = ({
           "bg-gradient-to-br from-primary/10 via-transparent to-secondary/10"
         )}
       >
-        <h1 className="text-xl font-bold leading-tight">{title}</h1>
-        <p className="text-sm text-muted-foreground mt-1 px-0">{subtitle}</p>
+        <h1 className="text-xl font-bold leading-tight">
+          {title || t("explore.title")}
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1 px-0">
+          {subtitle || t("explore.subtitle")}
+        </p>
         <div className="mt-3">
-          <ButtonColorful label="Explorar ahora" onClick={onExploreClick} />
+          <ButtonColorful
+            label={t("explore.nearbyPlaces.exploreNow")}
+            onClick={onExploreClick}
+          />
         </div>
       </div>
 

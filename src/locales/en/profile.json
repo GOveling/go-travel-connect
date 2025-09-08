@@ -38,6 +38,10 @@
       "settings": {
         "title": "Settings",
         "subtitle": "App preferences"
+      },
+      "personalInformation": {
+        "title": "Personal Information",
+        "subtitle": "Manage your personal data"
       }
     }
   }

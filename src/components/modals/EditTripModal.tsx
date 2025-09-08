@@ -1,34 +1,34 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import MultiSelectPopover from "./new-trip/MultiSelectPopover";
-import {
-  accommodationOptions,
-  transportationOptions,
-} from "./new-trip/constants";
-import { format, isPast, isFuture } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Loader } from "@/components/ui/loader";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { CalendarIcon, Save, Trash2, Users, AlertTriangle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { Loader } from "@/components/ui/loader";
+import { format, isFuture, isPast } from "date-fns";
+import { AlertTriangle, CalendarIcon, Save, Trash2, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import MultiSelectPopover from "./new-trip/MultiSelectPopover";
+import {
+  useAccommodationOptions,
+  useTransportationOptions,
+} from "./new-trip/constants";
 
 interface EditTripModalProps {
   trip: any;
@@ -45,6 +45,8 @@ export function EditTripModal({
 }: EditTripModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const accommodationOptions = useAccommodationOptions();
+  const transportationOptions = useTransportationOptions();
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

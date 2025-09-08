@@ -1,11 +1,15 @@
+
 import { MapPin, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const RecentActivity = () => {
+  const { t } = useLanguage();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Recent Activity</CardTitle>
+        <CardTitle className="text-lg">{t("home.recentActivity.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center space-x-3">
@@ -13,8 +17,8 @@ const RecentActivity = () => {
             <MapPin size={16} className="text-purple-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">Saved Eiffel Tower</p>
-            <p className="text-xs text-gray-500">2 hours ago</p>
+            <p className="text-sm font-medium">{t("home.recentActivity.savedPlace", { placeName: "Eiffel Tower" })}</p>
+            <p className="text-xs text-gray-500">{t("home.recentActivity.timeAgo.hoursAgo", { count: 2 })}</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">
@@ -22,8 +26,8 @@ const RecentActivity = () => {
             <Calendar size={16} className="text-orange-600" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">Booked hotel in Rome</p>
-            <p className="text-xs text-gray-500">1 day ago</p>
+            <p className="text-sm font-medium">{t("home.recentActivity.bookedHotel", { city: "Rome" })}</p>
+            <p className="text-xs text-gray-500">{t("home.recentActivity.timeAgo.daysAgo", { count: 1 })}</p>
           </div>
         </div>
       </CardContent>

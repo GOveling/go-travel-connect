@@ -26,6 +26,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useCitiesByCountry } from "@/hooks/useCitiesByCountry";
 import { useCountries } from "@/hooks/useCountries";
+import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { ProfileData } from "@/types/profile";
@@ -49,6 +50,7 @@ const PersonalInformationModal = ({
   showIntroMessage = false,
 }: PersonalInformationModalProps) => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { countries, loading: countriesLoading } = useCountries();
   const {
     cities,

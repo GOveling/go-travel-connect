@@ -161,6 +161,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null;
+          address_encrypted: string | null;
           age: number | null;
           avatar_url: string | null;
           birth_date: string | null;
@@ -174,11 +175,13 @@ export type Database = {
           gender: string | null;
           id: string;
           mobile_phone: string | null;
+          mobile_phone_encrypted: string | null;
           onboarding_completed: boolean | null;
           updated_at: string | null;
         };
         Insert: {
           address?: string | null;
+          address_encrypted?: string | null;
           age?: number | null;
           avatar_url?: string | null;
           birth_date?: string | null;
@@ -192,11 +195,13 @@ export type Database = {
           gender?: string | null;
           id: string;
           mobile_phone?: string | null;
+          mobile_phone_encrypted?: string | null;
           onboarding_completed?: boolean | null;
           updated_at?: string | null;
         };
         Update: {
           address?: string | null;
+          address_encrypted?: string | null;
           age?: number | null;
           avatar_url?: string | null;
           birth_date?: string | null;
@@ -210,6 +215,7 @@ export type Database = {
           gender?: string | null;
           id?: string;
           mobile_phone?: string | null;
+          mobile_phone_encrypted?: string | null;
           onboarding_completed?: boolean | null;
           updated_at?: string | null;
         };
@@ -312,6 +318,36 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      security_audit_log: {
+        Row: {
+          action_type: string;
+          details: Json | null;
+          id: string;
+          ip_address: string | null;
+          table_name: string;
+          timestamp: string;
+          user_id: string | null;
+        };
+        Insert: {
+          action_type: string;
+          details?: Json | null;
+          id?: string;
+          ip_address?: string | null;
+          table_name: string;
+          timestamp?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          action_type?: string;
+          details?: Json | null;
+          id?: string;
+          ip_address?: string | null;
+          table_name?: string;
+          timestamp?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
       };
       trip_access_log: {
         Row: {
@@ -931,6 +967,10 @@ export type Database = {
         Args: { p_token: string };
         Returns: Json;
       };
+      are_trip_collaborators: {
+        Args: { user1_id: string; user2_id: string };
+        Returns: boolean;
+      };
       calculate_age: {
         Args: { birth_date: string };
         Returns: number;
@@ -939,6 +979,18 @@ export type Database = {
         Args: { p_trip_id: string; p_user_id: string };
         Returns: boolean;
       };
+      cleanup_old_audit_logs: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      decrypt_sensitive_field: {
+        Args: { encrypted_value: string };
+        Returns: string;
+      };
+      encrypt_sensitive_field: {
+        Args: { field_value: string };
+        Returns: string;
+      };
       extract_country_from_destination: {
         Args: { destination_name: string };
         Returns: string;
@@ -946,6 +998,14 @@ export type Database = {
       generate_invitation_token: {
         Args: Record<PropertyKey, never>;
         Returns: string;
+      };
+      get_collaborator_profile_safe: {
+        Args: { p_user_id: string };
+        Returns: {
+          avatar_url: string;
+          full_name: string;
+          id: string;
+        }[];
       };
       get_pending_invitations: {
         Args: { user_email: string };
@@ -988,6 +1048,15 @@ export type Database = {
           rating: number;
           updated_at: string;
           user_id: string;
+        }[];
+      };
+      get_trip_collaborator_profiles: {
+        Args: { p_trip_id: string };
+        Returns: {
+          avatar_url: string;
+          full_name: string;
+          id: string;
+          role: string;
         }[];
       };
       get_trip_members: {
@@ -1079,6 +1148,10 @@ export type Database = {
           p_user_id: string;
         };
         Returns: undefined;
+      };
+      validate_profile_access: {
+        Args: { profile_id: string };
+        Returns: boolean;
       };
     };
     Enums: {

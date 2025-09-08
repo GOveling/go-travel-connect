@@ -1,0 +1,24 @@
+
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "yes": "Sí",
+    "no": "No",
+    "viewMore": "Ver Más",
+    "loadMore": "Cargar Más",
+    "seeAll": "Ver Todo"
+  }
+}

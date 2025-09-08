@@ -13,6 +13,21 @@ import enSettings from "./en/settings.json";
 import enTravelers from "./en/travelers.json";
 import enTrips from "./en/trips.json";
 
+// Spanish imports
+import esAuth from "./es/auth.json";
+import esBooking from "./es/booking.json";
+import esCommon from "./es/common.json";
+import esExplore from "./es/explore.json";
+import esFilters from "./es/filters.json";
+import esHome from "./es/home.json";
+import esNavigation from "./es/navigation.json";
+import esNotifications from "./es/notifications.json";
+import esPages from "./es/pages.json";
+import esProfile from "./es/profile.json";
+import esSettings from "./es/settings.json";
+import esTravelers from "./es/travelers.json";
+import esTrips from "./es/trips.json";
+
 // Chinese imports
 import zhBooking from "./zh/booking.json";
 import zhCommon from "./zh/common.json";
@@ -25,7 +40,6 @@ import zhTravelers from "./zh/travelers.json";
 import zhTrips from "./zh/trips.json";
 
 // Other language imports (keeping existing single files for now)
-import es from "./es.json";
 import fr from "./fr.json";
 import it from "./it.json";
 import pt from "./pt.json";
@@ -50,6 +64,22 @@ const en = mergeLocales(
   enFilters,
   enAuth,
   enPages
+);
+
+const es = mergeLocales(
+  esNavigation,
+  esCommon,
+  esHome,
+  esExplore,
+  esTrips,
+  esBooking,
+  esSettings,
+  esProfile,
+  esTravelers,
+  esNotifications,
+  esFilters,
+  esAuth,
+  esPages
 );
 
 const zh = mergeLocales(

@@ -1,0 +1,37 @@
+
+{
+  "booking": {
+    "title": "Reservas",
+    "subtitle": "Reserva lo esencial para tu viaje",
+    "specialOffer": {
+      "title": "Oferta Especial",
+      "subtitle": "¡Ahorra hasta 30% en vuelos esta semana!",
+      "bookNow": "Reservar Ahora"
+    },
+    "categories": {
+      "flights": "Vuelos",
+      "flightsSubtitle": "Encuentra las mejores ofertas",
+      "hotels": "Hoteles",
+      "hotelsSubtitle": "Estadías cómodas",
+      "carRental": "Alquiler de Autos",
+      "transportation": "Transporte",
+      "transportationSubtitle": "Múltiples opciones de viaje",
+      "tours": "Tours y Actividades",
+      "toursSubtitle": "Experiencias guiadas",
+      "restaurants": "Restaurantes",
+      "restaurantsSubtitle": "Reservar mesas",
+      "esim": "eSIMs",
+      "esimSubtitle": "Mantente conectado"
+    },
+    "quickBook": {
+      "title": "Reserva Rápida",
+      "popularFlights": "Vuelos Populares",
+      "topHotels": "Mejores Hoteles"
+    },
+    "recentBookings": {
+      "title": "Reservas Recientes",
+      "noBookings": "No hay reservas recientes",
+      "viewAll": "Ver Todas las Reservas"
+    }
+  }
+}

@@ -37,7 +37,11 @@ export const useGooglePlacesEnhanced = () => {
   const [error, setError] = useState<string | null>(null);
 
   const searchPlaces = useCallback(
-    async (input: string, selectedCategories: string[] = []) => {
+    async (
+      input: string, 
+      selectedCategories: string[] = [], 
+      userLocation?: { lat: number; lng: number }
+    ) => {
       if (!input.trim()) {
         setPredictions([]);
         return;
@@ -51,7 +55,9 @@ export const useGooglePlacesEnhanced = () => {
           "Enhanced search for:",
           input,
           "with categories:",
-          selectedCategories
+          selectedCategories,
+          "near location:",
+          userLocation
         );
 
         const { data, error: functionError } = await supabase.functions.invoke(
@@ -60,6 +66,7 @@ export const useGooglePlacesEnhanced = () => {
             body: {
               input: input.trim(),
               selectedCategories,
+              userLocation,
             },
           }
         );
@@ -83,7 +90,12 @@ export const useGooglePlacesEnhanced = () => {
             p &&
             p.coordinates &&
             Number.isFinite(p.coordinates.lat) &&
-            Number.isFinite(p.coordinates.lng)
+            Number.isFinite(p.coordinates.lng) &&
+            // Exclude invalid coordinates (0,0) or very close to (0,0)
+            (Math.abs(p.coordinates.lat) > 0.001 || Math.abs(p.coordinates.lng) > 0.001) &&
+            // Exclude obviously invalid coordinates
+            Math.abs(p.coordinates.lat) <= 90 &&
+            Math.abs(p.coordinates.lng) <= 180
         );
         console.log(
           `Source: ${data.source}, Found ${predictionsRaw.length} places, showing ${predictionsWithCoords.length} with coordinates`

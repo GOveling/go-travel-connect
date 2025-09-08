@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useI18n } from "@/hooks/useI18n";
+import { useLanguage } from "@/hooks/useLanguage";
 import { useTravelMode } from "@/hooks/useTravelMode";
 import type { Trip } from "@/types";
 import { Calendar, MapPin, Navigation, Plus } from "lucide-react";
@@ -25,8 +25,8 @@ const CurrentTripContent = ({
   onNavigateToTrips,
 }: CurrentTripContentProps) => {
   const navigate = useNavigate();
-  const { t } = useI18n();
   const { config } = useTravelMode();
+  const { t } = useLanguage(); // Main translation function
   const [countdown, setCountdown] = useState<{
     days: number;
     hours: number;
@@ -80,6 +80,10 @@ const CurrentTripContent = ({
             <h3 className="font-semibold">
               {t("home.travelMode.currentTrip")}
             </h3>
+            <MapPin className="w-4 h-4" />
+            <h3 className="font-semibold">
+              {t("home.currentTrip.aiSmartRouteActive")}
+            </h3>
           </div>
           <p className="text-sm opacity-90">{travelingTrip.destination}</p>
         </div>
@@ -99,6 +103,12 @@ const CurrentTripContent = ({
             >
               {config.isEnabled ? t("common.active") : t("common.inactive")}
             </span>
+            <p className="text-sm text-gray-600">
+              {t("home.currentTrip.followingOptimizedRoute")}
+            </p>
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+              {t("home.currentTrip.traveling")}
+            </span>
           </div>
           <div className="space-y-2">
             <Button
@@ -112,6 +122,15 @@ const CurrentTripContent = ({
               {t("home.currentTrip.viewDetails")}
             </Button>
           </div>
+          <p className="text-sm text-gray-700 mb-3">
+            {t("home.currentTrip.nextOptimizedDestination")}
+          </p>
+          <Button
+            className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
+            onClick={onViewDetail}
+          >
+            {t("home.currentTrip.viewAIRouteDetails")}
+          </Button>
         </CardContent>
       </Card>
     );
@@ -124,7 +143,9 @@ const CurrentTripContent = ({
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4 text-white">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            <h3 className="font-semibold">Trip Countdown</h3>
+            <h3 className="font-semibold">
+              {t("home.currentTrip.tripCountdown")}
+            </h3>
           </div>
           <p className="text-sm opacity-90">
             {nearestUpcomingTrip.destination}
@@ -137,32 +158,40 @@ const CurrentTripContent = ({
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.days}
                 </div>
-                <div className="text-xs text-gray-600">Days</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.days")}
+                </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.hours}
                 </div>
-                <div className="text-xs text-gray-600">Hours</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.hours")}
+                </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.minutes}
                 </div>
-                <div className="text-xs text-gray-600">Minutes</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.minutes")}
+                </div>
               </div>
             </div>
-            <p className="text-sm text-gray-600">Until your trip begins!</p>
+            <p className="text-sm text-gray-600">
+              {t("home.currentTrip.untilTripBegins")}
+            </p>
           </div>
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-to-r from-purple-600 to-orange-500 border-0 hover:from-purple-700 hover:to-orange-600"
               onClick={onNavigateToTrips}
             >
-              View Trip Details
+              {t("home.currentTrip.viewTripDetails")}
             </Button>
             <Button variant="outline" className="w-full" onClick={onViewDetail}>
-              Preview AI Smart Route
+              {t("home.currentTrip.previewAISmartRoute")}
             </Button>
           </div>
         </CardContent>
@@ -176,9 +205,13 @@ const CurrentTripContent = ({
       <div className="bg-gradient-to-r from-gray-600 to-gray-700 p-4 text-white">
         <div className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          <h3 className="font-semibold">Plan Your Next Adventure</h3>
+          <h3 className="font-semibold">
+            {t("home.currentTrip.planYourNextAdventure")}
+          </h3>
         </div>
-        <p className="text-sm opacity-90">No upcoming trips planned</p>
+        <p className="text-sm opacity-90">
+          {t("home.currentTrip.noUpcomingTrips")}
+        </p>
       </div>
       <CardContent className="p-4">
         <div className="text-center mb-4">
@@ -186,10 +219,10 @@ const CurrentTripContent = ({
             <MapPin className="w-8 h-8 text-gray-400" />
           </div>
           <p className="text-sm text-gray-600 mb-2">
-            Ready for your next journey?
+            {t("home.currentTrip.readyForNextJourney")}
           </p>
           <p className="text-xs text-gray-500">
-            Create a trip plan and let AI optimize your route
+            {t("home.currentTrip.createTripPlan")}
           </p>
         </div>
         <Button
@@ -197,7 +230,7 @@ const CurrentTripContent = ({
           onClick={onPlanNewTrip}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Plan a New Trip
+          {t("home.currentTrip.planNewTrip")}
         </Button>
       </CardContent>
     </Card>

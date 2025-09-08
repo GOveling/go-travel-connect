@@ -15,7 +15,7 @@ interface MapFilter {
 
 export const useMapData = (trips: any[]) => {
   const [filters, setFilters] = useState<MapFilter>({
-    status: ["upcoming", "planning", "completed"],
+    status: ["upcoming", "planning", "traveling", "completed"],
     isGroupTrip: null,
     dateRange: "all",
     selectedTripId: null,
@@ -122,6 +122,8 @@ export const useMapData = (trips: any[]) => {
         .length,
       planningTrips: filteredTrips.filter((t) => t.status === "planning")
         .length,
+      travelingTrips: filteredTrips.filter((t) => t.status === "traveling")
+        .length,
       completedTrips: filteredTrips.filter((t) => t.status === "completed")
         .length,
       groupTrips: filteredTrips.filter((t) => t.isGroupTrip).length,
@@ -161,7 +163,7 @@ export const useMapData = (trips: any[]) => {
   // Reset filters
   const resetFilters = () => {
     setFilters({
-      status: ["upcoming", "planning", "completed"],
+      status: ["upcoming", "planning", "traveling", "completed"],
       isGroupTrip: null,
       dateRange: "all",
       selectedTripId: null,

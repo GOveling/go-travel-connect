@@ -1,0 +1,11 @@
+
+{
+  "navigation": {
+    "home": "Inicio",
+    "explore": "Explorar",
+    "trips": "Mis Viajes",
+    "booking": "Reservas",
+    "profile": "Perfil",
+    "travelers": "Viajeros"
+  }
+}

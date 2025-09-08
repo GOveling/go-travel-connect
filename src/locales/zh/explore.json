@@ -3,6 +3,12 @@
     "title": "探索",
     "subtitle": "发现世界各地的精彩地点",
     "searchPlaceholder": "搜索目的地、活动...",
+    "nearbyLocation": {
+      "title": "附近位置",
+      "subtitle": "",
+      "permissionDenied": "位置权限被拒绝",
+      "locationError": "获取位置时出错"
+    },
     "categories": {
       "all": "全部",
       "attractions": "景点",
@@ -12,7 +18,12 @@
       "nature": "自然",
       "culture": "文化",
       "nightlife": "夜生活",
-      "shopping": "购物"
+      "shopping": "购物",
+      "landmarks": "地标",
+      "museums": "博物馆",
+      "parks": "公园",
+      "beaches": "海滩",
+      "lakes": "湖泊"
     },
     "filters": {
       "title": "筛选",
@@ -21,8 +32,11 @@
       "location": "位置",
       "openNow": "现在营业",
       "apply": "应用筛选",
-      "clear": "清除所有"
+      "clear": "清除所有",
+      "general": "常规",
+      "specificPlaces": "特定地点"
     },
+    "mapButton": "地图",
     "addToTrip": "添加到旅行",
     "nearbyPlaces": {
       "title": "附近地点",

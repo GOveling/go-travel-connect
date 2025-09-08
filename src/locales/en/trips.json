@@ -1,3 +1,4 @@
+
 {
   "trips": {
     "title": "My Trips",
@@ -9,6 +10,62 @@
     "noTripsYet": "No trips yet",
     "createFirstTripDescription": "Create your first trip to get started!",
     "createFirstTrip": "Create Your First Trip",
+    "newTripModal": {
+      "title": "Create New Trip",
+      "basicInfo": {
+        "title": "Basic Information",
+        "nameLabel": "Trip Name *",
+        "namePlaceholder": "e.g., European Adventure",
+        "nameRequired": "Trip name is required to continue",
+        "descriptionLabel": "Description (optional)",
+        "descriptionPlaceholder": "Tell us about your trip plans..."
+      },
+      "dates": {
+        "travelDates": "Travel Dates",
+        "selectDateRange": "Select trip dates",
+        "selectEndDate": "Select end date",
+        "notSetMessage": "Dates will be decided later",
+        "setDatesButton": "Set Dates Now",
+        "notSureButton": "Not sure yet"
+      },
+      "details": {
+        "title": "Trip Details",
+        "budgetLabel": "Budget (optional)",
+        "budgetPlaceholder": "Enter budget amount",
+        "accommodationLabel": "Accommodation Preferences (optional)",
+        "accommodationPlaceholder": "Select accommodation types",
+        "transportationLabel": "Transportation (optional)",
+        "transportationPlaceholder": "Select transportation types",
+        "selected": "selected"
+      },
+      "accommodation": {
+        "hotels": "Hotels",
+        "hostels": "Hostels",
+        "vacationRentals": "Vacation Rentals",
+        "bedAndBreakfast": "Bed & Breakfast",
+        "resorts": "Resorts",
+        "apartments": "Apartments",
+        "guesthouses": "Guesthouses",
+        "camping": "Camping",
+        "motels": "Motels"
+      },
+      "transportation": {
+        "flights": "Flights",
+        "train": "Train",
+        "carRental": "Car Rental",
+        "bus": "Bus",
+        "taxiRideshare": "Taxi/Rideshare",
+        "metroSubway": "Metro/Subway",
+        "walking": "Walking",
+        "bicycle": "Bicycle",
+        "ferry": "Ferry",
+        "motorcycle": "Motorcycle"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "createTrip": "Create Trip"
+      }
+    },
     "map": {
       "interactiveMap": "Interactive Map",
       "tripSelector": "Trip Selector",
@@ -32,9 +89,10 @@
       "tripStatus": "Trip Status",
       "tripType": "Trip Type",
       "period": "Period",
-      "upcoming": "Upcoming",
-      "planning": "Planning",
-      "completed": "Completed",
+    "upcoming": "Upcoming",
+    "planning": "Planning",
+    "traveling": "Traveling",
+    "completed": "Completed",
       "travelers": "travelers",
       "placesCount": "places",
       "hide": "Hide",
@@ -68,10 +126,13 @@
       "upcoming": "Upcoming",
       "inProgress": "In Progress",
       "completed": "Completed",
-      "total": "Total Trips"
+      "total": "Total Trips",
+      "groupTrips": "Group Trips"
     },
     "status": {
       "upcoming": "Upcoming",
+      "planning": "Planning",
+      "traveling": "Traveling",
       "inProgress": "In Progress",
       "completed": "Completed"
     },
@@ -81,7 +142,28 @@
       "inviteFriends": "Invite Friends",
       "groupOptions": "Group Options",
       "aiSmartRoute": "AI Smart Route",
-      "viewSavedPlaces": "View Saved Places"
+      "viewSavedPlaces": "View My Places",
+      "accommodation": "Accommodation",
+      "deleteTrip": "Delete Trip"
+    },
+    "accommodation": {
+      "title": "Accommodation for",
+      "searchAccommodation": "Search hotels, hostels, apartments...",
+      "searchResults": "Search results",
+      "currentAccommodation": "Current accommodation",
+      "noAccommodation": "No accommodation added for this trip",
+      "searchPlaceholder": "Search and add where you'll stay",
+      "add": "Add",
+      "remove": "Remove",
+      "confirmed": "Confirmed stay",
+      "accommodationAdded": "Accommodation added",
+      "accommodationAddedDescription": "was added as accommodation for",
+      "accommodationRemoved": "Accommodation removed",
+      "accommodationRemovedDescription": "The accommodation was removed from the trip",
+      "errorAdding": "Could not add accommodation",
+      "errorRemoving": "Could not remove accommodation",
+      "errorSearching": "Could not search accommodations. Please try again.",
+      "close": "Close"
     },
     "templates": {
       "title": "Trip Templates",
@@ -148,6 +230,10 @@
       "invitationAccepted": "Accepted",
       "cancel": "Cancel",
       "confirmRemove": "Are you sure you want to remove this collaborator from the trip?"
-    }
+    },
+    "travelers": "traveler",
+    "travelers_plural": "travelers",
+    "noDestinations": "No destinations",
+    "shareTrip": "Share Trip"
   }
 }

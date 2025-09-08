@@ -1,0 +1,21 @@
+
+{
+  "pages": {
+    "notFound": {
+      "title": "404 - Página No Encontrada",
+      "message": "La página que buscas no existe.",
+      "returnHome": "Volver al Inicio"
+    },
+    "home": {
+      "title": "Inicio",
+      "sections": {
+        "home": "Inicio",
+        "trips": "Mis Viajes",
+        "explore": "Explorar",
+        "booking": "Reservas",
+        "travelers": "Viajeros",
+        "profile": "Mi Perfil"
+      }
+    }
+  }
+}

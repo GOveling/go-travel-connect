@@ -1,12 +1,10 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useTravelStats } from "@/hooks/useTravelStats";
-import { useRecentActivity } from "@/hooks/useRecentActivity";
 import { useProfileModals } from "@/hooks/useProfileModals";
 import { useProfileMenuConfig } from "./ProfileMenuConfig";
 import ProfileHeader from "./ProfileHeader";
 import TravelStatsCard from "./TravelStatsCard";
-import RecentActivityCard from "./RecentActivityCard";
 import ProfileMenu from "./ProfileMenu";
 import ProfileModals from "./ProfileModals";
 import ProfileActions from "./ProfileActions";
@@ -25,7 +23,6 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
     refreshProfile,
   } = useProfileData();
   const { stats, loading: statsLoading } = useTravelStats();
-  const { activities, loading: activitiesLoading } = useRecentActivity();
   const modalState = useProfileModals();
 
   const menuItems = useProfileMenuConfig({ stats, modalState });
@@ -59,8 +56,6 @@ const ProfileContent = ({ onSignOut }: ProfileContentProps) => {
       />
 
       <TravelStatsCard stats={stats} loading={statsLoading} />
-
-      <RecentActivityCard activities={activities} loading={activitiesLoading} />
 
       <ProfileMenu menuItems={menuItems} />
 

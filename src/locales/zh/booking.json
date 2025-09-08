@@ -9,11 +9,18 @@
     },
     "categories": {
       "flights": "航班",
+      "flightsSubtitle": "寻找最优惠的价格",
       "hotels": "酒店",
+      "hotelsSubtitle": "舒适住宿",
       "carRental": "租车",
+      "transportation": "交通",
+      "transportationSubtitle": "多种出行选择",
       "tours": "旅游和活动",
+      "toursSubtitle": "导游体验",
       "restaurants": "餐厅",
-      "esim": "eSIM和数据"
+      "restaurantsSubtitle": "预订餐桌",
+      "esim": "eSIM卡",
+      "esimSubtitle": "保持连接"
     },
     "quickBook": {
       "title": "快速预订",

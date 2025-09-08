@@ -1,38 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
-import { EditTripModal } from "./EditTripModal";
 import ClientOnly from "@/components/ui/ClientOnly";
 import ModalErrorBoundary from "@/components/ui/ModalErrorBoundary";
-import { Link } from "react-router-dom";
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Globe,
-  Phone,
-  Edit3,
-  Share2,
-  UserPlus,
-  X,
-  Plane,
-  Car,
-  Building,
-  Clock,
-  ExternalLink,
-  Star,
-  Heart,
-  Map,
-  Trash2,
-  CreditCard,
-  Hotel,
-} from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { format, isPast, isFuture } from "date-fns";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,21 +10,49 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import SavedPlacesRouteMap from "./SavedPlacesRouteMap";
+import {
+  calculateTripStatus,
+  getStatusDisplayText,
+} from "@/utils/tripStatusUtils";
+import { format } from "date-fns";
+import {
+  Building,
+  Calendar,
+  Car,
+  Clock,
+  CreditCard,
+  Edit3,
+  ExternalLink,
+  Hotel,
+  MapPin,
+  Plane,
+  Share2,
+  UserPlus,
+  Users,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { EditTripModal } from "./EditTripModal";
 import InviteFriendsModal from "./InviteFriendsModal";
 
+import { SavedPlace, Trip, TripCoordinate } from "@/types";
 import PlaceDetailModal from "./PlaceDetailModal";
 import FlightSearchModal from "./itinerary/FlightSearchModal";
 import HotelSearchModal from "./itinerary/HotelSearchModal";
 import ToursModal from "./itinerary/ToursModal";
 import TransferModal from "./itinerary/TransferModal";
-import { Trip, SavedPlace, Collaborator, TripCoordinate } from "@/types";
 
 // Interface for PlaceDetailModal
 interface PlaceForModal {
@@ -78,7 +73,7 @@ interface TripDetailModalProps {
   trip: Trip | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateTrip?: (tripData: any) => void;
+  onUpdateTrip?: (tripData: Trip) => void;
   onDeleteTrip?: (tripId: string) => void;
 }
 
@@ -562,8 +557,10 @@ const TripDetailModal = ({
         return "bg-green-100 text-green-800";
       case "planning":
         return "bg-blue-100 text-blue-800";
+      case "traveling":
+        return "bg-green-100 text-green-800";
       case "completed":
-        return "bg-gray-100 text-gray-800";
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -582,43 +579,15 @@ const TripDetailModal = ({
     }
   };
 
-  // Get trip status based on dates
+  // Get trip status based on dates using the utility function
   const getTripStatus = () => {
-    if (!trip?.dates) return "Planning";
+    const tripData = {
+      startDate: trip.startDate ? new Date(trip.startDate) : undefined,
+      endDate: trip.endDate ? new Date(trip.endDate) : undefined,
+    };
 
-    try {
-      // Parse the dates string like "Dec 15 - Dec 25, 2024"
-      const dateRange = trip.dates.split(" - ");
-      if (dateRange.length !== 2) return "Planning";
-
-      const endDateStr = dateRange[1];
-      const year =
-        endDateStr.split(", ")[1] || new Date().getFullYear().toString();
-      const endMonth = endDateStr.split(" ")[0];
-      const endDay = parseInt(endDateStr.split(" ")[1].split(",")[0]);
-
-      const monthMap: { [key: string]: number } = {
-        Jan: 0,
-        Feb: 1,
-        Mar: 2,
-        Apr: 3,
-        May: 4,
-        Jun: 5,
-        Jul: 6,
-        Aug: 7,
-        Sep: 8,
-        Oct: 9,
-        Nov: 10,
-        Dec: 11,
-      };
-
-      const endDate = new Date(parseInt(year), monthMap[endMonth], endDay);
-
-      if (isPast(endDate)) return "Complete";
-      return "Upcoming";
-    } catch {
-      return "Planning";
-    }
+    const status = calculateTripStatus(tripData);
+    return getStatusDisplayText(status);
   };
 
   // Get traveler count
@@ -626,14 +595,20 @@ const TripDetailModal = ({
     return trip?.isGroupTrip ? memberCount + 1 : 1; // +1 for owner
   };
 
-  // Get badge color based on status
+  // Get badge color and variant based on status to match map view
   const getStatusBadgeColor = () => {
     const status = getTripStatus();
-    switch (status) {
-      case "Complete":
+    const normalizedStatus = status.toLowerCase().replace(" ", "");
+    switch (normalizedStatus) {
+      case "upcoming":
         return "default";
-      case "Upcoming":
+      case "planning":
         return "secondary";
+      case "traveling":
+        return "outline";
+      case "completed":
+      case "tripcompleted":
+        return "destructive";
       default:
         return "outline";
     }
@@ -699,8 +674,10 @@ const TripDetailModal = ({
                     <Badge variant={getUserRoleBadgeProps().variant}>
                       {getUserRoleBadgeProps().label}
                     </Badge>
-                    <Badge variant={getStatusBadgeColor()}>
-                      {getTripStatus()}
+                    <Badge
+                      className={`text-xs px-2 py-1 rounded-full ${getStatusColor((trip.status || "").toLowerCase())}`}
+                    >
+                      {getStatusDisplayText((trip.status || "").toLowerCase())}
                     </Badge>
                   </div>
                 </div>

@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   Eye,
   Trash2,
+  Home,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getFormattedDateRange } from "@/utils/dateHelpers";
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import type { Trip, TripCardProps } from "@/types";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const TripCard = ({
   trip,
@@ -34,7 +36,9 @@ const TripCard = ({
   onAISmartRoute,
   onViewSavedPlaces,
   onDeleteTrip,
+  onAddAccommodation,
 }: TripCardProps) => {
+  const { t } = useLanguage();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "upcoming":
@@ -42,7 +46,7 @@ const TripCard = ({
       case "planning":
         return "bg-blue-100 text-blue-800";
       case "completed":
-        return "bg-gray-100 text-gray-800";
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -189,7 +193,7 @@ const TripCard = ({
                     <Badge
                       className={`text-xs px-2 py-1 rounded-full ${getStatusColor(trip.status)}`}
                     >
-                      {trip.status}
+                      {t(`trips.status.${trip.status}`)}
                     </Badge>
                     {(trip.isGroupTrip ||
                       (trip.collaborators &&
@@ -201,7 +205,7 @@ const TripCard = ({
                       >
                         <Users size={12} className="text-purple-600" />
                         <span className="text-xs text-purple-600 font-medium">
-                          Group
+                          {t("trips.map.group")}
                         </span>
                       </Button>
                     )}
@@ -229,7 +233,7 @@ const TripCard = ({
                           className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                         >
                           <span className="mr-1">🌍</span>
-                          No destinations
+                          {t("trips.noDestinations")}
                         </Badge>
                       )}
                     </div>
@@ -241,9 +245,9 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />
-                      <span>
-                        {totalTravelers} traveler{totalTravelers > 1 ? "s" : ""}
-                      </span>
+                       <span>
+                         {totalTravelers} {totalTravelers === 1 ? t("trips.travelers") : t("trips.travelers_plural")}
+                       </span>
                     </div>
                   </div>
                 </div>
@@ -258,39 +262,39 @@ const TripCard = ({
                   <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem onClick={() => onViewDetails(trip)}>
                       <Eye size={14} className="mr-2" />
-                      View Details
+                      {t("trips.actions.viewDetails")}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEditTrip(trip)}>
                       <Edit3 size={14} className="mr-2" />
-                      Edit Trip
+                      {t("trips.actions.editTrip")}
                     </DropdownMenuItem>
                     {trip.isGroupTrip ? (
                       <>
                         <DropdownMenuItem onClick={() => onGroupOptions(trip)}>
                           <Users size={14} className="mr-2" />
-                          Group Options
+                          {t("trips.actions.groupOptions")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onInviteFriends(trip)}>
                           <UserPlus size={14} className="mr-2" />
-                          Manage Team
+                          {t("trips.invitations.manageTeam")}
                         </DropdownMenuItem>
                       </>
                     ) : (
                       <DropdownMenuItem onClick={() => onInviteFriends(trip)}>
                         <UserPlus size={14} className="mr-2" />
-                        Add Collaborators
+                        {t("trips.invitations.invite")}
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem>
                       <Share2 size={14} className="mr-2" />
-                      Share Trip
+                      {t("trips.share.title")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDeleteTrip && onDeleteTrip(trip)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 size={14} className="mr-2" />
-                      Delete Trip
+                      {t("trips.actions.deleteTrip")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -301,7 +305,7 @@ const TripCard = ({
                 trip.collaborators &&
                 trip.collaborators.length > 0 && (
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">Team:</span>
+                    <span className="text-xs text-gray-500">{t("trips.invitations.team")}:</span>
                     <div className="flex -space-x-1">
                       {trip.collaborators.slice(0, 3).map((collaborator) => (
                         <div
@@ -321,14 +325,14 @@ const TripCard = ({
                   </div>
                 )}
 
-              {/* Action Buttons - Now showing three buttons instead of four */}
+              {/* Action Buttons - Now showing four buttons in responsive grid */}
               <div className="pt-2 space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <Button
                     className="bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-sm"
                     onClick={() => onViewDetails(trip)}
                   >
-                    View Details
+                    {t("trips.actions.viewDetails")}
                   </Button>
                   <Button
                     variant="outline"
@@ -336,7 +340,7 @@ const TripCard = ({
                     onClick={() => onViewSavedPlaces(trip)}
                   >
                     <Heart size={14} className="mr-1" />
-                    Saved Places
+                    {t("trips.actions.viewSavedPlaces")}
                   </Button>
                   <Button
                     variant="outline"
@@ -344,7 +348,15 @@ const TripCard = ({
                     onClick={() => onAISmartRoute(trip)}
                   >
                     <Route size={14} className="mr-1" />
-                    AI Smart Route
+                    {t("trips.actions.aiSmartRoute")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-green-300 text-green-600 hover:bg-green-50 text-sm"
+                    onClick={() => onAddAccommodation?.(trip)}
+                  >
+                    <Home size={14} className="mr-1" />
+                    {t("trips.actions.accommodation")}
                   </Button>
                 </div>
               </div>

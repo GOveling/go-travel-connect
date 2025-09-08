@@ -1,29 +1,46 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  calculateTripStatus,
+  getStatusDisplayText,
+} from "@/utils/tripStatusUtils";
+import { format } from "date-fns";
 import {
   Calendar,
-  Users,
+  CreditCard,
+  Hotel,
   MapPin,
   Plane,
-  Hotel,
-  CreditCard,
+  Users,
 } from "lucide-react";
-import { format, isPast, isFuture } from "date-fns";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState } from "react";
+
+interface Trip {
+  id: string;
+  name: string;
+  start_date?: string;
+  end_date?: string;
+  location?: string;
+  type?: string;
+  is_group_trip?: boolean;
+  budget?: string;
+  accommodation?: string;
+  transportation?: string;
+  description?: string;
+}
 
 export const TripOverview = ({
   trip,
   userRole,
   onUpdate,
 }: {
-  trip: any;
+  trip: Trip;
   userRole: string;
-  onUpdate: (trip: any) => void;
+  onUpdate: (trip: Trip) => void;
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -54,16 +71,54 @@ export const TripOverview = ({
     fetchMemberCount();
   }, [trip.id]);
 
-  // Get trip status based on dates
+  // Get trip status using the trip status utility with proper date conversion
   const getTripStatus = () => {
-    if (!trip.start_date) return "Planning";
+    const tripData = {
+      startDate: trip.start_date ? new Date(trip.start_date) : undefined,
+      endDate: trip.end_date ? new Date(trip.end_date) : undefined,
+    };
 
-    const startDate = new Date(trip.start_date);
-    const endDate = trip.end_date ? new Date(trip.end_date) : null;
+    console.log("Trip data for status calculation:", tripData);
+    const status = calculateTripStatus(tripData);
+    console.log("Calculated status:", status);
 
-    if (endDate && isPast(endDate)) return "Complete";
-    if (isFuture(startDate)) return "Upcoming";
-    return "In Progress";
+    return getStatusDisplayText(status);
+  };
+
+  // Get status color to match map view
+  const getStatusColor = (status: string) => {
+    const normalizedStatus = status.toLowerCase().replace(" ", "");
+    switch (normalizedStatus) {
+      case "upcoming":
+        return "bg-green-500";
+      case "planning":
+        return "bg-purple-600";
+      case "traveling":
+      case "tripcompleted": // Handle "Trip Completed" case
+        return normalizedStatus === "traveling" ? "bg-blue-500" : "bg-gray-500";
+      case "completed":
+        return "bg-gray-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
+  // Get badge variant based on status
+  const getStatusBadgeVariant = (status: string) => {
+    const normalizedStatus = status.toLowerCase().replace(" ", "");
+    switch (normalizedStatus) {
+      case "upcoming":
+        return "default";
+      case "planning":
+        return "secondary";
+      case "traveling":
+        return "outline";
+      case "completed":
+      case "tripcompleted":
+        return "destructive";
+      default:
+        return "outline";
+    }
   };
 
   // Get traveler count
@@ -94,6 +149,8 @@ export const TripOverview = ({
     return `${startDate} - ${endDate}`;
   };
 
+  const currentStatus = getTripStatus();
+
   return (
     <Card className="p-6">
       {loading ? (
@@ -106,9 +163,19 @@ export const TripOverview = ({
         <>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">{trip.name}</h2>
-            <Badge variant={getBadgeProps().variant}>
-              {getBadgeProps().label}
-            </Badge>
+            <div className="flex items-center space-x-2">
+              <Badge variant={getBadgeProps().variant}>
+                {getBadgeProps().label}
+              </Badge>
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-3 h-3 rounded-full ${getStatusColor(currentStatus)}`}
+                ></div>
+                <Badge variant={getStatusBadgeVariant(currentStatus)}>
+                  {currentStatus}
+                </Badge>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -188,22 +255,6 @@ export const TripOverview = ({
                 </p>
               </div>
             )}
-
-            {/* Status badge */}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t">
-              <span className="text-sm text-muted-foreground">Status</span>
-              <Badge
-                variant={
-                  getTripStatus() === "Complete"
-                    ? "default"
-                    : getTripStatus() === "Upcoming"
-                      ? "secondary"
-                      : "outline"
-                }
-              >
-                {getTripStatus()}
-              </Badge>
-            </div>
           </div>
         </>
       )}
