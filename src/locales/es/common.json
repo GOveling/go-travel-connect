@@ -22,6 +22,14 @@
     "place": "lugar",
     "places": "lugares",
     "viewMap": "Ver Mapa",
-    "morePlaces": "lugares más"
+    "morePlaces": "lugares más",
+    "myLocation": "Mi ubicación",
+    "hideLocation": "Ocultar ubicación",
+    "locating": "Localizando...",
+    "yourLocation": "Tu ubicación",
+    "success": "Éxito",
+    "error": "Error",
+    "locationFound": "Ubicación encontrada",
+    "locationError": "Error al obtener ubicación"
   }
 }

@@ -24,6 +24,14 @@
     "place": "place",
     "places": "places",
     "viewMap": "View Map",
-    "morePlaces": "more places"
+    "morePlaces": "more places",
+    "myLocation": "My Location",
+    "hideLocation": "Hide Location",
+    "locating": "Locating...",
+    "yourLocation": "Your Location",
+    "success": "Success",
+    "error": "Error",
+    "locationFound": "Location found",
+    "locationError": "Error getting location"
   }
 }
