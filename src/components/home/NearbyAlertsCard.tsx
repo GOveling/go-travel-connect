@@ -129,6 +129,11 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
                 onClick={() => handlePlaceClick(place)}
                 className="flex items-center space-x-3 p-2 rounded-lg bg-white border border-green-100 hover:border-green-200 cursor-pointer transition-colors"
               >
+                {/* Proximity Number Badge */}
+                <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold">{index + 1}</span>
+                </div>
+                
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-4 h-4 text-green-600" />
                 </div>
