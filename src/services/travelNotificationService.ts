@@ -5,19 +5,23 @@ import {
 import { SavedPlace } from "../types";
 
 interface NotificationData {
-  placeId: string;
-  tripId: string;
-  distance: number;
-  threshold: number;
+  placeId?: string;
+  tripId?: string;
+  distance?: number;
+  threshold?: number;
   timestamp: number;
+  type?: string;
+  placeCount?: number;
+  tripName?: string;
 }
 
 interface TravelNotification {
   id: number;
   title: string;
   body: string;
+  type: string;
+  timestamp: number;
   data: NotificationData;
-  scheduledAt: Date;
 }
 
 class TravelNotificationService {
@@ -149,6 +153,8 @@ class TravelNotificationService {
         id: notificationId,
         title: this.getNotificationTitle(place, threshold),
         body: this.getNotificationBody(place, distanceText),
+        type: "proximity",
+        timestamp: now,
         data: {
           placeId: place.id,
           tripId: place.tripId,
@@ -156,7 +162,6 @@ class TravelNotificationService {
           threshold,
           timestamp: now,
         },
-        scheduledAt: new Date(),
       };
 
       console.log(`📝 Notification content:`);
@@ -267,6 +272,93 @@ class TravelNotificationService {
       return true;
     } catch (error) {
       console.error("Error sending arrival notification:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Send notification when multiple places are nearby
+   */
+  async sendMultipleNearbyPlacesNotification(
+    placeCount: number,
+    tripName: string
+  ): Promise<boolean> {
+    try {
+      const notificationKey = `multiple-nearby-${tripName}`;
+      const now = Date.now();
+
+      // Check if we already sent this group notification recently (within 15 minutes)
+      const lastSent = this.lastNotificationTime.get(notificationKey);
+      if (lastSent && now - lastSent < 15 * 60 * 1000) {
+        console.log(
+          `🔄 Skipping duplicate group notification for trip "${tripName}"`
+        );
+        return false;
+      }
+
+      const notificationId = Math.floor(now + Math.random() * 1000);
+
+      // Mark as sent BEFORE scheduling
+      this.lastNotificationTime.set(notificationKey, now);
+      this.sentNotifications.add(notificationKey);
+
+      const notification: TravelNotification = {
+        id: notificationId,
+        title: `🗺️ ${placeCount} lugares cercanos`,
+        body: `Existen ${placeCount} lugares cercanos para que conozcas en tu viaje "${tripName}"`,
+        type: "multiple_nearby",
+        timestamp: now,
+        data: {
+          placeCount,
+          tripName,
+          type: "multiple_nearby",
+          timestamp: now,
+        },
+      };
+
+      const result = await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: notification.title,
+            body: notification.body,
+            id: notificationId,
+            schedule: { at: new Date(now + 1000) },
+            extra: notification.data,
+          },
+        ],
+      });
+
+      console.log(`📱 LocalNotifications.schedule result:`, result);
+
+      if (result && result.notifications && result.notifications.length > 0) {
+        this.notificationHistory.push(notification);
+
+        // Clean up after 15 minutes
+        setTimeout(
+          () => {
+            this.sentNotifications.delete(notificationKey);
+            this.lastNotificationTime.delete(notificationKey);
+            console.log(
+              `🧹 Cleaned up group notification tracking for ${tripName}`
+            );
+          },
+          15 * 60 * 1000
+        );
+
+        console.log(
+          `🗺️ ✅ Group notification sent successfully: ${placeCount} places in trip "${tripName}"`
+        );
+
+        return true;
+      } else {
+        console.error(
+          `❌ Failed to schedule group notification - invalid result:`,
+          result
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Error sending group notification:", error);
       return false;
     }
   }
