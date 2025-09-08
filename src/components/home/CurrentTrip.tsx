@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useTravelMode } from "@/hooks/useTravelMode";
+import { useTravelModeContext } from "@/contexts/TravelModeContext";
 import type { Trip } from "@/types";
 import { Calendar, MapPin, Navigation, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ const CurrentTripContent = ({
   onNavigateToTrips,
 }: CurrentTripContentProps) => {
   const navigate = useNavigate();
-  const { config } = useTravelMode();
+  const { config } = useTravelModeContext();
   const { t } = useLanguage(); // Main translation function
   const [countdown, setCountdown] = useState<{
     days: number;

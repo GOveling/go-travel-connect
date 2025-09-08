@@ -9,7 +9,7 @@ import {
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../../hooks/useI18n";
-import { useTravelModeSimple } from "../../hooks/useTravelModeSimple";
+import { useTravelModeContext } from "../../contexts/TravelModeContext";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -42,7 +42,7 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     checkLocationPermissions,
     checkNotificationPermissions,
     getActiveTripToday,
-  } = useTravelModeSimple();
+  } = useTravelModeContext();
 
   // Función temporal para obtener ubicación actual
   const getCurrentLocation = () => {
