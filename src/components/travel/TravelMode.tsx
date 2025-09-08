@@ -75,19 +75,9 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(-1)}
-                className="h-8 w-8 p-0"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <div className="flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-blue-600" />
-                <span>{t("home.travelMode.title")}</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Navigation className="w-5 h-5 text-blue-600" />
+              <span>{t("home.travelMode.title")}</span>
             </div>
 
             {/* Info Modal Trigger */}

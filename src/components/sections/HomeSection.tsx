@@ -7,6 +7,7 @@ import QuickStats from "@/components/home/QuickStats";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
 import NearbyPlacesModal from "@/components/modals/NearbyPlacesModal";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
+import { TravelModeModal } from "@/components/modals/TravelModeModal";
 import LocationWeatherWidget from "@/components/widgets/LocationWeatherWidget";
 import { useToast } from "@/hooks/use-toast";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
@@ -22,6 +23,7 @@ const HomeSection = () => {
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false);
   const [isNearbyPlacesModalOpen, setIsNearbyPlacesModalOpen] = useState(false);
   const [isAddToTripModalOpen, setIsAddToTripModalOpen] = useState(false);
+  const [isTravelModeModalOpen, setIsTravelModeModalOpen] = useState(false);
 
   // Get trips and trip management functions from homeState
   const { trips, addPlaceToTrip, setTrips } = homeState;
@@ -113,7 +115,7 @@ const HomeSection = () => {
       {typeof window !== "undefined" && !window.Capacitor && (
         <div className="px-4 py-2">
           <button
-            onClick={() => (window.location.href = "/travel-mode")}
+            onClick={() => setIsTravelModeModalOpen(true)}
             className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors"
           >
             🧭 Travel Mode (Dev)
@@ -147,6 +149,12 @@ const HomeSection = () => {
         isOpen={isAddToTripModalOpen}
         onClose={() => setIsAddToTripModalOpen(false)}
         selectedPlace={selectedPlace}
+      />
+      
+      {/* Travel Mode Modal */}
+      <TravelModeModal
+        isOpen={isTravelModeModalOpen}
+        onClose={() => setIsTravelModeModalOpen(false)}
       />
     </div>
   );
