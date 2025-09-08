@@ -137,26 +137,34 @@ export function ManageTeam({
 
       setMembers(enrichedMembers);
 
-      // Get pending invitations
-      const { data: pendingData, error: pendingError } = await supabase
-        .from("trip_invitations")
-        .select("*, inviter:inviter_id(full_name)")
-        .eq("trip_id", tripId)
-        .eq("status", "pending")
-        .gt("expires_at", new Date().toISOString());
+      // Get pending invitations - only for trip owners
+      let pendingData = [];
+      if (tripData.user_id === user.id) {
+        const { data: invitationData, error: pendingError } = await supabase
+          .from("trip_invitations")
+          .select("*, inviter:inviter_id(full_name)")
+          .eq("trip_id", tripId)
+          .eq("status", "pending")
+          .gt("expires_at", new Date().toISOString());
 
-      if (pendingError) throw pendingError;
-      setPendingInvites(pendingData || []);
+        if (pendingError) throw pendingError;
+        pendingData = invitationData || [];
+      }
+      setPendingInvites(pendingData);
 
-      // Get completed invitations (accepted or declined)
-      const { data: completedData, error: completedError } = await supabase
-        .from("trip_invitations")
-        .select("*, inviter:inviter_id(full_name)")
-        .eq("trip_id", tripId)
-        .in("status", ["accepted", "declined"]);
+      // Get completed invitations (accepted or declined) - only for trip owners
+      let completedData = [];
+      if (tripData.user_id === user.id) {
+        const { data: invitationData, error: completedError } = await supabase
+          .from("trip_invitations")
+          .select("*, inviter:inviter_id(full_name)")
+          .eq("trip_id", tripId)
+          .in("status", ["accepted", "declined"]);
 
-      if (completedError) throw completedError;
-      setCompletedInvites(completedData || []);
+        if (completedError) throw completedError;
+        completedData = invitationData || [];
+      }
+      setCompletedInvites(completedData);
     } catch (error) {
       console.error("Error fetching team data:", error);
       toast({

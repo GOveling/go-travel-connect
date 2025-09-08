@@ -102,23 +102,9 @@ export const useInvitations = () => {
 
   const fetchInvitations = async (tripId: string) => {
     try {
-      const { data, error } = await supabase
-        .from("trip_invitations")
-        .select(
-          `
-          *,
-          trips!trip_invitations_trip_id_fkey(
-            id,
-            name
-          ),
-          profiles!trip_invitations_inviter_id_fkey(
-            full_name
-          )
-        `
-        )
-        .eq("trip_id", tripId)
-        .in("status", ["pending", "accepted", "declined"])
-        .order("created_at", { ascending: false });
+      // Only trip owners can see all invitations for their trip
+      // Use the secure function instead of direct table access
+      const { data, error } = await supabase.rpc('get_user_pending_invitations');
 
       if (error) {
         throw error;
@@ -129,16 +115,21 @@ export const useInvitations = () => {
       // Transform the data to ensure trip name is available
       const processedInvitations = (data || []).map((invitation: any) => ({
         ...invitation,
-        trip: invitation.trips || { id: tripId, name: "Unknown Trip" },
-        inviter_name: invitation.profiles?.full_name || "Unknown User",
+        trip: { id: invitation.trip_id, name: invitation.trip_name },
+        inviter_name: invitation.inviter_name || "Unknown User",
       }));
 
-      setInvitations(processedInvitations);
+      // Filter by tripId if specified (for trip owners viewing their trip's invitations)
+      const filteredInvitations = tripId 
+        ? processedInvitations.filter((inv: any) => inv.trip_id === tripId)
+        : processedInvitations;
+
+      setInvitations(filteredInvitations);
 
       // Log for debugging
       console.log(
         "Processed invitations from useInvitations:",
-        processedInvitations
+        filteredInvitations
       );
     } catch (error: any) {
       console.error("Error fetching invitations:", error);
