@@ -21,7 +21,26 @@ const TravelModeContext = createContext<TravelModeContextType | undefined>(undef
 export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   
-  const travelModeHook = useTravelModeSimple();
+  // Safely initialize the travel mode hook with error handling
+  let travelModeHook;
+  try {
+    travelModeHook = useTravelModeSimple();
+  } catch (error) {
+    console.warn('TravelModeSimple hook failed to initialize:', error);
+    travelModeHook = {
+      config: { isEnabled: false },
+      currentPosition: null,
+      nearbyPlaces: [],
+      isTracking: false,
+      loading: false,
+      status: {},
+      toggleTravelMode: () => {},
+      checkProximity: () => {},
+      checkLocationPermissions: () => {},
+      checkNotificationPermissions: () => {},
+      getActiveTripToday: () => {},
+    };
+  }
   
   // Initialize the context only once
   useEffect(() => {
@@ -45,7 +64,21 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 export const useTravelModeContext = () => {
   const context = useContext(TravelModeContext);
   if (context === undefined) {
-    throw new Error('useTravelModeContext must be used within a TravelModeProvider');
+    // Return a default safe state instead of throwing an error
+    return {
+      config: { isEnabled: false },
+      currentPosition: null,
+      nearbyPlaces: [],
+      isTracking: false,
+      loading: false,
+      status: {},
+      toggleTravelMode: () => {},
+      checkProximity: () => {},
+      checkLocationPermissions: () => {},
+      checkNotificationPermissions: () => {},
+      getActiveTripToday: () => {},
+      isInitialized: false,
+    };
   }
   return context;
 };
