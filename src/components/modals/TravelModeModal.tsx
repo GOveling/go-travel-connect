@@ -50,11 +50,11 @@ export const TravelModeModal = ({ children }: TravelModeModalProps) => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="travel-mode" className="h-full">
+              <TabsContent value="travel-mode" forceMount className="h-full">
                 <TravelMode className="h-full" />
               </TabsContent>
 
-              <TabsContent value="stats" className="h-full">
+              <TabsContent value="stats" forceMount className="h-full">
                 <TravelStats />
               </TabsContent>
             </Tabs>
