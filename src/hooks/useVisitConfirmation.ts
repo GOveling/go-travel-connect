@@ -1,0 +1,143 @@
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface VisitConfirmationData {
+  savedPlaceId: string;
+  distance: number;
+  userLat: number;
+  userLng: number;
+}
+
+interface VisitResult {
+  success: boolean;
+  visitId?: string;
+  placeName?: string;
+  category?: string;
+  error?: string;
+}
+
+export const useVisitConfirmation = () => {
+  const [isConfirming, setIsConfirming] = useState(false);
+  const { toast } = useToast();
+
+  const confirmVisit = async ({
+    savedPlaceId,
+    distance,
+    userLat,
+    userLng,
+  }: VisitConfirmationData): Promise<VisitResult> => {
+    setIsConfirming(true);
+    
+    try {
+      console.log('🎯 Confirming place visit:', {
+        savedPlaceId,
+        distance,
+        coordinates: { lat: userLat, lng: userLng }
+      });
+
+      // Call the database function to confirm the visit
+      const { data, error } = await supabase.rpc('confirm_place_visit', {
+        p_saved_place_id: savedPlaceId,
+        p_confirmation_distance: distance,
+        p_location_lat: userLat,
+        p_location_lng: userLng,
+      });
+
+      if (error) {
+        console.error('❌ Error confirming visit:', error);
+        throw error;
+      }
+
+      const result = data as unknown as VisitResult;
+      
+      if (!result.success) {
+        console.warn('⚠️ Visit confirmation failed:', result.error);
+        return result;
+      }
+
+      console.log('✅ Visit confirmed successfully:', result);
+      
+      // Show success notification
+      toast({
+        title: "¡Lugar visitado! 🎉",
+        description: `${result.placeName} ha sido marcado como visitado.`,
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error('❌ Failed to confirm visit:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      toast({
+        title: "Error al confirmar visita",
+        description: `No se pudo marcar el lugar como visitado: ${errorMessage}`,
+        variant: "destructive",
+      });
+
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  const checkIfPlaceVisited = async (savedPlaceId: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_places')
+        .select('visited')
+        .eq('id', savedPlaceId)
+        .single();
+
+      if (error) {
+        console.error('Error checking visit status:', error);
+        return false;
+      }
+
+      return data?.visited || false;
+    } catch (error) {
+      console.error('Error checking if place is visited:', error);
+      return false;
+    }
+  };
+
+  const getVisitHistory = async (tripId?: string) => {
+    try {
+      let query = supabase
+        .from('place_visits')
+        .select(`
+          *,
+          saved_places(name, category, image)
+        `)
+        .order('visited_at', { ascending: false });
+
+      if (tripId) {
+        query = query.eq('trip_id', tripId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching visit history:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error getting visit history:', error);
+      return [];
+    }
+  };
+
+  return {
+    confirmVisit,
+    checkIfPlaceVisited,
+    getVisitHistory,
+    isConfirming,
+  };
+};

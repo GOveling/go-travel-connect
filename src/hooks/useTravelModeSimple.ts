@@ -36,9 +36,28 @@ const DEFAULT_CONFIG: TravelModeConfig = {
   notificationThresholds: [10000, 5000, 2000, 1000, 500, 100, 50, 10], // Agregamos 10m para notificación de llegada
 };
 
+interface PlaceArrivalData {
+  id: string;
+  name: string;
+  distance: number;
+  category?: string;
+  image?: string;
+  tripId: string;
+  country?: string;
+  city?: string;
+  formatted_address?: string;
+  rating?: number;
+}
+
 // Simplified Travel Mode Hook
-export const useTravelModeSimple = () => {
-  const [config, setConfig] = useState<TravelModeConfig>(DEFAULT_CONFIG);
+export const useTravelModeSimple = ({
+  config: userConfig,
+  onPlaceArrival,
+}: {
+  config: TravelModeConfig;
+  onPlaceArrival?: (place: PlaceArrivalData) => void;
+} = { config: DEFAULT_CONFIG }) => {
+  const [config, setConfig] = useState<TravelModeConfig>(userConfig || DEFAULT_CONFIG);
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [isTracking, setIsTracking] = useState(false);

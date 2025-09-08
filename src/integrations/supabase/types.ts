@@ -158,6 +158,57 @@ export type Database = {
         }
         Relationships: []
       }
+      place_visits: {
+        Row: {
+          city: string | null
+          confirmation_distance: number
+          country: string | null
+          created_at: string
+          id: string
+          location_lat: number
+          location_lng: number
+          place_category: string | null
+          place_name: string
+          region: string | null
+          saved_place_id: string
+          trip_id: string
+          user_id: string
+          visited_at: string
+        }
+        Insert: {
+          city?: string | null
+          confirmation_distance: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          location_lat: number
+          location_lng: number
+          place_category?: string | null
+          place_name: string
+          region?: string | null
+          saved_place_id: string
+          trip_id: string
+          user_id: string
+          visited_at?: string
+        }
+        Update: {
+          city?: string | null
+          confirmation_distance?: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          location_lat?: number
+          location_lng?: number
+          place_category?: string | null
+          place_name?: string
+          region?: string | null
+          saved_place_id?: string
+          trip_id?: string
+          user_id?: string
+          visited_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -250,6 +301,9 @@ export type Database = {
           street: string | null
           street_number: string | null
           trip_id: string
+          visit_distance: number | null
+          visited: boolean
+          visited_at: string | null
         }
         Insert: {
           address_json?: Json | null
@@ -279,6 +333,9 @@ export type Database = {
           street?: string | null
           street_number?: string | null
           trip_id: string
+          visit_distance?: number | null
+          visited?: boolean
+          visited_at?: string | null
         }
         Update: {
           address_json?: Json | null
@@ -308,6 +365,9 @@ export type Database = {
           street?: string | null
           street_number?: string | null
           trip_id?: string
+          visit_distance?: number | null
+          visited?: boolean
+          visited_at?: string | null
         }
         Relationships: [
           {
@@ -910,34 +970,58 @@ export type Database = {
       user_stats: {
         Row: {
           achievement_points: number | null
+          attractions_visited: number | null
           cities_explored: number | null
           countries_visited: number | null
           created_at: string
+          hotels_visited: number | null
           id: string
+          landmarks_visited: number | null
           level: number | null
+          museums_visited: number | null
+          other_places_visited: number | null
+          parks_visited: number | null
           places_visited: number | null
+          restaurants_visited: number | null
+          shops_visited: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           achievement_points?: number | null
+          attractions_visited?: number | null
           cities_explored?: number | null
           countries_visited?: number | null
           created_at?: string
+          hotels_visited?: number | null
           id?: string
+          landmarks_visited?: number | null
           level?: number | null
+          museums_visited?: number | null
+          other_places_visited?: number | null
+          parks_visited?: number | null
           places_visited?: number | null
+          restaurants_visited?: number | null
+          shops_visited?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           achievement_points?: number | null
+          attractions_visited?: number | null
           cities_explored?: number | null
           countries_visited?: number | null
           created_at?: string
+          hotels_visited?: number | null
           id?: string
+          landmarks_visited?: number | null
           level?: number | null
+          museums_visited?: number | null
+          other_places_visited?: number | null
+          parks_visited?: number | null
           places_visited?: number | null
+          restaurants_visited?: number | null
+          shops_visited?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -982,6 +1066,15 @@ export type Database = {
       cleanup_old_audit_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      confirm_place_visit: {
+        Args: {
+          p_confirmation_distance: number
+          p_location_lat: number
+          p_location_lng: number
+          p_saved_place_id: string
+        }
+        Returns: Json
       }
       decrypt_sensitive_field: {
         Args: { encrypted_value: string }

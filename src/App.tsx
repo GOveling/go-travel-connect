@@ -14,6 +14,7 @@ import NewUserPersonalInfoModal from "./components/modals/NewUserPersonalInfoMod
 import WelcomeModal from "./components/modals/WelcomeModal";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { TravelModeProvider } from "./contexts/TravelModeContext";
+import { PlaceArrivalHandler } from "./components/travel/PlaceArrivalHandler";
 import { useAuth } from "./hooks/useAuth";
 import { useWelcomeFlow } from "./hooks/useWelcomeFlow";
 import { ReduxProvider } from "./providers/ReduxProvider";
@@ -83,6 +84,7 @@ const App = () => {
             <TooltipProvider>
               <Toaster />
               <Sonner />
+              <PlaceArrivalHandler />
 
               {/* Welcome Flow Modals */}
               <WelcomeModal isOpen={showWelcome} onClose={completeWelcome} />
