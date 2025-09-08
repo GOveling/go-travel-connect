@@ -20,6 +20,10 @@
     "loadMore": "Load More",
     "seeAll": "See All",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "place": "place",
+    "places": "places",
+    "viewMap": "View Map",
+    "morePlaces": "more places"
   }
 }

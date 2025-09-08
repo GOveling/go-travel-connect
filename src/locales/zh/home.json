@@ -23,7 +23,8 @@
       "bookFlight": "预订航班",
       "findHotel": "寻找酒店",
       "exploreDestinations": "探索目的地",
-      "viewTrips": "查看我的旅行"
+      "viewTrips": "查看我的旅行",
+      "nearbyAlerts": "附近提醒"
     },
     "popularPlaces": {
       "title": "热门地点",

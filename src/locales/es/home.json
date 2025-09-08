@@ -85,6 +85,8 @@
       "title": "Modo Travel",
       "enabled": "Activado",
       "disabled": "Desactivado",
+      "activate": "Activar",
+      "activateToSeeNearby": "Activa el Modo Viaje para ver lugares guardados cercanos",
       "monitoring": "Monitoreando tu ubicación",
       "enableTravelMode": "Activa para recibir notificaciones inteligentes",
       "currentLocation": "Ubicación Actual",

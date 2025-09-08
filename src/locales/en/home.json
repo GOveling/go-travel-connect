@@ -97,6 +97,8 @@
       "notifications": "Notifications",
       "enabled": "Enabled",
       "disabled": "Disabled",
+      "activate": "Activate",
+      "activateToSeeNearby": "Activate Travel Mode to see nearby saved places",
       "radius": "Detection Radius",
       "trackingInterval": "Tracking Interval",
       "minutes": "minutes",

@@ -18,6 +18,10 @@
     "no": "No",
     "viewMore": "Ver Más",
     "loadMore": "Cargar Más",
-    "seeAll": "Ver Todo"
+    "seeAll": "Ver Todo",
+    "place": "lugar",
+    "places": "lugares",
+    "viewMap": "Ver Mapa",
+    "morePlaces": "lugares más"
   }
 }
