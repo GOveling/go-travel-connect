@@ -1,4 +1,3 @@
-
 import { AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,7 +35,9 @@ const NewTripBasicInfo = ({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-700">{t("trips.newTripModal.basicInfo.title")}</h3>
+      <h3 className="text-lg font-semibold text-gray-700">
+        {t("trips.newTripModal.basicInfo.title")}
+      </h3>
 
       <div>
         <Label htmlFor="tripName" className="text-sm font-medium">

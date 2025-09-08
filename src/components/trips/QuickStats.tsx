@@ -14,7 +14,9 @@ const QuickStats = ({ trips }: QuickStatsProps) => {
           <p className="text-xl sm:text-2xl font-bold text-blue-600">
             {trips.length}
           </p>
-          <p className="text-xs sm:text-sm text-gray-600">{t("trips.quickStats.total")}</p>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {t("trips.quickStats.total")}
+          </p>
         </CardContent>
       </Card>
       <Card className="text-center">
@@ -22,7 +24,9 @@ const QuickStats = ({ trips }: QuickStatsProps) => {
           <p className="text-xl sm:text-2xl font-bold text-green-600">
             {trips.filter((t) => t.status === "upcoming").length}
           </p>
-          <p className="text-xs sm:text-sm text-gray-600">{t("trips.quickStats.upcoming")}</p>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {t("trips.quickStats.upcoming")}
+          </p>
         </CardContent>
       </Card>
       <Card className="text-center">
@@ -30,7 +34,9 @@ const QuickStats = ({ trips }: QuickStatsProps) => {
           <p className="text-xl sm:text-2xl font-bold text-orange-600">
             {trips.filter((t) => t.isGroupTrip).length}
           </p>
-          <p className="text-xs sm:text-sm text-gray-600">{t("trips.quickStats.groupTrips")}</p>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {t("trips.quickStats.groupTrips")}
+          </p>
         </CardContent>
       </Card>
     </div>

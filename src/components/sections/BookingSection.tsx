@@ -10,8 +10,6 @@ import BookingHeader from "./booking/BookingHeader";
 import SpecialOfferCard from "./booking/SpecialOfferCard";
 import BookingCategoriesGrid from "./booking/BookingCategoriesGrid";
 
-
-
 const BookingSection = () => {
   const { t } = useLanguage();
   const [isFlightModalOpen, setIsFlightModalOpen] = useState(false);
@@ -36,7 +34,6 @@ const BookingSection = () => {
         onESIMClick={() => setIsESIMModalOpen(true)}
         onRestaurantClick={() => setIsRestaurantModalOpen(true)}
       />
-
 
       {/* All Modals */}
       <FlightBookingModal

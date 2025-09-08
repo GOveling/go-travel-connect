@@ -8,7 +8,6 @@ import { LocateFixed, Info } from "lucide-react";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { useToast } from "@/hooks/use-toast";
 
-
 // Custom icon for search results
 const resultIcon = L.divIcon({
   html: `<div style="
@@ -69,9 +68,21 @@ interface ExploreMapModalProps {
   onPlaceSelect?: (place: Place) => void;
 }
 
-const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapModalProps) => {
+const ExploreMapModal = ({
+  isOpen,
+  onClose,
+  places,
+  onPlaceSelect,
+}: ExploreMapModalProps) => {
   const mapRef = useRef<any>(null);
-  const { location, getCurrentLocation, isLocating, error, startWatching, stopWatching } = useUserLocation();
+  const {
+    location,
+    getCurrentLocation,
+    isLocating,
+    error,
+    startWatching,
+    stopWatching,
+  } = useUserLocation();
   const { toast } = useToast();
   const [showUserLocation, setShowUserLocation] = useState(false);
 
@@ -102,7 +113,6 @@ const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapM
     }
   };
 
-
   useEffect(() => {
     // Clean up the map when component unmounts
     return () => {
@@ -115,14 +125,17 @@ const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapM
   useEffect(() => {
     if (isOpen && places.length > 0 && mapRef.current) {
       // Fit map to show all places
-      const markers = places.map(place => 
+      const markers = places.map((place) =>
         L.marker([place.coordinates.lat, place.coordinates.lng])
       );
       const group = L.featureGroup(markers);
-      
+
       if (places.length === 1) {
         // Single place - center and zoom
-        mapRef.current.setView([places[0].coordinates.lat, places[0].coordinates.lng], 16);
+        mapRef.current.setView(
+          [places[0].coordinates.lat, places[0].coordinates.lng],
+          16
+        );
       } else {
         // Multiple places - fit bounds
         mapRef.current.fitBounds(group.getBounds(), { padding: [20, 20] });
@@ -133,8 +146,12 @@ const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapM
   if (!places || places.length === 0) return null;
 
   // Calculate center point for initial map view
-  const centerLat = places.reduce((sum, place) => sum + place.coordinates.lat, 0) / places.length;
-  const centerLng = places.reduce((sum, place) => sum + place.coordinates.lng, 0) / places.length;
+  const centerLat =
+    places.reduce((sum, place) => sum + place.coordinates.lat, 0) /
+    places.length;
+  const centerLng =
+    places.reduce((sum, place) => sum + place.coordinates.lng, 0) /
+    places.length;
   const center: [number, number] = [centerLat, centerLng];
 
   return (
@@ -161,8 +178,12 @@ const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapM
                 <Popup>
                   <div className="text-center min-w-[180px]">
                     <h3 className="font-semibold text-sm mb-1">{place.name}</h3>
-                    <p className="text-xs text-gray-600 mb-1">{place.address}</p>
-                    <p className="text-xs text-blue-600 font-medium mb-3">{place.category}</p>
+                    <p className="text-xs text-gray-600 mb-1">
+                      {place.address}
+                    </p>
+                    <p className="text-xs text-blue-600 font-medium mb-3">
+                      {place.category}
+                    </p>
                     <Button
                       size="sm"
                       onClick={() => handlePlaceClick(place)}
@@ -178,11 +199,18 @@ const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapM
 
             {showUserLocation && location && (
               <>
-                <Marker position={[location.lat, location.lng]} icon={userIcon} />
+                <Marker
+                  position={[location.lat, location.lng]}
+                  icon={userIcon}
+                />
                 <Circle
                   center={[location.lat, location.lng]}
                   radius={location.accuracy ?? 50}
-                  pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.15 }}
+                  pathOptions={{
+                    color: "#3b82f6",
+                    fillColor: "#3b82f6",
+                    fillOpacity: 0.15,
+                  }}
                 />
               </>
             )}
@@ -197,11 +225,14 @@ const ExploreMapModal = ({ isOpen, onClose, places, onPlaceSelect }: ExploreMapM
               disabled={isLocating}
             >
               <LocateFixed size={16} className="mr-2" />
-              {showUserLocation ? "Ocultar ubicación" : isLocating ? "Localizando..." : "Mi ubicación"}
+              {showUserLocation
+                ? "Ocultar ubicación"
+                : isLocating
+                  ? "Localizando..."
+                  : "Mi ubicación"}
             </Button>
           </div>
         </div>
-
       </DialogContent>
     </Dialog>
   );

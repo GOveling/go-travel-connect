@@ -24,7 +24,9 @@ export function calculateDistance(
 /**
  * Filter places within a certain radius from a user location
  */
-export function filterPlacesByDistance<T extends { coordinates: { lat: number; lng: number } }>(
+export function filterPlacesByDistance<
+  T extends { coordinates: { lat: number; lng: number } },
+>(
   places: T[],
   userLocation: { lat: number; lng: number },
   radiusKm: number = 1

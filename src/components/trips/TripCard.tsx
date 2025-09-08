@@ -245,9 +245,12 @@ const TripCard = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <Users size={14} />
-                       <span>
-                         {totalTravelers} {totalTravelers === 1 ? t("trips.travelers") : t("trips.travelers_plural")}
-                       </span>
+                      <span>
+                        {totalTravelers}{" "}
+                        {totalTravelers === 1
+                          ? t("trips.travelers")
+                          : t("trips.travelers_plural")}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -305,7 +308,9 @@ const TripCard = ({
                 trip.collaborators &&
                 trip.collaborators.length > 0 && (
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">{t("trips.invitations.team")}:</span>
+                    <span className="text-xs text-gray-500">
+                      {t("trips.invitations.team")}:
+                    </span>
                     <div className="flex -space-x-1">
                       {trip.collaborators.slice(0, 3).map((collaborator) => (
                         <div

@@ -358,7 +358,12 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
               {showSavedPlaces &&
                 filteredTrips.map((trip) =>
                   trip.savedPlaces
-                    ?.filter((place: any) => place.lat && place.lng && place.category === 'accommodation')
+                    ?.filter(
+                      (place: any) =>
+                        place.lat &&
+                        place.lng &&
+                        place.category === "accommodation"
+                    )
                     .map((place: any, index: number) => (
                       <Marker
                         key={`accommodation-${trip.id}-${place.id}`}
@@ -388,25 +393,26 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                         <Popup className="mobile-optimized-popup">
                           <div className="p-3 max-w-[280px] sm:min-w-[300px]">
                             {/* Image section */}
-                            {place.image && (
-                              place.image.includes('http') || 
-                              place.image.includes('maps.googleapis.com') || 
-                              place.image.includes('places.googleapis.com') ||
-                              place.image.includes('googleusercontent.com')
-                            ) && (
-                              <div className="mb-3 relative">
-                                <img 
-                                  src={place.image} 
-                                  alt={place.name}
-                                  className="w-full h-20 sm:h-24 object-cover rounded-lg shadow-sm"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                  loading="lazy"
-                                />
-                              </div>
-                            )}
-                            
+                            {place.image &&
+                              (place.image.includes("http") ||
+                                place.image.includes("maps.googleapis.com") ||
+                                place.image.includes("places.googleapis.com") ||
+                                place.image.includes(
+                                  "googleusercontent.com"
+                                )) && (
+                                <div className="mb-3 relative">
+                                  <img
+                                    src={place.image}
+                                    alt={place.name}
+                                    className="w-full h-20 sm:h-24 object-cover rounded-lg shadow-sm"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                    }}
+                                    loading="lazy"
+                                  />
+                                </div>
+                              )}
+
                             {/* Header */}
                             <div className="flex items-start space-x-2 mb-2">
                               <span className="bg-purple-600 text-white text-lg rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -421,7 +427,7 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                                 </p>
                               </div>
                             </div>
-                            
+
                             {/* Tags for accommodation */}
                             <div className="flex flex-wrap gap-1 mb-2">
                               <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
@@ -433,13 +439,14 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                                 </span>
                               )}
                             </div>
-                            
+
                             {/* Description */}
-                            {place.description && place.description.length > 0 && (
-                              <p className="text-sm text-gray-700 mb-2 line-clamp-2">
-                                {place.description}
-                              </p>
-                            )}
+                            {place.description &&
+                              place.description.length > 0 && (
+                                <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                                  {place.description}
+                                </p>
+                              )}
                           </div>
                         </Popup>
                       </Marker>
@@ -496,14 +503,21 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
               {showSavedPlaces &&
                 filteredTrips.map((trip) =>
                   trip.savedPlaces
-                    ?.filter((place: any) => place.lat && place.lng && place.category !== 'accommodation')
+                    ?.filter(
+                      (place: any) =>
+                        place.lat &&
+                        place.lng &&
+                        place.category !== "accommodation"
+                    )
                     .map((place: any, index: number) => (
                       <Marker
                         key={`saved-${trip.id}-${place.id}`}
                         position={[place.lat, place.lng]}
                         icon={createCustomIcon(
                           trip.status,
-                          place.category === 'accommodation' ? "🏨" : (place.image || "📍"),
+                          place.category === "accommodation"
+                            ? "🏨"
+                            : place.image || "📍",
                           "savedPlace",
                           place.positionOrder || index + 1
                         )}
@@ -548,12 +562,16 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
 
                             {/* Tags compactos para móvil */}
                             <div className="flex flex-wrap gap-1 mb-2">
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                place.category === 'accommodation' 
-                                  ? "bg-purple-100 text-purple-800" 
-                                  : "bg-blue-100 text-blue-800"
-                              }`}>
-                                {place.category === 'accommodation' ? '🏨 Estadía' : place.category}
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full ${
+                                  place.category === "accommodation"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : "bg-blue-100 text-blue-800"
+                                }`}
+                              >
+                                {place.category === "accommodation"
+                                  ? "🏨 Estadía"
+                                  : place.category}
                               </span>
                               <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                                 ⭐ {place.rating}
@@ -672,7 +690,6 @@ const TripMapInteractive = ({ trips }: TripMapInteractiveProps) => {
                 </div>
               </div>
             </div>
-
 
             {/* Routes Legend */}
             {showRoutes && (

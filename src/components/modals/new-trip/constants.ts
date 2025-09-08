@@ -1,9 +1,8 @@
-
 import { useLanguage } from "@/hooks/useLanguage";
 
 export const useAccommodationOptions = () => {
   const { t } = useLanguage();
-  
+
   return [
     t("trips.newTripModal.accommodation.hotels"),
     t("trips.newTripModal.accommodation.hostels"),
@@ -19,7 +18,7 @@ export const useAccommodationOptions = () => {
 
 export const useTransportationOptions = () => {
   const { t } = useLanguage();
-  
+
   return [
     t("trips.newTripModal.transportation.flights"),
     t("trips.newTripModal.transportation.train"),
