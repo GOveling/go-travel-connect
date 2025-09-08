@@ -7,7 +7,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useState } from "react";
-import { useI18n } from "../../hooks/useI18n";
+import { useLanguage } from "../../hooks/useLanguage";
 import { useTravelModeContext } from "../../contexts/TravelModeContext";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -30,7 +30,7 @@ export const TravelModeModal: React.FC<TravelModeModalProps> = ({
   isOpen, 
   onClose 
 }) => {
-  const { t } = useI18n();
+  const { t } = useLanguage();
   const [showInfo, setShowInfo] = useState(false);
   
   const {
