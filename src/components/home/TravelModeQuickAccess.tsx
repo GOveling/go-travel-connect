@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Navigation, TestTube } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { TravelModeModal } from "@/components/modals/TravelModeModal";
 
 export const TravelModeQuickAccess = () => {
   const navigate = useNavigate();
@@ -26,15 +25,14 @@ export const TravelModeQuickAccess = () => {
         </p>
 
         <div className="flex gap-2">
-          <TravelModeModal>
-            <Button
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-              size="sm"
-            >
-              <Navigation className="w-4 h-4" />
-              Activar Modo Travel
-            </Button>
-          </TravelModeModal>
+          <Button
+            onClick={() => navigate("/travel-mode")}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            size="sm"
+          >
+            <Navigation className="w-4 h-4" />
+            Activar Modo Travel
+          </Button>
 
           <Button
             onClick={() => navigate("/travel-debug")}
