@@ -155,10 +155,7 @@
       "travelModeActive": "Travel Mode active - monitoring nearby places",
       "travelModeInactive": "Travel Mode inactive - activate to monitor places",
       "viewStatistics": "View Statistics",
-      "statisticsDescription": "View travel statistics and visited places",
-      "locationPermissions": "Location permissions",
-      "notificationPermissions": "Notification permissions",
-      "check": "Check"
+      "statisticsDescription": "View travel statistics and visited places"
     }
   }
 }

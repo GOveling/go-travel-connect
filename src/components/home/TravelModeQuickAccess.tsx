@@ -2,11 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Navigation, TestTube } from "lucide-react";
-import { useState } from "react";
-import { TravelModeModal } from "@/components/modals/TravelModeModal";
+import { useNavigate } from "react-router-dom";
 
 export const TravelModeQuickAccess = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
@@ -27,7 +26,7 @@ export const TravelModeQuickAccess = () => {
 
         <div className="flex gap-2">
           <Button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => navigate("/travel-mode")}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
             size="sm"
           >
@@ -36,11 +35,10 @@ export const TravelModeQuickAccess = () => {
           </Button>
 
           <Button
-            onClick={() => console.log("Debug mode not available in modal")}
+            onClick={() => navigate("/travel-debug")}
             variant="outline"
             className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50"
             size="sm"
-            disabled
           >
             <TestTube className="w-4 h-4" />
             Debug
@@ -55,11 +53,6 @@ export const TravelModeQuickAccess = () => {
           <span>📊 Estadísticas</span>
         </div>
       </CardContent>
-
-      <TravelModeModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
     </Card>
   );
 };

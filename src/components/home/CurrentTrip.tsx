@@ -5,7 +5,7 @@ import { useTravelModeContext } from "@/contexts/TravelModeContext";
 import type { Trip } from "@/types";
 import { Calendar, MapPin, Navigation, Plus } from "lucide-react";
 import { useEffect, useState, memo, useMemo, useCallback } from "react";
-import { TravelModeModal } from "@/components/modals/TravelModeModal";
+import { useNavigate } from "react-router-dom";
 
 interface CurrentTripContentProps {
   currentTrip: Trip | null;
@@ -24,7 +24,7 @@ const CurrentTripContent = memo(({
   onPlanNewTrip,
   onNavigateToTrips,
 }: CurrentTripContentProps) => {
-  const [isTravelModeModalOpen, setIsTravelModeModalOpen] = useState(false);
+  const navigate = useNavigate();
   const { config } = useTravelModeContext();
   const { t } = useLanguage(); // Main translation function
   const [countdown, setCountdown] = useState<{
@@ -35,8 +35,8 @@ const CurrentTripContent = memo(({
 
   // Memoize handlers to prevent unnecessary re-renders
   const handleNavigateToTravelMode = useCallback(() => {
-    setIsTravelModeModalOpen(true);
-  }, []);
+    navigate("/travel-mode");
+  }, [navigate]);
 
   const handleViewDetail = useCallback(() => {
     onViewDetail();
@@ -159,11 +159,6 @@ const CurrentTripContent = memo(({
             {t("home.currentTrip.viewAIRouteDetails")}
           </Button>
         </CardContent>
-
-        <TravelModeModal 
-          isOpen={isTravelModeModalOpen} 
-          onClose={() => setIsTravelModeModalOpen(false)} 
-        />
       </Card>
     );
   }
@@ -227,11 +222,6 @@ const CurrentTripContent = memo(({
             </Button>
           </div>
         </CardContent>
-
-        <TravelModeModal 
-          isOpen={isTravelModeModalOpen} 
-          onClose={() => setIsTravelModeModalOpen(false)} 
-        />
       </Card>
     );
   }
@@ -270,11 +260,6 @@ const CurrentTripContent = memo(({
           {t("home.currentTrip.planNewTrip")}
         </Button>
       </CardContent>
-
-      <TravelModeModal 
-        isOpen={isTravelModeModalOpen} 
-        onClose={() => setIsTravelModeModalOpen(false)} 
-      />
     </Card>
   );
 });
