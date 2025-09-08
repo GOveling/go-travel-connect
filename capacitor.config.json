@@ -21,7 +21,15 @@
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon_config_sample",
       "iconColor": "#488AFF",
-      "sound": "beep.wav"
+      "sound": "default",
+      "requestPermissions": true,
+      "enableBadge": true,
+      "presentationOptions": ["alert", "badge", "sound"],
+      "categoryType": "default",
+      "androidChannelOptions": {
+        "importance": 4,
+        "visibility": 1
+      }
     },
     "Geolocation": {
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
