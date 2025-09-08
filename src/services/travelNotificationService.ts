@@ -59,9 +59,19 @@ class TravelNotificationService {
     try {
       console.log("📱 Enviando notificación de bienvenida del Travel Mode");
 
+      // Check if we already sent a welcome notification recently (within 10 minutes)
+      const welcomeKey = "travel-mode-welcome";
+      const lastWelcome = this.lastNotificationTime.get(welcomeKey);
+      const now = Date.now();
+      
+      if (lastWelcome && now - lastWelcome < 10 * 60 * 1000) {
+        console.log("⚠️ Welcome notification already sent recently, skipping");
+        return false;
+      }
+
       const notificationId = Date.now();
       // Add 1 second to ensure it's in the future
-      const scheduleTime = new Date(Date.now() + 1000);
+      const scheduleTime = new Date(now + 1000);
 
       const result: ScheduleResult = await LocalNotifications.schedule({
         notifications: [
@@ -72,11 +82,14 @@ class TravelNotificationService {
             schedule: { at: scheduleTime },
             extra: {
               type: "welcome",
-              timestamp: Date.now(),
+              timestamp: now,
             },
           },
         ],
       });
+
+      // Mark welcome notification as sent
+      this.lastNotificationTime.set(welcomeKey, now);
 
       console.log("✅ Welcome notification scheduled:", result);
       return true;
@@ -116,9 +129,9 @@ class TravelNotificationService {
 
       console.log(`🔑 Notification key: ${notificationKey}`);
 
-      // Check if we already sent this notification recently (within 3 minutes - reduced time)
+      // Check if we already sent this notification recently (within 5 minutes - increased for better deduplication)
       const lastSent = this.lastNotificationTime.get(notificationKey);
-      if (lastSent && now - lastSent < 3 * 60 * 1000) {
+      if (lastSent && now - lastSent < 5 * 60 * 1000) {
         console.log(
           `🔄 Skipping duplicate notification for ${place.name} at ${threshold}m (sent ${Math.round((now - lastSent) / 1000)}s ago)`
         );
@@ -178,7 +191,7 @@ class TravelNotificationService {
 
         console.log(`✅ Marked as sent after successful scheduling`);
 
-        // Clean up old entries after 5 minutes (reduced time)
+        // Clean up old entries after 10 minutes (increased for better persistence)
         setTimeout(
           () => {
             this.sentNotifications.delete(notificationKey);
@@ -187,7 +200,7 @@ class TravelNotificationService {
               `🧹 Cleaned up notification tracking for ${notificationKey}`
             );
           },
-          5 * 60 * 1000
+          10 * 60 * 1000
         );
 
         console.log(

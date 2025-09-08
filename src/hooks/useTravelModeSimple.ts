@@ -54,11 +54,14 @@ export const useTravelModeSimple = () => {
 
   // Refs for intervals and tracking
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalIdRef = useRef<number>(0); // Track interval ID to prevent duplicates
   const watchIdRef = useRef<string | null>(null);
   const notifiedPlacesRef = useRef<Set<string>>(new Set());
   const lastPositionRef = useRef<Position | null>(null);
   const isTrackingRef = useRef<boolean>(false);
+  const isInitializingRef = useRef<boolean>(false);
   const minDistanceRef = useRef<number>(Infinity); // Track minimum distance for dynamic intervals
+  const lastToggleTimeRef = useRef<number>(0); // Prevent rapid toggling
 
   // Haversine formula to calculate distance between two coordinates
   const calculateDistance = useCallback(
@@ -552,7 +555,7 @@ export const useTravelModeSimple = () => {
     const previousMinDistance = minDistanceRef.current;
     minDistanceRef.current = minDistance;
 
-    // Schedule next check with dynamic interval if distance changed significantly
+      // Schedule next check with dynamic interval if distance changed significantly
     if (
       Math.abs(minDistance - previousMinDistance) > 100 ||
       nearby.length === 0
@@ -562,14 +565,24 @@ export const useTravelModeSimple = () => {
         `🔄 Updating check interval: ${nextInterval}ms (closest place: ${minDistance.toFixed(0)}m)`
       );
 
-      // Clear current interval and set new one
+      // Clear current interval and set new one with interval ID tracking
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
 
-      intervalRef.current = setInterval(() => {
-        checkProximity();
-      }, nextInterval);
+      // Only create new interval if we're still tracking
+      if (isTrackingRef.current) {
+        const newIntervalId = Date.now();
+        intervalIdRef.current = newIntervalId;
+        
+        intervalRef.current = setInterval(() => {
+          // Double-check we're still using the same interval before executing
+          if (intervalIdRef.current === newIntervalId && isTrackingRef.current) {
+            checkProximity();
+          }
+        }, nextInterval);
+      }
     }
 
     console.log(
@@ -591,16 +604,31 @@ export const useTravelModeSimple = () => {
     try {
       console.log("🚗 === STARTING TRAVEL MODE ===");
 
+      // Prevent multiple initializations
+      if (isInitializingRef.current || isTrackingRef.current) {
+        console.log("⚠️ Travel Mode already starting or active");
+        return true;
+      }
+
+      isInitializingRef.current = true;
+
       // Check if there's an active trip today FIRST
       const activeTrip = getActiveTripToday();
       if (!activeTrip) {
         console.log("❌ Cannot start Travel Mode: No active trip today");
+        isInitializingRef.current = false;
         throw new Error(
           "No active trip today. Travel Mode can only be used during an active trip."
         );
       }
 
       console.log(`✅ Active trip found: ${activeTrip.name}`);
+
+      // Clear any existing interval to prevent duplicates
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
 
       // Clear any previous notification tracking state
       await travelNotificationService.clearNotificationTracking();
@@ -647,13 +675,18 @@ export const useTravelModeSimple = () => {
         checkProximity();
       }, initialInterval);
 
+      // Send welcome notification only once
+      await travelNotificationService.sendCustomWelcomeNotification();
+
       // Do initial proximity check
       await checkProximity();
 
+      isInitializingRef.current = false;
       console.log("✅ Travel Mode started successfully");
       return true;
     } catch (error) {
       console.error("❌ Error starting Travel Mode:", error);
+      isInitializingRef.current = false;
       return false;
     }
   }, [
@@ -668,10 +701,15 @@ export const useTravelModeSimple = () => {
   const stopTravelMode = useCallback(async () => {
     console.log("🛑 === STOPPING TRAVEL MODE ===");
 
+    // Clear initialization flag
+    isInitializingRef.current = false;
+
+    // Clear intervals with ID tracking
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    intervalIdRef.current = 0; // Reset interval ID
 
     if (watchIdRef.current) {
       try {
@@ -700,8 +738,17 @@ export const useTravelModeSimple = () => {
     console.log("✅ Travel Mode stopped");
   }, [isNative]);
 
-  // Toggle Travel Mode with comprehensive validation
+  // Toggle Travel Mode with comprehensive validation and debouncing
   const toggleTravelMode = useCallback(async () => {
+    const now = Date.now();
+    
+    // Debounce rapid toggles (prevent calls within 2 seconds)
+    if (now - lastToggleTimeRef.current < 2000) {
+      console.log("⚠️ Toggle debounced - too rapid");
+      return;
+    }
+    lastToggleTimeRef.current = now;
+
     console.log(`🔄 Toggle Travel Mode called - current: ${config.isEnabled}`);
 
     if (config.isEnabled) {
@@ -761,18 +808,29 @@ export const useTravelModeSimple = () => {
     localStorage.setItem('travelModeEnabled', JSON.stringify(config.isEnabled));
   }, [config.isEnabled]);
 
-  // Restore Travel Mode state on mount
+  // Restore Travel Mode state on mount with better validation
   useEffect(() => {
     const savedState = localStorage.getItem('travelModeEnabled');
-    if (savedState === 'true') {
+    if (savedState === 'true' && !config.isEnabled && !isInitializingRef.current) {
       console.log("🔄 Restoring Travel Mode state...");
-      setConfig(prev => ({ ...prev, isEnabled: true }));
-      // Restart tracking if was previously enabled
-      setTimeout(() => {
-        startTravelMode();
-      }, 500); // Small delay to ensure everything is initialized
+      
+      // Check if we have necessary conditions for restoration
+      const activeTrip = getActiveTripToday();
+      if (activeTrip) {
+        setConfig(prev => ({ ...prev, isEnabled: true }));
+        // Restart tracking if was previously enabled
+        setTimeout(() => {
+          if (!isTrackingRef.current && !isInitializingRef.current) {
+            startTravelMode();
+          }
+        }, 1000); // Increased delay to ensure everything is initialized
+      } else {
+        // Clear invalid saved state
+        localStorage.removeItem('travelModeEnabled');
+        console.log("🧹 Cleared invalid saved Travel Mode state (no active trip)");
+      }
     }
-  }, [startTravelMode]);
+  }, [startTravelMode, config.isEnabled, getActiveTripToday]);
 
   // Clean up tracking resources only (but don't disable Travel Mode)
   useEffect(() => {

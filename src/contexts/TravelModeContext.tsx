@@ -18,13 +18,21 @@ interface TravelModeContextType {
 
 const TravelModeContext = createContext<TravelModeContextType | undefined>(undefined);
 
+// Singleton pattern to prevent multiple instances
+let contextInstance: any = null;
+
 export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Safely initialize the travel mode hook with error handling
+  // Safely initialize the travel mode hook with error handling and singleton pattern
   let travelModeHook;
   try {
     travelModeHook = useTravelModeSimple();
+    
+    // Store singleton instance
+    if (!contextInstance) {
+      contextInstance = travelModeHook;
+    }
   } catch (error) {
     console.warn('TravelModeSimple hook failed to initialize:', error);
     travelModeHook = {
@@ -42,12 +50,13 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     };
   }
   
-  // Initialize the context only once
+  // Initialize the context only once with better validation
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && travelModeHook) {
+      console.log("🔧 Initializing TravelModeContext singleton...");
       setIsInitialized(true);
     }
-  }, [isInitialized]);
+  }, [isInitialized, travelModeHook]);
 
   const contextValue = {
     ...travelModeHook,
