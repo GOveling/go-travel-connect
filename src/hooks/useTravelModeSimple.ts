@@ -5,6 +5,7 @@ import { SavedPlace, Trip } from "../types";
 import { useSupabaseTrips } from "./useSupabaseTrips";
 import { getCapacitorConfig } from "../utils/capacitor";
 import { useToast } from "./use-toast";
+import { useAuth } from "./useAuth";
 
 interface TravelModeConfig {
   isEnabled: boolean;
@@ -50,6 +51,7 @@ export const useTravelModeSimple = () => {
   });
   const { trips, loading } = useSupabaseTrips();
   const { toast } = useToast();
+  const { user } = useAuth();
   const { isNative } = getCapacitorConfig();
 
   // Refs for intervals and tracking
@@ -217,14 +219,26 @@ export const useTravelModeSimple = () => {
     }
   }, [isNative, toast]);
 
-  // Check if there's an active trip today
+  // Check if there's an active trip today (only for owned trips)
   const getActiveTripToday = useCallback((): Trip | null => {
-    if (!trips) return null;
+    if (!trips || !user) return null;
 
     const today = new Date();
     const todayStr = today.toISOString().split("T")[0]; // YYYY-MM-DD
+    
+    console.log(`🔍 Checking trips for user: ${user.id}`);
+    console.log(`📅 Today: ${todayStr}`);
+    
+    // Filter trips to only include those owned by the current user
+    const userOwnedTrips = trips.filter((trip: Trip) => {
+      const isOwner = trip.user_id === user.id;
+      console.log(`🎯 Trip "${trip.name}" - Owner: ${trip.user_id}, Current User: ${user.id}, Is Owner: ${isOwner}`);
+      return isOwner;
+    });
+    
+    console.log(`👤 Found ${userOwnedTrips.length} trips owned by user out of ${trips.length} total accessible trips`);
 
-    const activeTrip = trips.find((trip: Trip) => {
+    const activeTrip = userOwnedTrips.find((trip: Trip) => {
       if (!trip.startDate || !trip.endDate) return false;
 
       const startDate = new Date(trip.startDate);
@@ -232,7 +246,10 @@ export const useTravelModeSimple = () => {
       const startDateStr = startDate.toISOString().split("T")[0];
       const endDateStr = endDate.toISOString().split("T")[0];
 
-      return todayStr >= startDateStr && todayStr <= endDateStr;
+      const isActive = todayStr >= startDateStr && todayStr <= endDateStr;
+      console.log(`📅 Trip "${trip.name}": ${startDateStr} to ${endDateStr} - Active: ${isActive}`);
+      
+      return isActive;
     });
 
     const hasActiveTrip = !!activeTrip;
@@ -240,14 +257,18 @@ export const useTravelModeSimple = () => {
 
     if (activeTrip) {
       console.log(
-        `🎯 Active trip today: ${activeTrip.name} (${activeTrip.startDate} to ${activeTrip.endDate})`
+        `🎯 Active OWNED trip today: ${activeTrip.name} (${activeTrip.startDate} to ${activeTrip.endDate})`
       );
+      console.log(`📍 Trip has ${activeTrip.savedPlaces?.length || 0} saved places`);
     } else {
-      console.log(`❌ No active trip today (${todayStr})`);
+      console.log(`❌ No active OWNED trip today (${todayStr})`);
+      if (userOwnedTrips.length === 0) {
+        console.log(`⚠️ User has no owned trips - may be viewing collaborations only`);
+      }
     }
 
     return activeTrip || null;
-  }, [trips]);
+  }, [trips, user]);
 
   // Get all saved places from active trip only
   const getActiveTripPlaces = useCallback((): NearbyPlace[] => {
