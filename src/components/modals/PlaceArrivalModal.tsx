@@ -41,7 +41,7 @@ const getCategoryIcon = (category?: string) => {
   }
 };
 
-const getCategoryMessage = (category?: string, placeName: string) => {
+const getCategoryMessage = (category: string | undefined, placeName: string) => {
   const messages = {
     restaurant: `¡Perfecto! Has llegado a ${placeName}. ¡Hora de disfrutar una deliciosa comida! 🍽️`,
     museum: `¡Excelente! Llegaste a ${placeName}. ¡Prepárate para sumergirte en cultura e historia! 🏛️`,
@@ -60,10 +60,11 @@ export const PlaceArrivalModal = ({
   onClose, 
   place,
   onConfirmVisit, 
-  loading = false 
+  loading 
 }: PlaceArrivalModalProps) => {
   const [isConfirming, setIsConfirming] = useState(false);
   const { toast } = useToast();
+  const loadingState = loading || false;
 
   const handleConfirmVisit = async () => {
     setIsConfirming(true);

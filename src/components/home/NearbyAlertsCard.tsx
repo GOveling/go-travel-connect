@@ -165,7 +165,7 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
       <NearbyPlacesMapModal
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
-        places={nearbyPlaces}
+        places={nearbyPlaces as any[]}
       />
     </>
   );
