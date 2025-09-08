@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from "react";
 
 /**
  * Hook para manejar fallback cuando realtime no funciona
@@ -14,22 +14,22 @@ export const useRealtimeFallback = (
 
   const startPolling = useCallback(() => {
     if (isPollingRef.current) return;
-    
-    console.log('🔄 Starting fallback polling for realtime');
+
+    console.log("🔄 Starting fallback polling for realtime");
     isPollingRef.current = true;
-    
+
     intervalRef.current = setInterval(async () => {
       try {
         await fallbackFunction();
       } catch (error) {
-        console.error('❌ Fallback polling error:', error);
+        console.error("❌ Fallback polling error:", error);
       }
     }, intervalMs);
   }, [fallbackFunction, intervalMs]);
 
   const stopPolling = useCallback(() => {
     if (intervalRef.current) {
-      console.log('⏹️ Stopping fallback polling');
+      console.log("⏹️ Stopping fallback polling");
       clearInterval(intervalRef.current);
       intervalRef.current = null;
       isPollingRef.current = false;

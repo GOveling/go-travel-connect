@@ -137,7 +137,12 @@ const AddToTripModal = ({
                             </div>
                             <div className="flex items-center space-x-1 text-xs text-gray-600">
                               <Calendar size={10} />
-                              <span>{getFormattedDateRange(trip.startDate, trip.endDate)}</span>
+                              <span>
+                                {getFormattedDateRange(
+                                  trip.startDate,
+                                  trip.endDate
+                                )}
+                              </span>
                             </div>
                           </div>
                         </div>

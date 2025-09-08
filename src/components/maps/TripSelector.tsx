@@ -31,21 +31,25 @@ const TripSelector = ({
 
   const renderPlaceImage = (imageUrl: string) => {
     if (!imageUrl) return null;
-    
+
     // Check if it's a URL (Google Places API image)
-    if (imageUrl.startsWith('http') || imageUrl.includes('googleusercontent') || imageUrl.includes('maps.googleapis.com')) {
+    if (
+      imageUrl.startsWith("http") ||
+      imageUrl.includes("googleusercontent") ||
+      imageUrl.includes("maps.googleapis.com")
+    ) {
       return (
-        <img 
-          src={imageUrl} 
-          alt="Place" 
+        <img
+          src={imageUrl}
+          alt="Place"
           className="w-4 h-4 rounded object-cover flex-shrink-0"
           onError={(e) => {
-            e.currentTarget.style.display = 'none';
+            e.currentTarget.style.display = "none";
           }}
         />
       );
     }
-    
+
     // Otherwise, treat as emoji
     return <span className="flex-shrink-0">{imageUrl}</span>;
   };
@@ -123,13 +127,13 @@ const TripSelector = ({
           <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-4 space-y-3 min-w-0">
             <div className="flex items-start space-x-3 min-w-0">
               <div className="flex-shrink-0">
-                {selectedTrip.image && selectedTrip.image.startsWith('http') ? (
-                  <img 
-                    src={selectedTrip.image} 
-                    alt="Trip" 
+                {selectedTrip.image && selectedTrip.image.startsWith("http") ? (
+                  <img
+                    src={selectedTrip.image}
+                    alt="Trip"
                     className="w-8 h-8 rounded object-cover"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.style.display = "none";
                     }}
                   />
                 ) : (

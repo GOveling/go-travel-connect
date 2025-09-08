@@ -12,7 +12,9 @@ export const useProfileData = () => {
 
   const fetchProfile = async () => {
     if (!user || !isValidUser(user.id)) {
-      logSecurityEvent("Invalid user attempting profile access", { userId: user?.id });
+      logSecurityEvent("Invalid user attempting profile access", {
+        userId: user?.id,
+      });
       setLoading(false);
       return;
     }
@@ -29,7 +31,10 @@ export const useProfileData = () => {
         .maybeSingle();
 
       if (error) {
-        logSecurityEvent("Profile fetch error", { error: error.message, userId: user.id });
+        logSecurityEvent("Profile fetch error", {
+          error: error.message,
+          userId: user.id,
+        });
         console.error("Supabase error:", error);
         throw error;
       }
@@ -39,18 +44,20 @@ export const useProfileData = () => {
       if (data) {
         // Validate that returned profile belongs to authenticated user
         if (data.id !== user.id) {
-          logSecurityEvent("Profile ID mismatch", { 
-            expectedId: user.id, 
-            receivedId: data.id 
+          logSecurityEvent("Profile ID mismatch", {
+            expectedId: user.id,
+            receivedId: data.id,
           });
           throw new Error("Security violation: Profile ID mismatch");
         }
-        
+
         console.log("Profile found:", data);
         setProfile(data as ProfileData);
       } else {
         // Profile should be created automatically by trigger, but if not found, wait briefly and retry
-        console.log("No profile found, user might be newly created. Retrying in 1 second...");
+        console.log(
+          "No profile found, user might be newly created. Retrying in 1 second..."
+        );
         setTimeout(() => {
           fetchProfile();
         }, 1000);

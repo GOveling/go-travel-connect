@@ -51,7 +51,7 @@ export const useSecureProfile = () => {
       const secureUpdates = {
         ...updates,
         id: user.id, // Force the ID to be the authenticated user's ID
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       const { data, error } = await supabase

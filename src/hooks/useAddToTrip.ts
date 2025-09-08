@@ -170,7 +170,8 @@ export const useAddToTrip = () => {
         lat: place.lat || null,
         lng: place.lng || null,
         // Address hierarchy (optional)
-        formatted_address: place.formattedAddress || place.address || place.location || null,
+        formatted_address:
+          place.formattedAddress || place.address || place.location || null,
         address_json: place.addressJson || null,
         country: place.country || null,
         state: place.state || null,

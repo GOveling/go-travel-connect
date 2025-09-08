@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Star, Clock, MapPin, Edit, Trash2, GripVertical } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Star, Clock, MapPin, Edit, Trash2, GripVertical } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SavedPlaceCardProps {
   place: {
@@ -15,35 +15,48 @@ interface SavedPlaceCardProps {
     image?: string;
     description?: string;
     estimated_time?: string;
-    priority?: 'high' | 'medium' | 'low';
+    priority?: "high" | "medium" | "low";
     destination_name?: string;
     formatted_address?: string; // snake_case from Supabase
-    formattedAddress?: string;  // camelCase if mapped in frontend
+    formattedAddress?: string; // camelCase if mapped in frontend
   };
   canEdit?: boolean;
   onDelete?: () => void;
   priorityNumber?: number; // Visual position number (1, 2, 3...)
 }
 
-export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: SavedPlaceCardProps) => {
+export const SavedPlaceCard = ({
+  place,
+  canEdit,
+  onDelete,
+  priorityNumber,
+}: SavedPlaceCardProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "high":
+        return "bg-red-100 text-red-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPriorityText = (priority: string) => {
     switch (priority) {
-      case 'high': return 'Alta';
-      case 'medium': return 'Media';
-      case 'low': return 'Baja';
-      default: return 'Sin definir';
+      case "high":
+        return "Alta";
+      case "medium":
+        return "Media";
+      case "low":
+        return "Baja";
+      default:
+        return "Sin definir";
     }
   };
 
@@ -52,9 +65,7 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
       <Star
         key={i}
         className={`h-4 w-4 ${
-          i < rating 
-            ? 'text-yellow-400 fill-yellow-400' 
-            : 'text-gray-300'
+          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
         }`}
       />
     ));
@@ -62,13 +73,13 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
 
   const handleDelete = async () => {
     if (!onDelete) return;
-    
+
     setLoading(true);
     try {
       const { error } = await supabase
-        .from('saved_places')
+        .from("saved_places")
         .delete()
-        .eq('id', place.id);
+        .eq("id", place.id);
 
       if (error) throw error;
 
@@ -79,11 +90,11 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
 
       onDelete();
     } catch (error: any) {
-      console.error('Error deleting place:', error);
+      console.error("Error deleting place:", error);
       toast({
         title: "Error al eliminar",
         description: error.message || "Ha ocurrido un error inesperado",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -101,18 +112,18 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
               </div>
             )}
             {canEdit && (
-              <div 
+              <div
                 className="flex items-center justify-center pt-1 select-none no-native-drag"
                 draggable={false}
                 onDragStart={(e) => e.preventDefault()}
               >
-                <GripVertical 
+                <GripVertical
                   className="h-4 w-4 text-gray-400"
                   aria-label="Reordenar"
                 />
               </div>
             )}
-            
+
             <div className="flex-1">
               <h4 className="font-semibold text-lg mb-1">{place.name}</h4>
               {place.destination_name && (
@@ -133,7 +144,7 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
                 </p>
               )}
             </div>
-            
+
             {place.image && (
               <img
                 src={place.image}
@@ -157,13 +168,13 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
                 </span>
               </div>
             )}
-            
+
             {place.priority && (
               <Badge className={getPriorityColor(place.priority)}>
                 {getPriorityText(place.priority)}
               </Badge>
             )}
-            
+
             {place.category && (
               <Badge variant="outline">{place.category}</Badge>
             )}
@@ -174,9 +185,9 @@ export const SavedPlaceCard = ({ place, canEdit, onDelete, priorityNumber }: Sav
               <Button size="sm" variant="ghost">
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button 
-                size="sm" 
-                variant="ghost" 
+              <Button
+                size="sm"
+                variant="ghost"
                 onClick={handleDelete}
                 disabled={loading}
               >

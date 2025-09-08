@@ -58,7 +58,14 @@ interface PlaceMapModalProps {
 
 const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
   const mapRef = useRef<any>(null);
-  const { location, getCurrentLocation, isLocating, error, startWatching, stopWatching } = useUserLocation();
+  const {
+    location,
+    getCurrentLocation,
+    isLocating,
+    error,
+    startWatching,
+    stopWatching,
+  } = useUserLocation();
   const { toast } = useToast();
   const [showUserLocation, setShowUserLocation] = useState(false);
 
@@ -126,11 +133,18 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
 
             {showUserLocation && location && (
               <>
-                <Marker position={[location.lat, location.lng]} icon={userIcon} />
+                <Marker
+                  position={[location.lat, location.lng]}
+                  icon={userIcon}
+                />
                 <Circle
                   center={[location.lat, location.lng]}
                   radius={location.accuracy ?? 50}
-                  pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.15 }}
+                  pathOptions={{
+                    color: "#3b82f6",
+                    fillColor: "#3b82f6",
+                    fillOpacity: 0.15,
+                  }}
                 />
               </>
             )}
@@ -145,7 +159,11 @@ const PlaceMapModal = ({ isOpen, onClose, place }: PlaceMapModalProps) => {
               disabled={isLocating}
             >
               <LocateFixed size={16} className="mr-2" />
-              {showUserLocation ? "Ocultar ubicación" : isLocating ? "Localizando..." : "Mi ubicación"}
+              {showUserLocation
+                ? "Ocultar ubicación"
+                : isLocating
+                  ? "Localizando..."
+                  : "Mi ubicación"}
             </Button>
           </div>
         </div>

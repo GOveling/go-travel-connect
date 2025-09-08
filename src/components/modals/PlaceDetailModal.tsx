@@ -604,18 +604,22 @@ const PlaceDetailModal = ({
           )}
         </div>
       </DialogContent>
-      
+
       {/* Place Map Modal */}
       <PlaceMapModal
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}
-        place={place ? {
-          id: place.id || place.name,
-          name: place.name,
-          lat: place.lat,
-          lng: place.lng,
-          address: place.location
-        } : null}
+        place={
+          place
+            ? {
+                id: place.id || place.name,
+                name: place.name,
+                lat: place.lat,
+                lng: place.lng,
+                address: place.location,
+              }
+            : null
+        }
       />
     </Dialog>
   );

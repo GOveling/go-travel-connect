@@ -103,7 +103,6 @@
   }
 }
 
-
 /* Modern Mobile Menu Styles */
 .menu {
   display: flex;
@@ -221,11 +220,16 @@
 
 /* Gentle floating animation for hero logo */
 @keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
-
 
 /* Animated Sign-In Styles */
 .login-container {

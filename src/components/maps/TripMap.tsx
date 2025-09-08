@@ -80,7 +80,9 @@ const TripMap = ({ trips }: TripMapProps) => {
                       </div>
                     )}
                   </div>
-                  <p className="text-gray-600 text-sm mb-2">{getFormattedDateRange(trip.startDate, trip.endDate)}</p>
+                  <p className="text-gray-600 text-sm mb-2">
+                    {getFormattedDateRange(trip.startDate, trip.endDate)}
+                  </p>
 
                   {/* Collaborators */}
                   {trip.collaborators && trip.collaborators.length > 0 && (

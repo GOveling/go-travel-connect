@@ -8,7 +8,11 @@ interface NewUserPersonalInfoModalProps {
   onComplete: () => void;
 }
 
-const NewUserPersonalInfoModal = ({ isOpen, onClose, onComplete }: NewUserPersonalInfoModalProps) => {
+const NewUserPersonalInfoModal = ({
+  isOpen,
+  onClose,
+  onComplete,
+}: NewUserPersonalInfoModalProps) => {
   const { profile, refreshProfile, user } = useProfileData();
   const [showIntro, setShowIntro] = useState(false);
 

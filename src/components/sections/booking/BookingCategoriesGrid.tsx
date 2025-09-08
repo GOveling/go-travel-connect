@@ -27,7 +27,7 @@ const BookingCategoriesGrid = ({
   onRestaurantClick,
 }: BookingCategoriesGridProps) => {
   const { t } = useLanguage();
-  
+
   const bookingCategories = [
     {
       icon: Plane,

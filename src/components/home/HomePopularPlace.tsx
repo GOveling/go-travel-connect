@@ -223,7 +223,8 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
                 <div className="flex items-center gap-1">
                   <Users size={12} className="text-purple-600" />
                   <span className="text-xs font-medium text-purple-600">
-                    {currentPlace.globalSaves.toLocaleString()} {t("home.popularPlaces.saves")}
+                    {currentPlace.globalSaves.toLocaleString()}{" "}
+                    {t("home.popularPlaces.saves")}
                   </span>
                 </div>
                 <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">

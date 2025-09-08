@@ -13,8 +13,12 @@ export const useTripCalculations = (trips: Trip[]) => {
   const upcomingTrips = tripsWithDynamicStatus
     .filter((trip) => trip.status === "upcoming")
     .sort((a, b) => {
-      const aTime = a.startDate ? a.startDate.getTime() : Number.MAX_SAFE_INTEGER;
-      const bTime = b.startDate ? b.startDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const aTime = a.startDate
+        ? a.startDate.getTime()
+        : Number.MAX_SAFE_INTEGER;
+      const bTime = b.startDate
+        ? b.startDate.getTime()
+        : Number.MAX_SAFE_INTEGER;
       return aTime - bTime;
     });
 
@@ -22,7 +26,7 @@ export const useTripCalculations = (trips: Trip[]) => {
     try {
       const startDate = trip.startDate;
       if (!startDate) return false;
-      
+
       const currentDate = new Date();
       const daysDifference = Math.ceil(
         (startDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)

@@ -124,7 +124,10 @@ export const useSupabaseTrips = () => {
             })) || [],
           savedPlaces:
             trip.saved_places
-              ?.sort((a: any, b: any) => (a.position_order || 0) - (b.position_order || 0))
+              ?.sort(
+                (a: any, b: any) =>
+                  (a.position_order || 0) - (b.position_order || 0)
+              )
               ?.map((place: any) => ({
                 id: place.id,
                 name: place.name,
@@ -180,8 +183,10 @@ export const useSupabaseTrips = () => {
           user_id: user.id,
           name: tripData.name || "New Trip",
           destination: tripData.destination || "",
-          
-          start_date: tripData.startDate ? tripData.startDate.toISOString() : null,
+
+          start_date: tripData.startDate
+            ? tripData.startDate.toISOString()
+            : null,
           end_date: tripData.endDate ? tripData.endDate.toISOString() : null,
           status: tripData.status || "planning",
           travelers: tripData.travelers || 1,
@@ -285,8 +290,10 @@ export const useSupabaseTrips = () => {
         .update({
           name: tripData.name,
           destination: tripData.destination,
-          
-          start_date: tripData.startDate ? tripData.startDate.toISOString() : null,
+
+          start_date: tripData.startDate
+            ? tripData.startDate.toISOString()
+            : null,
           end_date: tripData.endDate ? tripData.endDate.toISOString() : null,
           status: tripData.status,
           travelers: tripData.travelers,
@@ -389,12 +396,10 @@ export const useSupabaseTrips = () => {
         });
       } else {
         // User is not owner - hide the trip from their view
-        const { error } = await supabase
-          .from("trips_hidden_by_user")
-          .insert({
-            user_id: user.id,
-            trip_id: tripUUID,
-          });
+        const { error } = await supabase.from("trips_hidden_by_user").insert({
+          user_id: user.id,
+          trip_id: tripUUID,
+        });
 
         if (error) {
           console.error("Error hiding trip:", error);
@@ -436,45 +441,49 @@ export const useSupabaseTrips = () => {
     if (!user?.id) return;
 
     const handleInvitationAccepted = () => {
-      console.log('Trip invitation accepted, refreshing trips...');
+      console.log("Trip invitation accepted, refreshing trips...");
       fetchTrips();
     };
 
     const handleCollaboratorRemoved = () => {
-      console.log('Collaborator removed, refreshing trips...');
+      console.log("Collaborator removed, refreshing trips...");
       fetchTrips();
     };
 
-    window.addEventListener('tripInvitationAccepted', handleInvitationAccepted);
-    window.addEventListener('collaboratorRemoved', handleCollaboratorRemoved);
+    window.addEventListener("tripInvitationAccepted", handleInvitationAccepted);
+    window.addEventListener("collaboratorRemoved", handleCollaboratorRemoved);
 
     // Create a unique channel name to avoid conflicts
     const channelName = `trip_collaborators_${user.id}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Set up realtime subscription for trip_collaborators changes
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'trip_collaborators',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('Collaborator deleted realtime:', payload);
-          // Refresh trips immediately when this user is removed as collaborator
-          fetchTrips();
-        }
-      );
+    const channel = supabase.channel(channelName).on(
+      "postgres_changes",
+      {
+        event: "DELETE",
+        schema: "public",
+        table: "trip_collaborators",
+        filter: `user_id=eq.${user.id}`,
+      },
+      (payload) => {
+        console.log("Collaborator deleted realtime:", payload);
+        // Refresh trips immediately when this user is removed as collaborator
+        fetchTrips();
+      }
+    );
 
     // Subscribe only after setting up all listeners
     channel.subscribe();
-    
+
     return () => {
-      window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
-      window.removeEventListener('collaboratorRemoved', handleCollaboratorRemoved);
+      window.removeEventListener(
+        "tripInvitationAccepted",
+        handleInvitationAccepted
+      );
+      window.removeEventListener(
+        "collaboratorRemoved",
+        handleCollaboratorRemoved
+      );
       // Unsubscribe and remove channel properly
       channel.unsubscribe();
       supabase.removeChannel(channel);

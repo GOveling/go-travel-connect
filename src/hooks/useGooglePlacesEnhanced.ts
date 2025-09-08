@@ -38,8 +38,8 @@ export const useGooglePlacesEnhanced = () => {
 
   const searchPlaces = useCallback(
     async (
-      input: string, 
-      selectedCategories: string[] = [], 
+      input: string,
+      selectedCategories: string[] = [],
       userLocation?: { lat: number; lng: number }
     ) => {
       if (!input.trim()) {
@@ -92,7 +92,8 @@ export const useGooglePlacesEnhanced = () => {
             Number.isFinite(p.coordinates.lat) &&
             Number.isFinite(p.coordinates.lng) &&
             // Exclude invalid coordinates (0,0) or very close to (0,0)
-            (Math.abs(p.coordinates.lat) > 0.001 || Math.abs(p.coordinates.lng) > 0.001) &&
+            (Math.abs(p.coordinates.lat) > 0.001 ||
+              Math.abs(p.coordinates.lng) > 0.001) &&
             // Exclude obviously invalid coordinates
             Math.abs(p.coordinates.lat) <= 90 &&
             Math.abs(p.coordinates.lng) <= 180

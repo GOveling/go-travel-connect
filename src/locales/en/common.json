@@ -18,6 +18,8 @@
     "no": "No",
     "viewMore": "View More",
     "loadMore": "Load More",
-    "seeAll": "See All"
+    "seeAll": "See All",
+    "active": "Active",
+    "inactive": "Inactive"
   }
 }

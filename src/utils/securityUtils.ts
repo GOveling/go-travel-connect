@@ -2,7 +2,7 @@
 
 export const sanitizeInput = (input: string): string => {
   if (!input) return "";
-  
+
   // Remove potential XSS vectors
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
@@ -21,9 +21,12 @@ export const validatePhoneNumber = (phone: string): boolean => {
   return phoneRegex.test(phone);
 };
 
-export const maskSensitiveData = (data: string, visibleChars: number = 4): string => {
+export const maskSensitiveData = (
+  data: string,
+  visibleChars: number = 4
+): string => {
   if (!data || data.length <= visibleChars) return data;
-  
+
   const visible = data.slice(-visibleChars);
   const masked = "*".repeat(Math.max(0, data.length - visibleChars));
   return masked + visible;
@@ -31,7 +34,7 @@ export const maskSensitiveData = (data: string, visibleChars: number = 4): strin
 
 export const logSecurityEvent = (event: string, details?: any) => {
   console.warn(`[SECURITY] ${event}:`, details);
-  
+
   // In production, this should send to a security monitoring service
   if (process.env.NODE_ENV === "production") {
     // Add security logging service here

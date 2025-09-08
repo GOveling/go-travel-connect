@@ -112,7 +112,10 @@ const ExpensesTab = ({
                           : expense.paid_by}
                       </div>
                       <div>Split: {expense.split_between.join(", ")}</div>
-                      <div>Date: {new Date(expense.created_at).toLocaleDateString()}</div>
+                      <div>
+                        Date:{" "}
+                        {new Date(expense.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                     <div className="flex space-x-2 pt-2">
                       <Button
@@ -201,7 +204,9 @@ const ExpensesTab = ({
                         : expense.paid_by}
                     </TableCell>
                     <TableCell>{expense.split_between.join(", ")}</TableCell>
-                    <TableCell>{new Date(expense.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {new Date(expense.created_at).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button

@@ -2,7 +2,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 
 const HomeHeader = () => {
   const { t } = useLanguage();
-  
+
   return (
     <div className="pb-4">
       <div className="flex justify-center items-center mb-2 mx-0 px-0">

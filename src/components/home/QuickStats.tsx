@@ -1,9 +1,8 @@
-
-import { MapPin, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useHomeData } from "@/hooks/state/useHomeData";
 import { useLanguage } from "@/hooks/useLanguage";
 import { calculateTripStatus } from "@/utils/tripStatusUtils";
+import { Calendar, MapPin } from "lucide-react";
 
 const QuickStats = () => {
   const { trips } = useHomeData();
@@ -27,14 +26,18 @@ const QuickStats = () => {
         <CardContent className="p-4 text-center">
           <MapPin className="mx-auto mb-2" size={24} />
           <p className="text-2xl font-bold">{totalSavedPlaces}</p>
-          <p className="text-sm opacity-90">{t("home.quickStats.placesSaved")}</p>
+          <p className="text-sm opacity-90">
+            {t("home.quickStats.placesSaved")}
+          </p>
         </CardContent>
       </Card>
       <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
         <CardContent className="p-4 text-center">
           <Calendar className="mx-auto mb-2" size={24} />
           <p className="text-2xl font-bold">{upcomingTrips}</p>
-          <p className="text-sm opacity-90">{t("home.quickStats.upcomingTrips")}</p>
+          <p className="text-sm opacity-90">
+            {t("home.quickStats.upcomingTrips")}
+          </p>
         </CardContent>
       </Card>
     </div>
