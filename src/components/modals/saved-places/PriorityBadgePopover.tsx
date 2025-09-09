@@ -71,12 +71,18 @@ export const PriorityBadgePopover = ({ place, onUpdate }: PriorityBadgePopoverPr
     <div onClick={(e) => e.stopPropagation()}>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Badge 
-            variant={currentPriority.variant}
-            className={`cursor-pointer hover:opacity-80 transition-opacity ${currentPriority.color} relative z-10`}
+          <button
+            type="button"
+            className="outline-none focus:outline-none inline-flex"
+            onClick={(e) => e.stopPropagation()}
           >
-            {currentPriority.label}
-          </Badge>
+            <Badge 
+              variant={currentPriority.variant}
+              className={`cursor-pointer hover:opacity-80 transition-opacity ${currentPriority.color} relative z-10`}
+            >
+              {currentPriority.label}
+            </Badge>
+          </button>
         </PopoverTrigger>
         <PopoverContent 
           className="w-80 z-[99999] bg-white border shadow-lg" 
