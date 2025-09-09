@@ -130,9 +130,6 @@ const CurrentTripContent = memo(({
             >
               {config.isEnabled ? t("common.active") : t("common.inactive")}
             </span>
-            <p className="text-sm text-gray-600">
-              {t("home.currentTrip.followingOptimizedRoute")}
-            </p>
             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
               {t("home.currentTrip.traveling")}
             </span>
