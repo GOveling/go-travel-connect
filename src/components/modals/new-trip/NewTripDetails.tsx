@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MultiSelectPopover from "./MultiSelectPopover";
@@ -44,7 +43,9 @@ const NewTripDetails = ({ formData, onInputChange }: NewTripDetailsProps) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-700">{t("trips.newTripModal.details.title")}</h3>
+      <h3 className="text-lg font-semibold text-gray-700">
+        {t("trips.newTripModal.details.title")}
+      </h3>
 
       <div>
         <Label htmlFor="budget" className="text-sm font-medium">

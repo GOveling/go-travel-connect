@@ -30,6 +30,7 @@ export interface SavedPlace {
   description: string;
   estimatedTime: string;
   priority: "high" | "medium" | "low";
+  reminderNote?: string;
   destinationName: string;
   lat?: number;
   lng?: number;
@@ -49,6 +50,10 @@ export interface SavedPlace {
   streetNumber?: string;
   placeSource?: string;
   placeReference?: string;
+  // Visit tracking
+  visited?: boolean;
+  visitedAt?: string;
+  visitDistance?: number;
 }
 
 export interface Trip {

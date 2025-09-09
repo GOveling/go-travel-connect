@@ -18,6 +18,20 @@
     "no": "No",
     "viewMore": "View More",
     "loadMore": "Load More",
-    "seeAll": "See All"
+    "seeAll": "See All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "place": "place",
+    "places": "places",
+    "viewMap": "View Map",
+    "morePlaces": "more places",
+    "myLocation": "My Location",
+    "hideLocation": "Hide Location",
+    "locating": "Locating...",
+    "yourLocation": "Your Location",
+    "success": "Success",
+    "error": "Error",
+    "locationFound": "Location found",
+    "locationError": "Error getting location"
   }
 }

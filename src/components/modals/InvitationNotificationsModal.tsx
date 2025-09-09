@@ -10,7 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useInvitationNotifications } from "@/hooks/useInvitationNotifications";
-import { MapPin, Calendar, Clock, ExternalLink, Users, Loader2 } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  Clock,
+  ExternalLink,
+  Users,
+  Loader2,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface InvitationNotificationsModalProps {
@@ -23,7 +30,8 @@ const InvitationNotificationsModal = ({
   onClose,
 }: InvitationNotificationsModalProps) => {
   const { t } = useLanguage();
-  const { invitations, loading, markAsRead, getInvitationLink } = useInvitationNotifications();
+  const { invitations, loading, markAsRead, getInvitationLink } =
+    useInvitationNotifications();
 
   const handleViewInvitation = (invitation: any) => {
     markAsRead(invitation.id);
@@ -32,17 +40,23 @@ const InvitationNotificationsModal = ({
 
   const getRoleText = (role: string) => {
     switch (role) {
-      case 'editor': return t("invitations.roleEditor") || "Editor";
-      case 'viewer': return t("invitations.roleViewer") || "Visualizador";
-      default: return role;
+      case "editor":
+        return t("invitations.roleEditor") || "Editor";
+      case "viewer":
+        return t("invitations.roleViewer") || "Visualizador";
+      default:
+        return role;
     }
   };
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'editor': return "default";
-      case 'viewer': return "secondary";
-      default: return "outline";
+      case "editor":
+        return "default";
+      case "viewer":
+        return "secondary";
+      default:
+        return "outline";
     }
   };
 
@@ -85,13 +99,17 @@ const InvitationNotificationsModal = ({
                 {t("invitations.noInvitations") || "No hay invitaciones"}
               </h3>
               <p className="text-muted-foreground">
-                {t("invitations.noInvitationsMessage") || "No tienes invitaciones de viaje pendientes en este momento."}
+                {t("invitations.noInvitationsMessage") ||
+                  "No tienes invitaciones de viaje pendientes en este momento."}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               {invitations.map((invitation) => (
-                <Card key={invitation.id} className="border-l-4 border-l-primary hover:bg-muted/50 transition-colors">
+                <Card
+                  key={invitation.id}
+                  className="border-l-4 border-l-primary hover:bg-muted/50 transition-colors"
+                >
                   <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                       <div className="flex-1 space-y-2">
@@ -101,10 +119,16 @@ const InvitationNotificationsModal = ({
                               {invitation.trip_name}
                             </h4>
                             <p className="text-sm text-muted-foreground">
-                              {t("invitations.invitedBy") || "Invitado por"} <span className="font-medium">{invitation.inviter_name}</span>
+                              {t("invitations.invitedBy") || "Invitado por"}{" "}
+                              <span className="font-medium">
+                                {invitation.inviter_name}
+                              </span>
                             </p>
                           </div>
-                          <Badge variant={getRoleBadgeVariant(invitation.role)} className="text-xs">
+                          <Badge
+                            variant={getRoleBadgeVariant(invitation.role)}
+                            className="text-xs"
+                          >
                             {getRoleText(invitation.role)}
                           </Badge>
                         </div>
@@ -113,13 +137,20 @@ const InvitationNotificationsModal = ({
                           <div className="flex items-center space-x-1">
                             <Clock className="h-3 w-3" />
                             <span>
-                              {formatDistanceToNow(new Date(invitation.created_at), { addSuffix: true })}
+                              {formatDistanceToNow(
+                                new Date(invitation.created_at),
+                                { addSuffix: true }
+                              )}
                             </span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar className="h-3 w-3" />
                             <span>
-                              {t("invitations.expires") || "Expira"} {formatDistanceToNow(new Date(invitation.expires_at), { addSuffix: true })}
+                              {t("invitations.expires") || "Expira"}{" "}
+                              {formatDistanceToNow(
+                                new Date(invitation.expires_at),
+                                { addSuffix: true }
+                              )}
                             </span>
                           </div>
                         </div>
@@ -132,7 +163,10 @@ const InvitationNotificationsModal = ({
                           className="flex items-center space-x-1"
                         >
                           <ExternalLink className="h-3 w-3" />
-                          <span>{t("invitations.viewInvitation") || "Ver Invitación"}</span>
+                          <span>
+                            {t("invitations.viewInvitation") ||
+                              "Ver Invitación"}
+                          </span>
                         </Button>
                       </div>
                     </div>

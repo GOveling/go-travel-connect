@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SendInvitationParams {
   tripId: string;
   email: string;
-  role: 'editor' | 'viewer';
+  role: "editor" | "viewer";
   message?: string;
 }
 
@@ -36,35 +36,43 @@ export const useInvitations = () => {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const { toast } = useToast();
 
-  const sendInvitation = async ({ tripId, email, role, message }: SendInvitationParams) => {
+  const sendInvitation = async ({
+    tripId,
+    email,
+    role,
+    message,
+  }: SendInvitationParams) => {
     setLoading(true);
     try {
       // Validate permissions first
       const { data: permissions } = await supabase
-        .from('trips')
-        .select('user_id, is_group_trip')
-        .eq('id', tripId)
+        .from("trips")
+        .select("user_id, is_group_trip")
+        .eq("id", tripId)
         .single();
-        
+
       if (!permissions) {
-        throw new Error('No tienes permisos para invitar');
+        throw new Error("No tienes permisos para invitar");
       }
 
-      const { data, error } = await supabase.functions.invoke('send-trip-invitation', {
-        body: {
-          tripId,
-          email: email.toLowerCase().trim(),
-          role,
-          message
+      const { data, error } = await supabase.functions.invoke(
+        "send-trip-invitation",
+        {
+          body: {
+            tripId,
+            email: email.toLowerCase().trim(),
+            role,
+            message,
+          },
         }
-      });
+      );
 
       if (error) {
         throw new Error(error.message);
       }
 
       if (!data || !data.success) {
-        throw new Error(data?.error || 'Failed to send invitation');
+        throw new Error(data?.error || "Failed to send invitation");
       }
 
       toast({
@@ -73,14 +81,14 @@ export const useInvitations = () => {
       });
 
       // Update local state and emit event
-      window.dispatchEvent(new CustomEvent('invitationSent'));
-      
+      window.dispatchEvent(new CustomEvent("invitationSent"));
+
       // Refresh invitations list
       await fetchInvitations(tripId);
 
       return data;
     } catch (error: any) {
-      console.error('Error sending invitation:', error);
+      console.error("Error sending invitation:", error);
       toast({
         title: "Error",
         description: error.message || "Error al enviar la invitación",
@@ -94,42 +102,37 @@ export const useInvitations = () => {
 
   const fetchInvitations = async (tripId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('trip_invitations')
-        .select(`
-          *,
-          trips!trip_invitations_trip_id_fkey(
-            id,
-            name
-          ),
-          profiles!trip_invitations_inviter_id_fkey(
-            full_name
-          )
-        `)
-        .eq('trip_id', tripId)
-        .in('status', ['pending', 'accepted', 'declined'])
-        .order('created_at', { ascending: false });
+      // Only trip owners can see all invitations for their trip
+      // Use the secure function instead of direct table access
+      const { data, error } = await supabase.rpc('get_user_pending_invitations');
 
       if (error) {
         throw error;
       }
 
-      console.log('Raw invitations data from useInvitations:', data);
+      console.log("Raw invitations data from useInvitations:", data);
 
       // Transform the data to ensure trip name is available
       const processedInvitations = (data || []).map((invitation: any) => ({
         ...invitation,
-        trip: invitation.trips || { id: tripId, name: 'Unknown Trip' },
-        inviter_name: invitation.profiles?.full_name || 'Unknown User'
+        trip: { id: invitation.trip_id, name: invitation.trip_name },
+        inviter_name: invitation.inviter_name || "Unknown User",
       }));
 
-      setInvitations(processedInvitations);
-      
+      // Filter by tripId if specified (for trip owners viewing their trip's invitations)
+      const filteredInvitations = tripId 
+        ? processedInvitations.filter((inv: any) => inv.trip_id === tripId)
+        : processedInvitations;
+
+      setInvitations(filteredInvitations);
+
       // Log for debugging
-      console.log('Processed invitations from useInvitations:', processedInvitations);
-      
+      console.log(
+        "Processed invitations from useInvitations:",
+        filteredInvitations
+      );
     } catch (error: any) {
-      console.error('Error fetching invitations:', error);
+      console.error("Error fetching invitations:", error);
       toast({
         title: "Error",
         description: "Error al cargar las invitaciones",
@@ -141,9 +144,9 @@ export const useInvitations = () => {
   const cancelInvitation = async (invitationId: string) => {
     try {
       const { error } = await supabase
-        .from('trip_invitations')
-        .update({ status: 'cancelled' })
-        .eq('id', invitationId);
+        .from("trip_invitations")
+        .update({ status: "cancelled" })
+        .eq("id", invitationId);
 
       if (error) {
         throw error;
@@ -155,11 +158,9 @@ export const useInvitations = () => {
       });
 
       // Remove cancelled invitation from local state (since we only show active ones)
-      setInvitations(prev => 
-        prev.filter(inv => inv.id !== invitationId)
-      );
+      setInvitations((prev) => prev.filter((inv) => inv.id !== invitationId));
     } catch (error: any) {
-      console.error('Error cancelling invitation:', error);
+      console.error("Error cancelling invitation:", error);
       toast({
         title: "Error",
         description: "Error al cancelar la invitación",
@@ -170,7 +171,10 @@ export const useInvitations = () => {
 
   const acceptInvitation = async (token: string) => {
     try {
-      console.log("🎫 Aceptando invitación con función v3:", token.substring(0, 10) + '...');
+      console.log(
+        "🎫 Aceptando invitación con función v3:",
+        token.substring(0, 10) + "..."
+      );
       setLoading(true);
 
       // Obtener datos del usuario actual
@@ -185,35 +189,37 @@ export const useInvitations = () => {
       }
 
       const { data: profileData } = await supabase
-        .from('profiles')
-        .select('email, onboarding_completed, full_name')
-        .eq('id', userData.user.id)
+        .from("profiles")
+        .select("email, onboarding_completed, full_name")
+        .eq("id", userData.user.id)
         .single();
 
       if (!profileData) {
-        return { 
-          success: false, 
+        return {
+          success: false,
           requiresProfile: true,
-          error: "Necesitas crear tu perfil antes de aceptar invitaciones"
+          error: "Necesitas crear tu perfil antes de aceptar invitaciones",
         };
       }
 
       if (!profileData.onboarding_completed) {
-        return { 
-          success: false, 
-          requiresOnboarding: true, 
+        return {
+          success: false,
+          requiresOnboarding: true,
           token,
-          error: "Necesitas completar tu perfil antes de aceptar invitaciones"
+          error: "Necesitas completar tu perfil antes de aceptar invitaciones",
         };
       }
 
       console.log("🚀 Usando función RPC v3 para aceptar invitación");
-      
+
       // Usar la nueva función RPC v3
-      const { data: result, error: rpcError } = await supabase
-        .rpc('accept_trip_invitation_v3', {
-          p_token: token
-        });
+      const { data: result, error: rpcError } = await supabase.rpc(
+        "accept_trip_invitation_v3",
+        {
+          p_token: token,
+        }
+      );
 
       console.log("✅ RPC Result:", result);
 
@@ -231,7 +237,8 @@ export const useInvitations = () => {
       const acceptResult = result as unknown as AcceptInvitationResult;
 
       if (!acceptResult || !acceptResult.success) {
-        const errorMessage = acceptResult?.error || "Error desconocido al aceptar la invitación";
+        const errorMessage =
+          acceptResult?.error || "Error desconocido al aceptar la invitación";
         console.error("❌ RPC failed:", errorMessage);
         toast({
           title: "Error",
@@ -242,18 +249,22 @@ export const useInvitations = () => {
       }
 
       console.log("✅ Invitación aceptada exitosamente");
-      
+
       // Disparar eventos para actualizar la UI
-      window.dispatchEvent(new CustomEvent('tripInvitationAccepted', {
-        detail: { 
-          tripId: acceptResult.trip_id,
-          role: acceptResult.role 
-        }
-      }));
-      
-      window.dispatchEvent(new CustomEvent('refreshManageTeam', {
-        detail: { tripId: acceptResult.trip_id }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("tripInvitationAccepted", {
+          detail: {
+            tripId: acceptResult.trip_id,
+            role: acceptResult.role,
+          },
+        })
+      );
+
+      window.dispatchEvent(
+        new CustomEvent("refreshManageTeam", {
+          detail: { tripId: acceptResult.trip_id },
+        })
+      );
 
       toast({
         title: "Invitación aceptada",
@@ -263,13 +274,12 @@ export const useInvitations = () => {
       return {
         success: true,
         trip: {
-          id: acceptResult.trip_id || '',
-          name: acceptResult.trip_name || ''
+          id: acceptResult.trip_id || "",
+          name: acceptResult.trip_name || "",
         },
-        userRole: acceptResult.role || '',
-        onboardingCompleted: true
+        userRole: acceptResult.role || "",
+        onboardingCompleted: true,
       };
-
     } catch (error: any) {
       console.error("❌ Error inesperado:", error);
       toast({
@@ -289,6 +299,6 @@ export const useInvitations = () => {
     sendInvitation,
     fetchInvitations,
     cancelInvitation,
-    acceptInvitation
+    acceptInvitation,
   };
 };

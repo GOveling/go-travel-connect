@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { MenuItemConfig } from "@/types/profile";
 import { TravelStats } from "@/types/profile";
-import { useGamification } from "@/hooks/useGamification";
+import { useSupabaseGamification } from "@/hooks/useSupabaseGamification";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface ProfileMenuConfigProps {
@@ -29,7 +29,7 @@ export const useProfileMenuConfig = ({
   stats,
   modalState,
 }: ProfileMenuConfigProps): MenuItemConfig[] => {
-  const { currentLevel, totalPoints } = useGamification();
+  const { currentLevel, totalPoints } = useSupabaseGamification();
   const { t } = useLanguage();
 
   return [

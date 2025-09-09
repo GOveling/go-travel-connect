@@ -224,7 +224,9 @@ const ExploreFilters = ({
             className="text-gray-500 hover:text-gray-700 ml-2"
           >
             <X size={16} className="mr-1" />
-            <span className="hidden sm:inline">{t("explore.filters.clear")}</span>
+            <span className="hidden sm:inline">
+              {t("explore.filters.clear")}
+            </span>
           </Button>
         )}
       </div>
@@ -303,9 +305,10 @@ const ExploreFilters = ({
       {selectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedCategories.map((categoryId) => {
-            const category = [...getMainCategories(), ...getSpecificCategories()].find(
-              (c) => c.id === categoryId
-            );
+            const category = [
+              ...getMainCategories(),
+              ...getSpecificCategories(),
+            ].find((c) => c.id === categoryId);
             return category ? (
               <Badge
                 key={categoryId}

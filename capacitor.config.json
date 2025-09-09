@@ -2,6 +2,10 @@
   "appId": "app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8",
   "appName": "goveling-mvp",
   "webDir": "dist",
+  "server": {
+    "url": "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
@@ -13,6 +17,22 @@
     "StatusBar": {
       "style": "dark",
       "backgroundColor": "#6366f1"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#488AFF",
+      "sound": "default",
+      "requestPermissions": true,
+      "enableBadge": true,
+      "presentationOptions": ["alert", "badge", "sound"],
+      "categoryType": "default",
+      "androidChannelOptions": {
+        "importance": 4,
+        "visibility": 1
+      }
+    },
+    "Geolocation": {
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
     }
   },
   "android": {

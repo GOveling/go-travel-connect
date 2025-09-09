@@ -33,19 +33,19 @@ export const useAuth = () => {
           "✅ useAuth: User signed in successfully:",
           session?.user?.email
         );
-        
+
         // For Google OAuth, check if this is a new user by looking at created_at
         if (session?.user) {
           // Check if user was created very recently (within 10 seconds) - indicates new signup
           const userCreatedAt = new Date(session.user.created_at);
           const now = new Date();
           const timeDiff = now.getTime() - userCreatedAt.getTime();
-          
-          if (timeDiff < 10000) { // Less than 10 seconds = new signup
-            sessionStorage.setItem(`new_signup_${session.user.id}`, 'true');
-            console.log('🆕 Detected new Google signup:', session.user.email);
+
+          if (timeDiff < 10000) {
+            // Less than 10 seconds = new signup
+            sessionStorage.setItem(`new_signup_${session.user.id}`, "true");
+            console.log("🆕 Detected new Google signup:", session.user.email);
           }
-          
         }
       } else if (event === "SIGNED_OUT") {
         console.log("👋 useAuth: User signed out");
@@ -93,7 +93,6 @@ export const useAuth = () => {
       subscription.unsubscribe();
     };
   }, []);
-
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
@@ -156,7 +155,7 @@ export const useAuth = () => {
       } else if (data.session) {
         // Mark this as a new signup for welcome flow
         if (data.user) {
-          sessionStorage.setItem(`new_signup_${data.user.id}`, 'true');
+          sessionStorage.setItem(`new_signup_${data.user.id}`, "true");
         }
         toast({
           title: "¡Cuenta creada exitosamente!",
@@ -245,7 +244,7 @@ export const useAuth = () => {
 
       // Attempt to sign out from Supabase
       const { error } = await supabase.auth.signOut();
-      
+
       // If there's an AuthSessionMissingError, it means user is already logged out
       if (error && error.message !== "Auth session missing!") {
         console.error("❌ useAuth: Sign out error:", error);
@@ -258,15 +257,14 @@ export const useAuth = () => {
       console.log("✅ useAuth: Sign out successful");
 
       // Clear any remaining local storage items
-      localStorage.removeItem('sb-auth-token');
-      
+      localStorage.removeItem("sb-auth-token");
     } catch (error: any) {
       console.error("❌ useAuth: Sign out exception:", error);
-      
+
       // Even if sign out fails, clear local state to force logout
       setUser(null);
       setSession(null);
-      
+
       // Only show error for non-session errors
       if (!error.message?.includes("Auth session missing")) {
         toast({

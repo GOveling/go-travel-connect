@@ -7,10 +7,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -89,7 +86,10 @@ const PersonalInformationModal = ({
 
   // Initialize form with profile data
   useEffect(() => {
-    console.log('PersonalInformationModal: Initializing form with profile:', profile);
+    console.log(
+      "PersonalInformationModal: Initializing form with profile:",
+      profile
+    );
     if (profile) {
       setFormData({
         full_name: profile.full_name || "",
@@ -105,7 +105,10 @@ const PersonalInformationModal = ({
         gender: profile.gender || "",
       });
 
-      console.log('PersonalInformationModal: Form initialized with full_name:', profile.full_name);
+      console.log(
+        "PersonalInformationModal: Form initialized with full_name:",
+        profile.full_name
+      );
 
       // Si el perfil tiene un país seleccionado, cargar las ciudades
       if (profile.country) {
@@ -149,10 +152,10 @@ const PersonalInformationModal = ({
         }));
       }
     } else {
-      setFormData((prev) => ({ 
-        ...prev, 
+      setFormData((prev) => ({
+        ...prev,
         country_code: "",
-        mobile_phone: ""
+        mobile_phone: "",
       }));
     }
   }, [formData.country, countries]);
@@ -226,7 +229,10 @@ const PersonalInformationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-2xl flex flex-col" style={{ touchAction: 'manipulation' }}>
+      <DialogContent
+        className="max-w-2xl w-[90vw] max-h-[85vh] p-0 rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm flex flex-col drop-shadow-2xl mx-auto my-auto"
+        style={{ touchAction: "manipulation" }}
+      >
         {/* Mobile Header */}
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-6 py-4">
           <div className="flex items-center justify-between">
@@ -237,12 +243,22 @@ const PersonalInformationModal = ({
               onClick={onClose}
               className="h-8 w-8 p-0 hover:bg-muted rounded-full"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </Button>
           </div>
-          
+
           {/* Progress indicator for mobile */}
           {/** Only show on first-time onboarding */}
           {showIntroMessage && (
@@ -254,7 +270,8 @@ const PersonalInformationModal = ({
                     ¡Último paso para comenzar!
                   </h3>
                   <p className="text-xs text-green-700 dark:text-green-400">
-                    Completa tu información para obtener recomendaciones personalizadas.
+                    Completa tu información para obtener recomendaciones
+                    personalizadas.
                   </p>
                 </div>
               </div>
@@ -263,263 +280,302 @@ const PersonalInformationModal = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto min-h-0" style={{ touchAction: 'pan-y', scrollBehavior: 'smooth' }}>
+        <div
+          className="flex-1 overflow-y-auto min-h-0"
+          style={{ touchAction: "pan-y", scrollBehavior: "smooth" }}
+        >
           <div className="p-6 pb-24">
             <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Full Name */}
-            <div className="space-y-3">
-              <Label htmlFor="full_name" className="text-base font-medium">
-                Nombre Completo *
-              </Label>
-              <Input
-                id="full_name"
-                value={formData.full_name}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, full_name: e.target.value }))
-                }
-                placeholder="Ingresa tu nombre completo"
-                required
-                className="h-12 text-base rounded-2xl border-2 focus:border-primary"
-              />
-            </div>
-
-            {/* Birth Date and Age */}
-            <div className="space-y-6">
+              {/* Full Name */}
               <div className="space-y-3">
-                <Label className="text-base font-medium">Fecha de Nacimiento *</Label>
-                <Popover open={birthDateOpen} onOpenChange={setBirthDateOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal h-12 text-base rounded-2xl border-2"
-                    >
-                      <CalendarIcon className="mr-3 h-5 w-5" />
-                      {formData.birth_date
-                        ? format(formData.birth_date, "dd/MM/yyyy")
-                        : "Seleccionar fecha"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 rounded-2xl">
-                    <div className="p-6 space-y-6">
-                      {/* Year Selector */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Año</Label>
-                        <Select
-                          value={
-                            formData.birth_date?.getFullYear().toString() || ""
-                          }
-                          onValueChange={(year) => {
-                            const currentDate = formData.birth_date || new Date();
-                            const newDate = new Date(
-                              parseInt(year),
-                              currentDate.getMonth(),
-                              currentDate.getDate()
-                            );
-                            setFormData((prev) => ({
-                              ...prev,
-                              birth_date: newDate,
-                            }));
-                          }}
-                        >
-                          <SelectTrigger className="w-full h-12 rounded-xl">
-                            <SelectValue placeholder="Seleccionar año" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60 rounded-xl">
-                            {Array.from({ length: 124 }, (_, i) => {
-                              const year = new Date().getFullYear() - i;
-                              return (
-                                <SelectItem key={year} value={year.toString()}>
-                                  {year}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Month and Day Selectors */}
-                      {formData.birth_date && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium">Mes</Label>
-                            <Select
-                              value={(
-                                formData.birth_date.getMonth() + 1
-                              ).toString()}
-                              onValueChange={(month) => {
-                                const currentDate = formData.birth_date!;
-                                const year = currentDate.getFullYear();
-                                const newMonth = parseInt(month) - 1;
-                                const currentDay = currentDate.getDate();
-
-                                const maxDaysInNewMonth = new Date(
-                                  year,
-                                  newMonth + 1,
-                                  0
-                                ).getDate();
-
-                                const adjustedDay = Math.min(
-                                  currentDay,
-                                  maxDaysInNewMonth
-                                );
-
-                                const newDate = new Date(
-                                  year,
-                                  newMonth,
-                                  adjustedDay
-                                );
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  birth_date: newDate,
-                                }));
-                              }}
-                            >
-                              <SelectTrigger className="h-12 rounded-xl">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="rounded-xl">
-                                {[
-                                  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                                  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-                                ].map((monthName, index) => (
-                                  <SelectItem
-                                    key={index + 1}
-                                    value={(index + 1).toString()}
-                                  >
-                                    {monthName}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-3">
-                            <Label className="text-sm font-medium">Día</Label>
-                            <Select
-                              value={formData.birth_date.getDate().toString()}
-                              onValueChange={(day) => {
-                                const currentDate = formData.birth_date!;
-                                const newDate = new Date(
-                                  currentDate.getFullYear(),
-                                  currentDate.getMonth(),
-                                  parseInt(day)
-                                );
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  birth_date: newDate,
-                                }));
-                                setBirthDateOpen(false);
-                              }}
-                            >
-                              <SelectTrigger className="h-12 rounded-xl">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="max-h-60 rounded-xl">
-                                {Array.from(
-                                  {
-                                    length: new Date(
-                                      formData.birth_date.getFullYear(),
-                                      formData.birth_date.getMonth() + 1,
-                                      0
-                                    ).getDate(),
-                                  },
-                                  (_, i) => {
-                                    const day = i + 1;
-                                    return (
-                                      <SelectItem
-                                        key={day}
-                                        value={day.toString()}
-                                      >
-                                        {day}
-                                      </SelectItem>
-                                    );
-                                  }
-                                )}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="age" className="text-base font-medium">Edad</Label>
+                <Label htmlFor="full_name" className="text-base font-medium">
+                  Nombre Completo *
+                </Label>
                 <Input
-                  id="age"
-                  value={formData.age || ""}
-                  readOnly
-                  placeholder="Se calcula automáticamente"
-                  className="h-12 text-base rounded-2xl bg-muted/50 border-2"
+                  id="full_name"
+                  value={formData.full_name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      full_name: e.target.value,
+                    }))
+                  }
+                  placeholder="Ingresa tu nombre completo"
+                  required
+                  className="h-12 text-base rounded-2xl border-2 focus:border-primary"
                 />
               </div>
-            </div>
 
-            {/* Address */}
-            <div className="space-y-3">
-              <Label htmlFor="address" className="text-base font-medium">
-                Dirección de Residencia
-              </Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, address: e.target.value }))
-                }
-                placeholder="Ingresa tu dirección completa"
-                className="h-12 text-base rounded-2xl border-2 focus:border-primary"
-              />
-            </div>
+              {/* Birth Date and Age */}
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">
+                    Fecha de Nacimiento *
+                  </Label>
+                  <Popover open={birthDateOpen} onOpenChange={setBirthDateOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal h-12 text-base rounded-2xl border-2"
+                      >
+                        <CalendarIcon className="mr-3 h-5 w-5" />
+                        {formData.birth_date
+                          ? format(formData.birth_date, "dd/MM/yyyy")
+                          : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 rounded-2xl">
+                      <div className="p-6 space-y-6">
+                        {/* Year Selector */}
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium">Año</Label>
+                          <Select
+                            value={
+                              formData.birth_date?.getFullYear().toString() ||
+                              ""
+                            }
+                            onValueChange={(year) => {
+                              const currentDate =
+                                formData.birth_date || new Date();
+                              const newDate = new Date(
+                                parseInt(year),
+                                currentDate.getMonth(),
+                                currentDate.getDate()
+                              );
+                              setFormData((prev) => ({
+                                ...prev,
+                                birth_date: newDate,
+                              }));
+                            }}
+                          >
+                            <SelectTrigger className="w-full h-12 rounded-xl">
+                              <SelectValue placeholder="Seleccionar año" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60 rounded-xl">
+                              {Array.from({ length: 124 }, (_, i) => {
+                                const year = new Date().getFullYear() - i;
+                                return (
+                                  <SelectItem
+                                    key={year}
+                                    value={year.toString()}
+                                  >
+                                    {year}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-            {/* Country and City */}
-            <div className="space-y-6">
+                        {/* Month and Day Selectors */}
+                        {formData.birth_date && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Mes</Label>
+                              <Select
+                                value={(
+                                  formData.birth_date.getMonth() + 1
+                                ).toString()}
+                                onValueChange={(month) => {
+                                  const currentDate = formData.birth_date!;
+                                  const year = currentDate.getFullYear();
+                                  const newMonth = parseInt(month) - 1;
+                                  const currentDay = currentDate.getDate();
+
+                                  const maxDaysInNewMonth = new Date(
+                                    year,
+                                    newMonth + 1,
+                                    0
+                                  ).getDate();
+
+                                  const adjustedDay = Math.min(
+                                    currentDay,
+                                    maxDaysInNewMonth
+                                  );
+
+                                  const newDate = new Date(
+                                    year,
+                                    newMonth,
+                                    adjustedDay
+                                  );
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    birth_date: newDate,
+                                  }));
+                                }}
+                              >
+                                <SelectTrigger className="h-12 rounded-xl">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  {[
+                                    "Enero",
+                                    "Febrero",
+                                    "Marzo",
+                                    "Abril",
+                                    "Mayo",
+                                    "Junio",
+                                    "Julio",
+                                    "Agosto",
+                                    "Septiembre",
+                                    "Octubre",
+                                    "Noviembre",
+                                    "Diciembre",
+                                  ].map((monthName, index) => (
+                                    <SelectItem
+                                      key={index + 1}
+                                      value={(index + 1).toString()}
+                                    >
+                                      {monthName}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Día</Label>
+                              <Select
+                                value={formData.birth_date.getDate().toString()}
+                                onValueChange={(day) => {
+                                  const currentDate = formData.birth_date!;
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    currentDate.getMonth(),
+                                    parseInt(day)
+                                  );
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    birth_date: newDate,
+                                  }));
+                                  setBirthDateOpen(false);
+                                }}
+                              >
+                                <SelectTrigger className="h-12 rounded-xl">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-60 rounded-xl">
+                                  {Array.from(
+                                    {
+                                      length: new Date(
+                                        formData.birth_date.getFullYear(),
+                                        formData.birth_date.getMonth() + 1,
+                                        0
+                                      ).getDate(),
+                                    },
+                                    (_, i) => {
+                                      const day = i + 1;
+                                      return (
+                                        <SelectItem
+                                          key={day}
+                                          value={day.toString()}
+                                        >
+                                          {day}
+                                        </SelectItem>
+                                      );
+                                    }
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="age" className="text-base font-medium">
+                    Edad
+                  </Label>
+                  <Input
+                    id="age"
+                    value={formData.age || ""}
+                    readOnly
+                    placeholder="Se calcula automáticamente"
+                    className="h-12 text-base rounded-2xl bg-muted/50 border-2"
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
               <div className="space-y-3">
-                <Label className="text-base font-medium">País</Label>
-                <Popover
-                  open={countryComboOpen}
-                  onOpenChange={setCountryComboOpen}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={countryComboOpen}
-                      className="w-full justify-between h-12 text-base rounded-2xl border-2"
-                      disabled={countriesLoading}
-                    >
-                      {formData.country
-                        ? countries.find(
-                            (country) => country.country_code === formData.country
-                          )?.country_name
-                        : countriesLoading
-                          ? "Cargando países..."
-                          : "Seleccionar país"}
-                      <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-background border rounded-2xl shadow-lg">
-                    <Command className="w-full">
-                      <CommandInput 
-                        placeholder="Buscar país..." 
-                        className="border-none h-12 text-base"
-                      />
-                      <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <CommandEmpty className="py-6 text-center text-sm">No se encontró el país.</CommandEmpty>
-                        <CommandGroup>
+                <Label htmlFor="address" className="text-base font-medium">
+                  Dirección de Residencia
+                </Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      address: e.target.value,
+                    }))
+                  }
+                  placeholder="Ingresa tu dirección completa"
+                  className="h-12 text-base rounded-2xl border-2 focus:border-primary"
+                />
+              </div>
+
+              {/* Country and City */}
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">País</Label>
+                  <Popover
+                    open={countryComboOpen}
+                    onOpenChange={setCountryComboOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={countryComboOpen}
+                        className="w-full justify-between h-12 text-base rounded-2xl border-2"
+                        disabled={countriesLoading}
+                      >
+                        {formData.country
+                          ? countries.find(
+                              (country) =>
+                                country.country_code === formData.country
+                            )?.country_name
+                          : countriesLoading
+                            ? "Cargando países..."
+                            : "Seleccionar país"}
+                        <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-background border rounded-2xl shadow-lg">
+                      <Command className="w-full">
+                        <CommandInput
+                          placeholder="Buscar país..."
+                          className="border-none h-12 text-base"
+                        />
+                        <CommandList
+                          className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain"
+                          style={{ WebkitOverflowScrolling: "touch" }}
+                        >
+                          <CommandEmpty className="py-6 text-center text-sm">
+                            No se encontró el país.
+                          </CommandEmpty>
+                          <CommandGroup>
                             {countries.map((country) => (
                               <CommandItem
                                 key={country.country_code}
                                 value={country.country_name}
-                                 onSelect={() => {
-                                   console.log('Selected country:', country.country_name, 'Code:', country.country_code);
-                                   setFormData((prev) => ({
-                                     ...prev,
-                                     country: country.country_code,
-                                   }));
-                                   setCountryComboOpen(false);
-                                 }}
+                                onSelect={() => {
+                                  console.log(
+                                    "Selected country:",
+                                    country.country_name,
+                                    "Code:",
+                                    country.country_code
+                                  );
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    country: country.country_code,
+                                  }));
+                                  setCountryComboOpen(false);
+                                }}
                                 className="cursor-pointer text-base py-3 px-2 hover:bg-accent rounded-lg"
                               >
                                 <Check
@@ -533,42 +589,45 @@ const PersonalInformationModal = ({
                                 {country.country_name}
                               </CommandItem>
                             ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
-              <div className="space-y-3">
-                <Label className="text-base font-medium">Ciudad/Estado</Label>
-                <Popover open={cityComboOpen} onOpenChange={setCityComboOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={cityComboOpen}
-                      className="w-full justify-between h-12 text-base rounded-2xl border-2"
-                      disabled={!formData.country || citiesLoading}
-                    >
-                      {formData.city_state ||
-                        (!formData.country
-                          ? "Selecciona un país primero"
-                          : citiesLoading
-                            ? "Cargando ciudades..."
-                            : "Seleccionar ciudad o estado")}
-                      <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-popover border rounded-2xl">
-                    <Command className="w-full">
-                      <CommandInput 
-                        placeholder="Buscar ciudad..." 
-                        className="border-none h-12 text-base"
-                      />
-                      <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
-                        <CommandGroup>
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Ciudad/Estado</Label>
+                  <Popover open={cityComboOpen} onOpenChange={setCityComboOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={cityComboOpen}
+                        className="w-full justify-between h-12 text-base rounded-2xl border-2"
+                        disabled={!formData.country || citiesLoading}
+                      >
+                        {formData.city_state ||
+                          (!formData.country
+                            ? "Selecciona un país primero"
+                            : citiesLoading
+                              ? "Cargando ciudades..."
+                              : "Seleccionar ciudad o estado")}
+                        <ChevronsUpDown className="ml-2 h-5 w-5 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-0 z-50 bg-popover border rounded-2xl">
+                      <Command className="w-full">
+                        <CommandInput
+                          placeholder="Buscar ciudad..."
+                          className="border-none h-12 text-base"
+                        />
+                        <CommandList
+                          className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain"
+                          style={{ WebkitOverflowScrolling: "touch" }}
+                        >
+                          <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
+                          <CommandGroup>
                             {cities.map((city, index) => (
                               <CommandItem
                                 key={index}
@@ -593,65 +652,65 @@ const PersonalInformationModal = ({
                                 {city.city}
                               </CommandItem>
                             ))}
-                           </CommandGroup>
-                       </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-            </div>
 
-            {/* Mobile Phone */}
-            <div className="space-y-3">
-              <Label htmlFor="mobile_phone" className="text-base font-medium">
-                Teléfono Móvil
-              </Label>
-              <div className="flex gap-3">
-                <Input
-                  value={formData.country_code}
-                  readOnly
-                  className="w-20 h-12 text-base rounded-2xl bg-muted/50 border-2 text-center"
-                  placeholder="+XX"
-                />
-                <Input
-                  id="mobile_phone"
-                  type="tel"
-                  value={formData.mobile_phone}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9\s]/g, '');
-                    setFormData((prev) => ({
-                      ...prev,
-                      mobile_phone: value,
-                    }));
-                  }}
-                  placeholder="123 456 7890"
-                  className="flex-1 h-12 text-base rounded-2xl border-2 focus:border-primary"
-                />
+              {/* Mobile Phone */}
+              <div className="space-y-3">
+                <Label htmlFor="mobile_phone" className="text-base font-medium">
+                  Teléfono Móvil
+                </Label>
+                <div className="flex gap-3">
+                  <Input
+                    value={formData.country_code}
+                    readOnly
+                    className="w-20 h-12 text-base rounded-2xl bg-muted/50 border-2 text-center"
+                    placeholder="+XX"
+                  />
+                  <Input
+                    id="mobile_phone"
+                    type="tel"
+                    value={formData.mobile_phone}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9\s]/g, "");
+                      setFormData((prev) => ({
+                        ...prev,
+                        mobile_phone: value,
+                      }));
+                    }}
+                    placeholder="123 456 7890"
+                    className="flex-1 h-12 text-base rounded-2xl border-2 focus:border-primary"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Gender */}
-            <div className="space-y-3">
-              <Label className="text-base font-medium">Género</Label>
-              <Select
-                value={formData.gender}
-                onValueChange={(value: any) =>
-                  setFormData((prev) => ({ ...prev, gender: value }))
-                }
-              >
-                <SelectTrigger className="w-full h-12 text-base rounded-2xl border-2">
-                  <SelectValue placeholder="Seleccionar género" />
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl">
-                  <SelectItem value="male">Masculino</SelectItem>
-                  <SelectItem value="female">Femenino</SelectItem>
-                  <SelectItem value="prefer_not_to_say">
-                    Prefiero no decir
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-           </form>
+              {/* Gender */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Género</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value: any) =>
+                    setFormData((prev) => ({ ...prev, gender: value }))
+                  }
+                >
+                  <SelectTrigger className="w-full h-12 text-base rounded-2xl border-2">
+                    <SelectValue placeholder="Seleccionar género" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-2xl">
+                    <SelectItem value="male">Masculino</SelectItem>
+                    <SelectItem value="female">Femenino</SelectItem>
+                    <SelectItem value="prefer_not_to_say">
+                      Prefiero no decir
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -666,9 +725,24 @@ const PersonalInformationModal = ({
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Guardando...
                 </>

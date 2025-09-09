@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { PlusCircle, Settings } from 'lucide-react';
-import { InviteCollaboratorModal } from './InviteCollaboratorModal';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { PlusCircle, Settings } from "lucide-react";
+import { InviteCollaboratorModal } from "./InviteCollaboratorModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CollaboratorProps {
   id: string;
@@ -15,11 +15,11 @@ interface CollaboratorProps {
   isOwner: boolean;
 }
 
-export const TripCollaborators = ({ 
+export const TripCollaborators = ({
   collaborators = [],
   tripId,
   userRole,
-  onUpdate
+  onUpdate,
 }: {
   collaborators: CollaboratorProps[];
   tripId: string;
@@ -28,31 +28,34 @@ export const TripCollaborators = ({
 }) => {
   const { user } = useAuth();
   const [showInviteModal, setShowInviteModal] = useState(false);
-  
+
   const getRoleBadge = (role: string) => {
-    if (role === 'owner') return <Badge className="bg-primary">Propietario</Badge>;
-    if (role === 'editor') return <Badge className="bg-blue-500">Editor</Badge>;
+    if (role === "owner")
+      return <Badge className="bg-primary">Propietario</Badge>;
+    if (role === "editor") return <Badge className="bg-blue-500">Editor</Badge>;
     return <Badge className="bg-gray-500">Espectador</Badge>;
   };
-  
+
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((part) => part[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
-  
-  const canInvite = userRole === 'owner' || userRole === 'editor';
-  
+
+  const canInvite = userRole === "owner" || userRole === "editor";
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Colaboradores ({collaborators.length})</h2>
+        <h2 className="text-xl font-semibold">
+          Colaboradores ({collaborators.length})
+        </h2>
         {canInvite && (
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => setShowInviteModal(true)}
             className="flex items-center gap-1"
@@ -62,19 +65,24 @@ export const TripCollaborators = ({
           </Button>
         )}
       </div>
-      
+
       <div className="space-y-4">
         {collaborators.map((collaborator) => (
-          <div 
-            key={collaborator.id} 
+          <div
+            key={collaborator.id}
             className="flex items-center justify-between p-3 rounded-lg border"
           >
             <div className="flex items-center gap-3">
               <Avatar>
                 {collaborator.avatar_url ? (
-                  <AvatarImage src={collaborator.avatar_url} alt={collaborator.full_name} />
+                  <AvatarImage
+                    src={collaborator.avatar_url}
+                    alt={collaborator.full_name}
+                  />
                 ) : (
-                  <AvatarFallback>{getInitials(collaborator.full_name)}</AvatarFallback>
+                  <AvatarFallback>
+                    {getInitials(collaborator.full_name)}
+                  </AvatarFallback>
                 )}
               </Avatar>
               <div>
@@ -84,7 +92,7 @@ export const TripCollaborators = ({
             </div>
             <div className="flex items-center gap-2">
               {getRoleBadge(collaborator.role)}
-              {userRole === 'owner' && !collaborator.isOwner && (
+              {userRole === "owner" && !collaborator.isOwner && (
                 <Button variant="ghost" size="icon">
                   <Settings className="h-4 w-4" />
                 </Button>
@@ -92,14 +100,14 @@ export const TripCollaborators = ({
             </div>
           </div>
         ))}
-        
+
         {collaborators.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <p>No hay colaboradores en este viaje.</p>
           </div>
         )}
       </div>
-      
+
       {showInviteModal && (
         <InviteCollaboratorModal
           tripId={tripId}

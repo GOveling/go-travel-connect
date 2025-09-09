@@ -1,22 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Users, 
-  Share2, 
-  Send, 
-  Copy, 
-  Check, 
-  X, 
-  Clock, 
-  UserPlus, 
+import {
+  Users,
+  Share2,
+  Send,
+  Copy,
+  Check,
+  X,
+  Clock,
+  UserPlus,
   RefreshCw,
   Crown,
   Edit3,
@@ -24,7 +45,7 @@ import {
   Mail,
   Link,
   CheckCircle,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useInvitations } from "@/hooks/useInvitations";
@@ -56,7 +77,11 @@ interface Invitation {
   updated_at?: string;
 }
 
-const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) => {
+const InviteFriendsModal = ({
+  isOpen,
+  onClose,
+  trip,
+}: InviteFriendsModalProps) => {
   const [activeTab, setActiveTab] = useState("invite");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"editor" | "viewer">("viewer");
@@ -67,17 +92,21 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   const [refreshKey, setRefreshKey] = useState(0);
 
   const { toast } = useToast();
-  const { 
-    loading, 
-    invitations, 
-    sendInvitation, 
-    fetchInvitations, 
-    cancelInvitation 
+  const {
+    loading,
+    invitations,
+    sendInvitation,
+    fetchInvitations,
+    cancelInvitation,
   } = useInvitations();
 
   // Separate invitations by status
-  const activeInvitations = invitations.filter(inv => inv.status === 'pending');
-  const completedInvitations = invitations.filter(inv => ['accepted', 'declined'].includes(inv.status));
+  const activeInvitations = invitations.filter(
+    (inv) => inv.status === "pending"
+  );
+  const completedInvitations = invitations.filter((inv) =>
+    ["accepted", "declined"].includes(inv.status)
+  );
 
   // Fetch collaborators and invitations
   useEffect(() => {
@@ -91,12 +120,14 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   useEffect(() => {
     if (isOpen && trip?.id) {
       const subscription = supabase
-        .channel('invitation-changes')
-        .on('postgres_changes', 
-            { event: '*', schema: 'public', table: 'trip_invitations' },
-            (payload) => {
-          setRefreshKey(prev => prev + 1);
-        })
+        .channel("invitation-changes")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "trip_invitations" },
+          (payload) => {
+            setRefreshKey((prev) => prev + 1);
+          }
+        )
         .subscribe();
 
       return () => {
@@ -107,73 +138,77 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
   const fetchCollaborators = async () => {
     if (!trip?.id) return;
-    
+
     setLoadingCollaborators(true);
     try {
       const { data, error } = await supabase
-        .from('trip_collaborators')
-        .select(`
+        .from("trip_collaborators")
+        .select(
+          `
           id,
           role,
           name,
           email,
           avatar,
           user_id
-        `)
-        .eq('trip_id', trip.id);
+        `
+        )
+        .eq("trip_id", trip.id);
 
       if (error) {
-        console.error('Error fetching collaborators:', error);
+        console.error("Error fetching collaborators:", error);
         return;
       }
 
       // Fetch profile data separately for users who have user_id
       const collaboratorData = data || [];
       const userIds = collaboratorData
-        .filter(collab => collab.user_id)
-        .map(collab => collab.user_id);
+        .filter((collab) => collab.user_id)
+        .map((collab) => collab.user_id);
 
       let profilesData: any[] = [];
       if (userIds.length > 0) {
         const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', userIds);
-        
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", userIds);
+
         profilesData = profiles || [];
       }
 
-      const formattedCollaborators = collaboratorData.map(collab => {
-        const profile = profilesData.find(p => p.id === collab.user_id);
+      const formattedCollaborators = collaboratorData.map((collab) => {
+        const profile = profilesData.find((p) => p.id === collab.user_id);
         return {
           id: collab.id,
-          name: collab.name || profile?.full_name || 'Unknown User',
-          email: collab.email || '',
+          name: collab.name || profile?.full_name || "Unknown User",
+          email: collab.email || "",
           role: collab.role,
           avatar: collab.avatar || profile?.avatar_url,
-          user_id: collab.user_id
+          user_id: collab.user_id,
         };
       });
 
       // Add trip owner as collaborator if not already in the list
       if (trip.user_id) {
-        const ownerInCollaborators = formattedCollaborators.find(c => c.user_id === trip.user_id);
+        const ownerInCollaborators = formattedCollaborators.find(
+          (c) => c.user_id === trip.user_id
+        );
         if (!ownerInCollaborators) {
           // Fetch owner profile
           const { data: ownerProfile } = await supabase
-            .from('profiles')
-            .select('full_name, email, avatar_url')
-            .eq('id', trip.user_id)
+            .from("profiles")
+            .select("full_name, email, avatar_url")
+            .eq("id", trip.user_id)
             .single();
 
           if (ownerProfile) {
             formattedCollaborators.unshift({
               id: `owner-${trip.user_id}`,
-              name: ownerProfile.full_name || 'Trip Owner',
-              email: ownerProfile.email || '',
-              role: 'owner',
+              name: ownerProfile.full_name || "Trip Owner",
+              email: ownerProfile.email || "",
+              role: "owner",
               avatar: ownerProfile.avatar_url,
-              user_id: trip.user_id
+              user_id: trip.user_id,
             });
           }
         }
@@ -181,7 +216,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
 
       setCollaborators(formattedCollaborators);
     } catch (error) {
-      console.error('Error fetching collaborators:', error);
+      console.error("Error fetching collaborators:", error);
     } finally {
       setLoadingCollaborators(false);
     }
@@ -195,7 +230,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
         tripId: trip.id,
         email: inviteEmail.trim(),
         role: inviteRole,
-        message: customMessage
+        message: customMessage,
       });
 
       setInviteEmail("");
@@ -213,22 +248,23 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
-  const handleUpdateCollaboratorRole = async (collaboratorId: string, newRole: string) => {
+  const handleUpdateCollaboratorRole = async (
+    collaboratorId: string,
+    newRole: string
+  ) => {
     try {
       const { error } = await supabase
-        .from('trip_collaborators')
+        .from("trip_collaborators")
         .update({ role: newRole })
-        .eq('id', collaboratorId);
+        .eq("id", collaboratorId);
 
       if (error) {
         throw error;
       }
 
-      setCollaborators(prev =>
-        prev.map(collab =>
-          collab.id === collaboratorId
-            ? { ...collab, role: newRole }
-            : collab
+      setCollaborators((prev) =>
+        prev.map((collab) =>
+          collab.id === collaboratorId ? { ...collab, role: newRole } : collab
         )
       );
 
@@ -237,7 +273,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
         description: "El rol del colaborador ha sido actualizado exitosamente",
       });
     } catch (error: any) {
-      console.error('Error updating collaborator role:', error);
+      console.error("Error updating collaborator role:", error);
       toast({
         title: "Error",
         description: "Error al actualizar el rol del colaborador",
@@ -249,19 +285,19 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
   const handleRemoveCollaborator = async (collaboratorId: string) => {
     try {
       const { error } = await supabase
-        .from('trip_collaborators')
+        .from("trip_collaborators")
         .delete()
-        .eq('id', collaboratorId);
+        .eq("id", collaboratorId);
 
       if (error) {
         throw error;
       }
 
       // Notify that a collaborator was removed to refresh trips lists
-      window.dispatchEvent(new CustomEvent('collaboratorRemoved'));
+      window.dispatchEvent(new CustomEvent("collaboratorRemoved"));
 
-      setCollaborators(prev =>
-        prev.filter(collab => collab.id !== collaboratorId)
+      setCollaborators((prev) =>
+        prev.filter((collab) => collab.id !== collaboratorId)
       );
 
       toast({
@@ -269,7 +305,7 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
         description: "El colaborador ha sido eliminado del viaje",
       });
     } catch (error: any) {
-      console.error('Error removing collaborator:', error);
+      console.error("Error removing collaborator:", error);
       toast({
         title: "Error",
         description: "Error al eliminar el colaborador",
@@ -284,11 +320,16 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
       accepted: { color: "bg-green-100 text-green-800", label: "Aceptado" },
       declined: { color: "bg-orange-100 text-orange-800", label: "Rechazada" },
       cancelled: { color: "bg-gray-100 text-gray-800", label: "Cancelado" },
-      expired: { color: "bg-red-100 text-red-800", label: "Expirado" }
+      expired: { color: "bg-red-100 text-red-800", label: "Expirado" },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge className={`${config.color} text-xs rounded-lg`}>{config.label}</Badge>;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    return (
+      <Badge className={`${config.color} text-xs rounded-lg`}>
+        {config.label}
+      </Badge>
+    );
   };
 
   const isExpired = (expiresAt: string) => {
@@ -318,8 +359,8 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "ghost"}
               className={`flex-1 h-11 text-sm font-medium rounded-lg transition-all ${
-                activeTab === tab.id 
-                  ? "bg-background text-foreground shadow-sm" 
+                activeTab === tab.id
+                  ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setActiveTab(tab.id)}
@@ -345,7 +386,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="email" className="text-sm font-medium">Email del invitado</Label>
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email del invitado
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -356,8 +399,15 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     />
                   </div>
                   <div>
-                    <Label htmlFor="role" className="text-sm font-medium">Rol</Label>
-                    <Select value={inviteRole} onValueChange={(value: "editor" | "viewer") => setInviteRole(value)}>
+                    <Label htmlFor="role" className="text-sm font-medium">
+                      Rol
+                    </Label>
+                    <Select
+                      value={inviteRole}
+                      onValueChange={(value: "editor" | "viewer") =>
+                        setInviteRole(value)
+                      }
+                    >
                       <SelectTrigger className="h-12 rounded-lg mt-2">
                         <SelectValue />
                       </SelectTrigger>
@@ -369,7 +419,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                             </div>
                             <div>
                               <div className="font-medium">Visualizador</div>
-                              <div className="text-xs text-muted-foreground">Solo puede ver</div>
+                              <div className="text-xs text-muted-foreground">
+                                Solo puede ver
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
@@ -380,7 +432,9 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                             </div>
                             <div>
                               <div className="font-medium">Editor</div>
-                              <div className="text-xs text-muted-foreground">Puede editar</div>
+                              <div className="text-xs text-muted-foreground">
+                                Puede editar
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
@@ -388,9 +442,11 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     </Select>
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="message" className="text-sm font-medium">Mensaje personalizado (opcional)</Label>
+                  <Label htmlFor="message" className="text-sm font-medium">
+                    Mensaje personalizado (opcional)
+                  </Label>
                   <textarea
                     id="message"
                     className="w-full mt-2 p-3 border rounded-lg text-base resize-none bg-background"
@@ -401,8 +457,8 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                   />
                 </div>
 
-                <Button 
-                  onClick={handleSendInvitation} 
+                <Button
+                  onClick={handleSendInvitation}
                   disabled={!inviteEmail.trim() || loading}
                   className="w-full h-12 rounded-lg text-base font-medium"
                 >
@@ -433,8 +489,8 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                       readOnly
                       className="flex-1 bg-background text-sm rounded-lg"
                     />
-                    <Button 
-                      onClick={handleCopyInviteLink} 
+                    <Button
+                      onClick={handleCopyInviteLink}
                       variant="outline"
                       className="h-12 px-4 rounded-lg"
                     >
@@ -462,26 +518,36 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 <CardContent>
                   <div className="space-y-3">
                     {activeInvitations.map((invitation) => (
-                      <div key={invitation.id} className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm">
+                      <div
+                        key={invitation.id}
+                        className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm"
+                      >
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{invitation.email}</p>
+                          <p className="font-medium text-sm truncate">
+                            {invitation.email}
+                          </p>
                           <div className="flex items-center gap-2 mt-2">
-                            {getStatusBadge(isExpired(invitation.expires_at) ? 'expired' : invitation.status)}
+                            {getStatusBadge(
+                              isExpired(invitation.expires_at)
+                                ? "expired"
+                                : invitation.status
+                            )}
                             <span className="text-xs text-muted-foreground">
                               {invitation.role}
                             </span>
                           </div>
                         </div>
-                        {invitation.status === 'pending' && !isExpired(invitation.expires_at) && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => cancelInvitation(invitation.id)}
-                            className="ml-3 h-9 w-9 p-0 rounded-lg text-destructive hover:text-destructive"
-                          >
-                            <X size={16} />
-                          </Button>
-                        )}
+                        {invitation.status === "pending" &&
+                          !isExpired(invitation.expires_at) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => cancelInvitation(invitation.id)}
+                              className="ml-3 h-9 w-9 p-0 rounded-lg text-destructive hover:text-destructive"
+                            >
+                              <X size={16} />
+                            </Button>
+                          )}
                       </div>
                     ))}
                   </div>
@@ -501,24 +567,37 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     <Users size={16} className="text-primary" />
                   </div>
                   Colaboradores ({collaborators.length})
-                  {loadingCollaborators && <RefreshCw size={16} className="animate-spin ml-2" />}
+                  {loadingCollaborators && (
+                    <RefreshCw size={16} className="animate-spin ml-2" />
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {collaborators.map((collaborator) => (
-                    <div key={collaborator.id} className="flex items-center p-4 bg-background rounded-lg shadow-sm">
+                    <div
+                      key={collaborator.id}
+                      className="flex items-center p-4 bg-background rounded-lg shadow-sm"
+                    >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center text-primary-foreground text-base font-medium flex-shrink-0">
                           {collaborator.avatar ? (
-                            <img src={collaborator.avatar} alt={collaborator.name} className="w-full h-full rounded-xl object-cover" />
+                            <img
+                              src={collaborator.avatar}
+                              alt={collaborator.name}
+                              className="w-full h-full rounded-xl object-cover"
+                            />
                           ) : (
                             collaborator.name.charAt(0).toUpperCase()
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-base truncate">{collaborator.name}</p>
-                          <p className="text-sm text-muted-foreground truncate">{collaborator.email}</p>
+                          <p className="font-medium text-base truncate">
+                            {collaborator.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {collaborator.email}
+                          </p>
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 ml-3">
@@ -531,19 +610,30 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                           <>
                             <Select
                               value={collaborator.role}
-                              onValueChange={(value) => handleUpdateCollaboratorRole(collaborator.id, value)}
+                              onValueChange={(value) =>
+                                handleUpdateCollaboratorRole(
+                                  collaborator.id,
+                                  value
+                                )
+                              }
                             >
                               <SelectTrigger className="w-28 h-9 rounded-lg text-xs">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="rounded-lg">
-                                <SelectItem value="editor" className="rounded-lg">
+                                <SelectItem
+                                  value="editor"
+                                  className="rounded-lg"
+                                >
                                   <div className="flex items-center gap-2">
                                     <Edit3 size={12} />
                                     Editor
                                   </div>
                                 </SelectItem>
-                                <SelectItem value="viewer" className="rounded-lg">
+                                <SelectItem
+                                  value="viewer"
+                                  className="rounded-lg"
+                                >
                                   <div className="flex items-center gap-2">
                                     <Eye size={12} />
                                     Visualizador
@@ -553,21 +643,33 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                             </Select>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="outline" className="h-9 w-9 p-0 rounded-lg text-destructive hover:text-destructive">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-9 w-9 p-0 rounded-lg text-destructive hover:text-destructive"
+                                >
                                   <X size={14} />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent className="rounded-xl">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Eliminar colaborador</AlertDialogTitle>
+                                  <AlertDialogTitle>
+                                    Eliminar colaborador
+                                  </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    ¿Estás seguro de que quieres eliminar a {collaborator.name} del viaje? Esta acción no se puede deshacer.
+                                    ¿Estás seguro de que quieres eliminar a{" "}
+                                    {collaborator.name} del viaje? Esta acción
+                                    no se puede deshacer.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel className="rounded-lg">Cancelar</AlertDialogCancel>
+                                  <AlertDialogCancel className="rounded-lg">
+                                    Cancelar
+                                  </AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleRemoveCollaborator(collaborator.id)}
+                                    onClick={() =>
+                                      handleRemoveCollaborator(collaborator.id)
+                                    }
                                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
                                   >
                                     Eliminar
@@ -585,8 +687,12 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                       <div className="p-4 rounded-xl bg-muted/50 inline-block mb-4">
                         <Users size={32} className="opacity-50" />
                       </div>
-                      <p className="text-sm">No hay colaboradores en este viaje aún.</p>
-                      <p className="text-xs mt-1">Invita a amigos para compartir la experiencia.</p>
+                      <p className="text-sm">
+                        No hay colaboradores en este viaje aún.
+                      </p>
+                      <p className="text-xs mt-1">
+                        Invita a amigos para compartir la experiencia.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -607,9 +713,14 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 <CardContent>
                   <div className="space-y-3">
                     {completedInvitations.map((invitation) => (
-                      <div key={invitation.id} className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm">
+                      <div
+                        key={invitation.id}
+                        className="flex items-center justify-between p-4 bg-background rounded-lg shadow-sm"
+                      >
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{invitation.email}</p>
+                          <p className="font-medium text-sm truncate">
+                            {invitation.email}
+                          </p>
                           <div className="flex items-center gap-2 mt-2">
                             {getStatusBadge(invitation.status)}
                             <span className="text-xs text-muted-foreground">
@@ -617,11 +728,17 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {invitation.status === 'accepted' ? 'Aceptada' : 'Rechazada'} • {new Date(invitation.created_at).toLocaleDateString('es-ES')}
+                            {invitation.status === "accepted"
+                              ? "Aceptada"
+                              : "Rechazada"}{" "}
+                            •{" "}
+                            {new Date(invitation.created_at).toLocaleDateString(
+                              "es-ES"
+                            )}
                           </p>
                         </div>
                         <div className="ml-3">
-                          {invitation.status === 'accepted' ? (
+                          {invitation.status === "accepted" ? (
                             <CheckCircle size={20} className="text-green-500" />
                           ) : (
                             <XCircle size={20} className="text-orange-500" />
@@ -650,17 +767,25 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-sm font-medium">Enlace público del viaje</Label>
+                  <Label className="text-sm font-medium">
+                    Enlace público del viaje
+                  </Label>
                   <div className="flex gap-2 mt-2">
                     <Input
                       value={`${window.location.origin}/trips/${trip.id}/view`}
                       readOnly
                       className="flex-1 bg-background text-sm rounded-lg"
                     />
-                    <Button 
+                    <Button
                       onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/trips/${trip.id}/view`);
-                        toast({ title: "Enlace copiado", description: "El enlace ha sido copiado al portapapeles" });
+                        navigator.clipboard.writeText(
+                          `${window.location.origin}/trips/${trip.id}/view`
+                        );
+                        toast({
+                          title: "Enlace copiado",
+                          description:
+                            "El enlace ha sido copiado al portapapeles",
+                        });
                       }}
                       variant="outline"
                       className="h-12 px-4 rounded-lg"
@@ -673,15 +798,15 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 <Separator className="my-6" />
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-20 flex-col rounded-xl border-2 border-dashed hover:border-solid transition-all"
                     onClick={() => {
                       if (navigator.share) {
                         navigator.share({
                           title: `Viaje: ${trip.name}`,
-                          text: `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}!`,
-                          url: `${window.location.origin}/trips/${trip.id}/view`
+                          text: `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || "destinos increíbles"}!`,
+                          url: `${window.location.origin}/trips/${trip.id}/view`,
                         });
                       }
                     }}
@@ -691,13 +816,16 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                     </div>
                     <span className="text-sm font-medium">Compartir</span>
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-20 flex-col rounded-xl border-2 border-dashed hover:border-solid transition-all"
                     onClick={() => {
-                      const text = `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || 'destinos increíbles'}! ${window.location.origin}/trips/${trip.id}/view`;
+                      const text = `¡Mira mi viaje a ${Array.isArray(trip.destination) ? trip.destination[0] : trip.destination || "destinos increíbles"}! ${window.location.origin}/trips/${trip.id}/view`;
                       navigator.clipboard.writeText(text);
-                      toast({ title: "Texto copiado", description: "El texto ha sido copiado al portapapeles" });
+                      toast({
+                        title: "Texto copiado",
+                        description: "El texto ha sido copiado al portapapeles",
+                      });
                     }}
                   >
                     <div className="p-2 rounded-lg bg-primary/10 mb-2">
@@ -708,7 +836,8 @@ const InviteFriendsModal = ({ isOpen, onClose, trip }: InviteFriendsModalProps) 
                 </div>
 
                 <div className="text-center text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
-                  Comparte tu viaje con amigos y familiares para que puedan seguir tu aventura.
+                  Comparte tu viaje con amigos y familiares para que puedan
+                  seguir tu aventura.
                 </div>
               </CardContent>
             </Card>

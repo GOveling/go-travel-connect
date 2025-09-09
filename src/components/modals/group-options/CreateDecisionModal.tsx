@@ -116,8 +116,8 @@ const CreateDecisionModal = ({
   const getDateRangeValue = () => {
     if (newDecision.end_date) {
       return {
-        start: parseDate(newDecision.end_date.split('T')[0]),
-        end: parseDate(newDecision.end_date.split('T')[0]),
+        start: parseDate(newDecision.end_date.split("T")[0]),
+        end: parseDate(newDecision.end_date.split("T")[0]),
       };
     }
     return null;
@@ -222,8 +222,7 @@ const CreateDecisionModal = ({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal mt-1 h-12 text-base",
-                       !newDecision.end_date &&
-                         "text-muted-foreground"
+                      !newDecision.end_date && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />

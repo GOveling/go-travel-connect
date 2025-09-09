@@ -1,11 +1,14 @@
 import { format } from "date-fns";
 
 // Helper function to get formatted date range from startDate and endDate
-export const getFormattedDateRange = (startDate?: Date, endDate?: Date): string => {
+export const getFormattedDateRange = (
+  startDate?: Date,
+  endDate?: Date
+): string => {
   if (!startDate && !endDate) {
     return "Dates TBD";
   }
-  
+
   if (startDate && endDate) {
     const startFormatted = format(startDate, "MMM d, yyyy");
     const endFormatted = format(endDate, "MMM d, yyyy");
@@ -15,12 +18,15 @@ export const getFormattedDateRange = (startDate?: Date, endDate?: Date): string 
   } else if (endDate) {
     return `Until ${format(endDate, "MMM d, yyyy")}`;
   }
-  
+
   return "No dates set";
 };
 
 // Helper function to extract start date from either Date object or legacy date string
-export const getStartDate = (trip: { startDate?: Date; endDate?: Date }): Date => {
+export const getStartDate = (trip: {
+  startDate?: Date;
+  endDate?: Date;
+}): Date => {
   if (trip.startDate) {
     return trip.startDate;
   }
@@ -29,7 +35,10 @@ export const getStartDate = (trip: { startDate?: Date; endDate?: Date }): Date =
 };
 
 // Helper function to extract end date from either Date object or legacy date string
-export const getEndDate = (trip: { startDate?: Date; endDate?: Date }): Date => {
+export const getEndDate = (trip: {
+  startDate?: Date;
+  endDate?: Date;
+}): Date => {
   if (trip.endDate) {
     return trip.endDate;
   }
@@ -46,7 +55,10 @@ export const getEndDate = (trip: { startDate?: Date; endDate?: Date }): Date => 
 };
 
 // Helper function to get trip year for grouping
-export const getTripYear = (trip: { startDate?: Date; endDate?: Date }): number => {
+export const getTripYear = (trip: {
+  startDate?: Date;
+  endDate?: Date;
+}): number => {
   const startDate = getStartDate(trip);
   return startDate.getFullYear();
 };

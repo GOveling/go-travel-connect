@@ -15,51 +15,46 @@ export const useCitiesByCountry = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadCitiesForCountry = useCallback(
-    async (countryCode: string) => {
-      if (!countryCode) {
-        setAllCities([]);
-        setCities([]);
-        return;
+  const loadCitiesForCountry = useCallback(async (countryCode: string) => {
+    if (!countryCode) {
+      setAllCities([]);
+      setCities([]);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log("Loading cities for country:", countryCode);
+
+      const response = await apiService.getCitiesByCountry(countryCode);
+      console.log("Cities API response:", response);
+
+      let cities = [];
+      if (response && Array.isArray(response)) {
+        // If response is directly an array
+        cities = response;
+      } else {
+        throw new Error("Invalid response format");
       }
 
-      setLoading(true);
-      setError(null);
+      // Sort cities alphabetically
+      const sortedCities = cities.sort((a: CityResult, b: CityResult) =>
+        a.city.localeCompare(b.city)
+      );
 
-      try {
-        console.log("Loading cities for country:", countryCode);
-
-        const response = await apiService.getCitiesByCountry(countryCode);
-        console.log("Cities API response:", response);
-        
-        let cities = [];
-        if (response && Array.isArray(response)) {
-          // If response is directly an array
-          cities = response;
-        } else {
-          throw new Error("Invalid response format");
-        }
-
-        // Sort cities alphabetically
-        const sortedCities = cities.sort((a: CityResult, b: CityResult) => 
-          a.city.localeCompare(b.city)
-        );
-        
-        setAllCities(sortedCities);
-        setCities(sortedCities);
-      } catch (err) {
-        console.error("Error loading cities:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to load cities"
-        );
-        setAllCities([]);
-        setCities([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+      setAllCities(sortedCities);
+      setCities(sortedCities);
+    } catch (err) {
+      console.error("Error loading cities:", err);
+      setError(err instanceof Error ? err.message : "Failed to load cities");
+      setAllCities([]);
+      setCities([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const filterCities = useCallback(
     (query: string) => {
@@ -68,7 +63,7 @@ export const useCitiesByCountry = () => {
         return;
       }
 
-      const filtered = allCities.filter(city =>
+      const filtered = allCities.filter((city) =>
         city.city.toLowerCase().includes(query.toLowerCase())
       );
       setCities(filtered);

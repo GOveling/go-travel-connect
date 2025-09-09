@@ -1,4 +1,3 @@
-
 import { useLanguage } from "@/hooks/useLanguage";
 
 const TravelSlogan = () => {

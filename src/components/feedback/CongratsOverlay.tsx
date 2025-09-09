@@ -11,11 +11,13 @@ interface CongratsOverlayProps {
 
 // Small helper to respect reduced motion preferences
 const useReducedMotion = () => {
-  return useMemo(() =>
-    typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  []);
+  return useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    []
+  );
 };
 
 export const CongratsOverlay: React.FC<CongratsOverlayProps> = ({

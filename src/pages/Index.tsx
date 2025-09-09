@@ -32,11 +32,17 @@ const Index = ({ onSignOut }: IndexProps) => {
 
     // Add event listeners for navigation
     window.addEventListener("navigateToTrips", handleNavigateToTrips);
-    window.addEventListener("navigateToExplore", handleNavigateToExplore as EventListener);
+    window.addEventListener(
+      "navigateToExplore",
+      handleNavigateToExplore as EventListener
+    );
 
     return () => {
       window.removeEventListener("navigateToTrips", handleNavigateToTrips);
-      window.removeEventListener("navigateToExplore", handleNavigateToExplore as EventListener);
+      window.removeEventListener(
+        "navigateToExplore",
+        handleNavigateToExplore as EventListener
+      );
     };
   }, []);
 

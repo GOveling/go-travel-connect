@@ -77,8 +77,8 @@ const MapFilters = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="w-full justify-between bg-white hover:bg-gray-50 border border-gray-200 shadow-sm"
         >
           <div className="flex items-center space-x-2">
@@ -88,8 +88,8 @@ const MapFilters = ({
           <ChevronDown size={16} className="text-gray-400" />
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
+
+      <DropdownMenuContent
         className="w-80 max-w-[90vw] p-0 bg-white border border-gray-200 shadow-lg rounded-lg z-50"
         align="start"
         sideOffset={4}
@@ -122,7 +122,9 @@ const MapFilters = ({
                 <Badge
                   key={option.value}
                   variant={
-                    filters.status.includes(option.value) ? "default" : "outline"
+                    filters.status.includes(option.value)
+                      ? "default"
+                      : "outline"
                   }
                   className={`cursor-pointer hover:opacity-80 flex-shrink-0 ${
                     filters.status.includes(option.value)
@@ -210,9 +212,11 @@ const MapFilters = ({
               <div className="text-sm text-gray-600 space-y-1">
                 <div>
                   Mostrando{" "}
-                  <span className="font-semibold">{stats.totalTrips}</span> viajes
-                  con{" "}
-                  <span className="font-semibold">{stats.totalDestinations}</span>{" "}
+                  <span className="font-semibold">{stats.totalTrips}</span>{" "}
+                  viajes con{" "}
+                  <span className="font-semibold">
+                    {stats.totalDestinations}
+                  </span>{" "}
                   destinos
                 </div>
                 {stats.totalSavedPlaces > 0 && (

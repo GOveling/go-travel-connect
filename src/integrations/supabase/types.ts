@@ -116,6 +116,33 @@ export type Database = {
         }
         Relationships: []
       }
+      password_validation_log: {
+        Row: {
+          attempted_at: string | null
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+          validation_result: boolean
+        }
+        Insert: {
+          attempted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+          validation_result: boolean
+        }
+        Update: {
+          attempted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+          validation_result?: boolean
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null
@@ -158,6 +185,66 @@ export type Database = {
         }
         Relationships: []
       }
+      place_visits: {
+        Row: {
+          city: string | null
+          confirmation_distance: number
+          country: string | null
+          created_at: string
+          id: string
+          location_lat: number
+          location_lat_encrypted: string | null
+          location_lng: number
+          location_lng_encrypted: string | null
+          place_category: string | null
+          place_name: string
+          place_name_encrypted: string | null
+          region: string | null
+          saved_place_id: string
+          trip_id: string
+          user_id: string
+          visited_at: string
+        }
+        Insert: {
+          city?: string | null
+          confirmation_distance: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          location_lat: number
+          location_lat_encrypted?: string | null
+          location_lng: number
+          location_lng_encrypted?: string | null
+          place_category?: string | null
+          place_name: string
+          place_name_encrypted?: string | null
+          region?: string | null
+          saved_place_id: string
+          trip_id: string
+          user_id: string
+          visited_at?: string
+        }
+        Update: {
+          city?: string | null
+          confirmation_distance?: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          location_lat?: number
+          location_lat_encrypted?: string | null
+          location_lng?: number
+          location_lng_encrypted?: string | null
+          place_category?: string | null
+          place_name?: string
+          place_name_encrypted?: string | null
+          region?: string | null
+          saved_place_id?: string
+          trip_id?: string
+          user_id?: string
+          visited_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -165,13 +252,16 @@ export type Database = {
           age: number | null
           avatar_url: string | null
           birth_date: string | null
+          birth_date_encrypted: string | null
           city_state: string | null
           country: string | null
           country_code: string | null
           created_at: string | null
           description: string | null
           email: string | null
+          email_encrypted: string | null
           full_name: string | null
+          full_name_encrypted: string | null
           gender: string | null
           id: string
           mobile_phone: string | null
@@ -185,13 +275,16 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
+          birth_date_encrypted?: string | null
           city_state?: string | null
           country?: string | null
           country_code?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
+          email_encrypted?: string | null
           full_name?: string | null
+          full_name_encrypted?: string | null
           gender?: string | null
           id: string
           mobile_phone?: string | null
@@ -205,13 +298,16 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
+          birth_date_encrypted?: string | null
           city_state?: string | null
           country?: string | null
           country_code?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
+          email_encrypted?: string | null
           full_name?: string | null
+          full_name_encrypted?: string | null
           gender?: string | null
           id?: string
           mobile_phone?: string | null
@@ -246,10 +342,14 @@ export type Database = {
           priority: string | null
           rating: number | null
           region: string | null
+          reminder_note: string | null
           state: string | null
           street: string | null
           street_number: string | null
           trip_id: string
+          visit_distance: number | null
+          visited: boolean
+          visited_at: string | null
         }
         Insert: {
           address_json?: Json | null
@@ -275,10 +375,14 @@ export type Database = {
           priority?: string | null
           rating?: number | null
           region?: string | null
+          reminder_note?: string | null
           state?: string | null
           street?: string | null
           street_number?: string | null
           trip_id: string
+          visit_distance?: number | null
+          visited?: boolean
+          visited_at?: string | null
         }
         Update: {
           address_json?: Json | null
@@ -304,10 +408,14 @@ export type Database = {
           priority?: string | null
           rating?: number | null
           region?: string | null
+          reminder_note?: string | null
           state?: string | null
           street?: string | null
           street_number?: string | null
           trip_id?: string
+          visit_distance?: number | null
+          visited?: boolean
+          visited_at?: string | null
         }
         Relationships: [
           {
@@ -910,34 +1018,58 @@ export type Database = {
       user_stats: {
         Row: {
           achievement_points: number | null
+          attractions_visited: number | null
           cities_explored: number | null
           countries_visited: number | null
           created_at: string
+          hotels_visited: number | null
           id: string
+          landmarks_visited: number | null
           level: number | null
+          museums_visited: number | null
+          other_places_visited: number | null
+          parks_visited: number | null
           places_visited: number | null
+          restaurants_visited: number | null
+          shops_visited: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           achievement_points?: number | null
+          attractions_visited?: number | null
           cities_explored?: number | null
           countries_visited?: number | null
           created_at?: string
+          hotels_visited?: number | null
           id?: string
+          landmarks_visited?: number | null
           level?: number | null
+          museums_visited?: number | null
+          other_places_visited?: number | null
+          parks_visited?: number | null
           places_visited?: number | null
+          restaurants_visited?: number | null
+          shops_visited?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           achievement_points?: number | null
+          attractions_visited?: number | null
           cities_explored?: number | null
           countries_visited?: number | null
           created_at?: string
+          hotels_visited?: number | null
           id?: string
+          landmarks_visited?: number | null
           level?: number | null
+          museums_visited?: number | null
+          other_places_visited?: number | null
+          parks_visited?: number | null
           places_visited?: number | null
+          restaurants_visited?: number | null
+          shops_visited?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -967,6 +1099,10 @@ export type Database = {
         Args: { p_token: string }
         Returns: Json
       }
+      anonymize_location_history: {
+        Args: { p_older_than_days?: number; p_user_id: string }
+        Returns: boolean
+      }
       are_trip_collaborators: {
         Args: { user1_id: string; user2_id: string }
         Returns: boolean
@@ -983,8 +1119,41 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      confirm_place_visit: {
+        Args: {
+          p_confirmation_distance: number
+          p_location_lat: number
+          p_location_lng: number
+          p_saved_place_id: string
+        }
+        Returns: Json
+      }
+      create_place_visit_secure: {
+        Args: {
+          p_city?: string
+          p_confirmation_distance: number
+          p_country?: string
+          p_location_lat: number
+          p_location_lng: number
+          p_place_category?: string
+          p_place_name: string
+          p_region?: string
+          p_saved_place_id: string
+          p_trip_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       decrypt_sensitive_field: {
         Args: { encrypted_value: string }
+        Returns: string
+      }
+      deobfuscate_location_data: {
+        Args: { obfuscated_value: string }
+        Returns: string
+      }
+      deobfuscate_sensitive_field: {
+        Args: { obfuscated_value: string }
         Returns: string
       }
       encrypt_sensitive_field: {
@@ -1020,6 +1189,19 @@ export type Database = {
           trip_name: string
         }[]
       }
+      get_place_review_stats: {
+        Args: {
+          p_lat?: number
+          p_lng?: number
+          p_place_id: string
+          p_place_name: string
+        }
+        Returns: {
+          average_rating: number
+          rating_distribution: Json
+          total_reviews: number
+        }[]
+      }
       get_place_reviews_count: {
         Args: {
           p_lat?: number
@@ -1048,6 +1230,63 @@ export type Database = {
           rating: number
           updated_at: string
           user_id: string
+        }[]
+      }
+      get_place_reviews_secure: {
+        Args: {
+          p_lat?: number
+          p_limit?: number
+          p_lng?: number
+          p_offset?: number
+          p_place_id: string
+          p_place_name: string
+        }
+        Returns: {
+          anonymous: boolean
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          reviewer_display_name: string
+        }[]
+      }
+      get_place_visit_exact_location: {
+        Args: { p_user_id: string; p_visit_id: string }
+        Returns: {
+          confirmation_distance: number
+          latitude: number
+          longitude: number
+        }[]
+      }
+      get_profile_public: {
+        Args: { p_user_id: string }
+        Returns: {
+          avatar_url: string
+          country: string
+          description: string
+          display_name: string
+          id: string
+        }[]
+      }
+      get_profile_secure: {
+        Args: { p_user_id: string }
+        Returns: {
+          address: string
+          age: number
+          avatar_url: string
+          birth_date: string
+          city_state: string
+          country: string
+          country_code: string
+          created_at: string
+          description: string
+          email: string
+          full_name: string
+          gender: string
+          id: string
+          mobile_phone: string
+          onboarding_completed: boolean
+          updated_at: string
         }[]
       }
       get_trip_collaborator_profiles: {
@@ -1098,6 +1337,32 @@ export type Database = {
           total_required: number
         }[]
       }
+      get_user_location_visits_secure: {
+        Args: { p_limit?: number; p_offset?: number; p_user_id: string }
+        Returns: {
+          approximate_location: string
+          city: string
+          country: string
+          id: string
+          place_category: string
+          place_name: string
+          region: string
+          trip_id: string
+          visited_at: string
+        }[]
+      }
+      get_user_pending_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          expires_at: string
+          id: string
+          inviter_name: string
+          role: string
+          trip_id: string
+          trip_name: string
+        }[]
+      }
       get_users_public_profile_min: {
         Args: { p_user_ids: string[] }
         Returns: {
@@ -1126,6 +1391,27 @@ export type Database = {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
       }
+      log_password_validation: {
+        Args: {
+          p_ip_address?: unknown
+          p_user_agent?: string
+          p_user_id?: string
+          p_validation_result?: boolean
+        }
+        Returns: undefined
+      }
+      monitor_review_access_patterns: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      obfuscate_location_data: {
+        Args: { location_value: string }
+        Returns: string
+      }
+      obfuscate_sensitive_field: {
+        Args: { field_value: string }
+        Returns: string
+      }
       remove_collaborator_and_archive: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: Json
@@ -1148,6 +1434,27 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      update_profile_secure: {
+        Args: {
+          p_address?: string
+          p_avatar_url?: string
+          p_birth_date?: string
+          p_city_state?: string
+          p_country?: string
+          p_country_code?: string
+          p_description?: string
+          p_email?: string
+          p_full_name?: string
+          p_gender?: string
+          p_mobile_phone?: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      validate_password_strength: {
+        Args: { password_input: string }
+        Returns: Json
       }
       validate_profile_access: {
         Args: { profile_id: string }

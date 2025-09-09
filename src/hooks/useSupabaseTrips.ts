@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Trip } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,10 +9,40 @@ export const useSupabaseTrips = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Cache for mobile performance optimization
+  const cacheRef = useRef<{
+    data: Trip[] | null;
+    timestamp: number;
+    userId: string | null;
+  }>({
+    data: null,
+    timestamp: 0,
+    userId: null,
+  });
+  
+  // Cache duration: 5 minutes for mobile performance
+  const CACHE_DURATION = 5 * 60 * 1000;
 
-  const fetchTrips = async () => {
+  const fetchTrips = useCallback(async (forceRefresh = false) => {
     if (!user) {
       setTrips([]);
+      setLoading(false);
+      return;
+    }
+
+    // Check cache for mobile optimization
+    const now = Date.now();
+    const cache = cacheRef.current;
+    
+    if (
+      !forceRefresh &&
+      cache.data &&
+      cache.userId === user.id &&
+      (now - cache.timestamp) < CACHE_DURATION
+    ) {
+      console.log("🚀 Using cached trips data for mobile performance");
+      setTrips(cache.data);
       setLoading(false);
       return;
     }
@@ -66,7 +96,11 @@ export const useSupabaseTrips = () => {
               street,
               street_number,
               place_source,
-              place_reference
+              place_reference,
+              visited,
+              visited_at,
+              visit_distance,
+              reminder_note
             )
         `
         )
@@ -124,7 +158,10 @@ export const useSupabaseTrips = () => {
             })) || [],
           savedPlaces:
             trip.saved_places
-              ?.sort((a: any, b: any) => (a.position_order || 0) - (b.position_order || 0))
+              ?.sort(
+                (a: any, b: any) =>
+                  (a.position_order || 0) - (b.position_order || 0)
+              )
               ?.map((place: any) => ({
                 id: place.id,
                 name: place.name,
@@ -152,9 +189,21 @@ export const useSupabaseTrips = () => {
                 streetNumber: place.street_number || undefined,
                 placeSource: place.place_source || undefined,
                 placeReference: place.place_reference || undefined,
+                // Visit tracking
+                visited: place.visited || false,
+                visitedAt: place.visited_at || undefined,
+                visitDistance: place.visit_distance || undefined,
+                reminderNote: place.reminder_note || undefined,
               })) || [],
         })) || [];
 
+      // Update cache for mobile performance
+      cacheRef.current = {
+        data: transformedTrips,
+        timestamp: now,
+        userId: user.id,
+      };
+      
       setTrips(transformedTrips);
     } catch (error) {
       console.error("Error fetching trips:", error);
@@ -166,7 +215,7 @@ export const useSupabaseTrips = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast, CACHE_DURATION]);
 
   // Create a new trip
   const createTrip = async (tripData: any) => {
@@ -180,8 +229,10 @@ export const useSupabaseTrips = () => {
           user_id: user.id,
           name: tripData.name || "New Trip",
           destination: tripData.destination || "",
-          
-          start_date: tripData.startDate ? tripData.startDate.toISOString() : null,
+
+          start_date: tripData.startDate
+            ? tripData.startDate.toISOString()
+            : null,
           end_date: tripData.endDate ? tripData.endDate.toISOString() : null,
           status: tripData.status || "planning",
           travelers: tripData.travelers || 1,
@@ -249,8 +300,8 @@ export const useSupabaseTrips = () => {
         }
       }
 
-      // Refresh trips list
-      await fetchTrips();
+      // Refresh trips list with cache invalidation
+      await fetchTrips(true);
 
       toast({
         title: "Trip created!",
@@ -285,8 +336,10 @@ export const useSupabaseTrips = () => {
         .update({
           name: tripData.name,
           destination: tripData.destination,
-          
-          start_date: tripData.startDate ? tripData.startDate.toISOString() : null,
+
+          start_date: tripData.startDate
+            ? tripData.startDate.toISOString()
+            : null,
           end_date: tripData.endDate ? tripData.endDate.toISOString() : null,
           status: tripData.status,
           travelers: tripData.travelers,
@@ -331,8 +384,8 @@ export const useSupabaseTrips = () => {
         }
       }
 
-      // Refresh trips list
-      await fetchTrips();
+      // Refresh trips list with cache invalidation
+      await fetchTrips(true);
 
       toast({
         title: "Trip updated!",
@@ -389,12 +442,10 @@ export const useSupabaseTrips = () => {
         });
       } else {
         // User is not owner - hide the trip from their view
-        const { error } = await supabase
-          .from("trips_hidden_by_user")
-          .insert({
-            user_id: user.id,
-            trip_id: tripUUID,
-          });
+        const { error } = await supabase.from("trips_hidden_by_user").insert({
+          user_id: user.id,
+          trip_id: tripUUID,
+        });
 
         if (error) {
           console.error("Error hiding trip:", error);
@@ -412,8 +463,8 @@ export const useSupabaseTrips = () => {
         });
       }
 
-      // Refresh trips list
-      await fetchTrips();
+      // Refresh trips list with cache invalidation
+      await fetchTrips(true);
       return true;
     } catch (error) {
       console.error("Error deleting trip:", error);
@@ -436,45 +487,55 @@ export const useSupabaseTrips = () => {
     if (!user?.id) return;
 
     const handleInvitationAccepted = () => {
-      console.log('Trip invitation accepted, refreshing trips...');
-      fetchTrips();
+      console.log("Trip invitation accepted, refreshing trips...");
+      fetchTrips(true);
     };
 
     const handleCollaboratorRemoved = () => {
-      console.log('Collaborator removed, refreshing trips...');
-      fetchTrips();
+      console.log("Collaborator removed, refreshing trips...");
+      fetchTrips(true);
     };
 
-    window.addEventListener('tripInvitationAccepted', handleInvitationAccepted);
-    window.addEventListener('collaboratorRemoved', handleCollaboratorRemoved);
+    const handlePlaceVisitConfirmed = () => {
+      console.log("Place visit confirmed, refreshing trips...");
+      fetchTrips(true);
+    };
+
+    window.addEventListener("tripInvitationAccepted", handleInvitationAccepted);
+    window.addEventListener("collaboratorRemoved", handleCollaboratorRemoved);
+    window.addEventListener("placeVisitConfirmed", handlePlaceVisitConfirmed);
 
     // Create a unique channel name to avoid conflicts
     const channelName = `trip_collaborators_${user.id}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Set up realtime subscription for trip_collaborators changes
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'trip_collaborators',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('Collaborator deleted realtime:', payload);
-          // Refresh trips immediately when this user is removed as collaborator
-          fetchTrips();
-        }
-      );
+    const channel = supabase.channel(channelName).on(
+      "postgres_changes",
+      {
+        event: "DELETE",
+        schema: "public",
+        table: "trip_collaborators",
+        filter: `user_id=eq.${user.id}`,
+      },
+      (payload) => {
+        console.log("Collaborator deleted realtime:", payload);
+        // Refresh trips immediately when this user is removed as collaborator
+        fetchTrips(true);
+      }
+    );
 
     // Subscribe only after setting up all listeners
     channel.subscribe();
-    
+
     return () => {
-      window.removeEventListener('tripInvitationAccepted', handleInvitationAccepted);
-      window.removeEventListener('collaboratorRemoved', handleCollaboratorRemoved);
+      window.removeEventListener(
+        "tripInvitationAccepted",
+        handleInvitationAccepted
+      );
+      window.removeEventListener(
+        "collaboratorRemoved",
+        handleCollaboratorRemoved
+      );
       // Unsubscribe and remove channel properly
       channel.unsubscribe();
       supabase.removeChannel(channel);

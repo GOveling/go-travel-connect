@@ -24,11 +24,11 @@ const COLORS = {
 
 const STEPS = ["Checklist", "Instalar", "Activar", "Consejos"];
 
-const ESIMModal = ({ 
-  isOpen, 
-  onClose, 
+const ESIMModal = ({
+  isOpen,
+  onClose,
   affiliateUrl = "https://holafly.sjv.io/OeZdVn",
-  onFinished 
+  onFinished,
 }: ESIMModalProps) => {
   const [step, setStep] = useState<number>(0);
   const [osTab, setOsTab] = useState<"ios" | "android">("ios");
@@ -55,7 +55,7 @@ const ESIMModal = ({
 
   const openAffiliate = async () => {
     try {
-      window.open(affiliateUrl, '_blank');
+      window.open(affiliateUrl, "_blank");
       // TODO: registra evento de analytics si corresponde (e.g., Segment/Amplitude)
     } catch (e) {
       console.warn("No se pudo abrir el enlace de afiliado", e);
@@ -123,14 +123,14 @@ const ESIMModal = ({
             const active = idx === step;
             return (
               <div key={label} className="flex-1 flex flex-col items-center">
-                <div 
+                <div
                   className={`w-2 h-2 rounded-full mb-1 ${
-                    active ? 'bg-[#2946bf]' : 'bg-gray-300'
+                    active ? "bg-[#2946bf]" : "bg-gray-300"
                   }`}
                 />
-                <span 
+                <span
                   className={`text-xs font-semibold truncate ${
-                    active ? 'text-[#2946bf]' : 'text-slate-500'
+                    active ? "text-[#2946bf]" : "text-slate-500"
                   }`}
                 >
                   {label}
@@ -146,23 +146,38 @@ const ESIMModal = ({
 
           {step === 0 && (
             <div className="space-y-3">
-              <Bullet>Tu equipo es <B>compatible</B> con eSIM y está <B>liberado</B>.</Bullet>
-              <Bullet>Tienes <B>Wi-Fi estable</B> para la instalación.</Bullet>
-              <Bullet>Definiste <B>destino</B> y <B>fechas</B> del viaje.</Bullet>
-              <Bullet>Guardarás el <B>QR/activation code</B> (no transferible).</Bullet>
+              <Bullet>
+                Tu equipo es <B>compatible</B> con eSIM y está <B>liberado</B>.
+              </Bullet>
+              <Bullet>
+                Tienes <B>Wi-Fi estable</B> para la instalación.
+              </Bullet>
+              <Bullet>
+                Definiste <B>destino</B> y <B>fechas</B> del viaje.
+              </Bullet>
+              <Bullet>
+                Guardarás el <B>QR/activation code</B> (no transferible).
+              </Bullet>
               <Note text="Algunos planes se activan al instalar y otros al conectarte en destino. Revísalo durante la compra." />
               <div className="mt-3 bg-slate-50 border border-gray-200 rounded-lg p-3">
                 <p className="text-sm text-slate-900">
-                  Serás redirigido a HolaFly. Comprando desde este enlace apoyas a GOveling.
+                  Serás redirigido a HolaFly. Comprando desde este enlace apoyas
+                  a GOveling.
                 </p>
               </div>
               <div className="mt-3 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">🎉</span>
-                  <p className="text-sm font-bold text-orange-800">¡Descuento Exclusivo!</p>
+                  <p className="text-sm font-bold text-orange-800">
+                    ¡Descuento Exclusivo!
+                  </p>
                 </div>
                 <p className="text-sm text-orange-700 mb-2">
-                  Usa el código <span className="font-bold text-orange-800 bg-orange-200 px-1 rounded">GOVELING5</span> y obtén un <B>5% de descuento</B> en esta y futuras compras.
+                  Usa el código{" "}
+                  <span className="font-bold text-orange-800 bg-orange-200 px-1 rounded">
+                    GOVELING5
+                  </span>{" "}
+                  y obtén un <B>5% de descuento</B> en esta y futuras compras.
                 </p>
                 <p className="text-xs text-orange-600">
                   💡 Compártelo con amigos y familiares para que también ahorren
@@ -189,34 +204,43 @@ const ESIMModal = ({
 
               {osTab === "ios" ? (
                 <div className="space-y-3">
-                  <Numbered>Ve a <B>Ajustes → Datos móviles → Añadir eSIM</B>.</Numbered>
                   <Numbered>
-                    Toca <B>"Usar código QR"</B> y escanea el QR de HolaFly desde otra pantalla.
-                    Si estás en el mismo teléfono, usa <B>"Introducir detalles manualmente"</B> con
+                    Ve a <B>Ajustes → Datos móviles → Añadir eSIM</B>.
+                  </Numbered>
+                  <Numbered>
+                    Toca <B>"Usar código QR"</B> y escanea el QR de HolaFly
+                    desde otra pantalla. Si estás en el mismo teléfono, usa{" "}
+                    <B>"Introducir detalles manualmente"</B> con
                     <B> SM-DP+</B> y <B>Activation Code</B>.
                   </Numbered>
                   <Numbered>
-                    Línea predeterminada: mantén tu SIM para Llamadas/SMS si quieres; en <B>Datos móviles</B> selecciona
+                    Línea predeterminada: mantén tu SIM para Llamadas/SMS si
+                    quieres; en <B>Datos móviles</B> selecciona
                     <B> eSIM HolaFly</B>.
                   </Numbered>
                   <Numbered>
-                    Activa <B>Itinerancia de datos</B> para la eSIM: Ajustes → Datos móviles → eSIM → Itinerancia: <B>ON</B>.
+                    Activa <B>Itinerancia de datos</B> para la eSIM: Ajustes →
+                    Datos móviles → eSIM → Itinerancia: <B>ON</B>.
                   </Numbered>
                   <Tip text="Si tu plan inicia al primer uso, espera a llegar a destino para activar Datos en la eSIM." />
                 </div>
               ) : (
                 <div className="space-y-3">
                   <Numbered>
-                    Ve a <B>Ajustes → Red e Internet → SIMs → Añadir eSIM</B> (nombres varían por marca).
+                    Ve a <B>Ajustes → Red e Internet → SIMs → Añadir eSIM</B>{" "}
+                    (nombres varían por marca).
                   </Numbered>
                   <Numbered>
-                    Escanea el <B>QR</B>. Si usas el mismo teléfono, ingresa <B>SM-DP+</B> y <B>Activation Code</B> manualmente.
+                    Escanea el <B>QR</B>. Si usas el mismo teléfono, ingresa{" "}
+                    <B>SM-DP+</B> y <B>Activation Code</B> manualmente.
                   </Numbered>
                   <Numbered>
-                    En <B>SIM preferida para datos</B> elige <B>eSIM HolaFly</B>.
+                    En <B>SIM preferida para datos</B> elige <B>eSIM HolaFly</B>
+                    .
                   </Numbered>
                   <Numbered>
-                    Activa <B>Itinerancia de datos</B> en la eSIM (Ajustes → Redes móviles → eSIM → Itinerancia: <B>ON</B>).
+                    Activa <B>Itinerancia de datos</B> en la eSIM (Ajustes →
+                    Redes móviles → eSIM → Itinerancia: <B>ON</B>).
                   </Numbered>
                   <Tip text="Puedes dejar tu SIM física para llamadas/SMS y usar eSIM solo para Datos." />
                 </div>
@@ -227,7 +251,8 @@ const ESIMModal = ({
           {step === 2 && (
             <div className="space-y-3">
               <Numbered>
-                <B>En destino</B>, activa <B>Datos móviles</B> en la eSIM HolaFly.
+                <B>En destino</B>, activa <B>Datos móviles</B> en la eSIM
+                HolaFly.
               </Numbered>
               <Numbered>
                 Si te dieron <B>APN</B>, configúralo (suele autoconfigurarse).
@@ -241,14 +266,20 @@ const ESIMModal = ({
               </button>
               {helpOpen && (
                 <div className="mt-2 bg-slate-100 border border-gray-200 rounded-lg p-3 space-y-2">
-                  <Bullet>Activa/Desactiva <B>Modo Avión</B> y reinicia.</Bullet>
                   <Bullet>
-                    Verifica que <B>Datos móviles</B> y <B>Itinerancia</B> estén en <B>ON</B> en la eSIM.
+                    Activa/Desactiva <B>Modo Avión</B> y reinicia.
                   </Bullet>
                   <Bullet>
-                    Comprueba que la eSIM esté seleccionada como <B>línea de Datos</B>.
+                    Verifica que <B>Datos móviles</B> y <B>Itinerancia</B> estén
+                    en <B>ON</B> en la eSIM.
                   </Bullet>
-                  <Bullet>Desactiva VPN durante la instalación/activación.</Bullet>
+                  <Bullet>
+                    Comprueba que la eSIM esté seleccionada como{" "}
+                    <B>línea de Datos</B>.
+                  </Bullet>
+                  <Bullet>
+                    Desactiva VPN durante la instalación/activación.
+                  </Bullet>
                 </div>
               )}
             </div>
@@ -256,13 +287,17 @@ const ESIMModal = ({
 
           {step === 3 && (
             <div className="space-y-3">
-              <Bullet>El QR/código suele ser <B>de un solo uso</B> y no transferible.</Bullet>
+              <Bullet>
+                El QR/código suele ser <B>de un solo uso</B> y no transferible.
+              </Bullet>
               <Bullet>No elimines la eSIM hasta terminar el viaje.</Bullet>
               <Bullet>
-                Si no quieres cargos en tu SIM física, desactiva <B>Datos</B> o <B>Roaming</B> en esa línea.
+                Si no quieres cargos en tu SIM física, desactiva <B>Datos</B> o{" "}
+                <B>Roaming</B> en esa línea.
               </Bullet>
               <Bullet>
-                Soporte técnico y reembolsos: <B>directo con HolaFly</B> (según sus políticas).
+                Soporte técnico y reembolsos: <B>directo con HolaFly</B> (según
+                sus políticas).
               </Bullet>
               <Tip text='Se añadirá un recordatorio en Mis Viajes: "Activa la eSIM al aterrizar".' />
             </div>
@@ -322,17 +357,17 @@ const Note: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-const TabButton: React.FC<{ label: string; active: boolean; onPress: () => void }> = ({
-  label,
-  active,
-  onPress,
-}) => (
+const TabButton: React.FC<{
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}> = ({ label, active, onPress }) => (
   <button
     onClick={onPress}
     className={`px-4 py-2 rounded-full border border-[#2946bf] font-semibold ${
-      active 
-        ? 'bg-[#2946bf] text-white' 
-        : 'bg-slate-50 text-[#2946bf] hover:bg-[#2946bf]/5'
+      active
+        ? "bg-[#2946bf] text-white"
+        : "bg-slate-50 text-[#2946bf] hover:bg-[#2946bf]/5"
     }`}
   >
     {label}

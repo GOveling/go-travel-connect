@@ -1,19 +1,18 @@
+import BottomSafeAdSlot from "@/components/ads/BottomSafeAdSlot";
+import CongratsOverlay from "@/components/feedback/CongratsOverlay";
 import ExploreAddToTripModal from "@/components/modals/ExploreAddToTripModal";
+import ExploreMapModal from "@/components/modals/ExploreMapModal";
 import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import PlaceMapModal from "@/components/modals/PlaceMapModal";
-import ExploreMapModal from "@/components/modals/ExploreMapModal";
 import { useToast } from "@/hooks/use-toast";
 import { useAddToTrip } from "@/hooks/useAddToTrip";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCallback, useState } from "react";
 import ExploreFilters from "./explore/ExploreFilters";
+import ExploreHero from "./explore/ExploreHero";
 import ExploreResults from "./explore/ExploreResults";
 import ExploreSearchBar from "./explore/ExploreSearchBar";
-import ExploreHero from "./explore/ExploreHero";
-import BottomSafeAdSlot from "@/components/ads/BottomSafeAdSlot";
-import CongratsOverlay from "@/components/feedback/CongratsOverlay";
 import { NearbyLocationToggle } from "./explore/NearbyLocationToggle";
-import { filterPlacesByDistance } from "@/utils/locationUtils";
 interface Place {
   id: string;
   name: string;
@@ -66,7 +65,10 @@ const ExploreSection = ({
   const [selectedLocationPlace, setSelectedLocationPlace] = useState<any>(null);
   const [showCongrats, setShowCongrats] = useState(false);
   const [isNearbyEnabled, setIsNearbyEnabled] = useState(false);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const [isExploreMapModalOpen, setIsExploreMapModalOpen] = useState(false);
   const [placeFromMap, setPlaceFromMap] = useState<Place | null>(null);
 
@@ -156,9 +158,15 @@ const ExploreSection = ({
 
       // Mostrar TODOS los resultados válidos; reordenar si hay uno seleccionado
       if (selectedId) {
-        const selectedPlace = finalResults.find((place) => place.id === selectedId);
-        const otherPlaces = finalResults.filter((place) => place.id !== selectedId);
-        setSearchResults(selectedPlace ? [selectedPlace, ...otherPlaces] : finalResults);
+        const selectedPlace = finalResults.find(
+          (place) => place.id === selectedId
+        );
+        const otherPlaces = finalResults.filter(
+          (place) => place.id !== selectedId
+        );
+        setSearchResults(
+          selectedPlace ? [selectedPlace, ...otherPlaces] : finalResults
+        );
         setSelectedPlaceId(selectedId);
       } else {
         setSearchResults(finalResults);
@@ -180,14 +188,17 @@ const ExploreSection = ({
     setAllSearchResults([]);
   }, []);
 
-  const handleLocationChange = useCallback((location: { lat: number; lng: number } | null) => {
-    setUserLocation(location);
-    // When location changes, clear current results to force a new search
-    if (isNearbyEnabled) {
-      setSearchResults([]);
-      setAllSearchResults([]);
-    }
-  }, [isNearbyEnabled]);
+  const handleLocationChange = useCallback(
+    (location: { lat: number; lng: number } | null) => {
+      setUserLocation(location);
+      // When location changes, clear current results to force a new search
+      if (isNearbyEnabled) {
+        setSearchResults([]);
+        setAllSearchResults([]);
+      }
+    },
+    [isNearbyEnabled]
+  );
 
   const handleAddToTrip = useCallback(async () => {
     if (!selectedPlace) return;
@@ -197,7 +208,10 @@ const ExploreSection = ({
       location: selectedPlace.location,
       rating: selectedPlace.rating,
       image: selectedPlace.image,
-      category: searchType === 'accommodation' ? 'accommodation' : selectedPlace.category,
+      category:
+        searchType === "accommodation"
+          ? "accommodation"
+          : selectedPlace.category,
       description: selectedPlace.description,
       lat: selectedPlace.lat,
       lng: selectedPlace.lng,
@@ -208,32 +222,35 @@ const ExploreSection = ({
       try {
         const success = await addPlaceToTrip(sourceTrip.id, placeData);
 
-          if (success) {
-            const toastTitle = searchType === 'accommodation' 
+        if (success) {
+          const toastTitle =
+            searchType === "accommodation"
               ? "Alojamiento agregado"
               : "Lugar agregado";
-            const toastDescription = searchType === 'accommodation'
+          const toastDescription =
+            searchType === "accommodation"
               ? `${selectedPlace.name} fue agregado como estadía para ${sourceTrip.name}`
               : `${selectedPlace.name} fue agregado a ${sourceTrip.name}`;
-              
-            toast({
-              title: toastTitle,
-              description: toastDescription,
-            });
-            setIsModalOpen(false);
-            onClearSourceTrip?.();
-            setShowCongrats(true);
-            setTimeout(() => {
-              // Navigate back to trips section
-              const event = new CustomEvent("navigateToTrips");
-              window.dispatchEvent(event);
-            }, 1400);
-          }
+
+          toast({
+            title: toastTitle,
+            description: toastDescription,
+          });
+          setIsModalOpen(false);
+          onClearSourceTrip?.();
+          setShowCongrats(true);
+          setTimeout(() => {
+            // Navigate back to trips section
+            const event = new CustomEvent("navigateToTrips");
+            window.dispatchEvent(event);
+          }, 1400);
+        }
       } catch (error) {
-        const errorMessage = searchType === 'accommodation'
-          ? "No se pudo agregar el alojamiento al viaje"
-          : "No se pudo agregar el lugar al viaje";
-          
+        const errorMessage =
+          searchType === "accommodation"
+            ? "No se pudo agregar el alojamiento al viaje"
+            : "No se pudo agregar el lugar al viaje";
+
         toast({
           title: "Error",
           description: errorMessage,
@@ -246,7 +263,14 @@ const ExploreSection = ({
       setIsAddToTripModalOpen(true);
       setIsModalOpen(false);
     }
-  }, [selectedPlace, sourceTrip, searchType, onClearSourceTrip, toast, addPlaceToTrip]);
+  }, [
+    selectedPlace,
+    sourceTrip,
+    searchType,
+    onClearSourceTrip,
+    toast,
+    addPlaceToTrip,
+  ]);
 
   const handlePlaceSelectFromMap = useCallback((place: Place) => {
     // Convert map place to modal format and open detail modal
@@ -289,32 +313,37 @@ const ExploreSection = ({
   };
 
   // Determine if scrolling should be allowed
-  const shouldAllowScroll = !loading && (searchResults.length > 0 || !searchQuery);
+  const shouldAllowScroll =
+    !loading && (searchResults.length > 0 || !searchQuery);
 
   return (
-    <div className={`min-h-screen bg-gray-50 pb-28 ${!shouldAllowScroll ? 'overflow-hidden' : ''}`}>
+    <div
+      className={`min-h-screen bg-gray-50 pb-28 ${!shouldAllowScroll ? "overflow-hidden" : ""}`}
+    >
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="p-4">
-          {sourceTrip && searchType === 'accommodation' ? (
+          {sourceTrip && searchType === "accommodation" ? (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-green-800 text-sm font-medium">
-                🏨 Buscando alojamiento para: <span className="font-bold">{sourceTrip.name}</span>
+                🏨 Buscando alojamiento para:{" "}
+                <span className="font-bold">{sourceTrip.name}</span>
               </p>
             </div>
           ) : sourceTrip ? (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-800 text-sm font-medium">
-                ✈️ Agregando lugares a: <span className="font-bold">{sourceTrip.name}</span>
+                ✈️ Agregando lugares a:{" "}
+                <span className="font-bold">{sourceTrip.name}</span>
               </p>
             </div>
           ) : null}
-          
-            <ExploreHero
-              title={t("explore.title")}
-              subtitle={t("explore.subtitle")}
-              onExploreClick={() => {}}
-            />
+
+          <ExploreHero
+            title={t("explore.title")}
+            subtitle={t("explore.subtitle")}
+            onExploreClick={() => {}}
+          />
 
           {/* Search Controls - Filtros y Búsqueda más juntos */}
           <div className="space-y-2">
@@ -333,7 +362,11 @@ const ExploreSection = ({
             />
 
             <ExploreSearchBar
-              selectedCategories={searchType === 'accommodation' ? ['lodging'] : selectedCategories}
+              selectedCategories={
+                searchType === "accommodation"
+                  ? ["lodging"]
+                  : selectedCategories
+              }
               onSearchSubmit={handleSearchSubmit}
               onShowRelatedPlaces={handleShowRelatedPlaces}
               onSearchResults={handleSearchResults}
@@ -398,7 +431,10 @@ const ExploreSection = ({
       />
 
       {/* Overlays and Ad Slot */}
-      <CongratsOverlay open={showCongrats} onClose={() => setShowCongrats(false)} />
+      <CongratsOverlay
+        open={showCongrats}
+        onClose={() => setShowCongrats(false)}
+      />
       <BottomSafeAdSlot />
     </div>
   );

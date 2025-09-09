@@ -42,8 +42,12 @@ export const findCurrentTrip = (tripsWithStatus: Trip[]): Trip => {
   const upcomingTrips = tripsWithStatus
     .filter((trip) => trip.status === "upcoming")
     .sort((a, b) => {
-      const aTime = a.startDate ? a.startDate.getTime() : Number.MAX_SAFE_INTEGER;
-      const bTime = b.startDate ? b.startDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const aTime = a.startDate
+        ? a.startDate.getTime()
+        : Number.MAX_SAFE_INTEGER;
+      const bTime = b.startDate
+        ? b.startDate.getTime()
+        : Number.MAX_SAFE_INTEGER;
       return aTime - bTime;
     });
 
@@ -69,8 +73,8 @@ export const findCurrentTrip = (tripsWithStatus: Trip[]): Trip => {
       id: "1",
       name: "European Adventure",
       destination: "Paris → Rome → Barcelona",
-      startDate: new Date('2024-12-15'),
-      endDate: new Date('2024-12-25'),
+      startDate: new Date("2024-12-15"),
+      endDate: new Date("2024-12-25"),
       status: "upcoming",
       travelers: 2,
       image: "🇪🇺",

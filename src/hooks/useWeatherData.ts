@@ -163,33 +163,81 @@ export const useWeatherData = () => {
     [dispatch, currentData, weatherState.error, MIN_RETRY_DELAY, RETRY_INTERVAL]
   );
 
-  const fetchWeatherByLocation = useCallback(async () => {
-    console.log("Fetching weather by location...");
-    if (!navigator.geolocation) {
-      dispatch(setWeatherError("Geolocation is not supported by this browser"));
-      return;
-    }
+  // Función auxiliar para usar IP geolocation como fallback
+  const tryIPGeolocation = useCallback(async () => {
+    try {
+      console.log("🌐 Intentando IP geolocation...");
+      const response = await fetch("https://ipapi.co/json/", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          await fetchWeather({ lat: latitude, lng: longitude });
-        } catch (error) {
-          console.error("Error fetching weather by coordinates:", error);
-          // El error ya fue manejado en fetchWeather
-        }
-      },
-      async () => {
-        try {
-          await fetchWeather(undefined, "Paris, France");
-        } catch (error) {
-          console.error("Error fetching weather by city fallback:", error);
-          // El error ya fue manejado en fetchWeather
+      if (response.ok) {
+        const locationData = await response.json();
+        console.log("✅ IP Geolocation successful:", locationData);
+
+        if (locationData.latitude && locationData.longitude) {
+          await fetchWeather({
+            lat: locationData.latitude,
+            lng: locationData.longitude,
+          });
+          return;
+        } else if (locationData.city) {
+          await fetchWeather(
+            undefined,
+            `${locationData.city}, ${locationData.country_name}`
+          );
+          return;
         }
       }
-    );
-  }, [fetchWeather, dispatch]);
+    } catch (error) {
+      console.error("❌ IP Geolocation failed:", error);
+    }
+
+    // Si todo falla, usar coordenadas de una ciudad por defecto (Madrid, España)
+    console.log("🏙️ Usando ubicación por defecto: Madrid, España");
+    try {
+      await fetchWeather({ lat: 40.4168, lng: -3.7038 });
+    } catch (error) {
+      console.error("Error fetching weather by default location:", error);
+    }
+  }, [fetchWeather]);
+
+  const fetchWeatherByLocation = useCallback(async () => {
+    console.log("Fetching weather by location...");
+
+    // Intentar obtener ubicación del navegador primero
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            console.log("✅ Geolocation successful:", position.coords);
+            const { latitude, longitude } = position.coords;
+            await fetchWeather({ lat: latitude, lng: longitude });
+          } catch (error) {
+            console.error("Error fetching weather by coordinates:", error);
+            // El error ya fue manejado en fetchWeather
+          }
+        },
+        async (error) => {
+          console.log("❌ Geolocation failed:", error.message);
+          // Si falla la geolocation, intentar con IP geolocation
+          await tryIPGeolocation();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000, // 5 minutos
+        }
+      );
+    } else {
+      console.log("❌ Geolocation not supported");
+      // Si no hay geolocation, intentar con IP geolocation
+      await tryIPGeolocation();
+    }
+  }, [fetchWeather, tryIPGeolocation]);
 
   const updateWeatherLocation = useCallback(
     (location: { city: string; country: string; region: string }) => {

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Plus } from "lucide-react";
@@ -40,7 +39,7 @@ const CurrentTripContent = ({
             setCountdown(null);
             return;
           }
-          
+
           const currentDate = new Date();
           const timeDifference = startDate.getTime() - currentDate.getTime();
 
@@ -74,13 +73,17 @@ const CurrentTripContent = ({
         <div className="bg-gradient-to-r from-green-600 to-blue-500 p-4 text-white">
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4" />
-            <h3 className="font-semibold">{t("home.currentTrip.aiSmartRouteActive")}</h3>
+            <h3 className="font-semibold">
+              {t("home.currentTrip.aiSmartRouteActive")}
+            </h3>
           </div>
           <p className="text-sm opacity-90">{travelingTrip.destination}</p>
         </div>
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-3">
-            <p className="text-sm text-gray-600">{t("home.currentTrip.followingOptimizedRoute")}</p>
+            <p className="text-sm text-gray-600">
+              {t("home.currentTrip.followingOptimizedRoute")}
+            </p>
             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
               {t("home.currentTrip.traveling")}
             </span>
@@ -109,7 +112,9 @@ const CurrentTripContent = ({
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4 text-white">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            <h3 className="font-semibold">{t("home.currentTrip.tripCountdown")}</h3>
+            <h3 className="font-semibold">
+              {t("home.currentTrip.tripCountdown")}
+            </h3>
           </div>
           <p className="text-sm opacity-90">
             {nearestUpcomingTrip.destination}
@@ -122,22 +127,30 @@ const CurrentTripContent = ({
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.days}
                 </div>
-                <div className="text-xs text-gray-600">{t("home.currentTrip.days")}</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.days")}
+                </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.hours}
                 </div>
-                <div className="text-xs text-gray-600">{t("home.currentTrip.hours")}</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.hours")}
+                </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.minutes}
                 </div>
-                <div className="text-xs text-gray-600">{t("home.currentTrip.minutes")}</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.minutes")}
+                </div>
               </div>
             </div>
-            <p className="text-sm text-gray-600">{t("home.currentTrip.untilTripBegins")}</p>
+            <p className="text-sm text-gray-600">
+              {t("home.currentTrip.untilTripBegins")}
+            </p>
           </div>
           <div className="space-y-2">
             <Button
@@ -161,9 +174,13 @@ const CurrentTripContent = ({
       <div className="bg-gradient-to-r from-gray-600 to-gray-700 p-4 text-white">
         <div className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          <h3 className="font-semibold">{t("home.currentTrip.planYourNextAdventure")}</h3>
+          <h3 className="font-semibold">
+            {t("home.currentTrip.planYourNextAdventure")}
+          </h3>
         </div>
-        <p className="text-sm opacity-90">{t("home.currentTrip.noUpcomingTrips")}</p>
+        <p className="text-sm opacity-90">
+          {t("home.currentTrip.noUpcomingTrips")}
+        </p>
       </div>
       <CardContent className="p-4">
         <div className="text-center mb-4">

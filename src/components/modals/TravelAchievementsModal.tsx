@@ -56,7 +56,7 @@ const TravelAchievementsModal = ({
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
           <div className="flex items-center justify-center py-8">
             <Loader2 className="animate-spin" size={32} />
             <span className="ml-2">Loading achievements...</span>
@@ -69,7 +69,7 @@ const TravelAchievementsModal = ({
   if (error) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
           <div className="text-center py-8">
             <div className="text-4xl mb-4">⚠️</div>
             <p className="text-red-500">Error loading achievements: {error}</p>
@@ -82,7 +82,7 @@ const TravelAchievementsModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
               <Award className="text-purple-600" size={24} />

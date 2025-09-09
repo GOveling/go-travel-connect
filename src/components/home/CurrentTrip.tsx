@@ -1,10 +1,11 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, MapPin, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
-import type { Trip } from "@/types";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useTravelModeContext } from "@/contexts/TravelModeContext";
+import type { Trip } from "@/types";
+import { Calendar, MapPin, Navigation, Plus } from "lucide-react";
+import { useEffect, useState, memo, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface CurrentTripContentProps {
   currentTrip: Trip | null;
@@ -15,7 +16,7 @@ interface CurrentTripContentProps {
   onNavigateToTrips: () => void;
 }
 
-const CurrentTripContent = ({
+const CurrentTripContent = memo(({
   currentTrip,
   travelingTrip,
   nearestUpcomingTrip,
@@ -23,77 +24,133 @@ const CurrentTripContent = ({
   onPlanNewTrip,
   onNavigateToTrips,
 }: CurrentTripContentProps) => {
-  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { config } = useTravelModeContext();
+  const { t } = useLanguage(); // Main translation function
   const [countdown, setCountdown] = useState<{
     days: number;
     hours: number;
     minutes: number;
   } | null>(null);
 
-  // Calculate countdown for upcoming trip
-  useEffect(() => {
-    if (nearestUpcomingTrip && !travelingTrip) {
-      const calculateCountdown = () => {
-        try {
-          const startDate = nearestUpcomingTrip.startDate;
-          if (!startDate) {
-            setCountdown(null);
-            return;
-          }
-          
-          const currentDate = new Date();
-          const timeDifference = startDate.getTime() - currentDate.getTime();
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleNavigateToTravelMode = useCallback(() => {
+    navigate("/travel-mode");
+  }, [navigate]);
 
-          if (timeDifference > 0) {
-            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor(
-              (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-            );
-            const minutes = Math.floor(
-              (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
-            );
+  const handleViewDetail = useCallback(() => {
+    onViewDetail();
+  }, [onViewDetail]);
 
-            setCountdown({ days, hours, minutes });
-          }
-        } catch (error) {
-          setCountdown(null);
-        }
-      };
+  const handlePlanNewTrip = useCallback(() => {
+    onPlanNewTrip();
+  }, [onPlanNewTrip]);
 
-      calculateCountdown();
-      const interval = setInterval(calculateCountdown, 60000); // Update every minute
+  const handleNavigateToTrips = useCallback(() => {
+    onNavigateToTrips();
+  }, [onNavigateToTrips]);
 
-      return () => clearInterval(interval);
+  // Memoized countdown calculation for better performance
+  const countdownData = useMemo(() => {
+    if (!nearestUpcomingTrip || travelingTrip) return null;
+    
+    try {
+      const startDate = nearestUpcomingTrip.startDate;
+      if (!startDate) return null;
+
+      const currentDate = new Date();
+      const timeDifference = startDate.getTime() - currentDate.getTime();
+
+      if (timeDifference > 0) {
+        const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+          (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor(
+          (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+        );
+
+        return { days, hours, minutes };
+      }
+    } catch (error) {
+      console.warn("Error calculating countdown:", error);
     }
+    return null;
   }, [nearestUpcomingTrip, travelingTrip]);
 
-  // Case 1: Currently traveling - show AI Smart Route
+  // Optimized countdown updater with reduced frequency for mobile
+  useEffect(() => {
+    if (countdownData) {
+      setCountdown(countdownData);
+      
+      // Update every 2 minutes instead of 1 minute for battery optimization
+      const interval = setInterval(() => {
+        const updatedCountdown = countdownData;
+        if (updatedCountdown) {
+          setCountdown({ ...updatedCountdown });
+        }
+      }, 120000); // 2 minutes for mobile battery optimization
+
+      return () => clearInterval(interval);
+    } else {
+      setCountdown(null);
+    }
+  }, [countdownData]);
+
+  // Case 1: Currently traveling - show Travel Mode access
   if (travelingTrip) {
     return (
       <Card className="overflow-hidden border-0 shadow-lg">
         <div className="bg-gradient-to-r from-green-600 to-blue-500 p-4 text-white">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" />
-            <h3 className="font-semibold">{t("home.currentTrip.aiSmartRouteActive")}</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Navigation className="w-4 h-4" />
+              <h3 className="font-semibold">
+                Active trip
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              <h3 className="font-semibold">
+                {travelingTrip.name}
+              </h3>
+            </div>
           </div>
           <p className="text-sm opacity-90">{travelingTrip.destination}</p>
         </div>
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-3">
-            <p className="text-sm text-gray-600">{t("home.currentTrip.followingOptimizedRoute")}</p>
+            <p className="text-sm text-gray-600">
+              Travel Mode Status
+            </p>
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                config.isEnabled
+                  ? "bg-green-100 text-green-800"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {config.isEnabled ? t("common.active") : t("common.inactive")}
+            </span>
             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
               {t("home.currentTrip.traveling")}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-            <div className="bg-gradient-to-r from-green-600 to-blue-500 h-2 rounded-full w-3/7"></div>
+          <div className="space-y-2">
+            <Button
+              className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
+              onClick={handleNavigateToTravelMode}
+            >
+              <Navigation className="w-4 h-4 mr-2" />
+              {t("home.travelMode.accessTravelMode")}
+            </Button>
+            <Button variant="outline" className="w-full" onClick={handleViewDetail}>
+              {t("home.currentTrip.viewDetails")}
+            </Button>
           </div>
-          <p className="text-sm text-gray-700 mb-3">
-            {t("home.currentTrip.nextOptimizedDestination")}
-          </p>
           <Button
             className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
-            onClick={onViewDetail}
+            onClick={handleViewDetail}
           >
             {t("home.currentTrip.viewAIRouteDetails")}
           </Button>
@@ -109,7 +166,9 @@ const CurrentTripContent = ({
         <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4 text-white">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
-            <h3 className="font-semibold">{t("home.currentTrip.tripCountdown")}</h3>
+            <h3 className="font-semibold">
+              {t("home.currentTrip.tripCountdown")}
+            </h3>
           </div>
           <p className="text-sm opacity-90">
             {nearestUpcomingTrip.destination}
@@ -122,31 +181,39 @@ const CurrentTripContent = ({
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.days}
                 </div>
-                <div className="text-xs text-gray-600">{t("home.currentTrip.days")}</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.days")}
+                </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.hours}
                 </div>
-                <div className="text-xs text-gray-600">{t("home.currentTrip.hours")}</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.hours")}
+                </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="text-lg font-bold text-purple-600">
                   {countdown.minutes}
                 </div>
-                <div className="text-xs text-gray-600">{t("home.currentTrip.minutes")}</div>
+                <div className="text-xs text-gray-600">
+                  {t("home.currentTrip.minutes")}
+                </div>
               </div>
             </div>
-            <p className="text-sm text-gray-600">{t("home.currentTrip.untilTripBegins")}</p>
+            <p className="text-sm text-gray-600">
+              {t("home.currentTrip.untilTripBegins")}
+            </p>
           </div>
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-to-r from-purple-600 to-orange-500 border-0 hover:from-purple-700 hover:to-orange-600"
-              onClick={onNavigateToTrips}
+              onClick={handleNavigateToTrips}
             >
               {t("home.currentTrip.viewTripDetails")}
             </Button>
-            <Button variant="outline" className="w-full" onClick={onViewDetail}>
+            <Button variant="outline" className="w-full" onClick={handleViewDetail}>
               {t("home.currentTrip.previewAISmartRoute")}
             </Button>
           </div>
@@ -161,9 +228,13 @@ const CurrentTripContent = ({
       <div className="bg-gradient-to-r from-gray-600 to-gray-700 p-4 text-white">
         <div className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          <h3 className="font-semibold">{t("home.currentTrip.planYourNextAdventure")}</h3>
+          <h3 className="font-semibold">
+            {t("home.currentTrip.planYourNextAdventure")}
+          </h3>
         </div>
-        <p className="text-sm opacity-90">{t("home.currentTrip.noUpcomingTrips")}</p>
+        <p className="text-sm opacity-90">
+          {t("home.currentTrip.noUpcomingTrips")}
+        </p>
       </div>
       <CardContent className="p-4">
         <div className="text-center mb-4">
@@ -179,7 +250,7 @@ const CurrentTripContent = ({
         </div>
         <Button
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 border-0 hover:from-blue-700 hover:to-purple-700"
-          onClick={onPlanNewTrip}
+          onClick={handlePlanNewTrip}
         >
           <Plus className="w-4 h-4 mr-2" />
           {t("home.currentTrip.planNewTrip")}
@@ -187,6 +258,8 @@ const CurrentTripContent = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+CurrentTripContent.displayName = "CurrentTripContent";
 
 export default CurrentTripContent;

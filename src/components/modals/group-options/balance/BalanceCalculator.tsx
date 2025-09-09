@@ -31,7 +31,10 @@ interface Settlement {
   payments: PaymentRecord[];
 }
 
-export const calculatePersonBalance = (person: string, expenses: TripExpense[]) => {
+export const calculatePersonBalance = (
+  person: string,
+  expenses: TripExpense[]
+) => {
   let balance = 0;
 
   expenses.forEach((expense) => {

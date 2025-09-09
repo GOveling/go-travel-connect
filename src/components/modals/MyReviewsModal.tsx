@@ -103,7 +103,7 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
           <DialogHeader>
             <DialogTitle>My Reviews</DialogTitle>
           </DialogHeader>
@@ -117,7 +117,7 @@ const MyReviewsModal = ({ isOpen, onClose }: MyReviewsModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <User className="text-purple-600" size={24} />
