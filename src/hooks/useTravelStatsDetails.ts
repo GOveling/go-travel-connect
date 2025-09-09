@@ -54,27 +54,46 @@ export const useTravelStatsDetails = () => {
           visited_at,
           place_category,
           confirmation_distance,
-          trip_id,
-          trips(name)
+          trip_id
         `)
         .eq('user_id', user.id)
         .order('visited_at', { ascending: false });
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error (place_visits):', error);
         throw error;
       }
 
-      console.log('Place visits data:', data);
+      const visits = data || [];
 
-      return data?.map(visit => ({
+      // Fetch trip names in a second query to avoid FK/relationship issues
+      const uniqueTripIds = Array.from(new Set(visits.map(v => v.trip_id).filter(Boolean)));
+      let tripNameById: Record<string, string> = {};
+
+      if (uniqueTripIds.length > 0) {
+        const { data: tripsData, error: tripsError } = await supabase
+          .from('trips')
+          .select('id, name')
+          .in('id', uniqueTripIds as string[]);
+
+        if (tripsError) {
+          console.error('Supabase error (trips):', tripsError);
+        } else if (tripsData) {
+          tripNameById = tripsData.reduce((acc, t) => {
+            acc[t.id] = t.name;
+            return acc;
+          }, {} as Record<string, string>);
+        }
+      }
+
+      return visits.map(visit => ({
         id: visit.id,
         place_name: visit.place_name,
         visited_at: visit.visited_at,
-        trip_name: (visit.trips as any)?.name || 'Viaje sin nombre',
+        trip_name: tripNameById[visit.trip_id] || 'Viaje sin nombre',
         place_category: visit.place_category,
-        confirmation_distance: visit.confirmation_distance
-      })) || [];
+        confirmation_distance: Number(visit.confirmation_distance)
+      }));
     } catch (error) {
       console.error('Error fetching visited places:', error);
       return [];
