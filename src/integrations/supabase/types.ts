@@ -166,9 +166,12 @@ export type Database = {
           created_at: string
           id: string
           location_lat: number
+          location_lat_encrypted: string | null
           location_lng: number
+          location_lng_encrypted: string | null
           place_category: string | null
           place_name: string
+          place_name_encrypted: string | null
           region: string | null
           saved_place_id: string
           trip_id: string
@@ -182,9 +185,12 @@ export type Database = {
           created_at?: string
           id?: string
           location_lat: number
+          location_lat_encrypted?: string | null
           location_lng: number
+          location_lng_encrypted?: string | null
           place_category?: string | null
           place_name: string
+          place_name_encrypted?: string | null
           region?: string | null
           saved_place_id: string
           trip_id: string
@@ -198,9 +204,12 @@ export type Database = {
           created_at?: string
           id?: string
           location_lat?: number
+          location_lat_encrypted?: string | null
           location_lng?: number
+          location_lng_encrypted?: string | null
           place_category?: string | null
           place_name?: string
+          place_name_encrypted?: string | null
           region?: string | null
           saved_place_id?: string
           trip_id?: string
@@ -1063,6 +1072,10 @@ export type Database = {
         Args: { p_token: string }
         Returns: Json
       }
+      anonymize_location_history: {
+        Args: { p_older_than_days?: number; p_user_id: string }
+        Returns: boolean
+      }
       are_trip_collaborators: {
         Args: { user1_id: string; user2_id: string }
         Returns: boolean
@@ -1088,8 +1101,28 @@ export type Database = {
         }
         Returns: Json
       }
+      create_place_visit_secure: {
+        Args: {
+          p_city?: string
+          p_confirmation_distance: number
+          p_country?: string
+          p_location_lat: number
+          p_location_lng: number
+          p_place_category?: string
+          p_place_name: string
+          p_region?: string
+          p_saved_place_id: string
+          p_trip_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       decrypt_sensitive_field: {
         Args: { encrypted_value: string }
+        Returns: string
+      }
+      deobfuscate_location_data: {
+        Args: { obfuscated_value: string }
         Returns: string
       }
       deobfuscate_sensitive_field: {
@@ -1157,6 +1190,14 @@ export type Database = {
           rating: number
           updated_at: string
           user_id: string
+        }[]
+      }
+      get_place_visit_exact_location: {
+        Args: { p_user_id: string; p_visit_id: string }
+        Returns: {
+          confirmation_distance: number
+          latitude: number
+          longitude: number
         }[]
       }
       get_profile_public: {
@@ -1238,6 +1279,20 @@ export type Database = {
           total_required: number
         }[]
       }
+      get_user_location_visits_secure: {
+        Args: { p_limit?: number; p_offset?: number; p_user_id: string }
+        Returns: {
+          approximate_location: string
+          city: string
+          country: string
+          id: string
+          place_category: string
+          place_name: string
+          region: string
+          trip_id: string
+          visited_at: string
+        }[]
+      }
       get_user_pending_invitations: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1277,6 +1332,10 @@ export type Database = {
       is_trip_hidden_by_user: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
+      }
+      obfuscate_location_data: {
+        Args: { location_value: string }
+        Returns: string
       }
       obfuscate_sensitive_field: {
         Args: { field_value: string }
