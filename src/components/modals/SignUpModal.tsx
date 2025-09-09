@@ -10,10 +10,9 @@ import FormDivider from "./shared/FormDivider";
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSignUp?: (name: string, email: string, password: string) => Promise<any>;
+  onSignUp?: (name: string, email: string, password: string) => void;
   onGoogleSignUp?: () => void;
   onSwitchToLogin?: () => void;
-  onOpenConfirmationCode?: (email: string) => void;
 }
 
 const SignUpModal = ({
@@ -22,7 +21,6 @@ const SignUpModal = ({
   onSignUp,
   onGoogleSignUp,
   onSwitchToLogin,
-  onOpenConfirmationCode,
 }: SignUpModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const isMobile = useIsMobile();
@@ -35,17 +33,8 @@ const SignUpModal = ({
     if (onSignUp) {
       setIsLoading(true);
       try {
-        const result = await onSignUp(name, email, password);
-        console.log("SignUpModal: onSignUp result", result);
-        const needsCode = !result || result?.requiresConfirmation !== false;
-        if (!result?.error && needsCode) {
-          console.log("SignUpModal: triggering global code modal", { email });
-          onOpenConfirmationCode?.(email);
-          onClose();
-        } else if (!result?.error) {
-          onClose();
-        }
-        // If there's an error, it will be handled by the auth function with toast
+        await onSignUp(name, email, password);
+        onClose();
       } catch (error) {
         console.error("Sign up error:", error);
       } finally {
@@ -68,42 +57,38 @@ const SignUpModal = ({
     }
   };
 
-
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent
-          className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
-        >
-          <ModalHeader onClose={onClose} />
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent
+        className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
+      >
+        <ModalHeader onClose={onClose} />
 
-          {/* Content */}
-          <div className="p-6 space-y-6">
-            <GoogleLoginButton
-              onClick={handleGoogleSignUp}
-              isLoading={isLoading}
-            />
+        {/* Content */}
+        <div className="p-6 space-y-6">
+          <GoogleLoginButton
+            onClick={handleGoogleSignUp}
+            isLoading={isLoading}
+          />
 
-            <FormDivider text="Or sign up with email" />
+          <FormDivider text="Or sign up with email" />
 
-            <SignUpForm onSubmit={handleSignUp} isLoading={isLoading} />
+          <SignUpForm onSubmit={handleSignUp} isLoading={isLoading} />
 
-            {/* Sign In Link */}
-            <div className="text-center text-sm text-gray-600">
-              Already have an account?{" "}
-              <Button
-                variant="link"
-                onClick={onSwitchToLogin}
-                className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
-              >
-                Sign in
-              </Button>
-            </div>
+          {/* Sign In Link */}
+          <div className="text-center text-sm text-gray-600">
+            Already have an account?{" "}
+            <Button
+              variant="link"
+              onClick={onSwitchToLogin}
+              className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
+            >
+              Sign in
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-    </>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

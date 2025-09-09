@@ -11,11 +11,10 @@ import ForgotPasswordModal from "./ForgotPasswordModal";
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin?: (email: string, password: string) => Promise<any>;
+  onLogin?: (email: string, password: string) => void;
   onGoogleLogin?: () => void;
   onForgotPassword?: (email: string) => void;
   onSwitchToSignUp?: () => void;
-  onOpenConfirmationCode?: (email: string) => void;
 }
 
 const LoginModal = ({
@@ -25,7 +24,6 @@ const LoginModal = ({
   onGoogleLogin,
   onForgotPassword,
   onSwitchToSignUp,
-  onOpenConfirmationCode,
 }: LoginModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
@@ -36,18 +34,8 @@ const LoginModal = ({
     if (onLogin) {
       setIsLoading(true);
       try {
-        const result = await onLogin(email, password);
-        
-        // Check if login failed due to unconfirmed email
-        if (result?.error?.message?.includes("Email not confirmed")) {
-          onOpenConfirmationCode?.(email);
-          return;
-        }
-        
-        // Only close on successful login (no error)
-        if (!result?.error) {
-          onClose();
-        }
+        await onLogin(email, password);
+        onClose();
       } catch (error) {
         console.error("Login error:", error);
       } finally {
@@ -87,7 +75,6 @@ const LoginModal = ({
     }
   };
 
-
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -111,22 +98,6 @@ const LoginModal = ({
               isLoading={isLoading}
             />
 
-            {/* Confirmation Code Link */}
-            <div className="text-center">
-              <Button
-                variant="link"
-                onClick={() => {
-                  const email = prompt("Ingresa tu email para confirmar:");
-                  if (email) {
-                    onOpenConfirmationCode?.(email);
-                  }
-                }}
-                className="text-sm text-gray-600 hover:text-gray-800 p-0 h-auto"
-              >
-                ¿Tienes un código de confirmación?
-              </Button>
-            </div>
-
             {/* Sign Up Link */}
             <div className="text-center text-sm text-gray-600">
               Don't have an account?{" "}
@@ -148,7 +119,6 @@ const LoginModal = ({
         onResetPassword={handleForgotPasswordSubmit}
         isLoading={isLoading}
       />
-
     </>
   );
 };

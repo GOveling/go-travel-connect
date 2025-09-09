@@ -152,14 +152,6 @@ export const useAuth = () => {
           description:
             "Te enviamos un enlace de confirmación para completar tu registro.",
         });
-        
-        console.log("useAuth.signUp: requiresConfirmation=true for", data.user?.email);
-        // Return specific info that email confirmation is needed
-        return { 
-          error: null, 
-          requiresConfirmation: true, 
-          user: data.user 
-        };
       } else if (data.session) {
         // Mark this as a new signup for welcome flow
         if (data.user) {
@@ -171,8 +163,7 @@ export const useAuth = () => {
         });
       }
 
-      console.log("useAuth.signUp: returning requiresConfirmation=false (has session)");
-      return { error: null, requiresConfirmation: false };
+      return { error: null };
     } catch (error: any) {
       console.error("❌ useAuth: Sign up exception:", error);
       toast({

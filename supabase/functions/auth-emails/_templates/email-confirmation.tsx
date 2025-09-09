@@ -27,24 +27,24 @@ export const EmailConfirmationEmail = ({
 }: EmailConfirmationProps) => (
   <Html>
     <Head />
-    <Preview>Confirma tu cuenta en GOveling</Preview>
+    <Preview>Confirma tu cuenta en Travel Connect</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
           <Img
-            src="/lovable-uploads/5b39ea7f-8421-4c2d-a8fb-249eed3cb27b.png"
-            width="200"
-            height="100"
-            alt="GOveling"
+            src="https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png"
+            width="40"
+            height="40"
+            alt="Travel Connect"
             style={logo}
           />
-          <Heading style={h1}>GOveling</Heading>
+          <Heading style={h1}>Travel Connect</Heading>
         </Section>
 
         <Section style={content}>
           <Heading style={h2}>¡Confirma tu cuenta!</Heading>
           <Text style={text}>
-            Hola y bienvenido a GOveling. Para completar el registro de tu cuenta <strong>{userEmail}</strong>, 
+            Hola y bienvenido a Travel Connect. Para completar el registro de tu cuenta <strong>{userEmail}</strong>, 
             necesitamos que confirmes tu dirección de correo electrónico.
           </Text>
 
@@ -69,13 +69,13 @@ export const EmailConfirmationEmail = ({
           <Hr style={hr} />
 
           <Text style={footerText}>
-            Si no has creado una cuenta en GOveling, puedes ignorar este correo de forma segura.
+            Si no has creado una cuenta en Travel Connect, puedes ignorar este correo de forma segura.
           </Text>
         </Section>
 
         <Section style={footer}>
           <Text style={footerCopyright}>
-            © {new Date().getFullYear()} GOveling. Todos los derechos reservados.
+            © {new Date().getFullYear()} Travel Connect. Todos los derechos reservados.
           </Text>
         </Section>
       </Container>
