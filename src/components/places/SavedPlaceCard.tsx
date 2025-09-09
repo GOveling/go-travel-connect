@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Clock, MapPin, Edit, Trash2, GripVertical } from "lucide-react";
+import { Star, Clock, MapPin, Edit, Trash2, GripVertical, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,6 +19,8 @@ interface SavedPlaceCardProps {
     destination_name?: string;
     formatted_address?: string; // snake_case from Supabase
     formattedAddress?: string; // camelCase if mapped in frontend
+    visited?: boolean; // Visited status for travel mode
+    visited_at?: string; // When the place was visited
   };
   canEdit?: boolean;
   onDelete?: () => void;
@@ -102,9 +104,11 @@ export const SavedPlaceCard = ({
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className={`hover:shadow-md transition-shadow ${
+      place.visited ? 'border-2 border-green-500 bg-green-50/30' : ''
+    }`}>
       <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-3 relative">
           <div className="flex items-start gap-3 flex-1">
             {priorityNumber && (
               <div className="flex items-center justify-center w-6 h-6 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full text-xs font-bold shadow-md flex-shrink-0 mt-1">
@@ -156,10 +160,18 @@ export const SavedPlaceCard = ({
               />
             )}
           </div>
+          
+          {/* Visited Badge - positioned absolutely */}
+          {place.visited && (
+            <div className="absolute top-0 right-0 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg text-xs font-medium shadow-sm">
+              <CheckCircle className="h-3 w-3" />
+              <span>Visitado</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-wrap">
             {place.rating && place.rating > 0 && (
               <div className="flex items-center space-x-1">
                 {renderStars(place.rating)}
@@ -177,6 +189,14 @@ export const SavedPlaceCard = ({
 
             {place.category && (
               <Badge variant="outline">{place.category}</Badge>
+            )}
+            
+            {/* Visited status badge in the main content area */}
+            {place.visited && (
+              <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Completado
+              </Badge>
             )}
           </div>
 
@@ -201,6 +221,19 @@ export const SavedPlaceCard = ({
           <div className="flex items-center text-sm text-muted-foreground mt-2 pt-2 border-t">
             <Clock className="h-4 w-4 mr-1" />
             Tiempo estimado: {place.estimated_time}
+          </div>
+        )}
+        
+        {place.visited && place.visited_at && (
+          <div className="flex items-center text-sm text-green-600 mt-2 pt-2 border-t border-green-200">
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Visitado el {new Date(place.visited_at).toLocaleDateString('es-ES', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
           </div>
         )}
       </CardContent>
