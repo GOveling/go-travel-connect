@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: 'Travel Connect <onboarding@resend.dev>',
+      from: 'Travel Connect <info@goveling.com>',
       to: [user.email],
       subject,
       html,
