@@ -16,30 +16,8 @@ const TravelModePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
-        {/* Main Content with Tabs */}
-        <Tabs defaultValue="travel-mode" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger
-              value="travel-mode"
-              className="flex items-center gap-2"
-            >
-              <Route className="w-4 h-4" />
-              {t("home.travelMode.tabTravelMode")}
-            </TabsTrigger>
-            <TabsTrigger value="stats" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              {t("home.travelMode.tabStatistics")}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="travel-mode" className="mt-6">
-            <TravelMode />
-          </TabsContent>
-
-          <TabsContent value="stats" className="mt-6">
-            <TravelStats />
-          </TabsContent>
-        </Tabs>
+        {/* Main Content */}
+        <TravelMode />
 
         {/* Privacy Notice */}
         <Card className="bg-gray-100 border-gray-200">
