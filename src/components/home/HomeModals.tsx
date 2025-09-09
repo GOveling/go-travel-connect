@@ -8,6 +8,9 @@ import ClientOnly from "@/components/ui/ClientOnly";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
 import { useAuth } from "@/hooks/useAuth";
+import ConfirmationCodeModal from "@/components/modals/ConfirmationCodeModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { useReduxAuth } from "@/hooks/useReduxAuth";
 
 interface HomeModalsProps {
@@ -16,9 +19,12 @@ interface HomeModalsProps {
 }
 
 const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user } = useAuth();
   const { isAuthenticated } = useReduxAuth();
   const [modalTrip, setModalTrip] = useState<any>(null);
+  const [isGlobalConfirmOpen, setIsGlobalConfirmOpen] = useState(false);
+  const [globalConfirmEmail, setGlobalConfirmEmail] = useState("");
+  const { toast } = useToast();
 
   // Listen for custom event to open trip detail modal
   useEffect(() => {
@@ -42,6 +48,21 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       );
     };
   }, [homeState]);
+  useEffect(() => {
+    if (user?.id) {
+      const key = `new_signup_${user.id}`;
+      const flag = sessionStorage.getItem(key);
+      if (flag) {
+        setGlobalConfirmEmail(user.email || "");
+        setIsGlobalConfirmOpen(true);
+        sessionStorage.removeItem(key);
+        toast({
+          title: "Revisa tu email",
+          description: "Ingresa el código de confirmación para activar tu cuenta.",
+        });
+      }
+    }
+  }, [user]);
 
   const handleSwitchToSignUp = () => {
     homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
@@ -90,6 +111,22 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
     } catch (error) {
       console.error("Google auth error:", error);
+    }
+  };
+
+  const handleGlobalConfirmationCode = async (token: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: globalConfirmEmail,
+        token,
+        type: 'signup',
+      });
+      if (error) throw error;
+      setIsGlobalConfirmOpen(false);
+      toast({ title: '¡Email verificado!', description: 'Tu cuenta ha sido activada.' });
+    } catch (error: any) {
+      console.error('OTP verify error:', error);
+      throw new Error(error.message || 'Error al verificar el código');
     }
   };
 
@@ -146,6 +183,14 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
           onSignUp={handleEmailSignUp}
           onGoogleSignUp={handleGoogleAuth}
           onSwitchToLogin={handleSwitchToLogin}
+        />
+
+        {/* Global Confirmation Code Modal (e.g., after Google first signup) */}
+        <ConfirmationCodeModal
+          isOpen={isGlobalConfirmOpen}
+          onClose={() => setIsGlobalConfirmOpen(false)}
+          onConfirm={handleGlobalConfirmationCode}
+          email={globalConfirmEmail}
         />
       </ClientOnly>
     </>

@@ -99,7 +99,7 @@ const LoginModal = ({
       const { error } = await supabase.auth.verifyOtp({
         email: pendingConfirmationEmail,
         token,
-        type: 'email'
+        type: 'signup'
       });
 
       if (error) {
