@@ -91,7 +91,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       proximityRadius: 5000, // 5km detection radius
       baseCheckInterval: 15000,
       notificationCooldown: 300000,
-      notificationThresholds: [10000, 5000, 2000, 1000, 500, 100, 50, 10],
+      notificationThresholds: [5000, 2000, 1000, 500, 100, 50, 10],
     },
     onPlaceArrival: handlePlaceArrival,
   });
