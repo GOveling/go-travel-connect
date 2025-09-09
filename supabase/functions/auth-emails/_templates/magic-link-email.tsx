@@ -27,24 +27,24 @@ export const MagicLinkEmail = ({
 }: MagicLinkEmailProps) => (
   <Html>
     <Head />
-    <Preview>Tu enlace mágico para acceder a Travel Connect</Preview>
+    <Preview>Tu enlace mágico para acceder a GOveling</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
           <Img
-            src="https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png"
+            src="https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/assets/goveling-logo.png"
             width="40"
             height="40"
-            alt="Travel Connect"
+            alt="GOveling"
             style={logo}
           />
-          <Heading style={h1}>Travel Connect</Heading>
+          <Heading style={h1}>GOveling</Heading>
         </Section>
 
         <Section style={content}>
           <Heading style={h2}>✨ Tu enlace mágico</Heading>
           <Text style={text}>
-            ¡Hola! Has solicitado acceder a Travel Connect con tu email <strong>{userEmail}</strong>.
+            ¡Hola! Has solicitado acceder a GOveling con tu email <strong>{userEmail}</strong>.
           </Text>
 
           <Text style={text}>
@@ -93,7 +93,7 @@ export const MagicLinkEmail = ({
 
         <Section style={footer}>
           <Text style={footerCopyright}>
-            © {new Date().getFullYear()} Travel Connect. Todos los derechos reservados.
+            © {new Date().getFullYear()} GOveling. Todos los derechos reservados.
           </Text>
         </Section>
       </Container>

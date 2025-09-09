@@ -25,25 +25,25 @@ export const WelcomeEmail = ({
 }: WelcomeEmailProps) => (
   <Html>
     <Head />
-    <Preview>¡Bienvenido a Travel Connect! Tu aventura comienza aquí</Preview>
+    <Preview>¡Bienvenido a GOveling! Tu aventura comienza aquí</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
           <Img
-            src="https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/lovable-uploads/90c53862-4b60-4e45-bb48-e917b024bf6c.png"
+            src="https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com/assets/goveling-logo.png"
             width="50"
             height="50"
-            alt="Travel Connect"
+            alt="GOveling"
             style={logo}
           />
-          <Heading style={h1}>¡Bienvenido a Travel Connect!</Heading>
+          <Heading style={h1}>¡Bienvenido a GOveling!</Heading>
         </Section>
 
         <Section style={content}>
           <Heading style={h2}>🎉 ¡Tu cuenta está lista!</Heading>
           
           <Text style={welcomeText}>
-            ¡Hola y bienvenido a Travel Connect!
+            ¡Hola y bienvenido a GOveling!
           </Text>
 
           <Text style={text}>
@@ -108,16 +108,16 @@ export const WelcomeEmail = ({
           </Text>
 
           <Text style={thankYouText}>
-            ¡Gracias por unirte a Travel Connect y que tengas excelentes aventuras! 🌍
+            ¡Gracias por unirte a GOveling y que tengas excelentes aventuras! 🌍
           </Text>
         </Section>
 
         <Section style={footer}>
           <Text style={footerText}>
-            El equipo de Travel Connect
+            El equipo de GOveling
           </Text>
           <Text style={footerCopyright}>
-            © {new Date().getFullYear()} Travel Connect. Todos los derechos reservados.
+            © {new Date().getFullYear()} GOveling. Todos los derechos reservados.
           </Text>
         </Section>
       </Container>
