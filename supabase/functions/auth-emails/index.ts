@@ -74,8 +74,8 @@ Deno.serve(async (req) => {
           })
         );
         subject = email_action_type === 'signup' 
-          ? '¡Bienvenido! Confirma tu cuenta en Travel Connect'
-          : 'Confirma tu nuevo email en Travel Connect';
+          ? '¡Bienvenido! Confirma tu cuenta en GOveling'
+          : 'Confirma tu nuevo email en GOveling';
         break;
 
       case 'recovery':
@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
             token
           })
         );
-        subject = 'Restablece tu contraseña en Travel Connect';
+        subject = 'Restablece tu contraseña en GOveling';
         break;
 
       case 'magiclink':
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
             token
           })
         );
-        subject = 'Tu enlace mágico para acceder a Travel Connect';
+        subject = 'Tu enlace mágico para acceder a GOveling';
         break;
 
       case 'invite':
@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
             appUrl: site_url
           })
         );
-        subject = '¡Bienvenido a Travel Connect! Tu aventura comienza aquí';
+        subject = '¡Bienvenido a GOveling! Tu aventura comienza aquí';
         break;
 
       default:
@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: 'Travel Connect <noreply@team.goveling.com>',
+      from: 'GOveling <info@team.goveling.com>',
       to: [user.email],
       subject,
       html,
