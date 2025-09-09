@@ -42,6 +42,9 @@ export const PlaceArrivalHandler: React.FC = () => {
         });
 
         console.log('✅ Visit confirmed and rewards processed');
+        
+        // Emit event to refresh trip data in UI
+        window.dispatchEvent(new CustomEvent('placeVisitConfirmed'));
       } else {
         console.error('❌ Failed to confirm visit:', result.error);
       }

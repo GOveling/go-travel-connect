@@ -145,7 +145,9 @@ const SortablePlaceItem = ({
     <Card
       ref={setNodeRef}
       style={style}
-      className={`cursor-pointer hover:shadow-lg transition-all relative ${isDragging ? "z-50" : ""}`}
+      className={`cursor-pointer hover:shadow-lg transition-all relative ${
+        isDragging ? "z-50" : ""
+      } ${place.visited ? 'border-2 border-green-500 bg-green-50/30' : ''}`}
       onClick={() => onViewDetails(place)}
     >
       <CardContent className="p-3 sm:p-4">
@@ -153,6 +155,14 @@ const SortablePlaceItem = ({
         <div className="absolute -top-2 -left-2 w-6 h-6 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-10">
           {index + 1}
         </div>
+
+        {/* Visited Badge - positioned absolutely */}
+        {place.visited && (
+          <div className="absolute top-0 right-0 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg text-xs font-medium shadow-sm z-10">
+            <Star className="h-3 w-3 fill-current" />
+            <span>Visitado</span>
+          </div>
+        )}
 
         {/* Drag handle */}
         <div
@@ -213,6 +223,14 @@ const SortablePlaceItem = ({
               >
                 {place.priority}
               </Badge>
+              
+              {/* Visited status badge in the main content area */}
+              {place.visited && (
+                <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50 text-xs">
+                  <Star className="h-3 w-3 mr-1 fill-current" />
+                  Completado
+                </Badge>
+              )}
             </div>
 
             <p className="text-xs text-gray-500 truncate">
@@ -221,6 +239,18 @@ const SortablePlaceItem = ({
             <p className="text-xs text-blue-600 mt-1">
               Est. time: {place.estimatedTime}
             </p>
+            
+            {/* Visit timestamp */}
+            {place.visited && place.visitedAt && (
+              <p className="text-xs text-green-600 mt-1 font-medium">
+                Visitado el {new Date(place.visitedAt).toLocaleDateString('es-ES', {
+                  day: 'numeric',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
+            )}
           </div>
         </div>
 

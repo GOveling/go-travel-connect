@@ -96,7 +96,10 @@ export const useSupabaseTrips = () => {
               street,
               street_number,
               place_source,
-              place_reference
+              place_reference,
+              visited,
+              visited_at,
+              visit_distance
             )
         `
         )
@@ -185,6 +188,10 @@ export const useSupabaseTrips = () => {
                 streetNumber: place.street_number || undefined,
                 placeSource: place.place_source || undefined,
                 placeReference: place.place_reference || undefined,
+                // Visit tracking
+                visited: place.visited || false,
+                visitedAt: place.visited_at || undefined,
+                visitDistance: place.visit_distance || undefined,
               })) || [],
         })) || [];
 
@@ -487,8 +494,14 @@ export const useSupabaseTrips = () => {
       fetchTrips(true);
     };
 
+    const handlePlaceVisitConfirmed = () => {
+      console.log("Place visit confirmed, refreshing trips...");
+      fetchTrips(true);
+    };
+
     window.addEventListener("tripInvitationAccepted", handleInvitationAccepted);
     window.addEventListener("collaboratorRemoved", handleCollaboratorRemoved);
+    window.addEventListener("placeVisitConfirmed", handlePlaceVisitConfirmed);
 
     // Create a unique channel name to avoid conflicts
     const channelName = `trip_collaborators_${user.id}_${Math.random().toString(36).substr(2, 9)}`;

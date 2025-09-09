@@ -49,6 +49,10 @@ export interface SavedPlace {
   streetNumber?: string;
   placeSource?: string;
   placeReference?: string;
+  // Visit tracking
+  visited?: boolean;
+  visitedAt?: string;
+  visitDistance?: number;
 }
 
 export interface Trip {
