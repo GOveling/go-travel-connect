@@ -40,11 +40,16 @@ const SignUpModal = ({
       setIsLoading(true);
       try {
         const result = await onSignUp(name, email, password);
-        // If signup was successful (no error), show confirmation modal
-        if (!result?.error) {
+        
+        // Check if signup was successful and requires email confirmation
+        if (!result?.error && result?.requiresConfirmation) {
           setPendingConfirmationEmail(email);
           setIsConfirmationCodeModalOpen(true);
+        } else if (!result?.error) {
+          // Successful signup without confirmation needed (auto login)
+          onClose();
         }
+        // If there's an error, it will be handled by the auth function with toast
       } catch (error) {
         console.error("Sign up error:", error);
       } finally {
