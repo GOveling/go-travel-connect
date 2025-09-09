@@ -25,6 +25,14 @@ export const PriorityBadgePopover = ({ place, onUpdate }: PriorityBadgePopoverPr
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Debug logs
+  console.log("PriorityBadgePopover render:", { 
+    place: place.name, 
+    priority: place.priority, 
+    reminderNote: place.reminderNote,
+    isOpen 
+  });
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
@@ -60,16 +68,23 @@ export const PriorityBadgePopover = ({ place, onUpdate }: PriorityBadgePopoverPr
   const currentPriority = priorityOptions[selectedPriority as keyof typeof priorityOptions] || priorityOptions.medium;
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Badge 
-          variant={currentPriority.variant}
-          className={`cursor-pointer hover:opacity-80 transition-opacity ${currentPriority.color}`}
+    <div onClick={(e) => e.stopPropagation()}>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <Badge 
+            variant={currentPriority.variant}
+            className={`cursor-pointer hover:opacity-80 transition-opacity ${currentPriority.color} relative z-10`}
+          >
+            {currentPriority.label}
+          </Badge>
+        </PopoverTrigger>
+        <PopoverContent 
+          className="w-80 z-[99999] bg-white border shadow-lg" 
+          align="start" 
+          side="bottom"
+          sideOffset={5}
+          avoidCollisions={true}
         >
-          {currentPriority.label}
-        </Badge>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="start">
         <div className="space-y-4">
           <div>
             <h4 className="font-medium text-sm mb-2">Prioridad</h4>
@@ -120,7 +135,8 @@ export const PriorityBadgePopover = ({ place, onUpdate }: PriorityBadgePopoverPr
             </Button>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 };
