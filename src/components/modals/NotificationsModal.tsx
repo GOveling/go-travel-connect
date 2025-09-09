@@ -178,7 +178,7 @@ const NotificationsModal = ({ isOpen, onClose }: NotificationsModalProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-lg mx-auto h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-lg mx-auto h-[90vh] flex flex-col p-0 overflow-hidden rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
         <DialogHeader className="p-6 pb-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b flex-shrink-0">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
