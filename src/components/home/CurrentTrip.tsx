@@ -105,7 +105,7 @@ const CurrentTripContent = memo(({
           <div className="flex items-center gap-2">
             <Navigation className="w-4 h-4" />
             <h3 className="font-semibold">
-              {t("home.travelMode.currentTrip")}
+              Active trip
             </h3>
             <MapPin className="w-4 h-4" />
             <h3 className="font-semibold">
