@@ -1192,6 +1192,24 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_place_reviews_secure: {
+        Args: {
+          p_lat?: number
+          p_limit?: number
+          p_lng?: number
+          p_offset?: number
+          p_place_id: string
+          p_place_name: string
+        }
+        Returns: {
+          anonymous: boolean
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          reviewer_display_name: string
+        }[]
+      }
       get_place_visit_exact_location: {
         Args: { p_user_id: string; p_visit_id: string }
         Returns: {
