@@ -1162,6 +1162,19 @@ export type Database = {
           trip_name: string
         }[]
       }
+      get_place_review_stats: {
+        Args: {
+          p_lat?: number
+          p_lng?: number
+          p_place_id: string
+          p_place_name: string
+        }
+        Returns: {
+          average_rating: number
+          rating_distribution: Json
+          total_reviews: number
+        }[]
+      }
       get_place_reviews_count: {
         Args: {
           p_lat?: number
@@ -1350,6 +1363,10 @@ export type Database = {
       is_trip_hidden_by_user: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
+      }
+      monitor_review_access_patterns: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       obfuscate_location_data: {
         Args: { location_value: string }
