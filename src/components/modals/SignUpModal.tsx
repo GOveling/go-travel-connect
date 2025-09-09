@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 interface SignUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSignUp?: (name: string, email: string, password: string) => void;
+  onSignUp?: (name: string, email: string, password: string) => Promise<any>;
   onGoogleSignUp?: () => void;
   onSwitchToLogin?: () => void;
 }
@@ -39,10 +39,12 @@ const SignUpModal = ({
     if (onSignUp) {
       setIsLoading(true);
       try {
-        await onSignUp(name, email, password);
-        // Instead of closing immediately, show confirmation modal
-        setPendingConfirmationEmail(email);
-        setIsConfirmationCodeModalOpen(true);
+        const result = await onSignUp(name, email, password);
+        // If signup was successful (no error), show confirmation modal
+        if (!result?.error) {
+          setPendingConfirmationEmail(email);
+          setIsConfirmationCodeModalOpen(true);
+        }
       } catch (error) {
         console.error("Sign up error:", error);
       } finally {
@@ -94,36 +96,38 @@ const SignUpModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
-      >
-        <ModalHeader onClose={onClose} />
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent
+          className={`${isMobile ? "w-[95vw] max-w-[95vw] h-auto max-h-[90vh]" : "max-w-md"} p-0 bg-white rounded-2xl overflow-hidden`}
+        >
+          <ModalHeader onClose={onClose} />
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          <GoogleLoginButton
-            onClick={handleGoogleSignUp}
-            isLoading={isLoading}
-          />
+          {/* Content */}
+          <div className="p-6 space-y-6">
+            <GoogleLoginButton
+              onClick={handleGoogleSignUp}
+              isLoading={isLoading}
+            />
 
-          <FormDivider text="Or sign up with email" />
+            <FormDivider text="Or sign up with email" />
 
-          <SignUpForm onSubmit={handleSignUp} isLoading={isLoading} />
+            <SignUpForm onSubmit={handleSignUp} isLoading={isLoading} />
 
-          {/* Sign In Link */}
-          <div className="text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <Button
-              variant="link"
-              onClick={onSwitchToLogin}
-              className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
-            >
-              Sign in
-            </Button>
+            {/* Sign In Link */}
+            <div className="text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <Button
+                variant="link"
+                onClick={onSwitchToLogin}
+                className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
+              >
+                Sign in
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmationCodeModal
         isOpen={isConfirmationCodeModalOpen}
@@ -132,7 +136,7 @@ const SignUpModal = ({
         email={pendingConfirmationEmail}
         isLoading={isLoading}
       />
-    </Dialog>
+    </>
   );
 };
 

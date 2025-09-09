@@ -9,11 +9,12 @@ import FormDivider from "./shared/FormDivider";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import ConfirmationCodeModal from "./ConfirmationCodeModal";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin?: (email: string, password: string) => void;
+  onLogin?: (email: string, password: string) => Promise<any>;
   onGoogleLogin?: () => void;
   onForgotPassword?: (email: string) => void;
   onSwitchToSignUp?: () => void;
@@ -34,13 +35,25 @@ const LoginModal = ({
     useState(false);
   const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState("");
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const handleLogin = async (email: string, password: string) => {
     if (onLogin) {
       setIsLoading(true);
       try {
-        await onLogin(email, password);
-        onClose();
+        const result = await onLogin(email, password);
+        
+        // Check if login failed due to unconfirmed email
+        if (result?.error?.message?.includes("Email not confirmed")) {
+          setPendingConfirmationEmail(email);
+          setIsConfirmationCodeModalOpen(true);
+          return;
+        }
+        
+        // Only close on successful login (no error)
+        if (!result?.error) {
+          onClose();
+        }
       } catch (error) {
         console.error("Login error:", error);
       } finally {
@@ -86,7 +99,7 @@ const LoginModal = ({
       const { error } = await supabase.auth.verifyOtp({
         email: pendingConfirmationEmail,
         token,
-        type: 'signup'
+        type: 'email'
       });
 
       if (error) {
@@ -96,8 +109,13 @@ const LoginModal = ({
       // Close all modals on success
       setIsConfirmationCodeModalOpen(false);
       onClose();
+      
+      toast({
+        title: "¡Email verificado exitosamente!",
+        description: "Has iniciado sesión correctamente.",
+      });
     } catch (error: any) {
-      throw new Error(error.message || "Error al confirmar el código");
+      throw new Error(error.message || "Error al verificar el código de confirmación");
     } finally {
       setIsLoading(false);
     }

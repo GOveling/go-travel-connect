@@ -55,10 +55,15 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
 
   const handleEmailLogin = async (email: string, password: string) => {
     try {
-      await signIn(email, password);
-      homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
+      const result = await signIn(email, password);
+      // Only close modal on successful login
+      if (!result?.error) {
+        homeState.setIsLoginModalOpen && homeState.setIsLoginModalOpen(false);
+      }
+      return result;
     } catch (error) {
       console.error("Login error:", error);
+      return { error };
     }
   };
 
@@ -69,14 +74,11 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
   ) => {
     try {
       const result = await signUp(email, password, name);
-      // Don't close the modal immediately - let SignUpModal handle this
-      // The modal will stay open to show confirmation code input if needed
-      if (result?.error) {
-        // Only close on error, let success flow be handled by SignUpModal
-        return;
-      }
+      // Return the result so SignUpModal can handle the flow
+      return result;
     } catch (error) {
       console.error("Sign up error:", error);
+      return { error };
     }
   };
 
