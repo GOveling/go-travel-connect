@@ -30,6 +30,7 @@ export interface SavedPlace {
   description: string;
   estimatedTime: string;
   priority: "high" | "medium" | "low";
+  reminderNote?: string;
   destinationName: string;
   lat?: number;
   lng?: number;

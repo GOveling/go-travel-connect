@@ -297,6 +297,7 @@ export type Database = {
           priority: string | null
           rating: number | null
           region: string | null
+          reminder_note: string | null
           state: string | null
           street: string | null
           street_number: string | null
@@ -329,6 +330,7 @@ export type Database = {
           priority?: string | null
           rating?: number | null
           region?: string | null
+          reminder_note?: string | null
           state?: string | null
           street?: string | null
           street_number?: string | null
@@ -361,6 +363,7 @@ export type Database = {
           priority?: string | null
           rating?: number | null
           region?: string | null
+          reminder_note?: string | null
           state?: string | null
           street?: string | null
           street_number?: string | null

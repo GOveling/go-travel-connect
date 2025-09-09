@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { usePlaceReordering } from "@/hooks/usePlaceReordering";
 import { supabase } from "@/integrations/supabase/client";
 import { SavedPlace, Trip } from "@/types";
+import { PriorityBadgePopover } from "./saved-places/PriorityBadgePopover";
 import {
   closestCenter,
   DndContext,
@@ -73,6 +74,7 @@ interface SortablePlaceItemProps {
   onRemove: (place: SavedPlace) => void;
   onShowLocation: (place: SavedPlace) => void;
   isRemoving: string | null;
+  onUpdate: () => void;
 }
 
 const SortablePlaceItem = ({
@@ -82,6 +84,7 @@ const SortablePlaceItem = ({
   onRemove,
   onShowLocation,
   isRemoving,
+  onUpdate,
 }: SortablePlaceItemProps) => {
   const {
     attributes,
@@ -200,13 +203,10 @@ const SortablePlaceItem = ({
                   {place.rating || "N/A"}
                 </span>
               </div>
-              <Badge
-                className={`text-xs px-2 py-1 ${getPriorityColor(
-                  place.priority
-                )}`}
-              >
-                {place.priority}
-              </Badge>
+              <PriorityBadgePopover 
+                place={place} 
+                onUpdate={onUpdate} 
+              />
               
               {/* Visited status badge in the main content area */}
               {place.visited && (
@@ -294,6 +294,70 @@ const SavedPlacesModal = ({
   const [selectedPlaceForMap, setSelectedPlaceForMap] =
     useState<SavedPlace | null>(null);
   const { isReordering, reorderPlaces } = usePlaceReordering();
+
+  // Function to refresh saved places data
+  const refreshSavedPlaces = async () => {
+    if (trip?.id && onUpdateTrip) {
+      try {
+        // Re-fetch the trip data
+        const { data: updatedTrip, error } = await supabase
+          .from("trips")
+          .select(`
+            *,
+            saved_places (
+              id,
+              name,
+              category,
+              rating,
+              image,
+              description,
+              estimated_time,
+              priority,
+              reminder_note,
+              destination_name,
+              lat,
+              lng,
+              position_order,
+              visited,
+              visited_at,
+              visit_distance
+            )
+          `)
+          .eq("id", trip.id)
+          .single();
+
+        if (error) throw error;
+
+        if (updatedTrip) {
+          const transformedTrip = {
+            ...trip,
+            savedPlaces: updatedTrip.saved_places?.map((place: any) => ({
+              id: place.id,
+              name: place.name,
+              category: place.category || "attraction",
+              rating: place.rating || 4.5,
+              image: place.image || "📍",
+              description: place.description || "",
+              estimatedTime: place.estimated_time || "2-3 hours",
+              priority: place.priority || "medium",
+              reminderNote: place.reminder_note || undefined,
+              destinationName: place.destination_name || "",
+              lat: place.lat || 0,
+              lng: place.lng || 0,
+              positionOrder: place.position_order || 0,
+              visited: place.visited || false,
+              visitedAt: place.visited_at || undefined,
+              visitDistance: place.visit_distance || undefined,
+            })) || []
+          };
+          
+          onUpdateTrip(transformedTrip);
+        }
+      } catch (error) {
+        console.error("Error refreshing trip data:", error);
+      }
+    }
+  };
 
   // Configure sensors for better mobile experience
   const sensors = useSensors(
@@ -608,15 +672,16 @@ const SavedPlacesModal = ({
                                   (p) => p.id === place.id
                                 ) || 0;
                               return (
-                                <SortablePlaceItem
-                                  key={place.id}
-                                  place={place}
-                                  index={globalIndex}
-                                  onViewDetails={handleViewPlaceDetails}
-                                  onRemove={handleRemovePlace}
-                                  onShowLocation={handleShowLocationMap}
-                                  isRemoving={isRemoving}
-                                />
+                                 <SortablePlaceItem
+                                   key={place.id}
+                                   place={place}
+                                   index={globalIndex}
+                                   onViewDetails={handleViewPlaceDetails}
+                                   onRemove={handleRemovePlace}
+                                   onShowLocation={handleShowLocationMap}
+                                   isRemoving={isRemoving}
+                                   onUpdate={refreshSavedPlaces}
+                                 />
                               );
                             })}
                           </div>

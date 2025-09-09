@@ -99,7 +99,8 @@ export const useSupabaseTrips = () => {
               place_reference,
               visited,
               visited_at,
-              visit_distance
+              visit_distance,
+              reminder_note
             )
         `
         )
@@ -192,6 +193,7 @@ export const useSupabaseTrips = () => {
                 visited: place.visited || false,
                 visitedAt: place.visited_at || undefined,
                 visitDistance: place.visit_distance || undefined,
+                reminderNote: place.reminder_note || undefined,
               })) || [],
         })) || [];
 
