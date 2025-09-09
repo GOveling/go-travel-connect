@@ -7,6 +7,8 @@ import GoogleLoginButton from "./login/GoogleLoginButton";
 import LoginForm from "./login/LoginForm";
 import FormDivider from "./shared/FormDivider";
 import ForgotPasswordModal from "./ForgotPasswordModal";
+import ConfirmationCodeModal from "./ConfirmationCodeModal";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -28,6 +30,9 @@ const LoginModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
+  const [isConfirmationCodeModalOpen, setIsConfirmationCodeModalOpen] =
+    useState(false);
+  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState("");
   const isMobile = useIsMobile();
 
   const handleLogin = async (email: string, password: string) => {
@@ -75,6 +80,34 @@ const LoginModal = ({
     }
   };
 
+  const handleConfirmationCode = async (token: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.verifyOtp({
+        email: pendingConfirmationEmail,
+        token,
+        type: 'signup'
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Close all modals on success
+      setIsConfirmationCodeModalOpen(false);
+      onClose();
+    } catch (error: any) {
+      throw new Error(error.message || "Error al confirmar el código");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSwitchToConfirmation = (email: string) => {
+    setPendingConfirmationEmail(email);
+    setIsConfirmationCodeModalOpen(true);
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -98,6 +131,22 @@ const LoginModal = ({
               isLoading={isLoading}
             />
 
+            {/* Confirmation Code Link */}
+            <div className="text-center">
+              <Button
+                variant="link"
+                onClick={() => {
+                  const email = prompt("Ingresa tu email para confirmar:");
+                  if (email) {
+                    handleSwitchToConfirmation(email);
+                  }
+                }}
+                className="text-sm text-gray-600 hover:text-gray-800 p-0 h-auto"
+              >
+                ¿Tienes un código de confirmación?
+              </Button>
+            </div>
+
             {/* Sign Up Link */}
             <div className="text-center text-sm text-gray-600">
               Don't have an account?{" "}
@@ -117,6 +166,14 @@ const LoginModal = ({
         isOpen={isForgotPasswordModalOpen}
         onClose={() => setIsForgotPasswordModalOpen(false)}
         onResetPassword={handleForgotPasswordSubmit}
+        isLoading={isLoading}
+      />
+
+      <ConfirmationCodeModal
+        isOpen={isConfirmationCodeModalOpen}
+        onClose={() => setIsConfirmationCodeModalOpen(false)}
+        onConfirm={handleConfirmationCode}
+        email={pendingConfirmationEmail}
         isLoading={isLoading}
       />
     </>
