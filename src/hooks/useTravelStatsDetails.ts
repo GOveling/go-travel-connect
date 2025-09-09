@@ -55,12 +55,17 @@ export const useTravelStatsDetails = () => {
           place_category,
           confirmation_distance,
           trip_id,
-          trips!inner(name)
+          trips(name)
         `)
         .eq('user_id', user.id)
         .order('visited_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Place visits data:', data);
 
       return data?.map(visit => ({
         id: visit.id,
