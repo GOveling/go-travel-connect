@@ -36,7 +36,7 @@ const DEFAULT_CONFIG: TravelModeConfig = {
   proximityRadius: 20000, // 20km para asegurar detección (incrementado de 15km)
   baseCheckInterval: 30000, // 30 segundos como base
   notificationCooldown: 300000, // 5 minutos entre notificaciones del mismo lugar
-  notificationThresholds: [10000, 5000, 2000, 1000, 500, 100, 50, 10], // Agregamos 10m para notificación de llegada
+  notificationThresholds: [5000, 2000, 1000, 500, 100, 50, 10], // Eliminado 10000 (10km)
 };
 
 interface PlaceArrivalData {
