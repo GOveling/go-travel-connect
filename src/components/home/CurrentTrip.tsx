@@ -144,9 +144,6 @@ const CurrentTripContent = memo(({
               {t("home.currentTrip.viewDetails")}
             </Button>
           </div>
-          <p className="text-sm text-gray-700 mb-3">
-            {t("home.currentTrip.nextOptimizedDestination")}
-          </p>
           <Button
             className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
             onClick={handleViewDetail}
