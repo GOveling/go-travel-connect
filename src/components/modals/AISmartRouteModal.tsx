@@ -23,6 +23,7 @@ import {
 } from "@/utils/aiSmartRoute";
 import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { useMapData } from "@/hooks/useMapData";
+import { aiRoutesService } from "@/services/aiRoutesApi";
 import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";
@@ -72,48 +73,75 @@ const AISmartRouteModal = ({
 
   const workingTrip = currentTrip || trip;
 
-  // Generate AI optimized route using real distance data
+  // Generate AI optimized route using the new backend service
   const generateAIRoute = async () => {
     setIsGenerating(true);
 
     try {
-      // Calculate real distances and optimized route
+      if (!workingTrip.savedPlaces || workingTrip.savedPlaces.length === 0) {
+        throw new Error("No places saved in trip");
+      }
+
+      const places = workingTrip.savedPlaces.map(place => ({
+        name: place.name,
+        lat: place.lat || 0,
+        lon: place.lng || 0,
+        type: place.category?.toLowerCase() || 'point_of_interest',
+        priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
+      }));
+
+      // Calculate distances and optimized routes
       const distanceMatrix = calculateTripDistances(workingTrip);
       const optimizedRoute = calculateOptimizedRoute(workingTrip);
 
-      console.log("Distance matrix:", distanceMatrix);
-      console.log("Optimized route:", optimizedRoute);
-
-      // Generate single balanced route with real data
-      const { data, error } = await supabase.functions.invoke(
-        "ai-route-generator",
-        {
-          body: {
-            tripId: workingTrip.id,
-            tripData: workingTrip,
-            routeType: "balanced",
-            distanceMatrix,
-            optimizedRoute,
-          },
-        }
-      );
-
-      if (error) {
-        console.error("Error generating AI route:", error);
-        // Fallback to static generation
-        const routeConfigurations = getRouteConfigurations(workingTrip);
-        setOptimizedItinerary(routeConfigurations.current.itinerary);
-      } else {
-        setOptimizedItinerary(data.itinerary);
-      }
-
-      setRouteGenerated(true);
-
-      toast({
-        title: "AI Smart Route Generated!",
-        description:
-          "Your intelligent route has been optimized using real distance data and AI.",
+      const response = await aiRoutesService.generateHybridItinerary({
+        places,
+        start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
+        end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
+        transport_mode: 'walk',
       });
+
+      if (response.itinerary) {
+        // Transform the response into our DayItinerary format
+        const transformedItinerary = response.itinerary.map((day: any, index: number) => ({
+          day: index + 1,
+          date: day.date,
+          destinationName: workingTrip.destination,
+          places: day.places.map((place: any) => ({
+            id: place.id || String(Math.random()),
+            name: place.name,
+            category: place.type || 'point_of_interest',
+            rating: place.rating || 0,
+            image: place.image || '',
+            description: place.description || '',
+            estimatedTime: place.estimated_time || '2h',
+            priority: place.priority >= 7 ? 'high' : place.priority >= 4 ? 'medium' : 'low',
+            lat: place.lat,
+            lng: place.lon,
+            aiRecommendedDuration: place.recommended_duration || '2h',
+            bestTimeToVisit: place.best_time || 'Anytime',
+            orderInRoute: place.order || 0,
+            destinationName: workingTrip.destination
+          })),
+          totalTime: day.total_time || '8h',
+          walkingTime: day.walking_time || '2h',
+          transportTime: day.transport_time || '1h',
+          freeTime: day.free_time || '2h',
+          allocatedDays: 1,
+          isSuggested: Boolean(day.is_suggested),
+          isTentative: Boolean(day.is_tentative)
+        }));
+
+        setOptimizedItinerary(transformedItinerary);
+        setRouteGenerated(true);
+
+        toast({
+          title: "AI Smart Route Generated!",
+          description: "Your intelligent route has been optimized using real distance data and AI.",
+        });
+      } else {
+        throw new Error("Invalid response from AI service");
+      }
     } catch (error) {
       console.error("Error generating AI route:", error);
       // Fallback to static generation
