@@ -1454,7 +1454,7 @@ export type Database = {
       }
       validate_password_strength: {
         Args: { password_input: string }
-        Returns: boolean
+        Returns: Json
       }
       validate_profile_access: {
         Args: { profile_id: string }
