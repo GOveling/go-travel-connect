@@ -102,15 +102,19 @@ const CurrentTripContent = memo(({
     return (
       <Card className="overflow-hidden border-0 shadow-lg">
         <div className="bg-gradient-to-r from-green-600 to-blue-500 p-4 text-white">
-          <div className="flex items-center gap-2">
-            <Navigation className="w-4 h-4" />
-            <h3 className="font-semibold">
-              Active trip
-            </h3>
-            <MapPin className="w-4 h-4" />
-            <h3 className="font-semibold">
-              {travelingTrip.name}
-            </h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Navigation className="w-4 h-4" />
+              <h3 className="font-semibold">
+                Active trip
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              <h3 className="font-semibold">
+                {travelingTrip.name}
+              </h3>
+            </div>
           </div>
           <p className="text-sm opacity-90">{travelingTrip.destination}</p>
         </div>
