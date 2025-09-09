@@ -161,7 +161,7 @@ const SortablePlaceItem = ({
 
         {/* Visited Badge - positioned absolutely */}
         {place.visited && (
-          <div className="absolute -top-2 -right-2 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg text-xs font-medium shadow-sm z-10">
+          <div className="absolute -top-4 -right-2 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg text-xs font-medium shadow-sm z-10">
             <Star className="h-3 w-3 fill-current" />
             <span>Visitado</span>
           </div>
