@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getAdaptiveVisitRadius } from '@/utils/adaptiveRadius';
 
 interface VisitConfirmationData {
   savedPlaceId: string;
@@ -35,6 +36,32 @@ export const useVisitConfirmation = () => {
         distance,
         coordinates: { lat: userLat, lng: userLng }
       });
+
+      // Get place info to calculate adaptive radius
+      const { data: placeData, error: placeError } = await supabase
+        .from('saved_places')
+        .select('name, category, description')
+        .eq('id', savedPlaceId)
+        .single();
+
+      if (placeError) {
+        console.error('❌ Error fetching place data:', placeError);
+        throw placeError;
+      }
+
+      // Calculate adaptive radius for this place
+      const adaptiveRadius = getAdaptiveVisitRadius(placeData);
+      console.log(`📏 Using adaptive radius: ${adaptiveRadius}m for place: ${placeData.name}`);
+
+      // For now, we'll validate the distance client-side with adaptive radius
+      // TODO: Update database function to accept adaptive radius parameter
+      if (distance > adaptiveRadius) {
+        console.warn(`⚠️ Distance ${distance}m exceeds adaptive radius ${adaptiveRadius}m for ${placeData.name}`);
+        return {
+          success: false,
+          error: `Estás a ${Math.round(distance)}m del lugar. Necesitas estar dentro de ${adaptiveRadius}m para confirmar la visita.`,
+        };
+      }
 
       // Call the database function to confirm the visit
       const { data, error } = await supabase.rpc('confirm_place_visit', {

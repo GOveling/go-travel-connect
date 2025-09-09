@@ -7,6 +7,7 @@ import { getCapacitorConfig } from "../utils/capacitor";
 import { getEnvironmentConfig } from "../utils/environment";
 import { useToast } from "./use-toast";
 import { useAuth } from "./useAuth";
+import { getAdaptiveProximityThresholds, logAdaptiveRadiusInfo } from "../utils/adaptiveRadius";
 
 interface TravelModeConfig {
   isEnabled: boolean;
@@ -184,16 +185,17 @@ export const useTravelModeSimple = ({
       // Platform-specific interval adjustments
       const platformMultiplier = isNative ? 1 : 0.8; // Web needs slightly more frequent checks
       
-      // Base intervals adjusted for platform capabilities
-      if (minDistanceToPlace <= 10) return Math.round(5000 * platformMultiplier); // 5s native, 4s web
-      if (minDistanceToPlace <= 20) return Math.round(3000 * platformMultiplier); // 3s native, 2.4s web
-      if (minDistanceToPlace <= 50) return Math.round(2000 * platformMultiplier); // 2s native, 1.6s web
-      if (minDistanceToPlace <= 100) return Math.round(3000 * platformMultiplier); // 3s native, 2.4s web
-      if (minDistanceToPlace <= 500) return Math.round(5000 * platformMultiplier); // 5s native, 4s web
-      if (minDistanceToPlace <= 1000) return Math.round(8000 * platformMultiplier); // 8s native, 6.4s web
-      if (minDistanceToPlace <= 2000) return Math.round(12000 * platformMultiplier); // 12s native, 9.6s web
-      if (minDistanceToPlace <= 5000) return Math.round(20000 * platformMultiplier); // 20s native, 16s web
-      if (minDistanceToPlace <= 10000) return Math.round(30000 * platformMultiplier); // 30s native, 24s web
+      // Adaptive intervals - more frequent when close to larger venues
+      // Account for adaptive radius by using more frequent checks for larger thresholds
+      if (minDistanceToPlace <= 15) return Math.round(3000 * platformMultiplier); // Very close - 3s native, 2.4s web
+      if (minDistanceToPlace <= 50) return Math.round(2000 * platformMultiplier); // Close - 2s native, 1.6s web
+      if (minDistanceToPlace <= 100) return Math.round(4000 * platformMultiplier); // Medium distance - 4s native, 3.2s web
+      if (minDistanceToPlace <= 200) return Math.round(6000 * platformMultiplier); // Medium-far - 6s native, 4.8s web
+      if (minDistanceToPlace <= 500) return Math.round(8000 * platformMultiplier); // Far - 8s native, 6.4s web
+      if (minDistanceToPlace <= 1000) return Math.round(12000 * platformMultiplier); // Very far - 12s native, 9.6s web
+      if (minDistanceToPlace <= 2000) return Math.round(15000 * platformMultiplier); // Distant - 15s native, 12s web
+      if (minDistanceToPlace <= 5000) return Math.round(20000 * platformMultiplier); // Very distant - 20s native, 16s web
+      if (minDistanceToPlace <= 10000) return Math.round(30000 * platformMultiplier); // Very far - 30s native, 24s web
       return Math.round(config.baseCheckInterval * platformMultiplier); // Base interval adjusted
     },
     [config.baseCheckInterval, isNative]
@@ -636,11 +638,17 @@ export const useTravelModeSimple = ({
           consecutiveCount: 0 
         };
         
-        // Define proximity thresholds with hysteresis
-        const NEAR_THRESHOLD = 15; // meters - threshold to be considered "near"
-        const FAR_THRESHOLD = 25;  // meters - threshold to be considered "far" again (hysteresis)
-        const ARRIVAL_THRESHOLD = 10; // meters - threshold for arrival
+        // Calculate adaptive proximity thresholds based on place type/category
+        const adaptiveThresholds = getAdaptiveProximityThresholds(place);
+        const { NEAR_THRESHOLD, FAR_THRESHOLD, ARRIVAL_THRESHOLD } = adaptiveThresholds;
         const CONSECUTIVE_REQUIRED = 2; // readings required to confirm state change
+        
+        // Log adaptive radius info for debugging (first time only)
+        const debugKey = `${place.id}-debug-logged`;
+        if (!notifiedPlacesRef.current.has(debugKey)) {
+          logAdaptiveRadiusInfo(place, adaptiveThresholds);
+          notifiedPlacesRef.current.add(debugKey);
+        }
         
         let shouldBeNear = false;
         
