@@ -7,9 +7,6 @@ import GoogleLoginButton from "./login/GoogleLoginButton";
 import LoginForm from "./login/LoginForm";
 import FormDivider from "./shared/FormDivider";
 import ForgotPasswordModal from "./ForgotPasswordModal";
-import ConfirmationCodeModal from "./ConfirmationCodeModal";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,6 +15,7 @@ interface LoginModalProps {
   onGoogleLogin?: () => void;
   onForgotPassword?: (email: string) => void;
   onSwitchToSignUp?: () => void;
+  onOpenConfirmationCode?: (email: string) => void;
 }
 
 const LoginModal = ({
@@ -27,15 +25,12 @@ const LoginModal = ({
   onGoogleLogin,
   onForgotPassword,
   onSwitchToSignUp,
+  onOpenConfirmationCode,
 }: LoginModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
     useState(false);
-  const [isConfirmationCodeModalOpen, setIsConfirmationCodeModalOpen] =
-    useState(false);
-  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState("");
   const isMobile = useIsMobile();
-  const { toast } = useToast();
 
   const handleLogin = async (email: string, password: string) => {
     if (onLogin) {
@@ -45,8 +40,7 @@ const LoginModal = ({
         
         // Check if login failed due to unconfirmed email
         if (result?.error?.message?.includes("Email not confirmed")) {
-          setPendingConfirmationEmail(email);
-          setIsConfirmationCodeModalOpen(true);
+          onOpenConfirmationCode?.(email);
           return;
         }
         
@@ -93,38 +87,6 @@ const LoginModal = ({
     }
   };
 
-  const handleConfirmationCode = async (token: string) => {
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.verifyOtp({
-        email: pendingConfirmationEmail,
-        token,
-        type: 'signup'
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // Close all modals on success
-      setIsConfirmationCodeModalOpen(false);
-      onClose();
-      
-      toast({
-        title: "¡Email verificado exitosamente!",
-        description: "Has iniciado sesión correctamente.",
-      });
-    } catch (error: any) {
-      throw new Error(error.message || "Error al verificar el código de confirmación");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSwitchToConfirmation = (email: string) => {
-    setPendingConfirmationEmail(email);
-    setIsConfirmationCodeModalOpen(true);
-  };
 
   return (
     <>
@@ -156,7 +118,7 @@ const LoginModal = ({
                 onClick={() => {
                   const email = prompt("Ingresa tu email para confirmar:");
                   if (email) {
-                    handleSwitchToConfirmation(email);
+                    onOpenConfirmationCode?.(email);
                   }
                 }}
                 className="text-sm text-gray-600 hover:text-gray-800 p-0 h-auto"
@@ -187,13 +149,6 @@ const LoginModal = ({
         isLoading={isLoading}
       />
 
-      <ConfirmationCodeModal
-        isOpen={isConfirmationCodeModalOpen}
-        onClose={() => setIsConfirmationCodeModalOpen(false)}
-        onConfirm={handleConfirmationCode}
-        email={pendingConfirmationEmail}
-        isLoading={isLoading}
-      />
     </>
   );
 };

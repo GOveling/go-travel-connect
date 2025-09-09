@@ -96,7 +96,15 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
     try {
       const result = await signUp(email, password, name);
       console.log("HomeModals: signUp result", result);
-      // Return the result so SignUpModal can handle the flow
+      if (!result?.error && (result?.requiresConfirmation ?? true)) {
+        setGlobalConfirmEmail(email);
+        setIsGlobalConfirmOpen(true);
+        homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
+        toast({
+          title: "Revisa tu email",
+          description: "Ingresa el código de confirmación para activar tu cuenta.",
+        });
+      }
       return result;
     } catch (error) {
       console.error("Sign up error:", error);
@@ -171,6 +179,10 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
           onLogin={handleEmailLogin}
           onGoogleLogin={handleGoogleAuth}
           onSwitchToSignUp={handleSwitchToSignUp}
+          onOpenConfirmationCode={(email) => {
+            setGlobalConfirmEmail(email);
+            setIsGlobalConfirmOpen(true);
+          }}
         />
 
         {/* Sign Up Modal */}
@@ -183,6 +195,10 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
           onSignUp={handleEmailSignUp}
           onGoogleSignUp={handleGoogleAuth}
           onSwitchToLogin={handleSwitchToLogin}
+          onOpenConfirmationCode={(email) => {
+            setGlobalConfirmEmail(email);
+            setIsGlobalConfirmOpen(true);
+          }}
         />
 
         {/* Global Confirmation Code Modal (e.g., after Google first signup) */}

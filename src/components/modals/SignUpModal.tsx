@@ -6,9 +6,6 @@ import ModalHeader from "./login/ModalHeader";
 import GoogleLoginButton from "./login/GoogleLoginButton";
 import SignUpForm from "./signup/SignUpForm";
 import FormDivider from "./shared/FormDivider";
-import ConfirmationCodeModal from "./ConfirmationCodeModal";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -16,6 +13,7 @@ interface SignUpModalProps {
   onSignUp?: (name: string, email: string, password: string) => Promise<any>;
   onGoogleSignUp?: () => void;
   onSwitchToLogin?: () => void;
+  onOpenConfirmationCode?: (email: string) => void;
 }
 
 const SignUpModal = ({
@@ -24,12 +22,10 @@ const SignUpModal = ({
   onSignUp,
   onGoogleSignUp,
   onSwitchToLogin,
+  onOpenConfirmationCode,
 }: SignUpModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isConfirmationCodeModalOpen, setIsConfirmationCodeModalOpen] = useState(false);
-  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState("");
   const isMobile = useIsMobile();
-  const { toast } = useToast();
 
   const handleSignUp = async (
     name: string,
@@ -41,15 +37,12 @@ const SignUpModal = ({
       try {
         const result = await onSignUp(name, email, password);
         console.log("SignUpModal: onSignUp result", result);
-        
-        // Decide if we should open the confirmation modal
         const needsCode = !result || result?.requiresConfirmation !== false;
         if (!result?.error && needsCode) {
-          console.log("SignUpModal: opening code modal (needsCode)", { needsCode, email });
-          setPendingConfirmationEmail(email);
-          setIsConfirmationCodeModalOpen(true);
+          console.log("SignUpModal: triggering global code modal", { email });
+          onOpenConfirmationCode?.(email);
+          onClose();
         } else if (!result?.error) {
-          console.log("SignUpModal: signup success with session, closing modal");
           onClose();
         }
         // If there's an error, it will be handled by the auth function with toast
@@ -75,33 +68,6 @@ const SignUpModal = ({
     }
   };
 
-  const handleConfirmationCode = async (token: string) => {
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.verifyOtp({
-        email: pendingConfirmationEmail,
-        token,
-        type: 'signup'
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // Close all modals on success
-      setIsConfirmationCodeModalOpen(false);
-      onClose();
-      
-      toast({
-        title: "¡Cuenta confirmada!",
-        description: "Tu cuenta ha sido verificada exitosamente.",
-      });
-    } catch (error: any) {
-      throw new Error(error.message || "Error al confirmar el código");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <>
@@ -137,13 +103,6 @@ const SignUpModal = ({
         </DialogContent>
       </Dialog>
 
-      <ConfirmationCodeModal
-        isOpen={isConfirmationCodeModalOpen}
-        onClose={() => setIsConfirmationCodeModalOpen(false)}
-        onConfirm={handleConfirmationCode}
-        email={pendingConfirmationEmail}
-        isLoading={isLoading}
-      />
     </>
   );
 };
