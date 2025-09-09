@@ -230,7 +230,7 @@ const PersonalInformationModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-3xl sm:shadow-2xl sm:animate-scale-in sm:border-0 sm:bg-white/95 sm:backdrop-blur-sm flex flex-col transform sm:translate-y-0"
+        className="sm:max-w-2xl w-full h-full sm:h-auto sm:w-[95vw] sm:max-h-[90vh] p-0 rounded-none sm:rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm flex flex-col drop-shadow-2xl"
         style={{ touchAction: "manipulation" }}
       >
         {/* Mobile Header */}
