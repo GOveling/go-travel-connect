@@ -109,7 +109,7 @@ const CurrentTripContent = memo(({
             </h3>
             <MapPin className="w-4 h-4" />
             <h3 className="font-semibold">
-              {t("home.currentTrip.aiSmartRouteActive")}
+              {travelingTrip.name}
             </h3>
           </div>
           <p className="text-sm opacity-90">{travelingTrip.destination}</p>
