@@ -216,13 +216,16 @@ export type Database = {
           age: number | null
           avatar_url: string | null
           birth_date: string | null
+          birth_date_encrypted: string | null
           city_state: string | null
           country: string | null
           country_code: string | null
           created_at: string | null
           description: string | null
           email: string | null
+          email_encrypted: string | null
           full_name: string | null
+          full_name_encrypted: string | null
           gender: string | null
           id: string
           mobile_phone: string | null
@@ -236,13 +239,16 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
+          birth_date_encrypted?: string | null
           city_state?: string | null
           country?: string | null
           country_code?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
+          email_encrypted?: string | null
           full_name?: string | null
+          full_name_encrypted?: string | null
           gender?: string | null
           id: string
           mobile_phone?: string | null
@@ -256,13 +262,16 @@ export type Database = {
           age?: number | null
           avatar_url?: string | null
           birth_date?: string | null
+          birth_date_encrypted?: string | null
           city_state?: string | null
           country?: string | null
           country_code?: string | null
           created_at?: string | null
           description?: string | null
           email?: string | null
+          email_encrypted?: string | null
           full_name?: string | null
+          full_name_encrypted?: string | null
           gender?: string | null
           id?: string
           mobile_phone?: string | null
@@ -1083,6 +1092,10 @@ export type Database = {
         Args: { encrypted_value: string }
         Returns: string
       }
+      deobfuscate_sensitive_field: {
+        Args: { obfuscated_value: string }
+        Returns: string
+      }
       encrypt_sensitive_field: {
         Args: { field_value: string }
         Returns: string
@@ -1144,6 +1157,37 @@ export type Database = {
           rating: number
           updated_at: string
           user_id: string
+        }[]
+      }
+      get_profile_public: {
+        Args: { p_user_id: string }
+        Returns: {
+          avatar_url: string
+          country: string
+          description: string
+          display_name: string
+          id: string
+        }[]
+      }
+      get_profile_secure: {
+        Args: { p_user_id: string }
+        Returns: {
+          address: string
+          age: number
+          avatar_url: string
+          birth_date: string
+          city_state: string
+          country: string
+          country_code: string
+          created_at: string
+          description: string
+          email: string
+          full_name: string
+          gender: string
+          id: string
+          mobile_phone: string
+          onboarding_completed: boolean
+          updated_at: string
         }[]
       }
       get_trip_collaborator_profiles: {
@@ -1234,6 +1278,10 @@ export type Database = {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
       }
+      obfuscate_sensitive_field: {
+        Args: { field_value: string }
+        Returns: string
+      }
       remove_collaborator_and_archive: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: Json
@@ -1256,6 +1304,23 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      update_profile_secure: {
+        Args: {
+          p_address?: string
+          p_avatar_url?: string
+          p_birth_date?: string
+          p_city_state?: string
+          p_country?: string
+          p_country_code?: string
+          p_description?: string
+          p_email?: string
+          p_full_name?: string
+          p_gender?: string
+          p_mobile_phone?: string
+          p_user_id: string
+        }
+        Returns: boolean
       }
       validate_profile_access: {
         Args: { profile_id: string }

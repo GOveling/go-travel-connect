@@ -2,75 +2,161 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileData } from "@/types/profile";
+import { logSecurityEvent, isValidUser } from "@/utils/securityUtils";
+
+export interface SecureProfileData {
+  id: string;
+  email?: string;
+  full_name?: string;
+  birth_date?: string;
+  age?: number;
+  mobile_phone?: string;
+  address?: string;
+  country?: string;
+  city_state?: string;
+  country_code?: string;
+  gender?: string;
+  description?: string;
+  avatar_url?: string;
+  onboarding_completed?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PublicProfileData {
+  id: string;
+  display_name: string;
+  avatar_url?: string;
+  country?: string;
+  description?: string;
+}
 
 export const useSecureProfile = () => {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [profile, setProfile] = useState<SecureProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch secure profile data using the secure function
   const fetchProfile = async () => {
-    if (!user) {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    if (!isValidUser(user.id)) {
+      setError("Invalid user ID");
+      logSecurityEvent("Invalid profile access attempt", { userId: user.id });
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
+      setError(null);
       console.log("Fetching secure profile for user:", user.id);
 
-      // Only fetch the user's own profile with explicit user ID check
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+      // Use the secure RPC function instead of direct table access
+      const { data, error: fetchError } = await supabase.rpc(
+        'get_profile_secure',
+        { p_user_id: user.id }
+      );
 
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
+      if (fetchError) {
+        throw fetchError;
       }
 
-      console.log("Secure profile data fetched:", data);
-      setProfile(data as ProfileData);
-    } catch (err) {
-      console.error("Error fetching secure profile:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch profile");
+      if (data && data.length > 0) {
+        console.log("Secure profile data fetched:", data[0]);
+        setProfile(data[0] as SecureProfileData);
+      } else {
+        setProfile(null);
+      }
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch profile';
+      setError(errorMessage);
+      logSecurityEvent("Profile fetch error", { userId: user.id, error: errorMessage });
+      console.error('Error fetching secure profile:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const updateProfile = async (updates: Partial<ProfileData>) => {
-    if (!user) {
+  // Update profile using secure function
+  const updateProfile = async (updates: Partial<SecureProfileData>) => {
+    if (!user?.id) {
       throw new Error("User not authenticated");
     }
 
+    if (!isValidUser(user.id)) {
+      logSecurityEvent("Invalid profile update attempt", { userId: user.id });
+      throw new Error("Invalid user ID");
+    }
+
+    setLoading(true);
+    setError(null);
+
     try {
-      // Ensure updates only contain the user's own ID
-      const secureUpdates = {
-        ...updates,
-        id: user.id, // Force the ID to be the authenticated user's ID
-        updated_at: new Date().toISOString(),
-      };
+      const { data, error: updateError } = await supabase.rpc(
+        'update_profile_secure',
+        {
+          p_user_id: user.id,
+          p_email: updates.email || null,
+          p_full_name: updates.full_name || null,
+          p_birth_date: updates.birth_date || null,
+          p_mobile_phone: updates.mobile_phone || null,
+          p_address: updates.address || null,
+          p_country: updates.country || null,
+          p_city_state: updates.city_state || null,
+          p_country_code: updates.country_code || null,
+          p_gender: updates.gender || null,
+          p_description: updates.description || null,
+          p_avatar_url: updates.avatar_url || null
+        }
+      );
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .update(secureUpdates)
-        .eq("id", user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error updating profile:", error);
-        throw error;
+      if (updateError) {
+        throw updateError;
       }
 
-      setProfile(data as ProfileData);
-      return data;
-    } catch (err) {
-      console.error("Error updating secure profile:", err);
+      // Refresh profile after update
+      await fetchProfile();
+      
+      logSecurityEvent("Profile updated successfully", { userId: user.id });
+      return true;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to update profile';
+      setError(errorMessage);
+      logSecurityEvent("Profile update error", { userId: user.id, error: errorMessage });
+      console.error('Error updating secure profile:', err);
       throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch public profile data for other users
+  const fetchPublicProfile = async (userId: string): Promise<PublicProfileData | null> => {
+    if (!isValidUser(userId)) {
+      logSecurityEvent("Invalid public profile access attempt", { userId });
+      return null;
+    }
+
+    try {
+      const { data, error: fetchError } = await supabase.rpc(
+        'get_profile_public',
+        { p_user_id: userId }
+      );
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      return data && data.length > 0 ? data[0] : null;
+    } catch (err: any) {
+      logSecurityEvent("Public profile fetch error", { userId, error: err.message });
+      console.error('Error fetching public profile:', err);
+      return null;
     }
   };
 
@@ -101,5 +187,6 @@ export const useSecureProfile = () => {
     user,
     updateProfile,
     refreshProfile: fetchProfile,
+    fetchPublicProfile,
   };
 };
