@@ -186,7 +186,7 @@ const TravelStatsDetailModal = ({ isOpen, onClose, type, title }: TravelStatsDet
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-2xl max-h-[80vh] rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
