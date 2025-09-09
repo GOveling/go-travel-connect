@@ -214,7 +214,10 @@ const NearbyPlacesMapModal = ({
               variant={showUserLocation ? "default" : "outline"}
               onClick={handleToggleUserLocation}
               disabled={isLocating}
-              className="bg-white/90 backdrop-blur-sm border shadow-md hover:bg-white"
+              className={showUserLocation 
+                ? "backdrop-blur-sm shadow-md" 
+                : "bg-white/90 backdrop-blur-sm border shadow-md hover:bg-white"
+              }
             >
               <LocateFixed className="w-4 h-4 mr-1" />
               {showUserLocation
