@@ -77,6 +77,7 @@ const NearbyPlacesMapModal = ({
   const mapRef = useRef<L.Map | null>(null);
   const { location, isLocating, getCurrentLocation } = useUserLocation();
   const [showUserLocation, setShowUserLocation] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const { toast } = useToast();
 
   // Handle user location toggle
@@ -85,10 +86,18 @@ const NearbyPlacesMapModal = ({
       getCurrentLocation()
         .then(() => {
           setShowUserLocation(true);
+          setHasUserInteracted(true); // Mark as user interaction
           toast({
             title: t("common.success"),
             description: t("common.locationFound"),
           });
+          
+          // Zoom to user location when first activated (will happen after location is obtained)
+          setTimeout(() => {
+            if (mapRef.current && location) {
+              mapRef.current.setView([location.lat, location.lng], 16);
+            }
+          }, 100);
         })
         .catch((error) => {
           console.error("Error getting location:", error);
@@ -100,12 +109,15 @@ const NearbyPlacesMapModal = ({
         });
     } else {
       setShowUserLocation(!showUserLocation);
+      if (showUserLocation) {
+        setHasUserInteracted(true); // Mark as user interaction when toggling
+      }
     }
   };
 
-  // Center the map on the places
+  // Center the map on the places - only auto-fit initially and when first enabling location
   useEffect(() => {
-    if (mapRef.current && places.length > 0) {
+    if (mapRef.current && places.length > 0 && !hasUserInteracted) {
       const group = new L.FeatureGroup();
       
       places.forEach((place) => {
@@ -129,7 +141,28 @@ const NearbyPlacesMapModal = ({
         }
       }
     }
-  }, [places, showUserLocation, location]);
+  }, [places, showUserLocation, location, hasUserInteracted]);
+
+  // Add map interaction listeners to prevent auto-zoom after user interacts
+  useEffect(() => {
+    if (mapRef.current) {
+      const map = mapRef.current;
+      
+      const handleMapInteraction = () => {
+        setHasUserInteracted(true);
+      };
+
+      map.on('zoom', handleMapInteraction);
+      map.on('drag', handleMapInteraction);
+      map.on('click', handleMapInteraction);
+
+      return () => {
+        map.off('zoom', handleMapInteraction);
+        map.off('drag', handleMapInteraction);
+        map.off('click', handleMapInteraction);
+      };
+    }
+  }, []);
 
   if (!places || places.length === 0) {
     return null;
