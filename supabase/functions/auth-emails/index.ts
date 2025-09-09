@@ -1,6 +1,6 @@
 import React from 'npm:react@18.3.1';
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0';
-import { Resend } from 'npm:resend@4.0.0';
+import { Resend } from 'npm:resend@2.0.0';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { WelcomeEmail } from './_templates/welcome-email.tsx';
 import { PasswordResetEmail } from './_templates/password-reset-email.tsx';
@@ -62,11 +62,13 @@ Deno.serve(async (req) => {
     // Determine email type and render appropriate template
     switch (email_action_type) {
       case 'signup':
+      case 'email_change':
+      case 'email_change_confirm':
       case 'email_change_confirm_new':
         html = await renderAsync(
           React.createElement(EmailConfirmationEmail, {
             userEmail: user.email,
-            confirmationUrl: `${site_url}/auth/confirm?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`,
+            confirmationUrl: `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to || site_url}`,
             token
           })
         );
@@ -87,10 +89,11 @@ Deno.serve(async (req) => {
         break;
 
       case 'magiclink':
+      case 'magic_link':
         html = await renderAsync(
           React.createElement(MagicLinkEmail, {
             userEmail: user.email,
-            magicLinkUrl: `${site_url}/auth/confirm?token_hash=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`,
+            magicLinkUrl: `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to || site_url}`,
             token
           })
         );
