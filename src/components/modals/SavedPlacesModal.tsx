@@ -207,14 +207,6 @@ const SortablePlaceItem = ({
                 place={place} 
                 onUpdate={onUpdate} 
               />
-              
-              {/* Visited status badge in the main content area */}
-              {place.visited && (
-                <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50 text-xs">
-                  <Star className="h-3 w-3 mr-1 fill-current" />
-                  Completado
-                </Badge>
-              )}
             </div>
 
             <p className="text-xs text-gray-500 truncate">
