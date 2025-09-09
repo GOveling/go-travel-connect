@@ -183,7 +183,7 @@ const SortablePlaceItem = ({
           </div>
           <div className="flex-1 min-w-0 pr-8">
             <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0 mr-2">
+              <div className="flex-1 min-w-0">
                 <h5 className="text-sm sm:text-base font-semibold text-gray-800 truncate overflow-hidden text-ellipsis break-all">
                   {place.name}
                 </h5>
@@ -191,22 +191,6 @@ const SortablePlaceItem = ({
                   {place.category}
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 sm:h-8 sm:w-8 p-0 ml-2 relative z-20"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(place);
-                }}
-                disabled={isRemoving === place.id}
-              >
-                {isRemoving === place.id ? (
-                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-red-500 border-t-transparent" />
-                ) : (
-                  <Trash2 size={12} className="sm:w-4 sm:h-4" />
-                )}
-              </Button>
             </div>
 
             <div className="flex items-center space-x-2 mb-2">
@@ -253,6 +237,24 @@ const SortablePlaceItem = ({
             )}
           </div>
         </div>
+
+        {/* Delete button - bottom left corner */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute bottom-2 left-2 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full z-20"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(place);
+          }}
+          disabled={isRemoving === place.id}
+        >
+          {isRemoving === place.id ? (
+            <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent" />
+          ) : (
+            <Trash2 size={12} />
+          )}
+        </Button>
 
         {/* Location button - bottom right corner */}
         {place.lat && place.lng && (
