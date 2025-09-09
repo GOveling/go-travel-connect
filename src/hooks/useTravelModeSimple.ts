@@ -4,6 +4,7 @@ import { travelNotificationService } from "../services/travelNotificationService
 import { SavedPlace, Trip } from "../types";
 import { useSupabaseTrips } from "./useSupabaseTrips";
 import { getCapacitorConfig } from "../utils/capacitor";
+import { getEnvironmentConfig } from "../utils/environment";
 import { useToast } from "./use-toast";
 import { useAuth } from "./useAuth";
 
@@ -74,6 +75,7 @@ export const useTravelModeSimple = ({
   const { toast } = useToast();
   const { user } = useAuth();
   const { isNative } = getCapacitorConfig();
+  const { isCapacitor } = getEnvironmentConfig();
 
   // Refs for intervals and tracking
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -176,35 +178,39 @@ export const useTravelModeSimple = ({
     return true;
   }, [calculateDistance]);
 
-  // Calculate dynamic check interval based on distance to nearest place
+  // Calculate dynamic check interval based on distance to nearest place and platform
   const getDynamicInterval = useCallback(
     (minDistanceToPlace: number): number => {
-      // Intervalos dinámicos basados en distancia:
-      if (minDistanceToPlace <= 10) return 5000; // 5 segundos - modo estabilización en llegada
-      if (minDistanceToPlace <= 20) return 3000; // 3 segundos - muy muy cerca
-      if (minDistanceToPlace <= 50) return 2000; // 2 segundos - muy cerca
-      if (minDistanceToPlace <= 100) return 3000; // 3 segundos - cerca
-      if (minDistanceToPlace <= 500) return 5000; // 5 segundos - proximidad media
-      if (minDistanceToPlace <= 1000) return 8000; // 8 segundos - proximidad lejana
-      if (minDistanceToPlace <= 2000) return 12000; // 12 segundos - acercándose
-      if (minDistanceToPlace <= 5000) return 20000; // 20 segundos - mediana distancia
-      if (minDistanceToPlace <= 10000) return 30000; // 30 segundos - lejos
-      return config.baseCheckInterval; // 30 segundos - muy lejos
+      // Platform-specific interval adjustments
+      const platformMultiplier = isNative ? 1 : 0.8; // Web needs slightly more frequent checks
+      
+      // Base intervals adjusted for platform capabilities
+      if (minDistanceToPlace <= 10) return Math.round(5000 * platformMultiplier); // 5s native, 4s web
+      if (minDistanceToPlace <= 20) return Math.round(3000 * platformMultiplier); // 3s native, 2.4s web
+      if (minDistanceToPlace <= 50) return Math.round(2000 * platformMultiplier); // 2s native, 1.6s web
+      if (minDistanceToPlace <= 100) return Math.round(3000 * platformMultiplier); // 3s native, 2.4s web
+      if (minDistanceToPlace <= 500) return Math.round(5000 * platformMultiplier); // 5s native, 4s web
+      if (minDistanceToPlace <= 1000) return Math.round(8000 * platformMultiplier); // 8s native, 6.4s web
+      if (minDistanceToPlace <= 2000) return Math.round(12000 * platformMultiplier); // 12s native, 9.6s web
+      if (minDistanceToPlace <= 5000) return Math.round(20000 * platformMultiplier); // 20s native, 16s web
+      if (minDistanceToPlace <= 10000) return Math.round(30000 * platformMultiplier); // 30s native, 24s web
+      return Math.round(config.baseCheckInterval * platformMultiplier); // Base interval adjusted
     },
-    [config.baseCheckInterval]
+    [config.baseCheckInterval, isNative]
   );
 
-  // Check and request location permissions
+  // Check and request location permissions - Enhanced for both platforms
   const checkLocationPermissions = useCallback(async (): Promise<boolean> => {
     try {
-      console.log("🔍 Checking location permissions...");
+      console.log(`🔍 Checking location permissions... (Platform: ${isCapacitor ? 'Native' : 'Web'})`);
       
       if (isNative) {
+        // Native platform - Use Capacitor
         const permissions = await Geolocation.checkPermissions();
-        console.log("📱 Current permissions:", permissions);
+        console.log("📱 Current Capacitor permissions:", permissions);
         
         if (permissions.location !== 'granted' && permissions.coarseLocation !== 'granted') {
-          console.log("🔐 Requesting location permissions...");
+          console.log("🔐 Requesting Capacitor location permissions...");
           const requested = await Geolocation.requestPermissions();
           console.log("📱 Requested permissions result:", requested);
           
@@ -214,7 +220,7 @@ export const useTravelModeSimple = ({
           if (!hasPermission) {
             toast({
               title: "Permisos requeridos",
-              description: "Travel Mode requiere permisos de ubicación para funcionar.",
+              description: "Travel Mode requiere permisos de ubicación para funcionar correctamente en dispositivos móviles.",
               variant: "destructive",
             });
             return false;
@@ -223,8 +229,51 @@ export const useTravelModeSimple = ({
           setStatus(prev => ({ ...prev, hasLocationPermission: true }));
         }
       } else {
-        // Web - permissions are handled differently
-        setStatus(prev => ({ ...prev, hasLocationPermission: true }));
+        // Web platform - Check browser geolocation API
+        if (!navigator.geolocation) {
+          console.error("❌ Geolocation not available in this browser");
+          setStatus(prev => ({ 
+            ...prev, 
+            hasLocationPermission: false,
+            lastError: "Geolocalización no disponible en este navegador"
+          }));
+          toast({
+            title: "Geolocalización no disponible",
+            description: "Su navegador no soporta geolocalización.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        // Check permissions API if available
+        if ('permissions' in navigator) {
+          try {
+            const result = await navigator.permissions.query({ name: 'geolocation' });
+            console.log("🌐 Browser geolocation permission:", result.state);
+            
+            if (result.state === 'denied') {
+              setStatus(prev => ({ 
+                ...prev, 
+                hasLocationPermission: false,
+                lastError: "Permisos de ubicación denegados"
+              }));
+              toast({
+                title: "Permisos denegados",
+                description: "Los permisos de ubicación han sido denegados. Por favor, habilítalos en la configuración del navegador.",
+                variant: "destructive",
+              });
+              return false;
+            }
+            
+            setStatus(prev => ({ ...prev, hasLocationPermission: true }));
+          } catch (error) {
+            console.log("⚠️ Permissions API not fully supported, will try direct access");
+            setStatus(prev => ({ ...prev, hasLocationPermission: true }));
+          }
+        } else {
+          console.log("🌐 Permissions API not available, assuming permissions are granted");
+          setStatus(prev => ({ ...prev, hasLocationPermission: true }));
+        }
       }
       
       return true;
@@ -242,7 +291,7 @@ export const useTravelModeSimple = ({
       });
       return false;
     }
-  }, [isNative, toast]);
+  }, [isNative, isCapacitor, toast]);
 
   // Check notification permissions
   const checkNotificationPermissions = useCallback(async (): Promise<boolean> => {
@@ -261,69 +310,112 @@ export const useTravelModeSimple = ({
   // Get current location manually with enhanced error handling and GPS stabilization
   const getCurrentLocation = useCallback(async (): Promise<Position | null> => {
     try {
-      console.log("🔍 Getting current location...");
+      console.log(`🔍 Getting current location... (Platform: ${isCapacitor ? 'Native' : 'Web'})`);
 
       let position: Position | null = null;
 
       if (!isNative) {
+        // Web platform - enhanced browser geolocation
+        if (!navigator.geolocation) {
+          throw new Error("Geolocalización no disponible en este navegador");
+        }
+
         position = await new Promise<Position | null>((resolve) => {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              console.log("📍 Location obtained (Web):", pos.coords);
-              console.log("🎯 GPS Accuracy:", pos.coords.accuracy, "meters");
+              console.log("📍 Location obtained (Web/WiFi):", {
+                lat: pos.coords.latitude.toFixed(6),
+                lng: pos.coords.longitude.toFixed(6),
+                accuracy: pos.coords.accuracy
+              });
+              console.log("🎯 Web Geolocation Accuracy:", pos.coords.accuracy, "meters");
+              console.log("🌐 Using browser geolocation (WiFi/IP-based)");
               resolve(pos);
             },
             (error) => {
               console.error("❌ Error getting location (Web):", error);
+              let errorMessage = "Error de ubicación desconocido";
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  errorMessage = "Permisos de ubicación denegados";
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  errorMessage = "Ubicación no disponible";
+                  break;
+                case error.TIMEOUT:
+                  errorMessage = "Timeout al obtener ubicación";
+                  break;
+              }
               setStatus(prev => ({ 
                 ...prev, 
                 isLocationAvailable: false,
-                lastError: `Error de ubicación: ${error.message}`
+                lastError: errorMessage
               }));
               resolve(null);
             },
             {
-              enableHighAccuracy: true,
-              timeout: 20000,
-              maximumAge: 0,
+              enableHighAccuracy: true, // Request highest accuracy available
+              timeout: 30000, // Increased timeout for web
+              maximumAge: 60000, // Allow slightly older readings for web
             }
           );
         });
       } else {
+        // Native platform - high precision GPS
         position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
           timeout: 20000,
         });
-        console.log("📍 Location obtained (Capacitor):", position.coords);
-        console.log("🎯 GPS Accuracy:", position.coords.accuracy, "meters");
+        console.log("📍 Location obtained (Native/GPS):", {
+          lat: position.coords.latitude.toFixed(6),
+          lng: position.coords.longitude.toFixed(6),
+          accuracy: position.coords.accuracy
+        });
+        console.log("🎯 Native GPS Accuracy:", position.coords.accuracy, "meters");
+        console.log("🛰️ Using native GPS");
       }
 
       if (!position) {
         return null;
       }
 
-      // Validate the new reading
-      if (!validateNewReading(position)) {
-        console.log("⚠️ GPS reading rejected, using last stable position");
-        return lastStablePositionRef.current;
-      }
-
-      // Add to buffer and get stable position
-      addToLocationBuffer(position);
-      const stablePosition = getStablePosition();
-      
-      if (stablePosition) {
-        lastStablePositionRef.current = stablePosition;
+      // Apply platform-specific validation and stabilization
+      if (isNative) {
+        // Native: strict validation for GPS readings
+        if (!validateNewReading(position)) {
+          console.log("⚠️ GPS reading rejected, using last stable position");
+          return lastStablePositionRef.current;
+        }
+        
+        // Add to buffer and get stable position for native GPS
+        addToLocationBuffer(position);
+        const stablePosition = getStablePosition();
+        
+        if (stablePosition) {
+          lastStablePositionRef.current = stablePosition;
+          setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
+          console.log("📍 Stable GPS position calculated:", {
+            lat: stablePosition.coords.latitude.toFixed(6),
+            lng: stablePosition.coords.longitude.toFixed(6),
+            accuracy: stablePosition.coords.accuracy.toFixed(1),
+            bufferSize: locationBufferRef.current.length
+          });
+        }
+        
+        return stablePosition;
+      } else {
+        // Web: less strict validation, accept browser's best effort
+        lastStablePositionRef.current = position;
         setStatus(prev => ({ ...prev, isLocationAvailable: true, lastError: null }));
-        console.log("📍 Stable position calculated:", {
-          lat: stablePosition.coords.latitude.toFixed(6),
-          lng: stablePosition.coords.longitude.toFixed(6),
-          accuracy: stablePosition.coords.accuracy.toFixed(1),
-          bufferSize: locationBufferRef.current.length
+        console.log("📍 Web location accepted:", {
+          lat: position.coords.latitude.toFixed(6),
+          lng: position.coords.longitude.toFixed(6),
+          accuracy: position.coords.accuracy.toFixed(1),
+          source: "Browser Geolocation"
         });
+        
+        return position;
       }
-
-      return stablePosition;
     } catch (error: any) {
       console.error("❌ Error getting current location:", error);
       const errorMessage = error?.message || "No se pudo obtener la ubicación";
@@ -332,14 +424,17 @@ export const useTravelModeSimple = ({
         isLocationAvailable: false,
         lastError: errorMessage
       }));
+      
+      // Provide platform-specific error guidance
+      const platform = isCapacitor ? "dispositivo móvil" : "navegador web";
       toast({
         title: "Error de ubicación",
-        description: errorMessage,
+        description: `No se pudo obtener la ubicación en ${platform}: ${errorMessage}`,
         variant: "destructive",
       });
       return null;
     }
-  }, [isNative, toast, validateNewReading, addToLocationBuffer, getStablePosition]);
+  }, [isNative, isCapacitor, toast, validateNewReading, addToLocationBuffer, getStablePosition]);
 
   // Check if there's an active trip today (only for owned trips)
   const getActiveTripToday = useCallback((): Trip | null => {
