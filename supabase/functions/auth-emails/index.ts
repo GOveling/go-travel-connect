@@ -31,6 +31,16 @@ Deno.serve(async (req) => {
     const webhookData = JSON.parse(payload);
     console.log('Webhook data received:', webhookData);
 
+    // Ensure Resend API key is configured
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY is not set in Edge Function secrets.');
+      return new Response(
+        JSON.stringify({ error: 'Missing RESEND_API_KEY secret' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
     const { user, email_data } = webhookData;
     
     if (!user || !user.email) {
@@ -105,7 +115,7 @@ Deno.serve(async (req) => {
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: 'Travel Connect <noreply@travelconnect.com>',
+      from: 'Travel Connect <onboarding@resend.dev>',
       to: [user.email],
       subject,
       html,
