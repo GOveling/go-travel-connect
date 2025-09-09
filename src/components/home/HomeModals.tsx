@@ -74,6 +74,7 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
   ) => {
     try {
       const result = await signUp(email, password, name);
+      console.log("HomeModals: signUp result", result);
       // Return the result so SignUpModal can handle the flow
       return result;
     } catch (error) {

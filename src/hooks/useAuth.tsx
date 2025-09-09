@@ -153,6 +153,7 @@ export const useAuth = () => {
             "Te enviamos un enlace de confirmación para completar tu registro.",
         });
         
+        console.log("useAuth.signUp: requiresConfirmation=true for", data.user?.email);
         // Return specific info that email confirmation is needed
         return { 
           error: null, 
@@ -170,6 +171,7 @@ export const useAuth = () => {
         });
       }
 
+      console.log("useAuth.signUp: returning requiresConfirmation=false (has session)");
       return { error: null, requiresConfirmation: false };
     } catch (error: any) {
       console.error("❌ useAuth: Sign up exception:", error);
