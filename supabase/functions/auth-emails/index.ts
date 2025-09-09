@@ -8,6 +8,7 @@ import { MagicLinkEmail } from './_templates/magic-link-email.tsx';
 import { EmailConfirmationEmail } from './_templates/email-confirmation.tsx';
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string);
+const SUPABASE_URL = 'https://suhttfxcurgurshlkcpz.supabase.co';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
         html = await renderAsync(
           React.createElement(EmailConfirmationEmail, {
             userEmail: user.email,
-            confirmationUrl: `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to || site_url}`,
+            confirmationUrl: `${SUPABASE_URL}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to || site_url}`,
             token
           })
         );
@@ -93,7 +94,7 @@ Deno.serve(async (req) => {
         html = await renderAsync(
           React.createElement(MagicLinkEmail, {
             userEmail: user.email,
-            magicLinkUrl: `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to || site_url}`,
+            magicLinkUrl: `${SUPABASE_URL}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to || site_url}`,
             token
           })
         );
@@ -118,7 +119,7 @@ Deno.serve(async (req) => {
 
     // Send email via Resend
     const { data, error } = await resend.emails.send({
-      from: 'Travel Connect <info@goveling.com>',
+      from: 'Travel Connect <noreply@team.goveling.com>',
       to: [user.email],
       subject,
       html,
