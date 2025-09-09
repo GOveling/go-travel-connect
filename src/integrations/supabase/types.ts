@@ -116,6 +116,33 @@ export type Database = {
         }
         Relationships: []
       }
+      password_validation_log: {
+        Row: {
+          attempted_at: string | null
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+          validation_result: boolean
+        }
+        Insert: {
+          attempted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+          validation_result: boolean
+        }
+        Update: {
+          attempted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+          validation_result?: boolean
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null
@@ -1364,6 +1391,15 @@ export type Database = {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
       }
+      log_password_validation: {
+        Args: {
+          p_ip_address?: unknown
+          p_user_agent?: string
+          p_user_id?: string
+          p_validation_result?: boolean
+        }
+        Returns: undefined
+      }
       monitor_review_access_patterns: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1414,6 +1450,10 @@ export type Database = {
           p_mobile_phone?: string
           p_user_id: string
         }
+        Returns: boolean
+      }
+      validate_password_strength: {
+        Args: { password_input: string }
         Returns: boolean
       }
       validate_profile_access: {
