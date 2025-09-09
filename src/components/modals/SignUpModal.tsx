@@ -6,6 +6,9 @@ import ModalHeader from "./login/ModalHeader";
 import GoogleLoginButton from "./login/GoogleLoginButton";
 import SignUpForm from "./signup/SignUpForm";
 import FormDivider from "./shared/FormDivider";
+import ConfirmationCodeModal from "./ConfirmationCodeModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -23,7 +26,10 @@ const SignUpModal = ({
   onSwitchToLogin,
 }: SignUpModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmationCodeModalOpen, setIsConfirmationCodeModalOpen] = useState(false);
+  const [pendingConfirmationEmail, setPendingConfirmationEmail] = useState("");
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const handleSignUp = async (
     name: string,
@@ -34,7 +40,9 @@ const SignUpModal = ({
       setIsLoading(true);
       try {
         await onSignUp(name, email, password);
-        onClose();
+        // Instead of closing immediately, show confirmation modal
+        setPendingConfirmationEmail(email);
+        setIsConfirmationCodeModalOpen(true);
       } catch (error) {
         console.error("Sign up error:", error);
       } finally {
@@ -54,6 +62,34 @@ const SignUpModal = ({
       } finally {
         setIsLoading(false);
       }
+    }
+  };
+
+  const handleConfirmationCode = async (token: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.verifyOtp({
+        email: pendingConfirmationEmail,
+        token,
+        type: 'signup'
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Close all modals on success
+      setIsConfirmationCodeModalOpen(false);
+      onClose();
+      
+      toast({
+        title: "¡Cuenta confirmada!",
+        description: "Tu cuenta ha sido verificada exitosamente.",
+      });
+    } catch (error: any) {
+      throw new Error(error.message || "Error al confirmar el código");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,6 +124,14 @@ const SignUpModal = ({
           </div>
         </div>
       </DialogContent>
+
+      <ConfirmationCodeModal
+        isOpen={isConfirmationCodeModalOpen}
+        onClose={() => setIsConfirmationCodeModalOpen(false)}
+        onConfirm={handleConfirmationCode}
+        email={pendingConfirmationEmail}
+        isLoading={isLoading}
+      />
     </Dialog>
   );
 };

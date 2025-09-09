@@ -68,8 +68,13 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
     password: string
   ) => {
     try {
-      await signUp(email, password, name);
-      homeState.setIsSignUpModalOpen && homeState.setIsSignUpModalOpen(false);
+      const result = await signUp(email, password, name);
+      // Don't close the modal immediately - let SignUpModal handle this
+      // The modal will stay open to show confirmation code input if needed
+      if (result?.error) {
+        // Only close on error, let success flow be handled by SignUpModal
+        return;
+      }
     } catch (error) {
       console.error("Sign up error:", error);
     }
