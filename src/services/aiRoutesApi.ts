@@ -5,11 +5,12 @@ const API_URL = import.meta.env.VITE_AI_ROUTES_API_URL;
 const API_KEY = import.meta.env.VITE_AI_ROUTES_API_KEY;
 
 const aiRoutesApi = axios.create({
-  baseURL: API_URL,
+  baseURL: 'https://goveling-ml.onrender.com',
   headers: {
     'Content-Type': 'application/json',
     ...(API_KEY && { 'Authorization': `Bearer ${API_KEY}` }),
   },
+  timeout: 30000, // 30 seconds timeout
 });
 
 interface GenerateHybridItineraryParams {
@@ -35,40 +36,110 @@ interface RecommendHotelsParams {
   max_recommendations: number;
 }
 
+const validateAndFormatDate = (date: string | Date): string => {
+  if (!date) throw new Error('Date is required');
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) throw new Error('Invalid date format');
+  return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD format
+};
+
+const validatePlace = (place: any) => {
+  if (!place.name || !place.lat || !place.lng) {
+    throw new Error(`Invalid place data: ${JSON.stringify(place)}`);
+  }
+  if (typeof place.lat !== 'number' || typeof place.lng !== 'number') {
+    throw new Error(`Coordinates must be numbers: lat=${place.lat}, lng=${place.lng}`);
+  }
+  if (place.lat < -90 || place.lat > 90 || place.lng < -180 || place.lng > 180) {
+    throw new Error(`Invalid coordinates: lat=${place.lat}, lng=${place.lng}`);
+  }
+};
+
 export const aiRoutesService = {
   generateHybridItinerary: async (params: GenerateHybridItineraryParams) => {
     try {
-      const response = await aiRoutesApi.post('/itinerary/generate-hybrid', params);
-      console.log('Response:', response.data);
+      // Validate and format request data
+      const validatedParams = {
+        ...params,
+        start_date: validateAndFormatDate(params.start_date),
+        end_date: validateAndFormatDate(params.end_date),
+        places: params.places.map(place => {
+          validatePlace(place);
+          return {
+            ...place,
+            priority: Math.max(1, Math.min(10, place.priority)) // Ensure priority is 1-10
+          };
+        })
+      };
+
+      console.log('📤 Making ML API request to: /api/v2/itinerary/generate-hybrid');
+      console.log('📤 Request payload:', JSON.stringify(validatedParams, null, 2));
+      
+      const response = await aiRoutesApi.post('/api/v2/itinerary/generate-hybrid', validatedParams);
+      
+      console.log('✅ ML API Response received:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('Error generating hybrid itinerary:', error?.response?.data || error);
-      throw error;
+      console.error('❌ Error generating hybrid itinerary:');
+      console.error('Status:', error?.response?.status);
+      console.error('Status Text:', error?.response?.statusText);
+      console.error('Response Data:', error?.response?.data);
+      console.error('Request Config:', error?.config);
+      
+      if (error?.response?.status === 422) {
+        console.error('🚨 Validation Error - Check request format:', error?.response?.data);
+      }
+      
+      throw new Error(`ML API Error: ${error?.response?.data?.detail || error?.response?.statusText || error?.message}`);
     }
   },
 
   recommendHotels: async (params: RecommendHotelsParams) => {
     try {
-      // Log the request for debugging
-      console.log('Making request to:', `${API_URL}/hotels/recommend`);
-      console.log('With params:', JSON.stringify(params, null, 2));
+      // Validate places
+      params.places.forEach(validatePlace);
       
-      const response = await aiRoutesApi.post('/hotels/recommend', params);
-      console.log('Response:', response.data);
+      console.log('📤 Making ML API request to: /api/v2/hotels/recommend');
+      console.log('📤 Request payload:', JSON.stringify(params, null, 2));
+      
+      const response = await aiRoutesApi.post('/api/v2/hotels/recommend', params);
+      
+      console.log('✅ Hotels API Response received:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('Error recommending hotels:', error?.response?.data || error);
-      throw error;
+      console.error('❌ Error recommending hotels:');
+      console.error('Status:', error?.response?.status);
+      console.error('Status Text:', error?.response?.statusText);
+      console.error('Response Data:', error?.response?.data);
+      console.error('Request Config:', error?.config);
+      
+      if (error?.response?.status === 422) {
+        console.error('🚨 Validation Error - Check request format:', error?.response?.data);
+      }
+      
+      throw new Error(`Hotels API Error: ${error?.response?.data?.detail || error?.response?.statusText || error?.message}`);
     }
   },
 
   formatPlacesForApi: (savedPlaces: SavedPlace[]) => {
-    return savedPlaces.map(place => ({
-      name: place.name,
-      lat: place.lat || 0,
-      lon: place.lng || 0,
-      type: place.category?.toLowerCase() || 'point_of_interest',
-      priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
-    }));
+    if (!savedPlaces || savedPlaces.length === 0) {
+      console.warn('⚠️ No saved places provided to formatPlacesForApi');
+      return [];
+    }
+
+    return savedPlaces
+      .filter(place => place.lat && place.lng && place.name) // Filter out invalid places
+      .map(place => {
+        const formatted = {
+          name: place.name.trim(),
+          lat: Number(place.lat),
+          lon: Number(place.lng), // Note: API expects 'lon', not 'lng'
+          type: (place.category?.toLowerCase() || 'point_of_interest').replace(/\s+/g, '_'),
+          priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
+        };
+        
+        console.log(`📍 Formatted place: ${formatted.name} (${formatted.lat}, ${formatted.lon})`);
+        return formatted;
+      });
   }
 };
