@@ -82,24 +82,50 @@ const AISmartRouteModal = ({
         throw new Error("No places saved in trip");
       }
 
-      const places = workingTrip.savedPlaces.map(place => ({
-        name: place.name,
-        lat: place.lat || 0,
-        lon: place.lng || 0,
-        type: place.category?.toLowerCase() || 'point_of_interest',
-        priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
-      }));
+      // Validate dates before proceeding
+      if (!workingTrip.startDate || !workingTrip.endDate) {
+        throw new Error("Trip start and end dates are required for AI route generation");
+      }
+
+      // Filter and validate places - only include places with valid coordinates
+      const validPlaces = workingTrip.savedPlaces
+        .filter(place => 
+          place.name && 
+          place.lat && 
+          place.lng && 
+          place.lat !== 0 && 
+          place.lng !== 0 &&
+          place.lat >= -90 && place.lat <= 90 &&
+          place.lng >= -180 && place.lng <= 180
+        )
+        .map(place => ({
+          name: place.name.trim(),
+          lat: Number(place.lat),
+          lon: Number(place.lng), // API expects 'lon', not 'lng'
+          type: (place.category?.toLowerCase() || 'point_of_interest').replace(/\s+/g, '_'), // Replace spaces with underscores
+          priority: Math.max(1, Math.min(10, place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3)) // Ensure 1-10 range
+        }));
+
+      if (validPlaces.length === 0) {
+        throw new Error("No valid places with coordinates found. Please add places with location data to your trip.");
+      }
+
+      console.log('📍 Valid places for API:', validPlaces);
 
       // Calculate distances and optimized routes
       const distanceMatrix = calculateTripDistances(workingTrip);
       const optimizedRoute = calculateOptimizedRoute(workingTrip);
 
-      const response = await aiRoutesService.generateHybridItinerary({
-        places,
-        start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
-        end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
-        transport_mode: 'walk',
-      });
+      const apiPayload = {
+        places: validPlaces,
+        start_date: workingTrip.startDate.toISOString().split('T')[0],
+        end_date: workingTrip.endDate.toISOString().split('T')[0],
+        transport_mode: 'walk' as const,
+      };
+
+      console.log('📤 Sending API payload:', JSON.stringify(apiPayload, null, 2));
+
+      const response = await aiRoutesService.generateHybridItinerary(apiPayload);
 
       if (response.itinerary) {
         // Transform the response into our DayItinerary format

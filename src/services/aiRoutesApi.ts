@@ -44,20 +44,30 @@ const validateAndFormatDate = (date: string | Date): string => {
 };
 
 const validatePlace = (place: any) => {
-  if (!place.name || !place.lat || !place.lng) {
+  if (!place.name || !place.lat || !place.lon) {
     throw new Error(`Invalid place data: ${JSON.stringify(place)}`);
   }
-  if (typeof place.lat !== 'number' || typeof place.lng !== 'number') {
-    throw new Error(`Coordinates must be numbers: lat=${place.lat}, lng=${place.lng}`);
+  if (typeof place.lat !== 'number' || typeof place.lon !== 'number') {
+    throw new Error(`Coordinates must be numbers: lat=${place.lat}, lon=${place.lon}`);
   }
-  if (place.lat < -90 || place.lat > 90 || place.lng < -180 || place.lng > 180) {
-    throw new Error(`Invalid coordinates: lat=${place.lat}, lng=${place.lng}`);
+  if (place.lat < -90 || place.lat > 90 || place.lon < -180 || place.lon > 180) {
+    throw new Error(`Invalid coordinates: lat=${place.lat}, lon=${place.lon}`);
   }
 };
 
 export const aiRoutesService = {
   generateHybridItinerary: async (params: GenerateHybridItineraryParams) => {
     try {
+      // Validate required dates
+      if (!params.start_date || !params.end_date) {
+        throw new Error("Start date and end date are required");
+      }
+
+      // Validate places array
+      if (!params.places || params.places.length === 0) {
+        throw new Error("At least one place is required");
+      }
+
       // Validate and format request data
       const validatedParams = {
         ...params,
@@ -67,7 +77,8 @@ export const aiRoutesService = {
           validatePlace(place);
           return {
             ...place,
-            priority: Math.max(1, Math.min(10, place.priority)) // Ensure priority is 1-10
+            priority: Math.max(1, Math.min(10, place.priority)), // Ensure priority is 1-10
+            type: place.type.replace(/\s+/g, '_') // Ensure no spaces in type
           };
         })
       };
