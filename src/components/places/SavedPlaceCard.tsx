@@ -21,8 +21,7 @@ interface SavedPlaceCardProps {
     destination_name?: string;
     formatted_address?: string; // snake_case from Supabase
     formattedAddress?: string; // camelCase if mapped in frontend
-    visited?: boolean; // Visited status for travel mode
-    visited_at?: string; // When the place was visited
+    // Note: visited status is now calculated dynamically per user via usePlaceVisitStatus hook
   };
   canEdit?: boolean;
   onDelete?: () => void;

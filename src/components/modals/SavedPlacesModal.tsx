@@ -315,13 +315,11 @@ const SavedPlacesModal = ({
               lat,
               lng,
               position_order,
-              visited,
-              visited_at,
-              visit_distance
+              position_order
             )
           `)
           .eq("id", trip.id)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 

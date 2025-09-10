@@ -21,8 +21,8 @@ export const useSupabaseTrips = () => {
     userId: null,
   });
   
-  // Cache duration: 5 minutes for mobile performance
-  const CACHE_DURATION = 5 * 60 * 1000;
+  // Cache duration: Force refresh after migration to ensure no stale data
+  const CACHE_DURATION = 0; // Temporarily disabled cache
 
   const fetchTrips = useCallback(async (forceRefresh = false) => {
     if (!user) {
@@ -97,9 +97,6 @@ export const useSupabaseTrips = () => {
               street_number,
               place_source,
               place_reference,
-              visited,
-              visited_at,
-              visit_distance,
               reminder_note
             )
         `
@@ -189,8 +186,7 @@ export const useSupabaseTrips = () => {
                 streetNumber: place.street_number || undefined,
                 placeSource: place.place_source || undefined,
                 placeReference: place.place_reference || undefined,
-                // Visit tracking - now calculated per user
-                // visited status will be determined dynamically using usePlaceVisitStatus hook
+                // Visit tracking - now calculated per user using place_visits table
                 reminderNote: place.reminder_note || undefined,
               })) || [],
         })) || [];
