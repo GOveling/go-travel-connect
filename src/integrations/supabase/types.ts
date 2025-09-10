@@ -1356,7 +1356,7 @@ export type Database = {
         Returns: {
           created_at: string
           expires_at: string
-          id: string
+          invitation_id: string
           inviter_name: string
           role: string
           trip_id: string
