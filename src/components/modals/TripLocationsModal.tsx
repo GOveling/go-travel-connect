@@ -43,6 +43,7 @@ export const TripLocationsModal = ({
   const [sharedLocations, setSharedLocations] = useState<SharedLocation[]>([]);
   const [mySharedLocation, setMySharedLocation] = useState<SharedLocation | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<10 | 30 | 60>(10);
+  const [showMap, setShowMap] = useState(false);
 
   // Fetch shared locations
   const fetchSharedLocations = async () => {
@@ -310,7 +311,7 @@ export const TripLocationsModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden rounded-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
@@ -318,17 +319,29 @@ export const TripLocationsModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[600px]">
-          {/* Map Section */}
-          <div className="lg:col-span-2 rounded-lg overflow-hidden">
-            <SharedLocationsMap 
-              locations={sharedLocations} 
-              currentUserId={user?.id}
-            />
-          </div>
+        <div className="flex flex-col gap-4 h-[600px]">
+          {/* Map Toggle Button */}
+          <Button
+            onClick={() => setShowMap(!showMap)}
+            variant="outline"
+            className="w-full"
+          >
+            <MapPin className="h-4 w-4 mr-2" />
+            {showMap ? "Ocultar mapa" : "Ver colaboradores en el mapa"}
+          </Button>
+
+          {/* Map Section - Only show when toggled */}
+          {showMap && (
+            <div className="h-[300px] rounded-lg overflow-hidden border">
+              <SharedLocationsMap 
+                locations={sharedLocations} 
+                currentUserId={user?.id}
+              />
+            </div>
+          )}
 
           {/* Controls Section */}
-          <div className="space-y-4 overflow-y-auto">
+          <div className="space-y-4 overflow-y-auto flex-1">
             {/* Share Location Controls */}
             <div className="space-y-4">
               <h3 className="font-semibold flex items-center gap-2">
@@ -383,18 +396,21 @@ export const TripLocationsModal = ({
                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                         <span className="text-sm font-medium">Tiempo real activo</span>
                       </div>
-                      <Badge variant="secondary">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {getTimeRemaining(sharedLocations.find(loc => loc.user_id === user?.id && loc.location_type === 'real_time')?.expires_at || '')}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {getTimeRemaining(sharedLocations.find(loc => loc.user_id === user?.id && loc.location_type === 'real_time')?.expires_at || '')}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={stopRealTimeSharing}
+                          className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/20"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      onClick={stopRealTimeSharing}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Detener tiempo real
-                    </Button>
                   </div>
                 ) : (
                   <>
