@@ -45,6 +45,12 @@ const AISmartRouteModal = ({
   const [showRecommendationsModal, setShowRecommendationsModal] =
     useState(false);
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
+  const [generationProgress, setGenerationProgress] = useState({
+    startTime: 0,
+    elapsed: 0,
+    message: '',
+    step: 0
+  });
   const { toast } = useToast();
 
   // Use map data hook for distance calculations
@@ -76,6 +82,35 @@ const AISmartRouteModal = ({
   // Generate AI optimized route using the new backend service
   const generateAIRoute = async () => {
     setIsGenerating(true);
+    
+    // Initialize progress tracking
+    const startTime = Date.now();
+    setGenerationProgress({
+      startTime,
+      elapsed: 0,
+      message: 'Analizando lugares guardados...',
+      step: 1
+    });
+
+    // Progress messages to show during generation
+    const progressMessages = [
+      'Analizando lugares guardados...',
+      'Calculando distancias entre ubicaciones...',
+      'Optimizando rutas con IA...',
+      'Generando itinerario personalizado...',
+      'Finalizando recomendaciones...'
+    ];
+
+    // Update progress every second
+    const progressInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      setGenerationProgress(prev => ({
+        ...prev,
+        elapsed,
+        step: Math.min(Math.floor(elapsed / 20000) + 1, progressMessages.length),
+        message: progressMessages[Math.min(Math.floor(elapsed / 20000), progressMessages.length - 1)]
+      }));
+    }, 1000);
 
     try {
       if (!workingTrip.savedPlaces || workingTrip.savedPlaces.length === 0) {
@@ -168,21 +203,45 @@ const AISmartRouteModal = ({
       } else {
         throw new Error("Invalid response from AI service");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating AI route:", error);
+      
+      // Show specific error message for timeout
+      if (error.message?.includes('timeout') || error.message?.includes('tiempo')) {
+        toast({
+          title: "Timeout Error",
+          description: "La generación está tomando más tiempo del esperado. Por favor, inténtalo nuevamente.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Error generando ruta con IA",
+          variant: "destructive",
+        });
+      }
+      
       // Fallback to static generation
-      const routeConfigurations = getRouteConfigurations(workingTrip);
-      setOptimizedItinerary(routeConfigurations.current.itinerary);
-      setRouteGenerated(true);
-
-      toast({
-        title: "Route Generated",
-        description:
-          "Using fallback route generation. AI optimization is temporarily unavailable.",
-        variant: "destructive",
-      });
+      try {
+        const routeConfigurations = getRouteConfigurations(workingTrip);
+        setOptimizedItinerary(routeConfigurations.current.itinerary);
+        setRouteGenerated(true);
+        toast({
+          title: "Route Generated",
+          description: "Using fallback route generation. AI optimization is temporarily unavailable.",
+        });
+      } catch (fallbackError) {
+        console.error("Fallback route generation failed:", fallbackError);
+        toast({
+          title: "Error",
+          description: "No se pudo generar ninguna ruta",
+          variant: "destructive",
+        });
+      }
     } finally {
+      clearInterval(progressInterval);
       setIsGenerating(false);
+      setGenerationProgress({ startTime: 0, elapsed: 0, message: '', step: 0 });
     }
   };
 
@@ -333,6 +392,7 @@ const AISmartRouteModal = ({
                     ? handleStartRecommendations
                     : undefined
                 }
+                generationProgress={generationProgress}
               />
             ) : (
               <Tabs

@@ -11,6 +11,12 @@ interface InitialViewProps {
   isGenerating: boolean;
   onGenerateRoute: () => void;
   onStartRecommendations?: () => void;
+  generationProgress?: {
+    startTime: number;
+    elapsed: number;
+    message: string;
+    step: number;
+  };
 }
 
 const InitialView = ({
@@ -18,6 +24,7 @@ const InitialView = ({
   isGenerating,
   onGenerateRoute,
   onStartRecommendations,
+  generationProgress,
 }: InitialViewProps) => {
   const savedPlacesByDestination = getSavedPlacesByDestination(trip);
   const totalSavedPlaces = Object.values(savedPlacesByDestination).reduce(
@@ -173,23 +180,40 @@ const InitialView = ({
             </div>
           </div>
 
-          <Button
-            onClick={onGenerateRoute}
-            disabled={isGenerating || !hasDatesSet}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isGenerating ? (
-              <>
-                <Brain className="animate-spin mr-2" size={20} />
-                Analyzing Your {totalSavedPlaces} Saved Places...
-              </>
-            ) : (
-              <>
-                <Brain className="mr-2" size={20} />
-                Generate AI Smart Route
-              </>
-            )}
-          </Button>
+          {isGenerating ? (
+            <div className="space-y-6">
+              <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+              <div className="space-y-3">
+                <p className="text-lg font-medium">Generando ruta optimizada con IA...</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-blue-600 font-medium">{generationProgress?.message || 'Procesando...'}</p>
+                  <div className="flex items-center justify-center space-x-2 text-xs text-gray-500">
+                    <span>Tiempo transcurrido: {Math.floor((generationProgress?.elapsed || 0) / 1000)}s</span>
+                    <span>•</span>
+                    <span>Paso {generationProgress?.step || 1}/5</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${((generationProgress?.step || 1) / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600">
+                  El procesamiento con IA puede tomar hasta 2 minutos
+                </p>
+              </div>
+            </div>
+          ) : (
+            <Button
+              onClick={onGenerateRoute}
+              disabled={!hasDatesSet}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Brain className="mr-2" size={20} />
+              Generate AI Smart Route
+            </Button>
+          )}
         </>
       )}
     </div>

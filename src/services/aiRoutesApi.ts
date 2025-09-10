@@ -10,7 +10,7 @@ const aiRoutesApi = axios.create({
     'Content-Type': 'application/json',
     ...(API_KEY && { 'Authorization': `Bearer ${API_KEY}` }),
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 120000, // 2 minutes timeout for ML processing
 });
 
 interface GenerateHybridItineraryParams {
@@ -85,8 +85,13 @@ export const aiRoutesService = {
 
       console.log('📤 Making ML API request to: /api/v2/itinerary/generate-hybrid');
       console.log('📤 Request payload:', JSON.stringify(validatedParams, null, 2));
+      console.log('⏱️ Starting ML processing - this may take up to 2 minutes...');
       
+      const startTime = Date.now();
       const response = await aiRoutesApi.post('/api/v2/itinerary/generate-hybrid', validatedParams);
+      const endTime = Date.now();
+      
+      console.log(`✅ ML API completed in ${((endTime - startTime) / 1000).toFixed(1)}s`);
       
       console.log('✅ ML API Response received:', response.data);
       return response.data;
@@ -99,6 +104,11 @@ export const aiRoutesService = {
       
       if (error?.response?.status === 422) {
         console.error('🚨 Validation Error - Check request format:', error?.response?.data);
+      }
+      
+      // Handle timeout specifically
+      if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+        throw new Error('La generación de rutas está tomando más tiempo del esperado. Por favor, inténtalo de nuevo. El procesamiento de ML puede tomar hasta 2 minutos.');
       }
       
       throw new Error(`ML API Error: ${error?.response?.data?.detail || error?.response?.statusText || error?.message}`);
