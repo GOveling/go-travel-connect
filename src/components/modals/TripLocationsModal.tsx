@@ -6,6 +6,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MapPin, Clock, Users, X, Radio } from "lucide-react";
 import { SharedLocationsMap } from "@/components/maps/SharedLocationsMap";
 import { useUserLocation } from "@/hooks/useUserLocation";
+import { useRealtimeLocationTracking } from "@/hooks/useRealtimeLocationTracking";
+import { RealtimeTrackingIndicator } from "@/components/RealtimeTrackingIndicator";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -44,6 +46,20 @@ export const TripLocationsModal = ({
   const [mySharedLocation, setMySharedLocation] = useState<SharedLocation | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<10 | 30 | 60>(10);
   const [showMap, setShowMap] = useState(false);
+  const [isRealtimeTrackingEnabled, setIsRealtimeTrackingEnabled] = useState(false);
+
+  // Hook para seguimiento GPS continuo
+  const {
+    isTracking,
+    lastUpdate,
+    trackingError,
+    stopTracking,
+  } = useRealtimeLocationTracking({
+    tripId,
+    userId: user?.id || "",
+    isEnabled: isRealtimeTrackingEnabled,
+    updateIntervalMs: 60000, // Actualizar cada 60 segundos
+  });
 
   // Fetch shared locations
   const fetchSharedLocations = async () => {
@@ -166,47 +182,12 @@ export const TripLocationsModal = ({
     if (!user) return;
 
     try {
-      const currentLocation = await getCurrentLocation();
-      if (!currentLocation) {
-        toast({
-          title: "Error",
-          description: "No se pudo obtener tu ubicación",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + durationMinutes);
-
-      // Delete existing real-time location if any
-      const existingRealTime = sharedLocations.find(loc => 
-        loc.user_id === user.id && loc.location_type === 'real_time'
-      );
-      if (existingRealTime) {
-        await supabase
-          .from("trip_shared_locations")
-          .delete()
-          .eq("id", existingRealTime.id);
-      }
-
-      // Insert new real-time location
-      const { error } = await supabase
-        .from("trip_shared_locations")
-        .insert({
-          trip_id: tripId,
-          user_id: user.id,
-          lat: currentLocation.lat,
-          lng: currentLocation.lng,
-          expires_at: expiresAt.toISOString(),
-          location_type: 'real_time',
-        });
-
-      if (error) throw error;
+      // Activar el seguimiento GPS continuo
+      setIsRealtimeTrackingEnabled(true);
 
       toast({
-        title: "Ubicación en tiempo real",
-        description: `Compartiendo ubicación en tiempo real por ${durationMinutes} minutos`,
+        title: "GPS continuo activado",
+        description: `Compartiendo ubicación GPS cada 60 segundos por ${durationMinutes} minutos`,
       });
 
       fetchSharedLocations();
@@ -214,7 +195,7 @@ export const TripLocationsModal = ({
       console.error("Error sharing real-time location:", error);
       toast({
         title: "Error",
-        description: "No se pudo compartir tu ubicación en tiempo real",
+        description: "No se pudo activar el seguimiento GPS continuo",
         variant: "destructive",
       });
     }
@@ -257,30 +238,16 @@ export const TripLocationsModal = ({
     if (!user) return;
 
     try {
-      const realTimeLocation = sharedLocations.find(loc => 
-        loc.user_id === user.id && loc.location_type === 'real_time'
-      );
-      
-      if (!realTimeLocation) return;
-
-      const { error } = await supabase
-        .from("trip_shared_locations")
-        .delete()
-        .eq("id", realTimeLocation.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Tiempo real desactivado",
-        description: "Has dejado de compartir tu ubicación en tiempo real",
-      });
+      // Desactivar el seguimiento GPS continuo
+      setIsRealtimeTrackingEnabled(false);
+      await stopTracking();
 
       fetchSharedLocations();
     } catch (error) {
       console.error("Error stopping real-time sharing:", error);
       toast({
         title: "Error",
-        description: "No se pudo desactivar el tiempo real",
+        description: "No se pudo desactivar el seguimiento GPS",
         variant: "destructive",
       });
     }
@@ -387,32 +354,20 @@ export const TripLocationsModal = ({
               <div className="space-y-2">
                 <h4 className="text-sm font-medium flex items-center gap-2">
                   <Radio className="h-3 w-3" />
-                  Tiempo real
+                  GPS Continuo
                 </h4>
-                {sharedLocations.find(loc => loc.user_id === user?.id && loc.location_type === 'real_time') ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                        <span className="text-sm font-medium">Tiempo real activo</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {getTimeRemaining(sharedLocations.find(loc => loc.user_id === user?.id && loc.location_type === 'real_time')?.expires_at || '')}
-                        </Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={stopRealTimeSharing}
-                          className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/20"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
+                
+                {/* Indicador de seguimiento activo */}
+                {isTracking && (
+                  <RealtimeTrackingIndicator
+                    isTracking={isTracking}
+                    lastUpdate={lastUpdate}
+                    trackingError={trackingError}
+                    onStop={stopRealTimeSharing}
+                  />
+                )}
+
+                {!isTracking && (
                   <>
                     <div className="space-y-2">
                       <label className="text-xs text-muted-foreground">Duración:</label>
@@ -435,8 +390,11 @@ export const TripLocationsModal = ({
                       className="w-full"
                     >
                       <Radio size={16} className="mr-2" />
-                      {isLocating ? "Obteniendo ubicación..." : "Activar tiempo real"}
+                      {isLocating ? "Obteniendo ubicación..." : "Activar GPS continuo"}
                     </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Tu ubicación se actualizará automáticamente cada 60 segundos
+                    </p>
                   </>
                 )}
               </div>
