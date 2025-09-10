@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Settings } from "lucide-react";
+import { PlusCircle, Settings, MapPin } from "lucide-react";
 import { InviteCollaboratorModal } from "./InviteCollaboratorModal";
+import { TripLocationsModal } from "@/components/modals/TripLocationsModal";
 import { useAuth } from "@/hooks/useAuth";
 
 interface CollaboratorProps {
@@ -28,6 +29,7 @@ export const TripCollaborators = ({
 }) => {
   const { user } = useAuth();
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showLocationsModal, setShowLocationsModal] = useState(false);
 
   const getRoleBadge = (role: string) => {
     if (role === "owner")
@@ -53,17 +55,28 @@ export const TripCollaborators = ({
         <h2 className="text-xl font-semibold">
           Colaboradores ({collaborators.length})
         </h2>
-        {canInvite && (
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowInviteModal(true)}
+            onClick={() => setShowLocationsModal(true)}
             className="flex items-center gap-1"
           >
-            <PlusCircle className="h-4 w-4" />
-            <span>Invitar</span>
+            <MapPin className="h-4 w-4" />
+            <span>Ubicaciones</span>
           </Button>
-        )}
+          {canInvite && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowInviteModal(true)}
+              className="flex items-center gap-1"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Invitar</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -116,6 +129,15 @@ export const TripCollaborators = ({
             setShowInviteModal(false);
             onUpdate();
           }}
+        />
+      )}
+
+      {showLocationsModal && (
+        <TripLocationsModal
+          isOpen={showLocationsModal}
+          onClose={() => setShowLocationsModal(false)}
+          tripId={tripId}
+          collaborators={collaborators}
         />
       )}
     </div>

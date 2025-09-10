@@ -830,6 +830,42 @@ export type Database = {
           },
         ]
       }
+      trip_shared_locations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          lat: number
+          lng: number
+          shared_at: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          lat: number
+          lng: number
+          shared_at?: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          lat?: number
+          lng?: number
+          shared_at?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       trips: {
         Row: {
           accommodation: string | null
@@ -1105,6 +1141,10 @@ export type Database = {
       can_edit_trip: {
         Args: { p_trip_id: string; p_user_id: string }
         Returns: boolean
+      }
+      cleanup_expired_shared_locations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_audit_logs: {
         Args: Record<PropertyKey, never>
