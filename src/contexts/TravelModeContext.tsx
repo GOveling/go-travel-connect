@@ -45,6 +45,7 @@ interface TravelModeContextType {
   isTracking: boolean;
   loading: boolean;
   status: any;
+  currentSpeed: number; // Speed in m/s
   showArrivalModal: boolean;
   arrivalPlace: PlaceArrivalData | null;
   setShowArrivalModal: (show: boolean) => void;
@@ -78,6 +79,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     isTracking,
     loading,
     status,
+    currentSpeed,
     toggleTravelMode,
     startTravelMode,
     stopTravelMode,
@@ -85,7 +87,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     checkNotificationPermissions,
     getActiveTripToday,
     calculateDistance,
-  } = useTravelModeSimple({ 
+  } = useTravelModeSimple({
     config: {
       isEnabled: false, // Travel mode disabled by default
       proximityRadius: 5000, // 5km detection radius
@@ -118,6 +120,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     isTracking,
     loading,
     status,
+    currentSpeed,
     showArrivalModal,
     arrivalPlace,
     setShowArrivalModal,
@@ -155,6 +158,7 @@ export const useTravelModeContext = () => {
       isTracking: false,
       loading: false,
       status: {},
+      currentSpeed: 0,
       showArrivalModal: false,
       arrivalPlace: null,
       setShowArrivalModal: () => {},

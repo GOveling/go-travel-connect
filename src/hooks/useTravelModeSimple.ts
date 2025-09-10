@@ -93,6 +93,11 @@ export const useTravelModeSimple = ({
   const locationBufferRef = useRef<Position[]>([]);
   const nearPlacesStateRef = useRef<Map<string, { isNear: boolean, consecutiveCount: number }>>(new Map());
   const lastStablePositionRef = useRef<Position | null>(null);
+  
+  // Speed tracking refs
+  const speedBufferRef = useRef<{ speed: number; timestamp: number }[]>([]);
+  const currentSpeedRef = useRef<number>(0); // Current speed in m/s
+  const lastSpeedCalculationRef = useRef<number>(0);
 
   // Haversine formula to calculate distance between two coordinates
   const calculateDistance = useCallback(
@@ -179,26 +184,141 @@ export const useTravelModeSimple = ({
     return true;
   }, [calculateDistance]);
 
-  // Calculate dynamic check interval based on distance to nearest place and platform
-  const getDynamicInterval = useCallback(
+  // Calculate and track user speed
+  const calculateSpeed = useCallback((currentPosition: Position, previousPosition: Position): number => {
+    if (!previousPosition || !currentPosition) return 0;
+    
+    const distance = calculateDistance(
+      previousPosition.coords.latitude,
+      previousPosition.coords.longitude,
+      currentPosition.coords.latitude,
+      currentPosition.coords.longitude
+    );
+    
+    const timeDifference = (currentPosition.timestamp - previousPosition.timestamp) / 1000; // seconds
+    
+    if (timeDifference <= 0) return 0;
+    
+    const speed = distance / timeDifference; // m/s
+    return Math.max(0, speed); // Ensure non-negative speed
+  }, [calculateDistance]);
+
+  // Add speed to buffer and get smoothed speed
+  const updateSpeedTracking = useCallback((position: Position) => {
+    const now = Date.now();
+    
+    // Calculate speed if we have a previous position
+    if (lastStablePositionRef.current) {
+      const speed = calculateSpeed(position, lastStablePositionRef.current);
+      
+      // Add to speed buffer
+      speedBufferRef.current.push({ speed, timestamp: now });
+      
+      // Keep only last 10 readings or readings from last 60 seconds
+      speedBufferRef.current = speedBufferRef.current.filter(
+        entry => speedBufferRef.current.length <= 10 && (now - entry.timestamp) <= 60000
+      );
+      
+      // Calculate smoothed speed (average of recent readings)
+      const recentSpeeds = speedBufferRef.current.slice(-5); // Last 5 readings
+      const smoothedSpeed = recentSpeeds.reduce((sum, entry) => sum + entry.speed, 0) / recentSpeeds.length;
+      
+      currentSpeedRef.current = smoothedSpeed;
+      lastSpeedCalculationRef.current = now;
+      
+      console.log(`🏃 Speed updated: ${(smoothedSpeed * 3.6).toFixed(1)} km/h (${smoothedSpeed.toFixed(2)} m/s)`);
+    }
+  }, [calculateSpeed]);
+
+  // Calculate ETA to nearest place
+  const calculateETA = useCallback((distance: number, speed: number): number => {
+    if (speed <= 0.5) return Infinity; // Stationary or very slow movement
+    return distance / speed; // Time in seconds
+  }, []);
+
+  // Intelligent interval calculation based on speed, distance, and ETA
+  const getIntelligentInterval = useCallback(
     (minDistanceToPlace: number): number => {
-      // Platform-specific interval adjustments
+      const currentSpeed = currentSpeedRef.current; // m/s
       const platformMultiplier = isNative ? 1 : 0.8; // Web needs slightly more frequent checks
       
-      // Adaptive intervals - more frequent when close to larger venues
-      // Account for adaptive radius by using more frequent checks for larger thresholds
-      if (minDistanceToPlace <= 15) return Math.round(3000 * platformMultiplier); // Very close - 3s native, 2.4s web
-      if (minDistanceToPlace <= 50) return Math.round(2000 * platformMultiplier); // Close - 2s native, 1.6s web
-      if (minDistanceToPlace <= 100) return Math.round(4000 * platformMultiplier); // Medium distance - 4s native, 3.2s web
-      if (minDistanceToPlace <= 200) return Math.round(6000 * platformMultiplier); // Medium-far - 6s native, 4.8s web
-      if (minDistanceToPlace <= 500) return Math.round(8000 * platformMultiplier); // Far - 8s native, 6.4s web
-      if (minDistanceToPlace <= 1000) return Math.round(12000 * platformMultiplier); // Very far - 12s native, 9.6s web
-      if (minDistanceToPlace <= 2000) return Math.round(15000 * platformMultiplier); // Distant - 15s native, 12s web
-      if (minDistanceToPlace <= 5000) return Math.round(20000 * platformMultiplier); // Very distant - 20s native, 16s web
-      if (minDistanceToPlace <= 10000) return Math.round(30000 * platformMultiplier); // Very far - 30s native, 24s web
-      return Math.round(config.baseCheckInterval * platformMultiplier); // Base interval adjusted
+      // Base intervals based on movement state
+      const staticInterval = 30000; // 30s when not moving
+      const slowMovingInterval = 15000; // 15s when moving slowly
+      const movingInterval = 8000; // 8s when moving normally
+      const fastMovingInterval = 4000; // 4s when moving fast
+      
+      // Speed thresholds (m/s)
+      const isStationary = currentSpeed < 0.5; // < 1.8 km/h
+      const isSlowMoving = currentSpeed < 2.0; // < 7.2 km/h (walking)
+      const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
+      const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
+      
+      // Calculate ETA to nearest place
+      const eta = calculateETA(minDistanceToPlace, currentSpeed);
+      
+      // Determine base interval based on movement
+      let baseInterval: number;
+      if (isStationary) {
+        baseInterval = staticInterval;
+      } else if (isSlowMoving) {
+        baseInterval = slowMovingInterval;
+      } else if (isMovingNormally) {
+        baseInterval = movingInterval;
+      } else {
+        baseInterval = fastMovingInterval;
+      }
+      
+      // Proximity-based adjustments (more frequent when closer)
+      let proximityMultiplier = 1;
+      if (minDistanceToPlace <= 50) {
+        proximityMultiplier = 0.3; // Very close - much more frequent
+      } else if (minDistanceToPlace <= 100) {
+        proximityMultiplier = 0.5; // Close - more frequent
+      } else if (minDistanceToPlace <= 200) {
+        proximityMultiplier = 0.7; // Medium close
+      } else if (minDistanceToPlace <= 500) {
+        proximityMultiplier = 0.8; // Medium distance
+      } else if (minDistanceToPlace <= 1000) {
+        proximityMultiplier = 0.9; // Far
+      }
+      // For > 1000m, use full base interval
+      
+      // ETA-based adjustments (more frequent when approaching)
+      let etaMultiplier = 1;
+      if (eta < 30 && !isStationary) { // Less than 30 seconds to arrival
+        etaMultiplier = 0.2; // Very frequent checking
+      } else if (eta < 60 && !isStationary) { // Less than 1 minute
+        etaMultiplier = 0.4; // Frequent checking
+      } else if (eta < 300 && !isStationary) { // Less than 5 minutes
+        etaMultiplier = 0.6; // More frequent
+      }
+      
+      // Combine all factors
+      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * platformMultiplier);
+      
+      // Enforce reasonable bounds
+      const minInterval = isNative ? 2000 : 1500; // 2s native, 1.5s web
+      const maxInterval = isNative ? 60000 : 45000; // 1min native, 45s web
+      
+      const clampedInterval = Math.max(minInterval, Math.min(maxInterval, finalInterval));
+      
+      // Log interval decision for debugging
+      if (Math.random() < 0.1) { // Log 10% of calculations to avoid spam
+        console.log(`🔄 Interval calculation:`, {
+          distance: `${minDistanceToPlace.toFixed(0)}m`,
+          speed: `${(currentSpeed * 3.6).toFixed(1)} km/h`,
+          eta: eta === Infinity ? 'stationary' : `${(eta / 60).toFixed(1)}min`,
+          baseInterval: `${baseInterval / 1000}s`,
+          proximityMult: proximityMultiplier,
+          etaMult: etaMultiplier,
+          finalInterval: `${clampedInterval / 1000}s`
+        });
+      }
+      
+      return clampedInterval;
     },
-    [config.baseCheckInterval, isNative]
+    [calculateETA, isNative]
   );
 
   // Check and request location permissions - Enhanced for both platforms
@@ -598,6 +718,10 @@ export const useTravelModeSimple = ({
 
     if (positionChanged) {
       console.log("📍 Position changed! New location:", position.coords);
+      
+      // Update speed tracking with new position
+      updateSpeedTracking(position);
+      
       lastPositionRef.current = position;
       setCurrentPosition(position);
     } else {
@@ -885,7 +1009,7 @@ export const useTravelModeSimple = ({
       Math.abs(minDistance - previousMinDistance) > 100 ||
       nearby.length === 0
     ) {
-      const nextInterval = getDynamicInterval(minDistance);
+      const nextInterval = getIntelligentInterval(minDistance);
       console.log(
         `🔄 Updating check interval: ${nextInterval}ms (closest place: ${minDistance.toFixed(0)}m)`
       );
@@ -920,7 +1044,8 @@ export const useTravelModeSimple = ({
     getActiveTripPlaces,
     getActiveTripToday,
     calculateDistance,
-    getDynamicInterval,
+    getIntelligentInterval,
+    updateSpeedTracking,
     loading,
   ]);
 
@@ -991,7 +1116,7 @@ export const useTravelModeSimple = ({
       await travelNotificationService.sendCustomWelcomeNotification();
 
       // Start periodic proximity checks with initial base interval
-      const initialInterval = getDynamicInterval(Infinity); // Start with max interval
+      const initialInterval = getIntelligentInterval(Infinity); // Start with max interval
       console.log(
         `⏰ Starting proximity checks every ${initialInterval}ms (initial)`
       );
@@ -1018,7 +1143,7 @@ export const useTravelModeSimple = ({
     getCurrentLocation,
     checkProximity,
     getActiveTripToday,
-    getDynamicInterval,
+    getIntelligentInterval,
     isNative,
   ]);
 
@@ -1195,6 +1320,7 @@ export const useTravelModeSimple = ({
     isTracking,
     loading,
     status,
+    currentSpeed: currentSpeedRef.current,
 
     // Actions
     toggleTravelMode,

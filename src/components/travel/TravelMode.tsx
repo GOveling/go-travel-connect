@@ -37,6 +37,7 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     isTracking,
     loading,
     status,
+    currentSpeed,
     toggleTravelMode,
     checkProximity,
     checkLocationPermissions,
@@ -54,6 +55,14 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
       return `${(distance / 1000).toFixed(1)} km`;
     }
     return `${Math.round(distance)} m`;
+  };
+
+  const formatSpeed = (speedMs: number): string => {
+    const speedKmh = speedMs * 3.6;
+    if (speedKmh < 0.5) return "Estático";
+    if (speedKmh < 7) return `${speedKmh.toFixed(1)} km/h (Caminando)`;
+    if (speedKmh < 25) return `${speedKmh.toFixed(1)} km/h (Ciclismo)`;
+    return `${speedKmh.toFixed(1)} km/h (Conduciendo)`;
   };
 
   const getPriorityColor = (priority: string) => {
@@ -249,10 +258,15 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
                 Lat: {currentPosition.coords.latitude.toFixed(6)}, Lng:{" "}
                 {currentPosition.coords.longitude.toFixed(6)}
               </p>
-              <p className="text-xs text-blue-600 mt-1">
-                {t("home.travelMode.accuracy")}: ±
-                {Math.round(currentPosition.coords.accuracy)}m
-              </p>
+              <div className="flex items-center justify-between mt-1">
+                <p className="text-xs text-blue-600">
+                  {t("home.travelMode.accuracy")}: ±
+                  {Math.round(currentPosition.coords.accuracy)}m
+                </p>
+                <p className="text-xs text-blue-600 font-medium">
+                  🏃 {formatSpeed(currentSpeed)}
+                </p>
+              </div>
             </div>
           )}
 
