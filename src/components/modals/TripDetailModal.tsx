@@ -1148,19 +1148,13 @@ const TripDetailModal = ({
                 <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t flex-shrink-0">
                   {activeTab === "collaborators" ? (
                     // Team management actions
-                    <>
-                      <Button
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                        onClick={handleInviteFriends}
-                      >
-                        <UserPlus size={16} className="mr-2" />
-                        Manage Team
-                      </Button>
-                      <Button variant="outline" className="flex-1">
-                        <Share2 size={16} className="mr-2" />
-                        Share Trip
-                      </Button>
-                    </>
+                    <Button
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                      onClick={handleInviteFriends}
+                    >
+                      <UserPlus size={16} className="mr-2" />
+                      Manage Team
+                    </Button>
                   ) : (
                     // General trip actions
                     <>
