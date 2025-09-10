@@ -2,9 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Settings, MapPin, Users } from "lucide-react";
+import { PlusCircle, Settings, Users } from "lucide-react";
 import { InviteCollaboratorModal } from "./InviteCollaboratorModal";
-import { TripLocationsModal } from "@/components/modals/TripLocationsModal";
 import { ManageTeam } from "@/components/teams/ManageTeam";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -30,7 +29,6 @@ export const TripCollaborators = ({
 }) => {
   const { user } = useAuth();
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showLocationsModal, setShowLocationsModal] = useState(false);
   const [showManageTeamModal, setShowManageTeamModal] = useState(false);
 
   const getRoleBadge = (role: string) => {
@@ -58,15 +56,6 @@ export const TripCollaborators = ({
           Colaboradores ({collaborators.length})
         </h2>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowLocationsModal(true)}
-            className="flex items-center gap-1"
-          >
-            <MapPin className="h-4 w-4" />
-            <span>Ubicaciones</span>
-          </Button>
           {canInvite && (
             <Button
               variant="outline"
@@ -142,15 +131,6 @@ export const TripCollaborators = ({
             setShowInviteModal(false);
             onUpdate();
           }}
-        />
-      )}
-
-      {showLocationsModal && (
-        <TripLocationsModal
-          isOpen={showLocationsModal}
-          onClose={() => setShowLocationsModal(false)}
-          tripId={tripId}
-          collaborators={collaborators}
         />
       )}
 

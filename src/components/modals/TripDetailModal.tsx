@@ -46,6 +46,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { EditTripModal } from "./EditTripModal";
 import InviteFriendsModal from "./InviteFriendsModal";
+import { TripLocationsModal } from "./TripLocationsModal";
 
 import { SavedPlace, Trip, TripCoordinate } from "@/types";
 import PlaceDetailModal from "./PlaceDetailModal";
@@ -108,6 +109,7 @@ const TripDetailModal = ({
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
+  const [showLocationsModal, setShowLocationsModal] = useState(false);
   const [userRole, setUserRole] = useState<string>("viewer");
   const [memberCount, setMemberCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -1148,13 +1150,22 @@ const TripDetailModal = ({
                 <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t flex-shrink-0">
                   {activeTab === "collaborators" ? (
                     // Team management actions
-                    <Button
-                      className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
-                      onClick={handleInviteFriends}
-                    >
-                      <UserPlus size={16} className="mr-2" />
-                      Manage Team
-                    </Button>
+                    <>
+                      <Button
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
+                        onClick={() => setShowLocationsModal(true)}
+                      >
+                        <MapPin size={16} className="mr-2" />
+                        Ubicaciones
+                      </Button>
+                      <Button
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
+                        onClick={handleInviteFriends}
+                      >
+                        <UserPlus size={16} className="mr-2" />
+                        Manage Team
+                      </Button>
+                    </>
                   ) : (
                     // General trip actions
                     <>
@@ -1289,6 +1300,16 @@ const TripDetailModal = ({
               onUpdateTrip(updatedTrip);
             }
           }}
+        />
+      )}
+
+      {/* Trip Locations Modal */}
+      {showLocationsModal && trip && (
+        <TripLocationsModal
+          isOpen={showLocationsModal}
+          onClose={() => setShowLocationsModal(false)}
+          tripId={trip.id}
+          collaborators={trip.collaborators || []}
         />
       )}
     </>
