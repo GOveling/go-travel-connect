@@ -7,6 +7,7 @@ interface RealtimeTrackingOptions {
   tripId: string;
   userId: string;
   isEnabled: boolean;
+  durationMinutes?: number;
   updateIntervalMs?: number;
 }
 
@@ -14,6 +15,7 @@ export function useRealtimeLocationTracking({
   tripId,
   userId,
   isEnabled,
+  durationMinutes = 60,
   updateIntervalMs = 60000, // 60 segundos por defecto
 }: RealtimeTrackingOptions) {
   const { getCurrentLocation } = useUserLocation();
@@ -41,7 +43,7 @@ export function useRealtimeLocationTracking({
       } else {
         // Crear nueva ubicación de tiempo real
         const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 1); // 1 hora por defecto
+        expiresAt.setMinutes(expiresAt.getMinutes() + durationMinutes);
 
         const { data, error } = await supabase
           .from("trip_shared_locations")

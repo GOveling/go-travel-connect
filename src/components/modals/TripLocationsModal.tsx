@@ -58,6 +58,7 @@ export const TripLocationsModal = ({
     tripId,
     userId: user?.id || "",
     isEnabled: isRealtimeTrackingEnabled,
+    durationMinutes: selectedDuration,
     updateIntervalMs: 60000, // Actualizar cada 60 segundos
   });
 
@@ -113,11 +114,12 @@ export const TripLocationsModal = ({
   useEffect(() => {
     if (isOpen) {
       fetchSharedLocations();
-      // Refresh every 30 seconds
-      const interval = setInterval(fetchSharedLocations, 30000);
+      // Refresh every 30 seconds, or more frequently if GPS tracking is active
+      const refreshInterval = isTracking ? 10000 : 30000; // 10s if tracking, 30s otherwise
+      const interval = setInterval(fetchSharedLocations, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [isOpen, tripId]);
+  }, [isOpen, tripId, isTracking]);
 
   const shareCurrentLocation = async () => {
     if (!user) return;
@@ -439,7 +441,7 @@ export const TripLocationsModal = ({
                             className="text-xs"
                           >
                             {location.location_type === 'real_time' ? (
-                              <><Radio className="h-2 w-2 mr-1" />Tiempo real</>
+                              <><Radio className="h-2 w-2 mr-1" />GPS Continuo</>
                             ) : (
                               <><MapPin className="h-2 w-2 mr-1" />Actual</>
                             )}

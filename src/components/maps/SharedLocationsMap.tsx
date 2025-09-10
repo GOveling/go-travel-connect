@@ -21,7 +21,9 @@ if (typeof window !== "undefined") {
 // Custom markers for different users
 const createUserIcon = (color: string, avatarUrl?: string, initials?: string, locationType?: string) => {
   const isRealTime = locationType === 'real_time';
-  const borderStyle = isRealTime ? 'border: 3px solid white; box-shadow: 0 0 0 2px ' + color + ', 0 1px 3px rgba(0,0,0,0.4);' : 'border: 3px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.4);';
+  const borderStyle = isRealTime 
+    ? 'border: 3px solid white; box-shadow: 0 0 0 2px ' + color + ', 0 0 0 6px rgba(34, 197, 94, 0.3), 0 1px 3px rgba(0,0,0,0.4); animation: pulse-gps 2s infinite;' 
+    : 'border: 3px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.4);';
   
   if (avatarUrl) {
     return L.divIcon({
@@ -163,7 +165,7 @@ export const SharedLocationsMap = ({ locations, currentUserId }: SharedLocations
                           className="text-xs"
                         >
                           {location.location_type === 'real_time' ? (
-                            <><Radio className="h-2 w-2 mr-1" />Tiempo real</>
+                            <><Radio className="h-2 w-2 mr-1" />GPS Continuo</>
                           ) : (
                             <><MapPin className="h-2 w-2 mr-1" />Actual</>
                           )}
