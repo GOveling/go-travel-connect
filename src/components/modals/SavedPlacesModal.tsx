@@ -150,7 +150,7 @@ const SortablePlaceItem = ({
       style={style}
       className={`cursor-pointer hover:shadow-lg transition-all relative ${
         isDragging ? "z-50" : ""
-      } ${place.visited ? 'border-2 border-green-500 bg-green-50/30' : ''}`}
+      } ${visitInfo.visited ? 'border-2 border-green-500 bg-green-50/30' : ''}`}
       onClick={() => onViewDetails(place)}
     >
       <CardContent className="p-3 sm:p-4">
@@ -160,10 +160,10 @@ const SortablePlaceItem = ({
         </div>
 
         {/* Visited Badge - positioned absolutely */}
-        {place.visited && (
+        {visitInfo.visited && (
           <div className="absolute -top-4 -right-2 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg text-xs font-medium shadow-sm z-10">
             <Star className="h-3 w-3 fill-current" />
-            <span>Visitado</span>
+            <span>Visitado por ti</span>
           </div>
         )}
 
@@ -217,9 +217,9 @@ const SortablePlaceItem = ({
             </p>
             
             {/* Visit timestamp */}
-            {place.visited && place.visitedAt && (
+            {visitInfo.visited && visitInfo.visitedAt && (
               <p className="text-xs text-green-600 mt-1 font-medium">
-                Visitado el {new Date(place.visitedAt).toLocaleDateString('es-ES', {
+                Visitado por ti el {new Date(visitInfo.visitedAt).toLocaleDateString('es-ES', {
                   day: 'numeric',
                   month: 'short',
                   hour: '2-digit',
@@ -337,9 +337,7 @@ const SavedPlacesModal = ({
               lat: place.lat || 0,
               lng: place.lng || 0,
               positionOrder: place.position_order || 0,
-              visited: place.visited || false,
-              visitedAt: place.visited_at || undefined,
-              visitDistance: place.visit_distance || undefined,
+              // Removed visited fields - now calculated dynamically per user
             })) || []
           };
           

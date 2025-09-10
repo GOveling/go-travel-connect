@@ -55,6 +55,8 @@ export const convertToOptimizedPlaces = (
     lat: place.lat || destination.lat,
     lng: place.lng || destination.lng,
     destinationName: destination.name,
+    // Remove visited references since it's now calculated per user
+    visited: false, // Will be calculated dynamically per user
     aiRecommendedDuration:
       routeType === "speed"
         ? "1 hour"

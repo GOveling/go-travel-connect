@@ -347,9 +347,6 @@ export type Database = {
           street: string | null
           street_number: string | null
           trip_id: string
-          visit_distance: number | null
-          visited: boolean
-          visited_at: string | null
         }
         Insert: {
           address_json?: Json | null
@@ -380,9 +377,6 @@ export type Database = {
           street?: string | null
           street_number?: string | null
           trip_id: string
-          visit_distance?: number | null
-          visited?: boolean
-          visited_at?: string | null
         }
         Update: {
           address_json?: Json | null
@@ -413,9 +407,6 @@ export type Database = {
           street?: string | null
           street_number?: string | null
           trip_id?: string
-          visit_distance?: number | null
-          visited?: boolean
-          visited_at?: string | null
         }
         Relationships: [
           {
@@ -1258,6 +1249,14 @@ export type Database = {
           longitude: number
         }[]
       }
+      get_place_visit_info: {
+        Args: { p_saved_place_id: string; p_user_id: string }
+        Returns: {
+          confirmation_distance: number
+          visited: boolean
+          visited_at: string
+        }[]
+      }
       get_profile_public: {
         Args: { p_user_id: string }
         Returns: {
@@ -1381,6 +1380,10 @@ export type Database = {
       }
       has_pending_invitation_to_trip: {
         Args: { p_trip_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_place_visited_by_user: {
+        Args: { p_saved_place_id: string; p_user_id: string }
         Returns: boolean
       }
       is_trip_collaborator: {

@@ -189,10 +189,8 @@ export const useSupabaseTrips = () => {
                 streetNumber: place.street_number || undefined,
                 placeSource: place.place_source || undefined,
                 placeReference: place.place_reference || undefined,
-                // Visit tracking
-                visited: place.visited || false,
-                visitedAt: place.visited_at || undefined,
-                visitDistance: place.visit_distance || undefined,
+                // Visit tracking - now calculated per user
+                // visited status will be determined dynamically using usePlaceVisitStatus hook
                 reminderNote: place.reminder_note || undefined,
               })) || [],
         })) || [];

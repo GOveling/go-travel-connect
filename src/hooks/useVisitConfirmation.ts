@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getAdaptiveVisitRadius } from '@/utils/adaptiveRadius';
+import { useAuth } from '@/hooks/useAuth';
 
 interface VisitConfirmationData {
   savedPlaceId: string;
@@ -21,6 +22,7 @@ interface VisitResult {
 export const useVisitConfirmation = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const confirmVisit = async ({
     savedPlaceId,
@@ -115,20 +117,21 @@ export const useVisitConfirmation = () => {
 
   const checkIfPlaceVisited = async (savedPlaceId: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
-        .from('saved_places')
-        .select('visited')
-        .eq('id', savedPlaceId)
-        .single();
+      if (!user?.id) return false;
+
+      const { data, error } = await supabase.rpc('is_place_visited_by_user', {
+        p_saved_place_id: savedPlaceId,
+        p_user_id: user.id
+      });
 
       if (error) {
-        console.error('Error checking visit status:', error);
+        console.error('Error checking if place is visited:', error);
         return false;
       }
 
-      return data?.visited || false;
+      return data || false;
     } catch (error) {
-      console.error('Error checking if place is visited:', error);
+      console.error('Error in checkIfPlaceVisited:', error);
       return false;
     }
   };

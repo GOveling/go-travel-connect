@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Clock, MapPin, Edit, Trash2, GripVertical, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { usePlaceVisitStatus } from "@/hooks/usePlaceVisitStatus";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SavedPlaceCardProps {
   place: {
@@ -35,6 +37,13 @@ export const SavedPlaceCard = ({
 }: SavedPlaceCardProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Use the new hook to get visit status for current user
+  const { visitInfo, loading: visitLoading, refreshVisitStatus } = usePlaceVisitStatus(
+    place.id,
+    user?.id
+  );
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -105,7 +114,7 @@ export const SavedPlaceCard = ({
 
   return (
     <Card className={`hover:shadow-md transition-shadow ${
-      place.visited ? 'border-2 border-green-500 bg-green-50/30' : ''
+      visitInfo.visited ? 'border-2 border-green-500 bg-green-50/30' : ''
     }`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3 relative">
@@ -162,10 +171,10 @@ export const SavedPlaceCard = ({
           </div>
           
           {/* Visited Badge - positioned absolutely */}
-          {place.visited && (
+          {visitInfo.visited && (
             <div className="absolute top-0 right-0 flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg text-xs font-medium shadow-sm">
               <CheckCircle className="h-3 w-3" />
-              <span>Visitado</span>
+              <span>Visitado por ti</span>
             </div>
           )}
         </div>
@@ -192,10 +201,10 @@ export const SavedPlaceCard = ({
             )}
             
             {/* Visited status badge in the main content area */}
-            {place.visited && (
+            {visitInfo.visited && (
               <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
                 <CheckCircle className="h-3 w-3 mr-1" />
-                Completado
+                Completado por ti
               </Badge>
             )}
           </div>
@@ -224,10 +233,10 @@ export const SavedPlaceCard = ({
           </div>
         )}
         
-        {place.visited && place.visited_at && (
+        {visitInfo.visited && visitInfo.visitedAt && (
           <div className="flex items-center text-sm text-green-600 mt-2 pt-2 border-t border-green-200">
             <CheckCircle className="h-4 w-4 mr-1" />
-            Visitado el {new Date(place.visited_at).toLocaleDateString('es-ES', {
+            Visitado por ti el {new Date(visitInfo.visitedAt).toLocaleDateString('es-ES', {
               day: 'numeric',
               month: 'long',
               year: 'numeric',

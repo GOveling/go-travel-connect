@@ -5,6 +5,7 @@ import {
   optimizeRouteOrder,
   type PlaceDistance,
 } from "@/utils/distanceCalculator";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MapFilter {
   status: string[];
@@ -14,6 +15,8 @@ interface MapFilter {
 }
 
 export const useMapData = (trips: any[]) => {
+  const { user } = useAuth();
+  
   const [filters, setFilters] = useState<MapFilter>({
     status: ["upcoming", "planning", "traveling", "completed"],
     isGroupTrip: null,
@@ -82,14 +85,14 @@ export const useMapData = (trips: any[]) => {
         });
       });
 
-      // Add saved places
+      // Add saved places (visited status will be determined dynamically per user)
       trip.savedPlaces?.forEach((place: any) => {
         if (place.lat && place.lng) {
           coords.push({
             lat: place.lat,
             lng: place.lng,
             trip,
-            location: place,
+            location: { ...place, visited: false }, // Remove global visited status
             type: "savedPlace",
           });
         }

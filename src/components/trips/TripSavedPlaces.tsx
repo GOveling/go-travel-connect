@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SavedPlaceCard } from "../places/SavedPlaceCard";
 import { Loader } from "@/components/ui/loader";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useAuth } from "@/hooks/useAuth";
 
 export const TripSavedPlaces = ({
   places = [],
@@ -19,6 +20,7 @@ export const TripSavedPlaces = ({
   onUpdate: () => void;
 }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [orderedPlaces, setOrderedPlaces] = useState(places);
 
