@@ -837,6 +837,7 @@ export type Database = {
           id: string
           lat: number
           lng: number
+          location_type: string
           shared_at: string
           trip_id: string
           updated_at: string
@@ -848,6 +849,7 @@ export type Database = {
           id?: string
           lat: number
           lng: number
+          location_type?: string
           shared_at?: string
           trip_id: string
           updated_at?: string
@@ -859,6 +861,7 @@ export type Database = {
           id?: string
           lat?: number
           lng?: number
+          location_type?: string
           shared_at?: string
           trip_id?: string
           updated_at?: string
