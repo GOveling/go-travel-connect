@@ -43,6 +43,8 @@ import { GripVertical, Heart, MapPin, Plus, Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import PlaceDetailModal from "./PlaceDetailModal";
 import PlaceMapModal from "./PlaceMapModal";
+import { useAuth } from "@/hooks/useAuth";
+import { usePlaceVisitStatus } from "@/hooks/usePlaceVisitStatus";
 
 // Interface for PlaceDetailModal
 interface PlaceForModal {
@@ -86,6 +88,9 @@ const SortablePlaceItem = ({
   isRemoving,
   onUpdate,
 }: SortablePlaceItemProps) => {
+  const { user } = useAuth();
+  const { visitInfo } = usePlaceVisitStatus(place.id, user?.id);
+  
   const {
     attributes,
     listeners,
