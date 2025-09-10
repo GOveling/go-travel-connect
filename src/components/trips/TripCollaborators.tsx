@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Settings, MapPin } from "lucide-react";
+import { PlusCircle, Settings, MapPin, Users } from "lucide-react";
 import { InviteCollaboratorModal } from "./InviteCollaboratorModal";
 import { TripLocationsModal } from "@/components/modals/TripLocationsModal";
+import { ManageTeam } from "@/components/teams/ManageTeam";
 import { useAuth } from "@/hooks/useAuth";
 
 interface CollaboratorProps {
@@ -30,6 +31,7 @@ export const TripCollaborators = ({
   const { user } = useAuth();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showLocationsModal, setShowLocationsModal] = useState(false);
+  const [showManageTeamModal, setShowManageTeamModal] = useState(false);
 
   const getRoleBadge = (role: string) => {
     if (role === "owner")
@@ -65,6 +67,17 @@ export const TripCollaborators = ({
             <MapPin className="h-4 w-4" />
             <span>Ubicaciones</span>
           </Button>
+          {canInvite && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowManageTeamModal(true)}
+              className="flex items-center gap-1"
+            >
+              <Users className="h-4 w-4" />
+              <span>Manage Team</span>
+            </Button>
+          )}
           {canInvite && (
             <Button
               variant="outline"
@@ -138,6 +151,15 @@ export const TripCollaborators = ({
           onClose={() => setShowLocationsModal(false)}
           tripId={tripId}
           collaborators={collaborators}
+        />
+      )}
+
+      {showManageTeamModal && (
+        <ManageTeam
+          tripId={tripId}
+          isOpen={showManageTeamModal}
+          onClose={() => setShowManageTeamModal(false)}
+          refreshData={onUpdate}
         />
       )}
     </div>
