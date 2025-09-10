@@ -323,8 +323,8 @@ export const TripLocationsModal = ({
           {/* Map Toggle Button */}
           <Button
             onClick={() => setShowMap(!showMap)}
-            variant="outline"
-            className="w-full"
+            variant={showMap ? "secondary" : "default"}
+            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg"
           >
             <MapPin className="h-4 w-4 mr-2" />
             {showMap ? "Ocultar mapa" : "Ver colaboradores en el mapa"}
