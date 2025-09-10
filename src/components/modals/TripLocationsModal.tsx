@@ -63,22 +63,14 @@ export const TripLocationsModal = ({
 
       if (error) throw error;
 
-      // Add user profiles to locations
+      // Add user profiles to locations using secure function
       const locationsWithProfiles = await Promise.all(
         (data || []).map(async (location) => {
-          // First try to find in collaborators
-          let userProfile = collaborators.find((c) => c.id === location.user_id);
+          // Use the secure function to get collaborator profile data
+          const { data: profileData } = await supabase
+            .rpc("get_collaborator_profile_safe", { p_user_id: location.user_id });
           
-          // If not found in collaborators, fetch from profiles table
-          if (!userProfile) {
-            const { data: profileData } = await supabase
-              .from("profiles")
-              .select("id, full_name, avatar_url")
-              .eq("id", location.user_id)
-              .single();
-            
-            userProfile = profileData;
-          }
+          const userProfile = profileData?.[0];
           
           return {
             ...location,
