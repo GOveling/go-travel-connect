@@ -428,6 +428,7 @@ const AISmartRouteModal = ({
                     trip={workingTrip}
                     totalSavedPlaces={totalSavedPlaces}
                     totalTripDays={totalTripDays}
+                    optimizedItinerary={optimizedItinerary}
                   />
                 </TabsContent>
 

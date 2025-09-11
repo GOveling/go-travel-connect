@@ -1,3 +1,4 @@
+import React from "react";
 import { Calendar, Clock, Navigation, Star, Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import TransferBlock from "./TransferBlock";
 import FreeTimeBlock from "./FreeTimeBlock";
 import AccommodationBase from "./AccommodationBase";
 import OptimizationMetrics from "./OptimizationMetrics";
+import RouteSegment from "@/components/ui/RouteSegment";
 import type { OptimizationMetrics as OptimizationMetricsType } from "@/types/aiSmartRouteApi";
 
 interface ItineraryTabProps {
