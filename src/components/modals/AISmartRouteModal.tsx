@@ -23,6 +23,7 @@ import {
 } from "@/utils/aiSmartRoute";
 import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { useMapData } from "@/hooks/useMapData";
+import { generateMissingDaysForMultipleDestinations } from "@/utils/itineraryUtils";
 import { aiRoutesService } from "@/services/aiRoutesApi";
 import type { ApiItineraryResponse, OptimizationMetrics } from "@/types/aiSmartRouteApi";
 import InitialView from "./ai-smart-route/InitialView";
@@ -119,7 +120,7 @@ const AISmartRouteModal = ({
         });
 
         // Transform V2 response into our DayItinerary format
-        const transformedItinerary = response.itinerary.map((day, index) => ({
+        const apiItinerary = response.itinerary.map((day, index) => ({
           day: index + 1,
           date: day.date,
           destinationName: workingTrip.destination,
@@ -152,7 +153,9 @@ const AISmartRouteModal = ({
           freeBlocks: day.free_blocks
         }));
 
-        setOptimizedItinerary(transformedItinerary);
+        // Fill missing days with local suggestions
+        const completeItinerary = generateMissingDaysForMultipleDestinations(apiItinerary, workingTrip);
+        setOptimizedItinerary(completeItinerary);
         setOptimizationMetrics(response.optimization_metrics);
         setApiRecommendations(response.recommendations);
         setRouteGenerated(true);
@@ -206,7 +209,9 @@ const AISmartRouteModal = ({
             isTentative: Boolean(day.is_tentative)
           }));
 
-          setOptimizedItinerary(transformedItinerary);
+          // Fill missing days for V1 response as well
+          const completeItinerary = generateMissingDaysForMultipleDestinations(transformedItinerary, workingTrip);
+          setOptimizedItinerary(completeItinerary);
           setRouteGenerated(true);
 
           toast({
