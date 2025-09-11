@@ -153,9 +153,8 @@ const AISmartRouteModal = ({
           freeBlocks: day.free_blocks
         }));
 
-        // Fill missing days with local suggestions
-        const completeItinerary = generateMissingDaysForMultipleDestinations(apiItinerary, workingTrip);
-        setOptimizedItinerary(completeItinerary);
+        // For V2 API, use the complete response directly since it already includes all days
+        setOptimizedItinerary(apiItinerary);
         setOptimizationMetrics(response.optimization_metrics);
         setApiRecommendations(response.recommendations);
         setRouteGenerated(true);
