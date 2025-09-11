@@ -290,6 +290,53 @@ const ItineraryTab = ({
               </div>
             ))}
 
+            {/* Free Blocks Suggestions */}
+            {day.freeBlocks && day.freeBlocks.length > 0 && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                <h6 className="font-medium text-green-800 mb-2 text-sm flex items-center">
+                  <Clock size={14} className="mr-1" />
+                  Tiempo Libre - Lugares de Interés Sugeridos
+                </h6>
+                {day.freeBlocks.map((freeBlock, blockIndex) => (
+                  <div key={blockIndex} className="mb-3 last:mb-0">
+                    {freeBlock.note && (
+                      <p className="text-xs text-green-700 mb-2">{freeBlock.note}</p>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {freeBlock.suggestions.map((suggestion, suggestionIndex) => (
+                        <div
+                          key={suggestionIndex}
+                          className="bg-white border border-green-200 rounded-lg p-2 hover:bg-green-25 transition-colors"
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-medium text-green-800 text-xs">
+                              {suggestion.name}
+                            </span>
+                            <div className="flex items-center text-xs text-green-600">
+                              <Star size={10} className="text-yellow-500 fill-current mr-1" />
+                              {suggestion.rating}
+                            </div>
+                          </div>
+                          <p className="text-xs text-green-600 mb-1">{suggestion.type}</p>
+                          <p className="text-xs text-green-700">{suggestion.reason}</p>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-xs text-green-600">
+                              {suggestion.eta_minutes}min caminando
+                            </span>
+                            {suggestion.synthetic && (
+                              <Badge className="text-xs bg-green-100 text-green-700 border-green-300">
+                                AI Sugerido
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="bg-gray-50 p-3 rounded-lg">
               <h6 className="font-medium text-gray-800 mb-3 text-sm">
                 Day Summary
