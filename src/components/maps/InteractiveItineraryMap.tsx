@@ -46,6 +46,29 @@ const createNumberedIcon = (number: number, color: string = '#3b82f6') => {
   });
 };
 
+// Custom suggestion marker icon
+const createSuggestionIcon = (color: string = '#10b981') => {
+  return L.divIcon({
+    html: `<div style="
+      background-color: ${color};
+      color: white;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    ">💡</div>`,
+    className: 'custom-div-icon',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+  });
+};
+
 const MapController = ({ bounds, selectedDay }: { bounds: LatLngBounds | null; selectedDay?: number }) => {
   const map = useMap();
 
@@ -76,21 +99,39 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     return itinerary;
   }, [itinerary, selectedDay]);
 
-  // Extract all places with coordinates
+  // Extract all places with coordinates and suggestions for days without places
   const allPlaces = useMemo(() => {
-    const places: Array<{ lat: number; lng: number; name: string; day: number; order: number }> = [];
+    const places: Array<{ lat: number; lng: number; name: string; day: number; order: number; type: 'place' | 'suggestion' }> = [];
     let globalOrder = 1;
 
     displayItinerary.forEach(day => {
+      // Add regular places
       day.places.forEach(place => {
         places.push({
           lat: place.lat,
           lng: place.lng,
           name: place.name,
           day: day.day,
-          order: globalOrder++
+          order: globalOrder++,
+          type: 'place'
         });
       });
+
+      // Add suggestions only for days without places
+      if (day.places.length === 0 && day.free_blocks) {
+        day.free_blocks.forEach(block => {
+          block.suggestions?.forEach(suggestion => {
+            places.push({
+              lat: suggestion.lat,
+              lng: suggestion.lon,
+              name: suggestion.name,
+              day: day.day,
+              order: globalOrder++,
+              type: 'suggestion'
+            });
+          });
+        });
+      }
     });
 
     return places;
@@ -164,12 +205,22 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
               <Marker
                 key={`${place.day}-${index}`}
                 position={[place.lat, place.lng]}
-                icon={createNumberedIcon(place.order)}
+                icon={place.type === 'suggestion' 
+                  ? createSuggestionIcon('#10b981') 
+                  : createNumberedIcon(place.order)
+                }
               >
                 <Popup>
                   <div className="text-sm">
                     <div className="font-semibold">{place.name}</div>
-                    <div className="text-muted-foreground">Día {place.day} - Parada #{place.order}</div>
+                    <div className="text-muted-foreground">
+                      Día {place.day} - {place.type === 'suggestion' ? 'AI Suggestion' : `Parada #${place.order}`}
+                    </div>
+                    {place.type === 'suggestion' && (
+                      <div className="text-xs text-emerald-600 mt-1">
+                        💡 Recommended for your free time
+                      </div>
+                    )}
                   </div>
                 </Popup>
               </Marker>

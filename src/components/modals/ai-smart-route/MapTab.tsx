@@ -67,7 +67,7 @@ const MapTab = ({ trip, totalSavedPlaces, totalTripDays, optimizedItinerary }: M
           type: 'hotel_from_cluster' as const,
           reference_place: null
         },
-        free_blocks: [],
+        free_blocks: day.freeBlocks || day.free_blocks || [],
         total_time: day.totalTime || '8h',
         walking_time: day.walkingTime || '2h',
         transport_time: '1h',
@@ -178,7 +178,10 @@ const MapTab = ({ trip, totalSavedPlaces, totalTripDays, optimizedItinerary }: M
                   <Calendar className="h-3 w-3" />
                   Día {day.day}
                   <Badge variant="secondary" className="ml-1">
-                    {day.places.length}
+                    {day.places.length > 0 
+                      ? day.places.length 
+                      : (day.free_blocks?.reduce((sum, block) => sum + (block.suggestions?.length || 0), 0) || 0)
+                    }
                   </Badge>
                 </Button>
               ))}
@@ -245,7 +248,10 @@ const MapTab = ({ trip, totalSavedPlaces, totalTripDays, optimizedItinerary }: M
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-xs">
-                    {day.places.length} lugares
+                    {day.places.length > 0 
+                      ? `${day.places.length} lugares`
+                      : `${day.free_blocks?.reduce((sum, block) => sum + (block.suggestions?.length || 0), 0) || 0} sugerencias`
+                    }
                   </Badge>
                   <span className="text-xs text-muted-foreground">
                     {day.total_time}
