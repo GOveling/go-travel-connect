@@ -67,7 +67,7 @@ const MapTab = ({ trip, totalSavedPlaces, totalTripDays, optimizedItinerary }: M
           type: 'hotel_from_cluster' as const,
           reference_place: null
         },
-        free_blocks: day.freeBlocks || [],
+        free_blocks: [],
         total_time: day.totalTime || '8h',
         walking_time: day.walkingTime || '2h',
         transport_time: '1h',

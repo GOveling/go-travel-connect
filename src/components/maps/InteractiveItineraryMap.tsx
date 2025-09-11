@@ -46,39 +46,6 @@ const createNumberedIcon = (number: number, color: string = '#3b82f6') => {
   });
 };
 
-// Create suggestion marker icon
-const createSuggestionIcon = (type: string) => {
-  const getColor = () => {
-    switch (type) {
-      case 'tourist_attraction': return '#22c55e';
-      case 'museum': return '#8b5cf6';
-      case 'park': return '#10b981';
-      case 'restaurant': return '#f59e0b';
-      default: return '#06b6d4';
-    }
-  };
-
-  return L.divIcon({
-    html: `<div style="
-      background-color: ${getColor()};
-      color: white;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 10px;
-      border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    ">?</div>`,
-    className: 'suggestion-div-icon',
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-  });
-};
-
 const MapController = ({ bounds, selectedDay }: { bounds: LatLngBounds | null; selectedDay?: number }) => {
   const map = useMap();
 
@@ -129,55 +96,17 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     return places;
   }, [displayItinerary]);
 
-  // Get all free block suggestions
-  const allSuggestions = useMemo(() => {
-    const suggestions: Array<{ 
-      lat: number; 
-      lng: number; 
-      name: string; 
-      day: number; 
-      type: string;
-      rating: number;
-      reason: string;
-      eta_minutes: number;
-    }> = [];
-
-    displayItinerary.forEach(day => {
-      if (day.free_blocks) {
-        day.free_blocks.forEach(freeBlock => {
-          freeBlock.suggestions.forEach(suggestion => {
-            suggestions.push({
-              lat: suggestion.lat,
-              lng: suggestion.lon,
-              name: suggestion.name,
-              day: day.day,
-              type: suggestion.type,
-              rating: suggestion.rating,
-              reason: suggestion.reason,
-              eta_minutes: suggestion.eta_minutes
-            });
-          });
-        });
-      }
-    });
-
-    return suggestions;
-  }, [displayItinerary]);
-
-  // Calculate map bounds including suggestions
+  // Calculate map bounds
   const mapBounds = useMemo(() => {
-    if (allPlaces.length === 0 && allSuggestions.length === 0) return null;
+    if (allPlaces.length === 0) return null;
     
     const bounds = new LatLngBounds([]);
     allPlaces.forEach(place => {
       bounds.extend([place.lat, place.lng]);
     });
-    allSuggestions.forEach(suggestion => {
-      bounds.extend([suggestion.lat, suggestion.lng]);
-    });
     
     return bounds;
-  }, [allPlaces, allSuggestions]);
+  }, [allPlaces]);
 
   // Calculate routes between places
   useEffect(() => {
@@ -208,7 +137,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     }
   };
 
-  if (allPlaces.length === 0 && allSuggestions.length === 0) {
+  if (allPlaces.length === 0) {
     return (
       <Card className="h-80 flex items-center justify-center">
         <div className="text-center">
@@ -241,27 +170,6 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                   <div className="text-sm">
                     <div className="font-semibold">{place.name}</div>
                     <div className="text-muted-foreground">Día {place.day} - Parada #{place.order}</div>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-
-            {/* Render suggestion markers */}
-            {allSuggestions.map((suggestion, index) => (
-              <Marker
-                key={`suggestion-${suggestion.day}-${index}`}
-                position={[suggestion.lat, suggestion.lng]}
-                icon={createSuggestionIcon(suggestion.type)}
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <div className="font-semibold">{suggestion.name}</div>
-                    <div className="text-muted-foreground">Día {suggestion.day} - Sugerencia de tiempo libre</div>
-                    <div className="text-xs mt-1">
-                      <div>⭐ {suggestion.rating} • {suggestion.type}</div>
-                      <div className="mt-1">{suggestion.reason}</div>
-                      <div className="text-muted-foreground">{suggestion.eta_minutes}min caminando</div>
-                    </div>
                   </div>
                 </Popup>
               </Marker>
