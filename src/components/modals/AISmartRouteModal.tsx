@@ -24,6 +24,7 @@ import {
 import { getFormattedDateRange } from "@/utils/dateHelpers";
 import { useMapData } from "@/hooks/useMapData";
 import { aiRoutesService } from "@/services/aiRoutesApi";
+import type { ApiItineraryResponse, OptimizationMetrics } from "@/types/aiSmartRouteApi";
 import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";
@@ -45,6 +46,8 @@ const AISmartRouteModal = ({
   const [showRecommendationsModal, setShowRecommendationsModal] =
     useState(false);
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
+  const [optimizationMetrics, setOptimizationMetrics] = useState<OptimizationMetrics | null>(null);
+  const [apiRecommendations, setApiRecommendations] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Use map data hook for distance calculations
@@ -94,53 +97,125 @@ const AISmartRouteModal = ({
       const distanceMatrix = calculateTripDistances(workingTrip);
       const optimizedRoute = calculateOptimizedRoute(workingTrip);
 
-      const response = await aiRoutesService.generateHybridItinerary({
-        places,
-        start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
-        end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
-        transport_mode: 'walk',
-      });
+      // Extract accommodations from trip if available
+      const accommodations = workingTrip.accommodation ? [
+        {
+          name: workingTrip.accommodation,
+          lat: workingTrip.coordinates?.[0]?.lat || 0,
+          lon: workingTrip.coordinates?.[0]?.lng || 0,
+        }
+      ] : undefined;
 
-      if (response.itinerary) {
-        // Transform the response into our DayItinerary format
-        const transformedItinerary = response.itinerary.map((day: any, index: number) => ({
+      // Try new API first
+      try {
+        const response: ApiItineraryResponse = await aiRoutesService.generateHybridItineraryV2({
+          places,
+          start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
+          end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
+          transport_mode: 'walk',
+          daily_start_hour: 9,
+          daily_end_hour: 18,
+          accommodations,
+        });
+
+        // Transform V2 response into our DayItinerary format
+        const transformedItinerary = response.itinerary.map((day, index) => ({
           day: index + 1,
           date: day.date,
           destinationName: workingTrip.destination,
-          places: day.places.map((place: any) => ({
-            id: place.id || String(Math.random()),
+          places: day.places.map((place) => ({
+            id: place.id,
             name: place.name,
-            category: place.type || 'point_of_interest',
-            rating: place.rating || 0,
-            image: place.image || '',
-            description: place.description || '',
-            estimatedTime: place.estimated_time || '2h',
-            priority: place.priority >= 7 ? 'high' : place.priority >= 4 ? 'medium' : 'low',
+            category: place.category,
+            rating: place.rating,
+            image: place.image,
+            description: place.description,
+            estimatedTime: place.estimated_time,
+            priority: (place.priority >= 7 ? 'high' : place.priority >= 4 ? 'medium' : 'low') as "high" | "medium" | "low",
             lat: place.lat,
-            lng: place.lon,
-            aiRecommendedDuration: place.recommended_duration || '2h',
-            bestTimeToVisit: place.best_time || 'Anytime',
-            orderInRoute: place.order || 0,
+            lng: place.lng,
+            aiRecommendedDuration: place.recommended_duration,
+            bestTimeToVisit: place.best_time,
+            orderInRoute: place.order,
             destinationName: workingTrip.destination
           })),
-          totalTime: day.total_time || '8h',
-          walkingTime: day.walking_time || '2h',
-          transportTime: day.transport_time || '1h',
-          freeTime: day.free_time || '2h',
+          totalTime: day.total_time,
+          walkingTime: day.walking_time,
+          transportTime: day.transport_time,
+          freeTime: day.free_time,
           allocatedDays: 1,
-          isSuggested: Boolean(day.is_suggested),
-          isTentative: Boolean(day.is_tentative)
+          isSuggested: day.is_suggested,
+          isTentative: day.is_tentative,
+          // Store V2 specific data for rendering
+          transfers: day.transfers,
+          base: day.base,
+          freeBlocks: day.free_blocks
         }));
 
         setOptimizedItinerary(transformedItinerary);
+        setOptimizationMetrics(response.optimization_metrics);
+        setApiRecommendations(response.recommendations);
         setRouteGenerated(true);
 
         toast({
           title: "AI Smart Route Generated!",
-          description: "Your intelligent route has been optimized using real distance data and AI.",
+          description: response.optimization_metrics.fallback_active 
+            ? "Route generated with limited optimization. Try again for better results."
+            : "Your intelligent route has been optimized using advanced AI algorithms.",
         });
-      } else {
-        throw new Error("Invalid response from AI service");
+        return;
+      } catch (v2Error) {
+        console.warn("V2 API failed, falling back to V1:", v2Error);
+        
+        // Fallback to V1 API
+        const response = await aiRoutesService.generateHybridItinerary({
+          places,
+          start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
+          end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
+          transport_mode: 'bicycle',
+        });
+
+        if (response.itinerary) {
+          // Transform V1 response into our DayItinerary format
+          const transformedItinerary = response.itinerary.map((day: any, index: number) => ({
+            day: index + 1,
+            date: day.date,
+            destinationName: workingTrip.destination,
+            places: day.places.map((place: any) => ({
+              id: place.id || String(Math.random()),
+              name: place.name,
+              category: place.type || 'point_of_interest',
+              rating: place.rating || 0,
+              image: place.image || '',
+              description: place.description || '',
+              estimatedTime: place.estimated_time || '2h',
+              priority: (place.priority >= 7 ? 'high' : place.priority >= 4 ? 'medium' : 'low') as "high" | "medium" | "low",
+              lat: place.lat,
+              lng: place.lon,
+              aiRecommendedDuration: place.recommended_duration || '2h',
+              bestTimeToVisit: place.best_time || 'Anytime',
+              orderInRoute: place.order || 0,
+              destinationName: workingTrip.destination
+            })),
+            totalTime: day.total_time || '8h',
+            walkingTime: day.walking_time || '2h',
+            transportTime: day.transport_time || '1h',
+            freeTime: day.free_time || '2h',
+            allocatedDays: 1,
+            isSuggested: Boolean(day.is_suggested),
+            isTentative: Boolean(day.is_tentative)
+          }));
+
+          setOptimizedItinerary(transformedItinerary);
+          setRouteGenerated(true);
+
+          toast({
+            title: "AI Smart Route Generated!",
+            description: "Your intelligent route has been optimized using real distance data and AI.",
+          });
+        } else {
+          throw new Error("Invalid response from V1 AI service");
+        }
       }
     } catch (error) {
       console.error("Error generating AI route:", error);
@@ -343,6 +418,8 @@ const AISmartRouteModal = ({
                     totalSavedPlaces={totalSavedPlaces}
                     totalTripDays={totalTripDays}
                     onRouteTypeChange={handleRouteTypeChange}
+                    optimizationMetrics={optimizationMetrics}
+                    apiRecommendations={apiRecommendations}
                   />
                 </TabsContent>
 

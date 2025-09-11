@@ -1,4 +1,4 @@
-import { Calendar, Clock, Navigation, Star } from "lucide-react";
+import { Calendar, Clock, Navigation, Star, Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,6 +10,11 @@ import {
 } from "@/components/ui/select";
 import { DayItinerary, RouteConfiguration } from "@/types/aiSmartRoute";
 import { getPriorityColor } from "@/utils/aiSmartRoute";
+import TransferBlock from "./TransferBlock";
+import FreeTimeBlock from "./FreeTimeBlock";
+import AccommodationBase from "./AccommodationBase";
+import OptimizationMetrics from "./OptimizationMetrics";
+import type { OptimizationMetrics as OptimizationMetricsType } from "@/types/aiSmartRouteApi";
 
 interface ItineraryTabProps {
   optimizedItinerary: DayItinerary[];
@@ -18,6 +23,8 @@ interface ItineraryTabProps {
   totalSavedPlaces: number;
   totalTripDays: number;
   onRouteTypeChange: (routeType: string) => void;
+  optimizationMetrics?: OptimizationMetricsType | null;
+  apiRecommendations?: string[];
 }
 
 const ItineraryTab = ({
@@ -27,6 +34,8 @@ const ItineraryTab = ({
   totalSavedPlaces,
   totalTripDays,
   onRouteTypeChange,
+  optimizationMetrics,
+  apiRecommendations = [],
 }: ItineraryTabProps) => {
   return (
     <div className="space-y-4 mt-4 px-2 sm:px-0">
@@ -317,6 +326,14 @@ const ItineraryTab = ({
           </CardContent>
         </Card>
       ))}
+
+      {/* Optimization Metrics */}
+      {optimizationMetrics && (
+        <OptimizationMetrics 
+          metrics={optimizationMetrics} 
+          recommendations={apiRecommendations}
+        />
+      )}
     </div>
   );
 };

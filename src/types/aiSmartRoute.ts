@@ -79,6 +79,10 @@ export interface DayItinerary {
   allocatedDays: number;
   isSuggested?: boolean;
   isTentative?: boolean; // NEW: For tentative itineraries when no saved places exist
+  // V2 API specific fields (optional for backward compatibility)
+  transfers?: any[];
+  base?: any;
+  freeBlocks?: any[];
 }
 
 export interface RouteConfiguration {

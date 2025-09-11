@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { SavedPlace } from '@/types';
+import type { GenerateHybridItineraryParamsV2, ApiItineraryResponse } from '@/types/aiSmartRouteApi';
 
 const API_URL = import.meta.env.VITE_AI_ROUTES_API_URL;
 const API_KEY = import.meta.env.VITE_AI_ROUTES_API_KEY;
@@ -43,6 +44,17 @@ export const aiRoutesService = {
       return response.data;
     } catch (error: any) {
       console.error('Error generating hybrid itinerary:', error?.response?.data || error);
+      throw error;
+    }
+  },
+
+  generateHybridItineraryV2: async (params: GenerateHybridItineraryParamsV2): Promise<ApiItineraryResponse> => {
+    try {
+      const response = await aiRoutesApi.post('/itinerary/generate-hybrid', params);
+      console.log('AI Routes API V2 Response:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('Error generating hybrid itinerary V2:', error?.response?.data || error);
       throw error;
     }
   },
