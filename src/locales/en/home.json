@@ -12,6 +12,8 @@
       "upcomingTrips": "Upcoming Trips"
     },
     "currentTrip": {
+      "activeTrip": "Active Trip",
+      "activeTrip": "Active Trip",
       "currentTrip": "Current Trip",
       "upcomingTrip": "Upcoming Trip",
       "viewDetails": "View Details",
@@ -28,13 +30,13 @@
       "days": "Days",
       "hours": "Hours",
       "minutes": "Minutes",
-      "untilTripBegins": "Until your trip begins!",
+      "untilTripBegins": "until your trip begins",
       "viewTripDetails": "View Trip Details",
       "previewAISmartRoute": "Preview AI Smart Route",
       "planYourNextAdventure": "Plan Your Next Adventure",
-      "noUpcomingTrips": "No upcoming trips planned",
+      "noUpcomingTrips": "No upcoming trips",
       "readyForNextJourney": "Ready for your next journey?",
-      "createTripPlan": "Create a trip plan and let AI optimize your route"
+      "createTripPlan": "Create a trip plan to get started"
     },
     "quickActions": {
       "title": "Quick Actions",
@@ -83,6 +85,7 @@
     },
     "travelMode": {
       "title": "Travel Mode",
+      "status": "Travel Mode Status",
       "active": "Travel Mode Active",
       "currentTrip": "Currently on Trip",
       "enableTravelMode": "Enable Travel Mode",

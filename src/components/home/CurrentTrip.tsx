@@ -106,7 +106,7 @@ const CurrentTripContent = memo(({
             <div className="flex items-center gap-2">
               <Navigation className="w-4 h-4" />
               <h3 className="font-semibold">
-                Active trip
+                {t("home.currentTrip.activeTrip")}
               </h3>
             </div>
             <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ const CurrentTripContent = memo(({
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-3">
             <p className="text-sm text-gray-600">
-              Travel Mode Status
+              {t("home.travelMode.status")}
             </p>
             <span
               className={`text-xs px-2 py-1 rounded-full ${

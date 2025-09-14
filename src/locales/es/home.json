@@ -12,6 +12,7 @@
       "upcomingTrips": "Próximos Viajes"
     },
     "currentTrip": {
+      "activeTrip": "Viaje Activo",
       "currentTrip": "Viaje Actual",
       "upcomingTrip": "Próximo Viaje",
       "viewDetails": "Ver Detalles",
@@ -83,6 +84,7 @@
     },
     "travelMode": {
       "title": "Modo Travel",
+      "status": "Estado del Modo Travel",
       "enabled": "Activado",
       "disabled": "Desactivado",
       "activate": "Activar",

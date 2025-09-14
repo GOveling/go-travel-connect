@@ -10,13 +10,28 @@
       "countriesExplored": "探索的国家"
     },
     "currentTrip": {
+      "activeTrip": "活跃旅行",
+      "activeTrip": "活跃旅行",
       "currentTrip": "当前旅行",
       "upcomingTrip": "即将到来的旅行",
       "viewDetails": "查看详情",
       "planNewTrip": "计划新旅行",
       "noTrips": "尚未计划任何旅行",
       "startPlanning": "开始计划您的冒险之旅！",
-      "viewAllTrips": "查看所有旅行"
+      "viewAllTrips": "查看所有旅行",
+      "traveling": "旅行中",
+      "tripCountdown": "旅行倒计时",
+      "days": "天",
+      "hours": "小时",
+      "minutes": "分钟",
+      "untilTripBegins": "直到您的旅行开始",
+      "viewTripDetails": "查看旅行详情",
+      "previewAISmartRoute": "预览AI智能路线",
+      "viewAIRouteDetails": "查看AI路线详情",
+      "planYourNextAdventure": "计划您的下一次冒险",
+      "noUpcomingTrips": "没有即将到来的旅行",
+      "readyForNextJourney": "准备好您的下一次旅程了吗？",
+      "createTripPlan": "创建旅行计划开始"
     },
     "quickActions": {
       "title": "快速操作",
