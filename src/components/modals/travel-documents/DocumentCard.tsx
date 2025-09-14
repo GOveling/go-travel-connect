@@ -182,4 +182,5 @@ const DocumentCard = ({ document, onEdit, onDelete, isEncrypted = false }: Docum
   );
 };
 
+// Export as default
 export default DocumentCard;
