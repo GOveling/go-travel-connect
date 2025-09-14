@@ -6,6 +6,13 @@
     "citiesExplored": "Cities Explored",
     "placesVisited": "Places Visited",
     "achievementPoints": "Achievement Points",
+    "viewDetails": "View details",
+    "statsModal": {
+      "placesVisited": "Places Visited",
+      "countriesVisited": "Countries Visited", 
+      "citiesExplored": "Cities Explored",
+      "achievementsEarned": "Achievements Earned"
+    },
     "signOut": "Sign Out",
     "fullName": "Full name",
     "description": "Description",

@@ -5,8 +5,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Calendar, Trophy, Globe } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, enUS, zhCN, fr, it, ptBR } from "date-fns/locale";
 import { useTravelStatsDetails, VisitedPlace, VisitedCountry, VisitedCity, Achievement } from "@/hooks/useTravelStatsDetails";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface TravelStatsDetailModalProps {
   isOpen: boolean;
@@ -16,8 +17,21 @@ interface TravelStatsDetailModalProps {
 }
 
 const TravelStatsDetailModal = ({ isOpen, onClose, type, title }: TravelStatsDetailModalProps) => {
+  const { language } = useLanguage();
   const { loading, fetchVisitedPlaces, fetchVisitedCountries, fetchVisitedCities, fetchAchievements } = useTravelStatsDetails();
   const [data, setData] = useState<any[]>([]);
+
+  // Map language codes to date-fns locales
+  const getDateLocale = () => {
+    switch (language) {
+      case 'es': return es;
+      case 'fr': return fr;
+      case 'it': return it;
+      case 'pt': return ptBR;
+      case 'zh': return zhCN;
+      default: return enUS;
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -61,7 +75,7 @@ const TravelStatsDetailModal = ({ isOpen, onClose, type, title }: TravelStatsDet
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              <span>{format(new Date(place.visited_at), "dd/MM/yyyy HH:mm", { locale: es })}</span>
+              <span>{format(new Date(place.visited_at), "dd/MM/yyyy HH:mm", { locale: getDateLocale() })}</span>
             </div>
             <div>Trip: {place.trip_name}</div>
           </div>
@@ -85,8 +99,8 @@ const TravelStatsDetailModal = ({ isOpen, onClose, type, title }: TravelStatsDet
             </Badge>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div>Primera visita: {format(new Date(country.first_visit), "dd/MM/yyyy", { locale: es })}</div>
-            <div>Última visita: {format(new Date(country.last_visit), "dd/MM/yyyy", { locale: es })}</div>
+            <div>Primera visita: {format(new Date(country.first_visit), "dd/MM/yyyy", { locale: getDateLocale() })}</div>
+            <div>Última visita: {format(new Date(country.last_visit), "dd/MM/yyyy", { locale: getDateLocale() })}</div>
           </div>
         </div>
       ))}
@@ -106,8 +120,8 @@ const TravelStatsDetailModal = ({ isOpen, onClose, type, title }: TravelStatsDet
             </Badge>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div>Primera visita: {format(new Date(city.first_visit), "dd/MM/yyyy", { locale: es })}</div>
-            <div>Última visita: {format(new Date(city.last_visit), "dd/MM/yyyy", { locale: es })}</div>
+            <div>Primera visita: {format(new Date(city.first_visit), "dd/MM/yyyy", { locale: getDateLocale() })}</div>
+            <div>Última visita: {format(new Date(city.last_visit), "dd/MM/yyyy", { locale: getDateLocale() })}</div>
           </div>
         </div>
       ))}
@@ -140,7 +154,7 @@ const TravelStatsDetailModal = ({ isOpen, onClose, type, title }: TravelStatsDet
           </div>
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Calendar className="w-3 h-3" />
-            <span>Conseguido el {format(new Date(achievement.earned_at), "dd/MM/yyyy", { locale: es })}</span>
+            <span>Conseguido el {format(new Date(achievement.earned_at), "dd/MM/yyyy", { locale: getDateLocale() })}</span>
           </div>
         </div>
       ))}

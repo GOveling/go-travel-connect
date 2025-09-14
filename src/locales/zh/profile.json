@@ -6,6 +6,13 @@
     "citiesExplored": "探索的城市",
     "placesVisited": "访问的地点",
     "achievementPoints": "成就积分",
+    "viewDetails": "查看详情",
+    "statsModal": {
+      "placesVisited": "访问的地点",
+      "countriesVisited": "访问的国家",
+      "citiesExplored": "探索的城市",
+      "achievementsEarned": "获得的成就"
+    },
     "signOut": "退出登录",
     "fullName": "全名",
     "description": "描述",

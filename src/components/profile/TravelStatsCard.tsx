@@ -72,7 +72,7 @@ const TravelStatsCard = ({ stats, loading }: TravelStatsCardProps) => {
                   </p>
                   <p className="text-xs text-gray-600">{stat.label}</p>
                   {stat.clickable && (
-                    <p className="text-xs text-blue-500 mt-1">Ver detalles</p>
+                    <p className="text-xs text-blue-500 mt-1">{t("profile.viewDetails")}</p>
                   )}
                 </>
               )}
@@ -85,10 +85,10 @@ const TravelStatsCard = ({ stats, loading }: TravelStatsCardProps) => {
           onClose={() => setModalType(null)}
           type={modalType || "places"}
           title={
-            modalType === "places" ? "Lugares Visitados" :
-            modalType === "countries" ? "Países Visitados" :
-            modalType === "cities" ? "Ciudades Exploradas" :
-            "Logros Conseguidos"
+            modalType === "places" ? t("profile.statsModal.placesVisited") :
+            modalType === "countries" ? t("profile.statsModal.countriesVisited") :
+            modalType === "cities" ? t("profile.statsModal.citiesExplored") :
+            t("profile.statsModal.achievementsEarned")
           }
         />
       </CardContent>

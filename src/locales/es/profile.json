@@ -6,6 +6,13 @@
     "citiesExplored": "Ciudades Exploradas",
     "placesVisited": "Lugares Visitados",
     "achievementPoints": "Puntos de Logros",
+    "viewDetails": "Ver detalles",
+    "statsModal": {
+      "placesVisited": "Lugares Visitados",
+      "countriesVisited": "Países Visitados",
+      "citiesExplored": "Ciudades Exploradas", 
+      "achievementsEarned": "Logros Conseguidos"
+    },
     "signOut": "Cerrar Sesión",
     "fullName": "Nombre completo",
     "description": "Descripción",
