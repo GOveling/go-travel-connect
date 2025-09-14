@@ -130,6 +130,13 @@ export function EditTripModal({
           accommodation: accommodationArray,
           transportation: transportationArray,
         });
+
+        console.log("Trip dates loaded:", {
+          original_start: trip.start_date,
+          original_end: trip.end_date,
+          parsed_start: trip.start_date ? new Date(trip.start_date) : null,
+          parsed_end: trip.end_date ? new Date(trip.end_date) : null,
+        });
       } catch (error) {
         console.error("Error fetching trip details:", error);
         toast({
@@ -418,9 +425,10 @@ export function EditTripModal({
                           mode="single"
                           selected={formData.start_date || undefined}
                           onSelect={(date) =>
-                            handleDateChange("start_date", date)
+                            handleDateChange("start_date", date || null)
                           }
                           initialFocus
+                          className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
                     </Popover>
@@ -450,12 +458,13 @@ export function EditTripModal({
                           mode="single"
                           selected={formData.end_date || undefined}
                           onSelect={(date) =>
-                            handleDateChange("end_date", date)
+                            handleDateChange("end_date", date || null)
                           }
                           initialFocus
                           disabled={(date) =>
                             !formData.start_date || date < formData.start_date
                           }
+                          className={cn("p-3 pointer-events-auto")}
                         />
                       </PopoverContent>
                     </Popover>
