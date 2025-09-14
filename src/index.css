@@ -372,16 +372,16 @@
 .form-field input:-webkit-autofill:hover,
 .form-field input:-webkit-autofill:focus,
 .form-field input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-box-shadow: 0 0 0 30px rgba(0, 0, 0, 0.3) inset !important;  /* Fondo oscuro para autocompletado */
   -webkit-text-fill-color: white !important;
   border: 2px solid rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 0, 0, 0.3) !important;  /* Fondo oscuro consistente */
 }
 
 .form-field input:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.3);  /* Fondo más oscuro para mejor contraste */
   box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
   padding-top: 1.5rem;
   padding-bottom: 0.5rem;
