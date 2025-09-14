@@ -202,6 +202,57 @@ export type Database = {
         }
         Relationships: []
       }
+      general_notifications: {
+        Row: {
+          actor_name: string
+          actor_user_id: string
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          is_read: boolean
+          message: string
+          related_id: string | null
+          title: string
+          trip_id: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actor_name: string
+          actor_user_id: string
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          related_id?: string | null
+          title: string
+          trip_id: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actor_name?: string
+          actor_user_id?: string
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          related_id?: string | null
+          title?: string
+          trip_id?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       password_validation_log: {
         Row: {
           attempted_at: string | null
@@ -1552,6 +1603,19 @@ export type Database = {
       }
       monitor_review_access_patterns: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      notify_trip_members: {
+        Args: {
+          p_actor_user_id: string
+          p_color?: string
+          p_icon?: string
+          p_message: string
+          p_related_id?: string
+          p_title: string
+          p_trip_id: string
+          p_type: string
+        }
         Returns: undefined
       }
       obfuscate_location_data: {

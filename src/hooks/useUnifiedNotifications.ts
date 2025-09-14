@@ -4,10 +4,11 @@ import { useLanguage } from "./useLanguage";
 import { useAuth } from "./useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from "date-fns";
 
 export interface GeneralNotification {
   id: string;
-  type: "trip_update" | "achievement" | "recommendation" | "system";
+  type: "place_added" | "place_updated" | "expense_added" | "expense_updated" | "decision_added" | "decision_updated" | "achievement" | "recommendation" | "system";
   title: string;
   message: string;
   time: string;
@@ -118,29 +119,138 @@ export const useUnifiedNotifications = () => {
     checkPendingInvitation();
   }, [user]);
 
-  // Real-time notifications will be populated here based on actual app events
-  const [generalNotifications, setGeneralNotifications] = useState<
-    GeneralNotification[]
-  >([]);
+  // General notification state
+  const [generalNotifications, setGeneralNotifications] = useState<GeneralNotification[]>([]);
+  const [generalLoading, setGeneralLoading] = useState(false);
+
+  // Fetch general notifications from database
+  const fetchGeneralNotifications = useCallback(async () => {
+    if (!user?.id) return;
+    
+    setGeneralLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('general_notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching general notifications:', error);
+        return;
+      }
+
+      const formattedNotifications: GeneralNotification[] = (data || []).map(notification => ({
+        id: notification.id,
+        type: notification.type as any,
+        title: notification.title,
+        message: `${notification.actor_name} ${notification.message}`,
+        time: formatDistanceToNow(new Date(notification.created_at), { addSuffix: true }),
+        isRead: notification.is_read,
+        icon: notification.icon,
+        color: notification.color
+      }));
+
+      setGeneralNotifications(formattedNotifications);
+    } catch (error) {
+      console.error('Error fetching general notifications:', error);
+    } finally {
+      setGeneralLoading(false);
+    }
+  }, [user?.id]);
+
+  // Fetch general notifications on mount and when user changes
+  useEffect(() => {
+    fetchGeneralNotifications();
+  }, [fetchGeneralNotifications]);
+
+  // Set up real-time subscription for general notifications
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('general-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'general_notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Refetch notifications when new ones are added
+          fetchGeneralNotifications();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'general_notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          // Refetch notifications when they are updated (e.g., marked as read)
+          fetchGeneralNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, fetchGeneralNotifications]);
 
   const markGeneralNotificationAsRead = useCallback(
-    (notificationId: string) => {
-      setGeneralNotifications((prev) =>
-        prev.map((notification) =>
-          notification.id === notificationId
-            ? { ...notification, isRead: true }
-            : notification
-        )
-      );
+    async (notificationId: string) => {
+      try {
+        const { error } = await supabase
+          .from('general_notifications')
+          .update({ is_read: true })
+          .eq('id', notificationId)
+          .eq('user_id', user?.id);
+
+        if (error) {
+          console.error('Error marking notification as read:', error);
+          return;
+        }
+
+        setGeneralNotifications((prev) =>
+          prev.map((notification) =>
+            notification.id === notificationId
+              ? { ...notification, isRead: true }
+              : notification
+          )
+        );
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
     },
-    []
+    [user?.id]
   );
 
-  const markAllGeneralNotificationsAsRead = useCallback(() => {
-    setGeneralNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true }))
-    );
-  }, []);
+  const markAllGeneralNotificationsAsRead = useCallback(async () => {
+    try {
+      const { error } = await supabase
+        .from('general_notifications')
+        .update({ is_read: true })
+        .eq('user_id', user?.id)
+        .eq('is_read', false);
+
+      if (error) {
+        console.error('Error marking all notifications as read:', error);
+        return;
+      }
+
+      setGeneralNotifications((prev) =>
+        prev.map((notification) => ({ ...notification, isRead: true }))
+      );
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  }, [user?.id]);
 
   const handleAcceptPendingInvitation = async () => {
     if (!pendingInvitation) return;
@@ -273,7 +383,7 @@ export const useUnifiedNotifications = () => {
     invitationCount +
     generalNotifications.filter((n) => !n.isRead).length +
     (pendingInvitation ? 1 : 0);
-  const loading = invitationsLoading;
+  const loading = invitationsLoading || generalLoading;
 
   return {
     // Invitations
