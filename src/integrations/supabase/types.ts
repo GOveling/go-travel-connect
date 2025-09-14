@@ -353,6 +353,7 @@ export type Database = {
           mobile_phone: string | null
           mobile_phone_encrypted: string | null
           onboarding_completed: boolean | null
+          preferred_language: string | null
           updated_at: string | null
         }
         Insert: {
@@ -376,6 +377,7 @@ export type Database = {
           mobile_phone?: string | null
           mobile_phone_encrypted?: string | null
           onboarding_completed?: boolean | null
+          preferred_language?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -399,6 +401,7 @@ export type Database = {
           mobile_phone?: string | null
           mobile_phone_encrypted?: string | null
           onboarding_completed?: boolean | null
+          preferred_language?: string | null
           updated_at?: string | null
         }
         Relationships: []

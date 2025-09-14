@@ -1,4 +1,6 @@
 import { translations } from "@/locales/loader";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import React, { useEffect, useState } from "react";
 import { Language, LanguageContext } from "./LanguageTypes";
 
@@ -60,12 +62,40 @@ const detectBrowserLanguage = (): Language => {
 };
 
 export const LanguageProvider = ({ children }: LanguageProviderProps) => {
+  const { user } = useAuth();
   const [language, setLanguageState] = useState<Language>(() => {
     const savedLanguage = localStorage.getItem("appLanguage") as Language;
     return savedLanguage || detectBrowserLanguage();
   });
 
   const [isRTL, setIsRTL] = useState<boolean>(false);
+
+  // Load user's preferred language from profile
+  useEffect(() => {
+    const loadUserLanguagePreference = async () => {
+      if (!user) return;
+
+      try {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("preferred_language")
+          .eq("id", user.id)
+          .single();
+
+        if (!error && profile?.preferred_language) {
+          const userLang = profile.preferred_language as Language;
+          if (SUPPORTED_LANGUAGES.find(lang => lang.code === userLang)) {
+            setLanguageState(userLang);
+            localStorage.setItem("appLanguage", userLang);
+          }
+        }
+      } catch (error) {
+        console.warn("Could not load user language preference:", error);
+      }
+    };
+
+    loadUserLanguagePreference();
+  }, [user]);
 
   // Update RTL state when language changes
   useEffect(() => {
@@ -78,7 +108,7 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
     document.documentElement.lang = language;
   }, [language]);
 
-  const setLanguage = (lang: Language) => {
+  const setLanguage = async (lang: Language) => {
     if (!SUPPORTED_LANGUAGES.find((l) => l.code === lang)) {
       console.warn(
         `Language ${lang} is not supported. Falling back to English.`
@@ -88,6 +118,18 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
 
     setLanguageState(lang);
     localStorage.setItem("appLanguage", lang);
+
+    // Save to user profile if user is logged in
+    if (user) {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ preferred_language: lang })
+          .eq("id", user.id);
+      } catch (error) {
+        console.warn("Could not save language preference to profile:", error);
+      }
+    }
   };
 
   const t = (
