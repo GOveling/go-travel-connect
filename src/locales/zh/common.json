@@ -18,6 +18,8 @@
     "no": "否",
     "viewMore": "查看更多",
     "loadMore": "加载更多",
-    "seeAll": "查看全部"
+    "seeAll": "查看全部",
+    "active": "活跃",
+    "inactive": "非活跃"
   }
 }

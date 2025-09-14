@@ -44,6 +44,11 @@
     "popularPlaces": {
       "title": "热门地点",
       "subtitle": "发现世界各地的精彩目的地"
+    },
+    "travelMode": {
+      "title": "旅行模式",
+      "status": "旅行模式状态", 
+      "accessTravelMode": "访问旅行模式"
     }
   }
 }

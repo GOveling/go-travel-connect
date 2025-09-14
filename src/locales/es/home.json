@@ -94,6 +94,7 @@
       "currentLocation": "Ubicación Actual",
       "update": "Actualizar",
       "accuracy": "Precisión",
+      "accessTravelMode": "Acceder al Modo Travel",
       "nearbyPlaces": "Lugares Cercanos",
       "noNearbyPlacesTitle": "No hay lugares cercanos",
       "noPlacesFound": "No se encontraron lugares guardados en un radio de",
