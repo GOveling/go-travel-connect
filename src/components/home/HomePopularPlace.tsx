@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Users, TrendingUp } from "lucide-react";
+import { Star, MapPin, Users, TrendingUp, RefreshCw } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useGloballyPopularPlaces } from "@/hooks/useGloballyPopularPlaces";
 
 interface PopularPlace {
   id: string;
@@ -110,28 +111,66 @@ const popularPlaces: PopularPlace[] = [
 
 const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
   const { t } = useLanguage();
-  const [currentPlace, setCurrentPlace] = useState<PopularPlace>(
-    popularPlaces[0]
-  );
+  const { places: globalPlaces, loading, error, refetch } = useGloballyPopularPlaces();
+  const [currentPlaceIndex, setCurrentPlaceIndex] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes in seconds
 
-  // Function to get a random place
-  const getRandomPlace = () => {
-    const randomIndex = Math.floor(Math.random() * popularPlaces.length);
-    return popularPlaces[randomIndex];
+  // Get current place (from real data or fallback to mock data)
+  const getCurrentPlace = () => {
+    if (globalPlaces.length > 0) {
+      return {
+        id: `global-${currentPlaceIndex}`,
+        name: globalPlaces[currentPlaceIndex].name,
+        location: globalPlaces[currentPlaceIndex].formatted_address || 
+                 `${globalPlaces[currentPlaceIndex].city}, ${globalPlaces[currentPlaceIndex].country}`,
+        rating: 4.5, // Default rating since we don't have rating data
+        image: getCategoryEmoji(globalPlaces[currentPlaceIndex].category),
+        category: globalPlaces[currentPlaceIndex].category,
+        description: globalPlaces[currentPlaceIndex].description || 
+                    `Popular ${globalPlaces[currentPlaceIndex].category.toLowerCase()} saved ${globalPlaces[currentPlaceIndex].save_count} times in the last hour`,
+        globalSaves: globalPlaces[currentPlaceIndex].save_count,
+        hours: "Check locally",
+        website: "",
+        phone: "",
+        lat: globalPlaces[currentPlaceIndex].lat,
+        lng: globalPlaces[currentPlaceIndex].lng,
+      };
+    }
+    // Fallback to mock data if no real data available
+    return popularPlaces[currentPlaceIndex % popularPlaces.length];
   };
 
-  // Initialize with random place and set up rotation
-  useEffect(() => {
-    setCurrentPlace(getRandomPlace());
+  const getCategoryEmoji = (category: string) => {
+    const categoryEmojiMap: { [key: string]: string } = {
+      'tourist_attraction': '🏛️',
+      'restaurant': '🍽️',
+      'lodging': '🏨',
+      'park': '🌳',
+      'museum': '🏛️',
+      'cafe': '☕',
+      'shopping_mall': '🛍️',
+      'church': '⛪',
+      'beach': '🏖️',
+      'default': '📍'
+    };
+    return categoryEmojiMap[category?.toLowerCase()] || categoryEmojiMap.default;
+  };
 
+  // Function to get next place
+  const getNextPlace = () => {
+    const maxLength = globalPlaces.length > 0 ? globalPlaces.length : popularPlaces.length;
+    setCurrentPlaceIndex((prev) => (prev + 1) % Math.max(maxLength, 1));
+  };
+
+  // Initialize and set up rotation
+  useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentPlace(getRandomPlace());
+      getNextPlace();
       setTimeRemaining(300); // Reset timer
     }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, []);
+  }, [globalPlaces.length]);
 
   // Countdown timer
   useEffect(() => {
@@ -154,9 +193,61 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
   };
 
   const handleRefresh = () => {
-    setCurrentPlace(getRandomPlace());
+    if (globalPlaces.length > 0) {
+      getNextPlace();
+    } else {
+      refetch(); // Refresh real data
+    }
     setTimeRemaining(300);
   };
+
+  const currentPlace = getCurrentPlace();
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="text-orange-500" size={20} />
+            <h3 className="text-xl font-semibold text-gray-800">
+              {t("home.popularPlaces.popularPlaceGlobally")}
+            </h3>
+          </div>
+        </div>
+        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-50 to-orange-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-center h-24">
+              <RefreshCw className="animate-spin text-purple-600" size={24} />
+              <span className="ml-2 text-gray-600">Cargando lugares populares...</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error && globalPlaces.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="text-orange-500" size={20} />
+            <h3 className="text-xl font-semibold text-gray-800">
+              {t("home.popularPlaces.popularPlaceGlobally")}
+            </h3>
+          </div>
+        </div>
+        <Card className="overflow-hidden border-0 shadow-lg bg-gradient-to-br from-purple-50 to-orange-50">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <p className="text-gray-600 mb-2">No hay datos suficientes en la última hora</p>
+              <p className="text-xs text-gray-500">Mostrando lugares populares de muestra</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -165,11 +256,19 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
           <TrendingUp className="text-orange-500" size={20} />
           <h3 className="text-xl font-semibold text-gray-800">
             {t("home.popularPlaces.popularPlaceGlobally")}
+            {globalPlaces.length > 0 && (
+              <span className="ml-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                EN VIVO
+              </span>
+            )}
           </h3>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-500">
-            {t("home.popularPlaces.next")}: {formatTime(timeRemaining)}
+            {globalPlaces.length > 0 ? 
+              `Top ${currentPlaceIndex + 1}/3 - ${t("home.popularPlaces.next")}: ${formatTime(timeRemaining)}` :
+              `${t("home.popularPlaces.next")}: ${formatTime(timeRemaining)}`
+            }
           </span>
           <Button
             variant="ghost"
@@ -177,6 +276,7 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
             onClick={handleRefresh}
             className="text-purple-600 h-8"
           >
+            <RefreshCw size={14} className="mr-1" />
             {t("home.popularPlaces.refresh")}
           </Button>
         </div>

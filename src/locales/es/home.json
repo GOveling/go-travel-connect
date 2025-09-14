@@ -48,10 +48,13 @@
     "popularPlaces": {
       "title": "Lugares Populares",
       "subtitle": "Descubre destinos increíbles alrededor del mundo",
-      "popularPlaceGlobally": "Lugar Popular Globalmente",
+      "popularPlaceGlobally": "Lugares Populares Globalmente",
       "next": "Siguiente",
       "refresh": "Actualizar",
-      "saves": "guardados"
+      "saves": "guardados",
+      "realTimeData": "Datos en tiempo real de la última hora",
+      "noDataAvailable": "Sin datos suficientes en la última hora",
+      "showingSample": "Mostrando lugares de muestra"
     },
     "recentActivity": {
       "title": "Actividad Reciente",
