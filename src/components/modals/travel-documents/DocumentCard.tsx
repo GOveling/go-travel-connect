@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Edit, Trash2, AlertTriangle, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { FileText, Edit, Trash2, AlertTriangle, Clock, Lock } from "lucide-react";
 
 interface TravelDocument {
   id: string;
@@ -17,9 +18,10 @@ interface DocumentCardProps {
   document: TravelDocument;
   onEdit: (document: TravelDocument) => void;
   onDelete: (id: string) => void;
+  isEncrypted?: boolean;
 }
 
-const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
+const DocumentCard = ({ document, onEdit, onDelete, isEncrypted = false }: DocumentCardProps) => {
   const calculateDaysToExpiry = (expiryDate: string) => {
     if (!expiryDate) return null;
 
@@ -77,6 +79,12 @@ const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
               <div className="flex items-center space-x-2">
                 <FileText className="w-4 h-4 text-blue-600" />
                 <h3 className="font-medium">{document.type}</h3>
+                {isEncrypted && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                    <Lock className="w-3 h-3 mr-1" />
+                    Encriptado
+                  </Badge>
+                )}
               </div>
 
               {expiryStatus && (
@@ -150,17 +158,20 @@ const DocumentCard = ({ document, onEdit, onDelete }: DocumentCardProps) => {
           </div>
 
           <div className="flex space-x-2 ml-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(document)}
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
+            {!isEncrypted && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(document)}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
               onClick={() => onDelete(document.id)}
+              className="text-destructive hover:text-destructive"
             >
               <Trash2 className="w-4 h-4" />
             </Button>

@@ -1,18 +1,17 @@
-import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Plus, Download, Wifi, WifiOff } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import DocumentForm from "./travel-documents/DocumentForm";
 import DocumentCard from "./travel-documents/DocumentCard";
+import { Plus, Download, Shield, Lock, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useEncryptedTravelDocuments, TravelDocumentMetadata } from "@/hooks/useEncryptedTravelDocuments";
+import { useAuth } from "@/hooks/useAuth";
 
+// Legacy interface for backward compatibility
 interface TravelDocument {
   id: string;
   type: string;
@@ -29,17 +28,12 @@ interface TravelDocumentsModalProps {
   onClose: () => void;
 }
 
-const TravelDocumentsModal = ({
-  isOpen,
-  onClose,
-}: TravelDocumentsModalProps) => {
-  const [documents, setDocuments] = useState<TravelDocument[]>([]);
-  const [isOfflineMode, setIsOfflineMode] = useState(false);
+const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) => {
+  const [isOffline, setIsOffline] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
-  const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(
-    null
-  );
-  const [newDocument, setNewDocument] = useState<Omit<TravelDocument, "id">>({
+  const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(null);
+  const [formData, setFormData] = useState<TravelDocument>({
+    id: "",
     type: "",
     documentNumber: "",
     issueDate: "",
@@ -49,96 +43,110 @@ const TravelDocumentsModal = ({
     photo: "",
   });
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { 
+    documents: encryptedDocuments, 
+    loading, 
+    addDocument, 
+    getDocument, 
+    deleteDocument,
+    refreshDocuments
+  } = useEncryptedTravelDocuments();
 
-  // Load documents from localStorage on component mount
+  // Load offline mode from localStorage (legacy documents are migrated on first use)
   useEffect(() => {
-    const savedDocuments = localStorage.getItem("travelDocuments");
     const savedOfflineMode = localStorage.getItem("offlineMode");
-
-    const offline = savedOfflineMode ? JSON.parse(savedOfflineMode) : false;
-    setIsOfflineMode(offline);
-
-    if (offline && savedDocuments) {
-      setDocuments(JSON.parse(savedDocuments));
+    if (savedOfflineMode) {
+      setIsOffline(JSON.parse(savedOfflineMode));
     }
-  }, []);
+    
+    // Migrate legacy documents to encrypted storage on first load
+    const legacyDocuments = localStorage.getItem("travelDocuments");
+    if (legacyDocuments && user) {
+      migrateLegacyDocuments(JSON.parse(legacyDocuments));
+    }
+  }, [user]);
 
-  // Save documents to localStorage whenever documents or offline mode change
+  // Save offline mode to localStorage when it changes
   useEffect(() => {
-    if (isOfflineMode) {
-      localStorage.setItem("travelDocuments", JSON.stringify(documents));
-    } else {
-      localStorage.removeItem("travelDocuments");
-    }
-  }, [documents, isOfflineMode]);
+    localStorage.setItem("offlineMode", JSON.stringify(isOffline));
+  }, [isOffline]);
 
-  // Save offline mode preference
-  useEffect(() => {
-    localStorage.setItem("offlineMode", JSON.stringify(isOfflineMode));
-    if (!isOfflineMode) {
+  const migrateLegacyDocuments = async (legacyDocs: TravelDocument[]) => {
+    if (legacyDocs.length === 0) return;
+    
+    try {
+      for (const doc of legacyDocs) {
+        const metadata: TravelDocumentMetadata = {
+          documentNumber: doc.documentNumber,
+          issueDate: doc.issueDate,
+          expiryDate: doc.expiryDate,
+          issuingCountry: doc.issuingCountry,
+          notes: doc.notes,
+        };
+        
+        await addDocument(doc.type, metadata, doc.photo, `document-${doc.id}.jpg`);
+      }
+      
+      // Clear legacy documents after migration
       localStorage.removeItem("travelDocuments");
-    }
-  }, [isOfflineMode]);
-
-  const handleAddDocument = () => {
-    if (!newDocument.type || !newDocument.documentNumber) {
+      
       toast({
-        title: "Error",
-        description: "Please fill in required fields",
-        variant: "destructive",
+        title: "Documentos migrados",
+        description: "Tus documentos han sido migrados al sistema de encriptación AES-256",
+        className: "bg-green-50 border-green-200",
       });
-      return;
+    } catch (error) {
+      console.error("Error migrating legacy documents:", error);
     }
+  };
 
-    const document: TravelDocument = {
-      ...newDocument,
-      id: Date.now().toString(),
-    };
-
-    setDocuments([...documents, document]);
-    resetForm();
-
-    toast({
-      title: "Success",
-      description: "Document added successfully",
-    });
+  const handleAddDocument = async () => {
+    if (formData.type && formData.documentNumber) {
+      const metadata: TravelDocumentMetadata = {
+        documentNumber: formData.documentNumber,
+        issueDate: formData.issueDate,
+        expiryDate: formData.expiryDate,
+        issuingCountry: formData.issuingCountry,
+        notes: formData.notes,
+      };
+      
+      const success = await addDocument(
+        formData.type, 
+        metadata, 
+        formData.photo, 
+        formData.photo ? `document-${Date.now()}.jpg` : undefined
+      );
+      
+      if (success) {
+        resetForm();
+        setIsAddingDocument(false);
+      }
+    }
   };
 
   const handleEditDocument = (document: TravelDocument) => {
     setEditingDocument(document);
-    setNewDocument(document);
+    setFormData(document);
     setIsAddingDocument(true);
   };
 
-  const handleUpdateDocument = () => {
-    if (!editingDocument) return;
-
-    const updatedDocuments = documents.map((doc) =>
-      doc.id === editingDocument.id
-        ? { ...newDocument, id: editingDocument.id }
-        : doc
-    );
-
-    setDocuments(updatedDocuments);
-    setEditingDocument(null);
-    resetForm();
-
-    toast({
-      title: "Success",
-      description: "Document updated successfully",
-    });
+  const handleUpdateDocument = async () => {
+    if (editingDocument) {
+      // For encrypted documents, we need to delete and re-add
+      await deleteDocument(editingDocument.id);
+      await handleAddDocument();
+      setEditingDocument(null);
+    }
   };
 
-  const handleDeleteDocument = (id: string) => {
-    setDocuments(documents.filter((doc) => doc.id !== id));
-    toast({
-      title: "Success",
-      description: "Document deleted successfully",
-    });
+  const handleDeleteDocument = async (id: string) => {
+    await deleteDocument(id);
   };
 
   const resetForm = () => {
-    setNewDocument({
+    setFormData({
+      id: "",
       type: "",
       documentNumber: "",
       issueDate: "",
@@ -148,117 +156,192 @@ const TravelDocumentsModal = ({
       photo: "",
     });
     setIsAddingDocument(false);
+    setEditingDocument(null);
   };
 
-  const exportDocuments = () => {
-    const dataStr = JSON.stringify(documents, null, 2);
-    const dataBlob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "travel_documents.json";
-    link.click();
-    URL.revokeObjectURL(url);
+  const exportDocuments = async () => {
+    if (encryptedDocuments.length === 0) {
+      toast({
+        title: "Sin documentos",
+        description: "No hay documentos para exportar.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    toast({
-      title: "Success",
-      description: "Documents exported successfully",
-    });
+    try {
+      const exportData = encryptedDocuments.map(doc => ({
+        id: doc.id,
+        documentType: doc.documentType,
+        hasFile: doc.hasFile,
+        createdAt: doc.createdAt,
+        expiresAt: doc.expiresAt,
+        note: "Los documentos están encriptados con AES-256. Use la aplicación para acceder al contenido."
+      }));
+
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `encrypted-travel-documents-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Documentos exportados",
+        description: "La lista de documentos encriptados ha sido exportada (sin contenido sensible).",
+      });
+    } catch (error) {
+      toast({
+        title: "Error al exportar",
+        description: "No se pudieron exportar los documentos.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-scale-in border-0 bg-white/95 backdrop-blur-sm">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <FileText className="w-5 h-5" />
-            <span>Travel Documents</span>
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+            <Shield className="w-6 h-6" />
+            Documentos de Viaje
+            <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800 border-green-300">
+              <Lock className="w-3 h-3 mr-1" />
+              AES-256 Encriptado
+            </Badge>
           </DialogTitle>
         </DialogHeader>
 
-        {/* Offline Mode Toggle */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                {isOfflineMode ? (
-                  <WifiOff className="w-5 h-5" />
-                ) : (
-                  <Wifi className="w-5 h-5" />
-                )}
-                <div>
-                  <p className="font-medium">Offline Mode</p>
-                  <p className="text-sm text-gray-600">
-                    Store documents locally on your device
-                  </p>
+        <div className="space-y-6">
+          {/* Security Notice */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Shield className="w-5 h-5 text-green-600 mt-0.5" />
+              <div>
+                <h3 className="font-medium text-green-900">Almacenamiento Seguro Militar</h3>
+                <p className="text-sm text-green-700 mt-1">
+                  Todos tus documentos están protegidos con encriptación AES-256, el mismo estándar usado por bancos y gobiernos.
+                  Los datos se almacenan de forma segura y nunca en texto plano.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Offline Mode Toggle */}
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div>
+                <Label className="font-medium">Modo Offline Local</Label>
+                <p className="text-sm text-muted-foreground">
+                  Usar almacenamiento local (menos seguro, solo para pruebas)
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={isOffline}
+              onCheckedChange={setIsOffline}
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-between items-center">
+            <Button
+              onClick={() => setIsAddingDocument(true)}
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
+              <Plus className="w-4 h-4" />
+              Añadir Documento
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={exportDocuments}
+              className="flex items-center gap-2"
+              disabled={loading || encryptedDocuments.length === 0}
+            >
+              <Download className="w-4 h-4" />
+              Exportar Lista
+            </Button>
+          </div>
+
+          {/* Document Form */}
+          {isAddingDocument && (
+            <DocumentForm
+              document={formData}
+              onDocumentChange={(doc) => setFormData({ ...doc, id: formData.id || crypto.randomUUID() })}
+              onSubmit={editingDocument ? handleUpdateDocument : handleAddDocument}
+              onCancel={resetForm}
+              isEditing={!!editingDocument}
+            />
+          )}
+
+          {/* Documents List */}
+          <div className="space-y-4">
+            {loading ? (
+              <div className="text-center py-8">
+                <Shield className="w-12 h-12 mx-auto mb-4 animate-pulse opacity-50" />
+                <p>Cargando documentos encriptados...</p>
+              </div>
+            ) : encryptedDocuments.length > 0 ? (
+              <div className="space-y-3">
+                {encryptedDocuments.map((document) => (
+                  <div key={document.id} className="relative">
+                    <DocumentCard
+                      document={{
+                        id: document.id,
+                        type: document.documentType,
+                        documentNumber: "••••••••", // Hidden for security
+                        issueDate: "••••••••",
+                        expiryDate: document.expiresAt ? new Date(document.expiresAt).toLocaleDateString() : "••••••••",
+                        issuingCountry: "••••••••",
+                        notes: `Accesos: ${document.accessCount}`,
+                        photo: document.hasFile ? "encrypted" : undefined,
+                      }}
+                      onEdit={() => {}} // Disabled for encrypted documents
+                      onDelete={() => handleDeleteDocument(document.id)}
+                      isEncrypted={true}
+                    />
+                    
+                    {/* Expiration Warning */}
+                    {document.isExpired && (
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="destructive" className="gap-1">
+                          <AlertTriangle className="w-3 h-3" />
+                          Expirado
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    {document.expiresInDays !== null && document.expiresInDays <= 30 && document.expiresInDays > 0 && (
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="outline" className="gap-1 border-orange-300 text-orange-800">
+                          <AlertTriangle className="w-3 h-3" />
+                          {document.expiresInDays} días
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Shield className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No hay documentos añadidos aún</p>
+                <p className="text-sm">Añade tu primer documento de viaje encriptado para comenzar</p>
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <Lock className="w-4 h-4 inline mr-2 text-green-600" />
+                  <span className="text-sm text-green-800">
+                    Todos los documentos se almacenan con encriptación AES-256
+                  </span>
                 </div>
               </div>
-              <Switch
-                checked={isOfflineMode}
-                onCheckedChange={setIsOfflineMode}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="flex justify-between items-center mb-4">
-          <Button
-            onClick={() => setIsAddingDocument(true)}
-            className="flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Document</span>
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={exportDocuments}
-            className="flex items-center space-x-2"
-          >
-            <Download className="w-4 h-4" />
-            <span>Export</span>
-          </Button>
-        </div>
-
-        {/* Add/Edit Document Form */}
-        {isAddingDocument && (
-          <DocumentForm
-            document={newDocument}
-            onDocumentChange={setNewDocument}
-            onSubmit={
-              editingDocument ? handleUpdateDocument : handleAddDocument
-            }
-            onCancel={() => {
-              setEditingDocument(null);
-              resetForm();
-            }}
-            isEditing={!!editingDocument}
-          />
-        )}
-
-        {/* Documents List */}
-        <div className="space-y-3">
-          {documents.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <FileText className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                <p className="text-gray-600">No documents added yet</p>
-                <p className="text-sm text-gray-500">
-                  Add your first travel document to get started
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            documents.map((document) => (
-              <DocumentCard
-                key={document.id}
-                document={document}
-                onEdit={handleEditDocument}
-                onDelete={handleDeleteDocument}
-              />
-            ))
-          )}
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

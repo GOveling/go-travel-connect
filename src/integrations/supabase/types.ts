@@ -116,6 +116,92 @@ export type Database = {
         }
         Relationships: []
       }
+      document_access_log: {
+        Row: {
+          access_timestamp: string
+          action_type: string
+          document_id: string
+          error_details: string | null
+          id: string
+          ip_address: unknown | null
+          success: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          access_timestamp?: string
+          action_type: string
+          document_id: string
+          error_details?: string | null
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          access_timestamp?: string
+          action_type?: string
+          document_id?: string
+          error_details?: string | null
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_access_log_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "encrypted_travel_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      encrypted_travel_documents: {
+        Row: {
+          access_count: number | null
+          created_at: string
+          document_type: string
+          encrypted_metadata: string
+          encryption_key_hash: string
+          expires_at: string | null
+          file_path: string | null
+          id: string
+          last_accessed_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_count?: number | null
+          created_at?: string
+          document_type: string
+          encrypted_metadata: string
+          encryption_key_hash: string
+          expires_at?: string | null
+          file_path?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_count?: number | null
+          created_at?: string
+          document_type?: string
+          encrypted_metadata?: string
+          encryption_key_hash?: string
+          expires_at?: string | null
+          file_path?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       password_validation_log: {
         Row: {
           attempted_at: string | null
