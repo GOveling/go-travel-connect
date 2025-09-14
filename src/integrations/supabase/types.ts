@@ -166,7 +166,7 @@ export type Database = {
           created_at: string
           document_type: string
           encrypted_metadata: string
-          encryption_key_hash: string
+          encryption_key_hash: string | null
           expires_at: string | null
           file_path: string | null
           id: string
@@ -179,7 +179,7 @@ export type Database = {
           created_at?: string
           document_type: string
           encrypted_metadata: string
-          encryption_key_hash: string
+          encryption_key_hash?: string | null
           expires_at?: string | null
           file_path?: string | null
           id?: string
@@ -192,7 +192,7 @@ export type Database = {
           created_at?: string
           document_type?: string
           encrypted_metadata?: string
-          encryption_key_hash?: string
+          encryption_key_hash?: string | null
           expires_at?: string | null
           file_path?: string | null
           id?: string
