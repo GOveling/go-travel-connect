@@ -248,7 +248,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           </div>
 
           {/* Actions */}
-          <div className="flex justify-between items-center">
+          <div className="flex justify-start items-center">
             <Button
               onClick={() => setIsAddingDocument(true)}
               className="flex items-center gap-2"
@@ -256,16 +256,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
             >
               <Plus className="w-4 h-4" />
               Añadir Documento
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={exportDocuments}
-              className="flex items-center gap-2"
-              disabled={loading || encryptedDocuments.length === 0}
-            >
-              <Download className="w-4 h-4" />
-              Exportar Lista
             </Button>
           </div>
 
