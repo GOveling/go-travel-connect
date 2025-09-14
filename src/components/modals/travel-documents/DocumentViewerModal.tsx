@@ -279,21 +279,11 @@ const DocumentViewerModal = ({
       {showFullImage && document?.fileData && (
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-[95vw] max-h-[95vh] p-2">
-            <div className="relative">
-              <img
-                src={document.fileData}
-                alt="Documento - Vista completa"
-                className="w-full h-auto max-h-[90vh] object-contain"
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => setShowFullImage(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+            <img
+              src={document.fileData}
+              alt="Documento - Vista completa"
+              className="w-full h-auto max-h-[90vh] object-contain"
+            />
           </DialogContent>
         </Dialog>
       )}
