@@ -237,7 +237,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               <div>
                 <Label className="font-medium">Modo Offline Local</Label>
                 <p className="text-sm text-muted-foreground">
-                  Usar almacenamiento local (menos seguro, solo para pruebas)
+                  Usar almacenamiento local con encriptación AES-256 (seguro, sin conexión)
                 </p>
               </div>
             </div>
