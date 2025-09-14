@@ -1299,6 +1299,21 @@ export type Database = {
           id: string
         }[]
       }
+      get_globally_popular_places: {
+        Args: { hours_ago?: number }
+        Returns: {
+          category: string
+          city: string
+          country: string
+          description: string
+          formatted_address: string
+          image: string
+          lat: number
+          lng: number
+          name: string
+          save_count: number
+        }[]
+      }
       get_pending_invitations: {
         Args: { user_email: string }
         Returns: {
