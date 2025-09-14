@@ -263,10 +263,6 @@ const TripCard = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => onViewDetails(trip)}>
-                      <Eye size={14} className="mr-2" />
-                      {t("trips.actions.viewDetails")}
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEditTrip(trip)}>
                       <Edit3 size={14} className="mr-2" />
                       {t("trips.actions.editTrip")}
