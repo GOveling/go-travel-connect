@@ -115,6 +115,20 @@ export function EditTripModal({
               .filter(Boolean)
           : [];
 
+        // Handle date parsing with multiple possible property names
+        const parseDate = (dateValue: any) => {
+          if (!dateValue) return null;
+          try {
+            const date = new Date(dateValue);
+            return isNaN(date.getTime()) ? null : date;
+          } catch {
+            return null;
+          }
+        };
+
+        const startDate = parseDate(trip.start_date || trip.startDate);
+        const endDate = parseDate(trip.end_date || trip.endDate);
+
         setFormData({
           name: trip.name || "",
           description: trip.description || "",
@@ -124,18 +138,24 @@ export function EditTripModal({
               ? trip.destination.join(", ")
               : trip.destination) ||
             "",
-          start_date: trip.start_date ? new Date(trip.start_date) : null,
-          end_date: trip.end_date ? new Date(trip.end_date) : null,
+          start_date: startDate,
+          end_date: endDate,
           budget: trip.budget || "",
           accommodation: accommodationArray,
           transportation: transportationArray,
         });
 
+        console.log("Trip object received:", trip);
+        console.log("All trip properties:", Object.keys(trip));
         console.log("Trip dates loaded:", {
           original_start: trip.start_date,
           original_end: trip.end_date,
-          parsed_start: trip.start_date ? new Date(trip.start_date) : null,
-          parsed_end: trip.end_date ? new Date(trip.end_date) : null,
+          startDate_prop: trip.startDate,
+          endDate_prop: trip.endDate,
+          parsed_start: startDate,
+          parsed_end: endDate,
+          formData_start: startDate,
+          formData_end: endDate,
         });
       } catch (error) {
         console.error("Error fetching trip details:", error);
