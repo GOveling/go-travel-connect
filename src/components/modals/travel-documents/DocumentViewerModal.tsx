@@ -24,6 +24,7 @@ const DocumentViewerModal = ({
   const [document, setDocument] = useState<DecryptedDocument | null>(null);
   const [loading, setLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [showFullImage, setShowFullImage] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const DocumentViewerModal = ({
     } else {
       setDocument(null);
       setImageError(false);
+      setShowFullImage(false);
     }
   }, [isOpen, documentId]);
 
@@ -180,8 +182,10 @@ const DocumentViewerModal = ({
                       <img
                         src={document.fileData}
                         alt="Documento"
-                        className="w-full h-auto max-h-96 object-contain bg-gray-50"
+                        className="w-full h-auto max-h-96 object-contain bg-gray-50 cursor-pointer hover:opacity-90 transition-opacity"
                         onError={() => setImageError(true)}
+                        onClick={() => setShowFullImage(true)}
+                        title="Clic para ver en tamaño completo"
                       />
                     ) : (
                       <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
@@ -270,6 +274,29 @@ const DocumentViewerModal = ({
           </div>
         )}
       </DialogContent>
+
+      {/* Full Image Modal */}
+      {showFullImage && document?.fileData && (
+        <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+          <DialogContent className="max-w-[95vw] max-h-[95vh] p-2">
+            <div className="relative">
+              <img
+                src={document.fileData}
+                alt="Documento - Vista completa"
+                className="w-full h-auto max-h-[90vh] object-contain"
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={() => setShowFullImage(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 };
