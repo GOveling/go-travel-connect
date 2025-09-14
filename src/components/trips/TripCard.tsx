@@ -284,10 +284,6 @@ const TripCard = ({
                         {t("trips.invitations.invite")}
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem>
-                      <Share2 size={14} className="mr-2" />
-                      {t("trips.share.title")}
-                    </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => onDeleteTrip && onDeleteTrip(trip)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
