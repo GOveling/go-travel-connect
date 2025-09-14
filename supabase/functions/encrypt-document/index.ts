@@ -64,11 +64,6 @@ async function encryptData(data: string, key: CryptoKey): Promise<{ encrypted: s
   };
 }
 
-async function generateKeyHash(key: CryptoKey): Promise<string> {
-  const exported = await crypto.subtle.exportKey("raw", key);
-  const hash = await crypto.subtle.digest("SHA-256", exported);
-  return btoa(String.fromCharCode(...new Uint8Array(hash)));
-}
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
@@ -101,7 +96,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Generate user-specific encryption key
     const encryptionKey = await generateEncryptionKey(user.id);
-    const keyHash = await generateKeyHash(encryptionKey);
 
     // Encrypt metadata
     const metadataJson = JSON.stringify(metadata);
@@ -153,7 +147,6 @@ const handler = async (req: Request): Promise<Response> => {
         document_type: documentType,
         encrypted_metadata: encryptedMetadataWithIv,
         file_path: filePath,
-        encryption_key_hash: keyHash,
         expires_at: metadata.expiryDate ? new Date(metadata.expiryDate).toISOString() : null
       })
       .select()
