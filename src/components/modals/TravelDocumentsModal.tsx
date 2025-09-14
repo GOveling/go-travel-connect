@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import DocumentForm from "./travel-documents/DocumentForm";
 import DocumentCard from "./travel-documents/DocumentCard";
+import DocumentViewerModal from "./travel-documents/DocumentViewerModal";
 import { Plus, Download, Shield, Lock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useEncryptedTravelDocuments, TravelDocumentMetadata } from "@/hooks/useEncryptedTravelDocuments";
@@ -32,6 +33,8 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const [isOffline, setIsOffline] = useState(false);
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(null);
+  const [viewingDocumentId, setViewingDocumentId] = useState<string | null>(null);
+  const [viewingDocumentType, setViewingDocumentType] = useState<string>("");
   const [formData, setFormData] = useState<TravelDocument>({
     id: "",
     type: "",
@@ -142,6 +145,16 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
   const handleDeleteDocument = async (id: string) => {
     await deleteDocument(id);
+  };
+
+  const handleViewDocument = (document: TravelDocument) => {
+    setViewingDocumentId(document.id);
+    setViewingDocumentType(document.type);
+  };
+
+  const handleCloseViewer = () => {
+    setViewingDocumentId(null);
+    setViewingDocumentType("");
   };
 
   const resetForm = () => {
@@ -287,13 +300,14 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                         type: document.documentType,
                         documentNumber: "••••••••", // Hidden for security
                         issueDate: "••••••••",
-                        expiryDate: document.expiresAt ? new Date(document.expiresAt).toLocaleDateString() : "••••••••",
+                        expiryDate: document.expiresAt ? document.expiresAt : "••••••••",
                         issuingCountry: "••••••••",
                         notes: `Accesos: ${document.accessCount}`,
                         photo: document.hasFile ? "encrypted" : undefined,
                       }}
                       onEdit={() => {}} // Disabled for encrypted documents
                       onDelete={() => handleDeleteDocument(document.id)}
+                      onView={handleViewDocument}
                       isEncrypted={true}
                     />
                     
@@ -334,6 +348,17 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           </div>
         </div>
       </DialogContent>
+
+      {/* Document Viewer Modal */}
+      {viewingDocumentId && (
+        <DocumentViewerModal
+          isOpen={!!viewingDocumentId}
+          onClose={handleCloseViewer}
+          documentId={viewingDocumentId}
+          documentType={viewingDocumentType}
+          getDocument={getDocument}
+        />
+      )}
     </Dialog>
   );
 };

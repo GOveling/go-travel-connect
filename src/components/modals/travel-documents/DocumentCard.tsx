@@ -18,19 +18,28 @@ interface DocumentCardProps {
   document: TravelDocument;
   onEdit: (document: TravelDocument) => void;
   onDelete: (id: string) => void;
+  onView?: (document: TravelDocument) => void;
   isEncrypted?: boolean;
 }
 
-const DocumentCard = ({ document, onEdit, onDelete, isEncrypted = false }: DocumentCardProps) => {
+const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false }: DocumentCardProps) => {
   const calculateDaysToExpiry = (expiryDate: string) => {
-    if (!expiryDate) return null;
+    if (!expiryDate || expiryDate === "••••••••") return null;
 
-    const today = new Date();
-    const expiry = new Date(expiryDate);
-    const timeDiff = expiry.getTime() - today.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    try {
+      const today = new Date();
+      const expiry = new Date(expiryDate);
+      
+      // Check if date is valid
+      if (isNaN(expiry.getTime())) return null;
+      
+      const timeDiff = expiry.getTime() - today.getTime();
+      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-    return daysDiff;
+      return daysDiff;
+    } catch {
+      return null;
+    }
   };
 
   const getExpiryStatus = (daysToExpiry: number | null) => {
@@ -71,7 +80,10 @@ const DocumentCard = ({ document, onEdit, onDelete, isEncrypted = false }: Docum
   const expiryStatus = getExpiryStatus(daysToExpiry);
 
   return (
-    <Card>
+    <Card 
+      className={`${isEncrypted && onView ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      onClick={isEncrypted && onView ? () => onView(document) : undefined}
+    >
       <CardContent className="p-4">
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -129,21 +141,41 @@ const DocumentCard = ({ document, onEdit, onDelete, isEncrypted = false }: Docum
                   )}
 
                   {document.issueDate && (
-                    <div>
-                      <p className="text-gray-600">Issue Date</p>
-                      <p className="font-medium">
-                        {new Date(document.issueDate).toLocaleDateString()}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-gray-600">Issue Date</p>
+                    <p className="font-medium">
+                      {document.issueDate === "••••••••" || !document.issueDate 
+                        ? "••••••••" 
+                        : (() => {
+                            try {
+                              const date = new Date(document.issueDate);
+                              return isNaN(date.getTime()) ? "Fecha inválida" : date.toLocaleDateString();
+                            } catch {
+                              return "Fecha inválida";
+                            }
+                          })()
+                      }
+                    </p>
+                  </div>
                   )}
 
                   {document.expiryDate && (
-                    <div>
-                      <p className="text-gray-600">Expiry Date</p>
-                      <p className="font-medium">
-                        {new Date(document.expiryDate).toLocaleDateString()}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-gray-600">Expiry Date</p>
+                    <p className="font-medium">
+                      {document.expiryDate === "••••••••" || !document.expiryDate 
+                        ? "••••••••" 
+                        : (() => {
+                            try {
+                              const date = new Date(document.expiryDate);
+                              return isNaN(date.getTime()) ? "Fecha inválida" : date.toLocaleDateString();
+                            } catch {
+                              return "Fecha inválida";
+                            }
+                          })()
+                      }
+                    </p>
+                  </div>
                   )}
                 </div>
 
