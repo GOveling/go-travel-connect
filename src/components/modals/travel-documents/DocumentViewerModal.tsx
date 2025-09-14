@@ -145,18 +145,13 @@ const DocumentViewerModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              {documentType}
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                <Shield className="w-3 h-3 mr-1" />
-                Desencriptado
-              </Badge>
-            </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            {documentType}
+            <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <Shield className="w-3 h-3 mr-1" />
+              Desencriptado
+            </Badge>
           </DialogTitle>
         </DialogHeader>
 
