@@ -4,7 +4,7 @@ import { getEnvironmentConfig, getRedirectUrl } from "@/utils/environment";
 import { isNative, isAndroid, isIOS } from "@/utils/capacitor";
 import { Session, User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
+import { SocialLogin } from "@capgo/capacitor-social-login";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -350,29 +350,34 @@ export const useAuth = () => {
       
       console.log(`📱 useAuth: Starting native Google authentication for ${platform}`);
       console.log(`📱 useAuth: Using Client ID: ${clientId}`);
-      
-      // Initialize Google Auth with platform-specific Client ID
-      await GoogleAuth.initialize({
-        clientId: clientId,
-        scopes: ["profile", "email"],
-        grantOfflineAccess: true,
+
+      // Initialize the plugin first
+      await SocialLogin.initialize({
+        google: {
+          webClientId: clientId,
+          iOSClientId: clientId,
+          mode: 'online',
+        },
       });
 
-      console.log("📱 useAuth: Google Auth initialized, signing in...");
-
-      // Sign in with Google natively
-      const googleUser = await GoogleAuth.signIn();
+      // Sign in with Google natively using the new plugin
+      const result = await SocialLogin.login({
+        provider: "google",
+        options: {
+          scopes: ["email", "profile"],
+        }
+      });
       
       console.log("📱 useAuth: Native Google sign in successful:", {
-        email: googleUser.email,
-        name: googleUser.name,
+        email: result.result?.authentication?.email,
+        name: result.result?.authentication?.name,
       });
 
       // Use the ID token to sign in with Supabase
       const { data, error } = await supabase.auth.signInWithIdToken({
         provider: 'google',
-        token: googleUser.authentication.idToken,
-        access_token: googleUser.authentication.accessToken,
+        token: result.result.authentication.idToken,
+        access_token: result.result.authentication.accessToken,
       });
 
       if (error) {
