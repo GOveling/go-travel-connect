@@ -118,22 +118,24 @@ const HomePopularPlace = ({ onPlaceClick }: HomePopularPlaceProps) => {
   // Get current place (from real data or fallback to mock data)
   const getCurrentPlace = () => {
     if (globalPlaces.length > 0) {
+      const safeIndex = currentPlaceIndex % globalPlaces.length;
+      const place = globalPlaces[safeIndex];
       return {
-        id: `global-${currentPlaceIndex}`,
-        name: globalPlaces[currentPlaceIndex].name,
-        location: globalPlaces[currentPlaceIndex].formatted_address || 
-                 `${globalPlaces[currentPlaceIndex].city}, ${globalPlaces[currentPlaceIndex].country}`,
+        id: `global-${safeIndex}`,
+        name: place.name,
+        location: place.formatted_address || 
+                 `${place.city}, ${place.country}`,
         rating: 4.5, // Default rating since we don't have rating data
-        image: getCategoryEmoji(globalPlaces[currentPlaceIndex].category),
-        category: globalPlaces[currentPlaceIndex].category,
-        description: globalPlaces[currentPlaceIndex].description || 
-                    `Popular ${globalPlaces[currentPlaceIndex].category.toLowerCase()} saved ${globalPlaces[currentPlaceIndex].save_count} times in the last hour`,
-        globalSaves: globalPlaces[currentPlaceIndex].save_count,
+        image: getCategoryEmoji(place.category),
+        category: place.category,
+        description: place.description || 
+                    `Popular ${place.category.toLowerCase()} saved ${place.save_count} times in the last hour`,
+        globalSaves: place.save_count,
         hours: "Check locally",
         website: "",
         phone: "",
-        lat: globalPlaces[currentPlaceIndex].lat,
-        lng: globalPlaces[currentPlaceIndex].lng,
+        lat: place.lat,
+        lng: place.lng,
       };
     }
     // Fallback to mock data if no real data available
