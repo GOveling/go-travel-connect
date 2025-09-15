@@ -1,7 +1,7 @@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getEnvironmentConfig, getRedirectUrl } from "@/utils/environment";
-import { isNative } from "@/utils/capacitor";
+import { isNative, isAndroid, isIOS } from "@/utils/capacitor";
 import { Session, User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
@@ -11,6 +11,20 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Platform-specific Google Client IDs
+  const getGoogleClientId = () => {
+    if (isAndroid()) {
+      // Android Client ID - Replace with your actual Android Client ID from Google Cloud Console
+      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
+    } else if (isIOS()) {
+      // iOS Client ID - Replace with your actual iOS Client ID when you create one
+      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
+    } else {
+      // Web Client ID
+      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
+    }
+  };
 
   useEffect(() => {
     console.log("🔄 useAuth: Initializing auth state...");
@@ -331,11 +345,15 @@ export const useAuth = () => {
 
   const signInWithGoogleNative = async () => {
     try {
-      console.log("📱 useAuth: Starting native Google authentication");
+      const platform = isAndroid() ? "Android" : isIOS() ? "iOS" : "Web";
+      const clientId = getGoogleClientId();
       
-      // Initialize Google Auth with Web Client ID
+      console.log(`📱 useAuth: Starting native Google authentication for ${platform}`);
+      console.log(`📱 useAuth: Using Client ID: ${clientId}`);
+      
+      // Initialize Google Auth with platform-specific Client ID
       await GoogleAuth.initialize({
-        clientId: "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com",
+        clientId: clientId,
         scopes: ["profile", "email"],
         grantOfflineAccess: true,
       });
