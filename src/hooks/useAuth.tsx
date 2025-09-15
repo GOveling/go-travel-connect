@@ -4,7 +4,7 @@ import { getEnvironmentConfig, getRedirectUrl } from "@/utils/environment";
 import { isNative } from "@/utils/capacitor";
 import { Session, User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-// import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth"; // Commented temporarily to fix import error
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -284,9 +284,8 @@ export const useAuth = () => {
       console.log("🔍 useAuth: Current user state:", user?.email || "No user");
       console.log("🔍 useAuth: Is native platform:", isNative());
 
-      // Temporarily disable native authentication to fix import error
-      // TODO: Re-enable after proper Google Auth setup
-      if (false && isNative()) {
+      // Use native authentication for mobile apps
+      if (isNative()) {
         return await signInWithGoogleNative();
       }
 
@@ -334,25 +333,36 @@ export const useAuth = () => {
     try {
       console.log("📱 useAuth: Starting native Google authentication");
       
-      // This function will be implemented after proper Google Auth configuration
-      // For now, fallback to web authentication
-      console.log("⚠️ Native Google Auth not configured yet, using web fallback");
+      // Initialize Google Auth with Web Client ID
+      await GoogleAuth.initialize({
+        clientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com", // TODO: Replace with actual Client ID
+        scopes: ["profile", "email"],
+        grantOfflineAccess: true,
+      });
+
+      console.log("📱 useAuth: Google Auth initialized, signing in...");
+
+      // Sign in with Google natively
+      const googleUser = await GoogleAuth.signIn();
       
-      const redirectUrl = getRedirectUrl("/");
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: {
-            access_type: "offline",
-            prompt: "select_account",
-          },
-        },
+      console.log("📱 useAuth: Native Google sign in successful:", {
+        email: googleUser.email,
+        name: googleUser.name,
+      });
+
+      // Use the ID token to sign in with Supabase
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: googleUser.authentication.idToken,
+        access_token: googleUser.authentication.accessToken,
       });
 
       if (error) {
+        console.error("❌ useAuth: Supabase native sign in error:", error);
         throw error;
       }
+
+      console.log("✅ useAuth: Native Google authentication successful");
 
       return { error: null };
     } catch (error: any) {
