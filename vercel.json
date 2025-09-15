@@ -29,9 +29,9 @@
     }
   ],
   "env": {
-    "VITE_SUPABASE_PROJECT_ID": "@vite_supabase_project_id",
-    "VITE_SUPABASE_PUBLISHABLE_KEY": "@vite_supabase_publishable_key",
-    "VITE_SUPABASE_URL": "@vite_supabase_url",
-    "VITE_AI_ROUTES_API_URL": "@vite_ai_routes_api_url"
+    "VITE_SUPABASE_PROJECT_ID": "suhttfxcurgurshlkcpz",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1aHR0ZnhjdXJndXJzaGxrY3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwMjc4MTAsImV4cCI6MjA2NTYwMzgxMH0.2DLJSoUaSQel60qSaql3x9vRpO7LVXg3mu1qWdXo39g",
+    "VITE_SUPABASE_URL": "https://suhttfxcurgurshlkcpz.supabase.co",
+    "VITE_AI_ROUTES_API_URL": "https://goveling-ml.onrender.com/api/v2"
   }
 }
