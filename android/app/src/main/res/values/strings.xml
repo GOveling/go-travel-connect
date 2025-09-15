@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">goveling-mvp</string>
+    <string name="title_activity_main">goveling-mvp</string>
+    <string name="package_name">app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8</string>
+    <string name="custom_url_scheme">app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8</string>
+</resources>
