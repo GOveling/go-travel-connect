@@ -15,14 +15,14 @@ export const useAuth = () => {
   // Platform-specific Google Client IDs
   const getGoogleClientId = () => {
     if (isAndroid()) {
-      // Android Client ID - Replace with your actual Android Client ID from Google Cloud Console
+      // Android Client ID
       return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
     } else if (isIOS()) {
       // iOS Client ID - Replace with your actual iOS Client ID when you create one
       return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
     } else {
       // Web Client ID
-      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
+      return "117845276386-tjagl8ie97jc881vem3qam4kvkq0i34j.apps.googleusercontent.com";
     }
   };
 
