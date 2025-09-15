@@ -368,21 +368,26 @@ export const useAuth = () => {
         }
       });
       
-      console.log("📱 useAuth: Native Google sign in successful:", {
-        email: result.result?.authentication?.email,
-        name: result.result?.authentication?.name,
-      });
+      // Check if we have an online response with profile data
+      if (result.result.responseType === 'online') {
+        console.log("📱 useAuth: Native Google sign in successful:", {
+          email: result.result.profile?.email,
+          name: result.result.profile?.name,
+        });
 
-      // Use the ID token to sign in with Supabase
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: 'google',
-        token: result.result.authentication.idToken,
-        access_token: result.result.authentication.accessToken,
-      });
+        // Use the ID token to sign in with Supabase
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: result.result.idToken!,
+          access_token: result.result.accessToken?.token,
+        });
 
-      if (error) {
-        console.error("❌ useAuth: Supabase native sign in error:", error);
-        throw error;
+        if (error) {
+          console.error("❌ useAuth: Supabase native sign in error:", error);
+          throw error;
+        }
+      } else {
+        throw new Error("Offline mode not supported for this authentication flow");
       }
 
       console.log("✅ useAuth: Native Google authentication successful");
