@@ -33,6 +33,11 @@
     },
     "Geolocation": {
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "clientId": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+      "forceCodeForRefreshToken": true
     }
   },
   "android": {

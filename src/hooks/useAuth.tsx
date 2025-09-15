@@ -1,8 +1,10 @@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getEnvironmentConfig, getRedirectUrl } from "@/utils/environment";
+import { isNative } from "@/utils/capacitor";
 import { Session, User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -280,7 +282,14 @@ export const useAuth = () => {
     try {
       console.log("🔍 useAuth: Attempting Google sign in");
       console.log("🔍 useAuth: Current user state:", user?.email || "No user");
+      console.log("🔍 useAuth: Is native platform:", isNative());
 
+      // Use native authentication in Capacitor environment
+      if (isNative()) {
+        return await signInWithGoogleNative();
+      }
+
+      // Fallback to web OAuth for browser
       const redirectUrl = getRedirectUrl("/");
       console.log("🔗 useAuth: Using Google redirect URL:", redirectUrl);
 
@@ -316,6 +325,72 @@ export const useAuth = () => {
         description: error.message || "Ocurrió un error inesperado",
         variant: "destructive",
       });
+      return { error };
+    }
+  };
+
+  const signInWithGoogleNative = async () => {
+    try {
+      console.log("📱 useAuth: Starting native Google authentication");
+
+      // Initialize Google Auth (only needed once)
+      await GoogleAuth.initialize({
+        clientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com", // Se debe configurar
+        scopes: ["profile", "email"],
+        grantOfflineAccess: true,
+      });
+
+      // Perform native Google sign-in
+      const result = await GoogleAuth.signIn();
+      console.log("✅ useAuth: Native Google sign-in result:", result);
+
+      if (!result.authentication?.idToken) {
+        throw new Error("No se pudo obtener el token de Google");
+      }
+
+      // Exchange Google token with Supabase
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: result.authentication.idToken,
+        access_token: result.authentication.accessToken,
+      });
+
+      if (error) {
+        console.error("❌ useAuth: Supabase token exchange error:", error);
+        throw error;
+      }
+
+      console.log("✅ useAuth: Native Google authentication successful");
+
+      // Check if this is a new user for welcome flow
+      if (data.user) {
+        const userCreatedAt = new Date(data.user.created_at);
+        const now = new Date();
+        const timeDiff = now.getTime() - userCreatedAt.getTime();
+
+        if (timeDiff < 10000) {
+          sessionStorage.setItem(`new_signup_${data.user.id}`, "true");
+          console.log("🆕 Detected new Google signup:", data.user.email);
+        }
+      }
+
+      return { error: null };
+    } catch (error: any) {
+      console.error("❌ useAuth: Native Google authentication error:", error);
+      
+      let errorMessage = "Error al iniciar sesión con Google";
+      if (error.message?.includes("popup_closed_by_user")) {
+        errorMessage = "Autenticación cancelada por el usuario";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Error de conexión. Verifica tu internet";
+      }
+
+      toast({
+        title: "Error con Google",
+        description: errorMessage,
+        variant: "destructive",
+      });
+
       return { error };
     }
   };
