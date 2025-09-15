@@ -36,7 +36,7 @@
     },
     "GoogleAuth": {
       "scopes": ["profile", "email"],
-      "clientId": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+      "clientId": "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
     }
   },
