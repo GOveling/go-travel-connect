@@ -1,48 +1,33 @@
-# Solución Temporal: Google Auth funcionando
+# Google Auth Configuration - @capgo/capacitor-social-login
 
-## ⚠️ Estado Actual
-La autenticación de Google está funcionando en modo web (con redirect externo) mientras configuramos la autenticación nativa.
+## ✅ Estado Actual
+La autenticación de Google está configurada usando el plugin @capgo/capacitor-social-login que es compatible con Capacitor 7.
 
-## 🔧 Para habilitar autenticación nativa:
+## 🔧 Configuración de Google Auth:
 
-1. **Configura Google Cloud Console** (sigue los pasos del setup original)
-2. **Descomenta y configura la importación** en `src/hooks/useAuth.tsx`:
-   ```typescript
-   import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
-   ```
-3. **Cambia el condicional** en línea ~287:
-   ```typescript
-   // Cambiar de:
-   if (false && isNative()) {
-   // A:
-   if (isNative()) {
-   ```
+La autenticación nativa de Google ya está configurada usando el plugin `@capgo/capacitor-social-login`.
 
-## 🚀 Alternativa más simple: Deep Link
+## 📋 Configuración requerida:
 
-Para una solución más rápida, puedes mejorar el deep linking:
+### 1. Configurar Google Cloud Console
+Sigue los pasos estándar para configurar OAuth en Google Cloud Console.
 
-## 2. Configurar el Client ID
+### 2. Configurar Client IDs en `capacitor.config.json`
 
-Reemplaza `YOUR_WEB_CLIENT_ID.apps.googleusercontent.com` en estos archivos:
+El archivo ya está configurado con los Client IDs necesarios:
 
-### En `src/hooks/useAuth.tsx` (línea ~338):
-```typescript
-await GoogleAuth.initialize({
-  clientId: "TU_WEB_CLIENT_ID.apps.googleusercontent.com", // Reemplazar aquí
-  scopes: ["profile", "email"],
-  grantOfflineAccess: true,
-});
-```
-
-### En `capacitor.config.json` (línea ~39):
 ```json
-"GoogleAuth": {
-  "scopes": ["profile", "email"],
-  "clientId": "TU_WEB_CLIENT_ID.apps.googleusercontent.com", // Reemplazar aquí
-  "forceCodeForRefreshToken": true
+"SocialLogin": {
+  "google": {
+    "webClientId": "117845276386-tjagl8ie97jc881vem3qam4kvkq0i34j.apps.googleusercontent.com",
+    "androidClientId": "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com",
+    "iosClientId": "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com"
+  }
 }
 ```
+
+### 3. Actualizar Client IDs
+Reemplaza los Client IDs de ejemplo con tus propios IDs de Google Cloud Console.
 
 ## 3. Configuración en Supabase
 
@@ -64,17 +49,17 @@ cd android
 ./gradlew assembleRelease
 ```
 
-## 5. Beneficios de esta implementación:
+## 5. Funcionamiento del plugin:
 
-✅ **Autenticación nativa**: No sale de la app en móviles
+✅ **Plugin compatible**: @capgo/capacitor-social-login es compatible con Capacitor 7
+✅ **Autenticación nativa**: No sale de la app en móviles  
 ✅ **Fallback web**: Funciona en navegadores
-✅ **Deep linking**: El redirect funciona correctamente
 ✅ **UX mejorada**: Experiencia más fluida para usuarios móviles
-✅ **Seguridad**: Tokens manejados nativamente
+✅ **Seguridad**: Tokens manejados nativamente por el plugin
 
 ## 6. Notas importantes:
 
-- El mismo Web Client ID funciona para móvil y web
-- Los Client IDs de Android/iOS solo son para configuración nativa
-- La autenticación se detecta automáticamente según la plataforma
-- En desarrollo web seguirá usando el método OAuth tradicional
+- El plugin @capgo/capacitor-social-login es la versión actualizada compatible con Capacitor 7
+- Se removió completamente @codetrix-studio/capacitor-google-auth por incompatibilidad de dependencias
+- La configuración en capacitor.config.json usa la sección "SocialLogin" en lugar de "GoogleAuth"
+- El nuevo plugin maneja automáticamente la detección de plataforma
