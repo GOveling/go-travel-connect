@@ -1,29 +1,26 @@
-# Configuración de Google Native Authentication
+# Solución Temporal: Google Auth funcionando
 
-## 1. Configuración en Google Cloud Console
+## ⚠️ Estado Actual
+La autenticación de Google está funcionando en modo web (con redirect externo) mientras configuramos la autenticación nativa.
 
-### Para Android (APK):
-1. Ve a [Google Cloud Console](https://console.cloud.google.com/)
-2. Selecciona tu proyecto o crea uno nuevo
-3. Ve a "APIs y servicios" > "Credenciales"
-4. Crea una credencial "OAuth 2.0 Client ID" para Android:
-   - Tipo de aplicación: Android
-   - Nombre del paquete: `app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8`
-   - SHA-1 de tu keystore: Obtén con el comando:
-     ```bash
-     keytool -list -v -keystore android-keystore/goveling-release-key.keystore -alias goveling
-     ```
+## 🔧 Para habilitar autenticación nativa:
 
-### Para iOS (IPA):
-1. Crea una credencial "OAuth 2.0 Client ID" para iOS:
-   - Tipo de aplicación: iOS
-   - Bundle ID: `app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8`
+1. **Configura Google Cloud Console** (sigue los pasos del setup original)
+2. **Descomenta y configura la importación** en `src/hooks/useAuth.tsx`:
+   ```typescript
+   import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
+   ```
+3. **Cambia el condicional** en línea ~287:
+   ```typescript
+   // Cambiar de:
+   if (false && isNative()) {
+   // A:
+   if (isNative()) {
+   ```
 
-### Para Web (fallback):
-1. Crea una credencial "OAuth 2.0 Client ID" para Web:
-   - Tipo de aplicación: Web application
-   - JavaScript origins: Tu dominio web
-   - Redirect URIs: Tu dominio + callback de Supabase
+## 🚀 Alternativa más simple: Deep Link
+
+Para una solución más rápida, puedes mejorar el deep linking:
 
 ## 2. Configurar el Client ID
 
