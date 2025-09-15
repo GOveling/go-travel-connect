@@ -335,7 +335,7 @@ export const useAuth = () => {
       
       // Initialize Google Auth with Web Client ID
       await GoogleAuth.initialize({
-        clientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com", // TODO: Replace with actual Client ID
+        clientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com", // Replace with your actual Web Client ID from Google Cloud Console
         scopes: ["profile", "email"],
         grantOfflineAccess: true,
       });
