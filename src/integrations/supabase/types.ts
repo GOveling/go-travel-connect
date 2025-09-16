@@ -1270,7 +1270,7 @@ export type Database = {
         Returns: Json
       }
       admin_delete_document: {
-        Args: { document_id: string }
+        Args: { target_document_id: string }
         Returns: boolean
       }
       anonymize_location_history: {
