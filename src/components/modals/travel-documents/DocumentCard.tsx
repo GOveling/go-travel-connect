@@ -206,7 +206,10 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onEdit(document)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(document);
+                }}
               >
                 <Edit className="w-4 h-4" />
               </Button>
@@ -214,7 +217,10 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDelete(document.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(document.id);
+              }}
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="w-4 h-4" />
