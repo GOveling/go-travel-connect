@@ -347,7 +347,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                         issueDate: "••••••••",
                         expiryDate: document.expiresAt ? document.expiresAt : "••••••••",
                         issuingCountry: "••••••••",
-                        notes: document.notesPreview || `Documento creado el ${new Date(document.createdAt).toLocaleDateString()}`,
+                        notes: document.notesPreview || "Sin notas adicionales",
                         photo: document.hasFile ? "encrypted" : undefined,
                       }}
                       onEdit={() => {}} // Disabled for encrypted documents
