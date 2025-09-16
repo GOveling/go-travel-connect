@@ -75,11 +75,11 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   return btoa(binary);
 }
 
-// Validate file size (max 10MB for individual files)
+// Validate file size (max 2MB for individual files after compression)
 function validateFileSize(fileData: string): boolean {
   // Base64 encoding increases size by ~33%, so check original size
   const sizeInBytes = (fileData.length * 3) / 4;
-  const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+  const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
   return sizeInBytes <= maxSizeInBytes;
 }
 
@@ -152,9 +152,9 @@ const handler = async (req: Request): Promise<Response> => {
         throw new Error('Invalid file format: File must be Base64 encoded');
       }
 
-      // Validate file size (max 10MB)
+      // Validate file size (max 2MB after compression)
       if (!validateFileSize(fileData)) {
-        throw new Error('File too large: Maximum file size is 10MB');
+        throw new Error('File too large: Maximum file size is 2MB (images are automatically compressed)');
       }
 
       console.log(`Processing file: ${fileName}, size: ${Math.round((fileData.length * 3) / 4 / 1024)} KB`);

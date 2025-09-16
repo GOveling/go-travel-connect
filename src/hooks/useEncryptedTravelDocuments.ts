@@ -226,12 +226,12 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           className: "bg-green-50 border-green-200",
         });
       } else {
-        // Validate file size before sending (max 10MB)
+        // Validate file size before sending (max 2MB after compression)
         if (fileData) {
           const sizeInBytes = (fileData.length * 3) / 4;
-          const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
           if (sizeInBytes > maxSizeInBytes) {
-            throw new Error('El archivo es demasiado grande. Tamaño máximo: 10MB');
+            throw new Error('El archivo es demasiado grande. Tamaño máximo: 2MB (las imágenes son comprimidas automáticamente)');
           }
         }
 
@@ -252,7 +252,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           console.error('Error calling encrypt-document function:', error);
           // Handle specific error cases
           if (error.message?.includes('File too large')) {
-            throw new Error('El archivo es demasiado grande. Tamaño máximo: 10MB');
+            throw new Error('El archivo es demasiado grande. Tamaño máximo: 2MB (las imágenes son comprimidas automáticamente)');
           } else if (error.message?.includes('Invalid file format')) {
             throw new Error('Formato de archivo inválido. Selecciona un archivo válido');
           } else if (error.message?.includes('timeout')) {
@@ -271,7 +271,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           // Handle specific error cases from edge function
           let errorMessage = data.error || 'Error al procesar documento';
           if (errorMessage.includes('File too large')) {
-            errorMessage = 'El archivo es demasiado grande. Tamaño máximo: 10MB';
+            errorMessage = 'El archivo es demasiado grande. Tamaño máximo: 2MB (las imágenes son comprimidas automáticamente)';
           } else if (errorMessage.includes('Invalid file format')) {
             errorMessage = 'Formato de archivo inválido. Selecciona un archivo válido';
           }
