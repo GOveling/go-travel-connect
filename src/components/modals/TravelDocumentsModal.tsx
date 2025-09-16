@@ -55,7 +55,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Use a single hook instance and manage mode switching manually
+  // Use the hook with autoLoad enabled when modal is open
   const {
     documents: currentDocuments,
     loading,
@@ -65,11 +65,14 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     deleteDocument,
     loadDocuments,
     refreshDocuments
-  } = useEncryptedTravelDocuments(false);
+  } = useEncryptedTravelDocuments(isOpen && !!user);
 
   // Load documents when modal opens or mode changes
   useEffect(() => {
     if (isOpen && user) {
+      console.log('Modal effect triggered - loading documents with offline mode:', isOffline);
+      // Sync the localStorage with the current offline state before loading
+      localStorage.setItem("offlineMode", isOffline.toString());
       loadDocuments();
       loadDocumentCounts();
     }
@@ -77,26 +80,39 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
   const loadDocumentCounts = async () => {
     try {
+      console.log('Loading document counts...');
       // Get counts from localStorage for quick display
       const offlineData = localStorage.getItem('encrypted_travel_documents');
       const offlineDocs = offlineData ? JSON.parse(offlineData) : [];
+      console.log('Offline docs count:', offlineDocs.length);
       setOfflineDocuments(offlineDocs);
       
       // For online count, we'll use the current hook state when online
       if (!isOffline) {
+        console.log('Online docs count:', currentDocuments.length);
         setOnlineDocuments(currentDocuments);
+      } else {
+        console.log('In offline mode, not updating online count');
       }
     } catch (error) {
       console.error('Error loading document counts:', error);
     }
   };
 
-  // Load offline mode from localStorage (legacy documents are migrated on first use)
+  // Update counts when documents change
+  useEffect(() => {
+    if (initialized) {
+      console.log('Documents updated, refreshing counts. Current docs:', currentDocuments.length);
+      loadDocumentCounts();
+    }
+  }, [currentDocuments, initialized]);
+
+  // Load offline mode from localStorage and sync with hook
   useEffect(() => {
     const savedOfflineMode = localStorage.getItem("offlineMode");
-    if (savedOfflineMode) {
-      setIsOffline(JSON.parse(savedOfflineMode));
-    }
+    const offlineMode = savedOfflineMode ? JSON.parse(savedOfflineMode) : false;
+    setIsOffline(offlineMode);
+    console.log('Modal initialized with offline mode:', offlineMode);
     
     // Migrate legacy documents to encrypted storage on first load
     const legacyDocuments = localStorage.getItem("travelDocuments");
@@ -105,14 +121,12 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     }
   }, [user, isOpen]);
 
-  // Save offline mode to localStorage when it changes
+  // Sync localStorage when offline state changes
   useEffect(() => {
-    localStorage.setItem("offlineMode", JSON.stringify(isOffline));
-    // Reload documents when switching modes
-    if (isOpen && user) {
-      loadDocuments();
-      loadDocumentCounts();
-    }
+    localStorage.setItem("offlineMode", isOffline.toString());
+    console.log('Offline mode changed to:', isOffline);
+    // Trigger storage event for the hook to pick up the change
+    window.dispatchEvent(new Event('storage'));
   }, [isOffline]);
 
   const migrateLegacyDocuments = async (legacyDocs: TravelDocument[]) => {

@@ -55,19 +55,33 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Watch for changes in localStorage
+  // Watch for changes in localStorage and manual updates
   useEffect(() => {
     const handleStorageChange = () => {
       const newOfflineMode = localStorage.getItem('offlineMode') === 'true';
+      console.log('Storage change detected - new offline mode:', newOfflineMode);
       setIsOfflineMode(newOfflineMode);
-      console.log('Offline mode changed:', newOfflineMode);
     };
 
     window.addEventListener('storage', handleStorageChange);
+    
+    // Also check on initial load
+    const currentOfflineMode = localStorage.getItem('offlineMode') === 'true';
+    if (currentOfflineMode !== isOfflineMode) {
+      console.log('Initial sync - setting offline mode to:', currentOfflineMode);
+      setIsOfflineMode(currentOfflineMode);
+    }
+
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  console.log('Offline mode from localStorage:', localStorage.getItem('offlineMode'), 'isOfflineMode:', isOfflineMode);
+  // Auto-load documents when hook initializes if autoLoad is true or when user/offlineMode changes
+  useEffect(() => {
+    if (user && (autoLoad || !initialized)) {
+      console.log('Auto-loading documents on hook initialization');
+      loadDocuments();
+    }
+  }, [user, isOfflineMode]);
 
   const loadDocuments = async () => {
     if (!user) {
@@ -85,6 +99,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
       if (isOfflineMode) {
         // Load from encrypted local storage
         const localDocs = localStorage.getItem('encrypted_travel_documents');
+        console.log('Local storage docs found:', !!localDocs, 'Content:', localDocs);
         if (localDocs) {
           const encryptedDocs: LocalEncryptedDocument[] = JSON.parse(localDocs);
           
@@ -151,12 +166,15 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
             })
           );
           
+          console.log('Loaded offline documents:', displayDocs.length);
           setDocuments(displayDocs);
         } else {
+          console.log('No offline documents found in localStorage');
           setDocuments([]);
         }
       } else {
         // Load from Supabase with enhanced error handling
+        console.log('Loading documents from Supabase...');
         const session = await supabase.auth.getSession();
         console.log('Session status:', !!session.data.session);
         
@@ -179,7 +197,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           },
         });
 
-        console.log('Edge function response:', { success: data?.success, error, dataKeys: Object.keys(data || {}) });
+        console.log('Edge function response:', { success: data?.success, error, dataKeys: Object.keys(data || {}), documentsCount: data?.documents?.length });
 
         if (error) {
           console.error('Edge function error:', error);
@@ -201,7 +219,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         }
 
         if (data?.success) {
-          console.log('Setting documents:', data.documents?.length || 0, 'documents');
+          console.log('Setting documents from Supabase:', data.documents?.length || 0, 'documents');
           setDocuments(data.documents || []);
         } else {
           console.error('Edge function returned error:', data?.error);
