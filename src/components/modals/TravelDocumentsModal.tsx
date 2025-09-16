@@ -50,11 +50,20 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const { 
     documents: encryptedDocuments, 
     loading, 
+    initialized,
     addDocument, 
     getDocument, 
     deleteDocument,
+    loadDocuments,
     refreshDocuments
-  } = useEncryptedTravelDocuments();
+  } = useEncryptedTravelDocuments(false); // Don't auto-load documents
+
+  // Load documents only when modal is opened
+  useEffect(() => {
+    if (isOpen && user && !initialized) {
+      loadDocuments();
+    }
+  }, [isOpen, user, initialized, loadDocuments]);
 
   // Load offline mode from localStorage (legacy documents are migrated on first use)
   useEffect(() => {
@@ -65,10 +74,10 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     
     // Migrate legacy documents to encrypted storage on first load
     const legacyDocuments = localStorage.getItem("travelDocuments");
-    if (legacyDocuments && user) {
+    if (legacyDocuments && user && isOpen) {
       migrateLegacyDocuments(JSON.parse(legacyDocuments));
     }
-  }, [user]);
+  }, [user, isOpen]);
 
   // Save offline mode to localStorage when it changes
   useEffect(() => {

@@ -45,19 +45,21 @@ export interface DecryptedDocument {
   lastAccessedAt: string;
 }
 
-export const useEncryptedTravelDocuments = () => {
+export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
   const [documents, setDocuments] = useState<EncryptedTravelDocument[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Check if in offline mode
-  const isOfflineMode = localStorage.getItem('offlineMode') === 'true';
+  // Check if in offline mode - default to true to avoid edge function errors
+  const isOfflineMode = localStorage.getItem('offlineMode') !== 'false';
 
   const loadDocuments = async () => {
     if (!user) {
       console.log('No user found, skipping document load');
+      setInitialized(true);
       return;
     }
     
@@ -166,6 +168,7 @@ export const useEncryptedTravelDocuments = () => {
       }
     } finally {
       setLoading(false);
+      setInitialized(true);
     }
   };
 
@@ -415,18 +418,22 @@ export const useEncryptedTravelDocuments = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && autoLoad && !initialized) {
       loadDocuments();
+    } else if (user && !autoLoad) {
+      setInitialized(true);
     }
-  }, [user]);
+  }, [user, autoLoad, initialized]);
 
   return {
     documents,
     loading,
     error,
+    initialized,
     addDocument,
     getDocument,
     deleteDocument,
+    loadDocuments,
     refreshDocuments: loadDocuments,
   };
 };
