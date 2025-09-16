@@ -116,80 +116,91 @@ export const useSupabaseTrips = () => {
 
       // Transform Supabase data to Trip format
       const transformedTrips: Trip[] =
-        tripsData?.map((trip: any) => ({
-          id: trip.id, // Keep UUID as string for proper Supabase compatibility
-          name: trip.name,
-          destination: trip.destination,
-          dates: getFormattedDateRange(
-            trip.start_date ? new Date(trip.start_date) : undefined,
-            trip.end_date ? new Date(trip.end_date) : undefined
-          ),
-          startDate: trip.start_date ? new Date(trip.start_date) : undefined,
-          endDate: trip.end_date ? new Date(trip.end_date) : undefined,
-          status: trip.status,
-          travelers: trip.travelers || 1,
-          image: trip.image || "✈️",
-          isGroupTrip: trip.is_group_trip || false,
-          user_id: trip.user_id,
-          description: trip.description || "",
-          budget: trip.budget || "",
-          accommodation: trip.accommodation || "",
-          transportation: trip.transportation || "",
-          coordinates:
-            trip.trip_coordinates
-              ?.sort(
-                (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
-              )
-              ?.map((coord: any) => ({
-                name: coord.name,
-                lat: coord.lat || 0,
-                lng: coord.lng || 0,
+        tripsData?.map((trip: any) => {
+          console.log(`🔄 Transforming trip: ${trip.name}`);
+          console.log(`   - Raw trip_collaborators:`, trip.trip_collaborators);
+          
+          const transformedTrip = {
+            id: trip.id, // Keep UUID as string for proper Supabase compatibility
+            name: trip.name,
+            destination: trip.destination,
+            dates: getFormattedDateRange(
+              trip.start_date ? new Date(trip.start_date) : undefined,
+              trip.end_date ? new Date(trip.end_date) : undefined
+            ),
+            startDate: trip.start_date ? new Date(trip.start_date) : undefined,
+            endDate: trip.end_date ? new Date(trip.end_date) : undefined,
+            status: trip.status,
+            travelers: trip.travelers || 1,
+            image: trip.image || "✈️",
+            isGroupTrip: trip.is_group_trip || false,
+            user_id: trip.user_id,
+            description: trip.description || "",
+            budget: trip.budget || "",
+            accommodation: trip.accommodation || "",
+            transportation: trip.transportation || "",
+            coordinates:
+              trip.trip_coordinates
+                ?.sort(
+                  (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+                )
+                ?.map((coord: any) => ({
+                  name: coord.name,
+                  lat: coord.lat || 0,
+                  lng: coord.lng || 0,
+                })) || [],
+            collaborators:
+              trip.trip_collaborators?.map((collab: any) => ({
+                id: collab.id,
+                name: collab.name || collab.email || "Unknown",
+                email: collab.email || "",
+                avatar: collab.avatar || "👤",
+                role: collab.role || "editor",
+                user_id: collab.user_id, // Make sure user_id is included
               })) || [],
-          collaborators:
-            trip.trip_collaborators?.map((collab: any) => ({
-              id: collab.id,
-              name: collab.name || collab.email || "Unknown",
-              email: collab.email || "",
-              avatar: collab.avatar || "👤",
-              role: collab.role || "editor",
-            })) || [],
-          savedPlaces:
-            trip.saved_places
-              ?.sort(
-                (a: any, b: any) =>
-                  (a.position_order || 0) - (b.position_order || 0)
-              )
-              ?.map((place: any) => ({
-                id: place.id,
-                name: place.name,
-                category: place.category || "attraction",
-                rating: place.rating || 4.5,
-                image: place.image || "📍",
-                description: place.description || "",
-                estimatedTime: place.estimated_time || "2-3 hours",
-                priority: place.priority || "medium",
-                destinationName: place.destination_name || "",
-                lat: place.lat || 0,
-                lng: place.lng || 0,
-                positionOrder: place.position_order || 0,
-                // Address hierarchy
-                formattedAddress: place.formatted_address || undefined,
-                addressJson: place.address_json || undefined,
-                country: place.country || undefined,
-                state: place.state || undefined,
-                region: place.region || undefined,
-                city: place.city || undefined,
-                district: place.district || undefined,
-                neighborhood: place.neighborhood || undefined,
-                postalCode: place.postal_code || undefined,
-                street: place.street || undefined,
-                streetNumber: place.street_number || undefined,
-                placeSource: place.place_source || undefined,
-                placeReference: place.place_reference || undefined,
-                // Visit tracking - now calculated per user using place_visits table
-                reminderNote: place.reminder_note || undefined,
-              })) || [],
-        })) || [];
+            savedPlaces:
+              trip.saved_places
+                ?.sort(
+                  (a: any, b: any) =>
+                    (a.position_order || 0) - (b.position_order || 0)
+                )
+                ?.map((place: any) => ({
+                  id: place.id,
+                  name: place.name,
+                  category: place.category || "attraction",
+                  rating: place.rating || 4.5,
+                  image: place.image || "📍",
+                  description: place.description || "",
+                  estimatedTime: place.estimated_time || "2-3 hours",
+                  priority: place.priority || "medium",
+                  destinationName: place.destination_name || "",
+                  lat: place.lat || 0,
+                  lng: place.lng || 0,
+                  positionOrder: place.position_order || 0,
+                  // Address hierarchy
+                  formattedAddress: place.formatted_address || undefined,
+                  addressJson: place.address_json || undefined,
+                  country: place.country || undefined,
+                  state: place.state || undefined,
+                  region: place.region || undefined,
+                  city: place.city || undefined,
+                  district: place.district || undefined,
+                  neighborhood: place.neighborhood || undefined,
+                  postalCode: place.postal_code || undefined,
+                  street: place.street || undefined,
+                  streetNumber: place.street_number || undefined,
+                  placeSource: place.place_source || undefined,
+                  placeReference: place.place_reference || undefined,
+                  // Visit tracking - now calculated per user using place_visits table
+                  reminderNote: place.reminder_note || undefined,
+                })) || [],
+          };
+          
+          console.log(`   - Transformed collaborators:`, transformedTrip.collaborators);
+          console.log(`   - Is Group Trip:`, transformedTrip.isGroupTrip);
+          
+          return transformedTrip;
+        }) || [];
 
       // Update cache for mobile performance
       cacheRef.current = {

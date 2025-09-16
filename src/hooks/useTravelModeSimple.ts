@@ -576,7 +576,11 @@ export const useTravelModeSimple = ({
       );
       const hasAccess = isOwner || isCollaborator;
       
-      console.log(`🎯 Trip "${trip.name}" - Owner: ${trip.user_id}, Current User: ${user.id}, Is Owner: ${isOwner}, Is Collaborator: ${isCollaborator}, Has Access: ${hasAccess}`);
+      console.log(`🎯 Trip "${trip.name}"`);
+      console.log(`   - Owner: ${trip.user_id}, Current User: ${user.id}`);
+      console.log(`   - Is Owner: ${isOwner}, Is Collaborator: ${isCollaborator}`);
+      console.log(`   - Collaborators:`, trip.collaborators);
+      console.log(`   - Has Access: ${hasAccess}`);
       return hasAccess;
     });
     
