@@ -83,6 +83,90 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
     }
   }, [user, isOfflineMode]);
 
+  // Sync online documents to encrypted local storage for offline access
+  const syncOnlineDocumentsToOffline = async (onlineDocuments: EncryptedTravelDocument[]) => {
+    try {
+      const userPin = localStorage.getItem('travel_app_pin');
+      if (!userPin) {
+        console.log('No PIN available, skipping auto-sync to offline');
+        return;
+      }
+
+      console.log('Auto-syncing', onlineDocuments.length, 'online documents to offline storage');
+      
+      const salt = getSalt();
+      const key = await generateLocalKey(userPin, salt);
+      
+      // Get documents with their decrypted content for offline storage
+      const offlineDocuments: LocalEncryptedDocument[] = [];
+      
+      for (const doc of onlineDocuments) {
+        try {
+          // Get the full decrypted document content
+          const fullDoc = await getDocumentFromSupabase(doc.id, true);
+          if (fullDoc) {
+            // Encrypt metadata for offline storage
+            const encryptedMetadata = await encryptLocalData(JSON.stringify(fullDoc.metadata), key);
+            
+            // Encrypt file data if available
+            let encryptedFileData: EncryptedData | undefined;
+            if (fullDoc.fileData) {
+              encryptedFileData = await encryptLocalData(fullDoc.fileData, key);
+            }
+
+            const localDoc: LocalEncryptedDocument = {
+              id: doc.id,
+              documentType: doc.documentType,
+              encryptedMetadata,
+              encryptedFileData,
+              createdAt: doc.createdAt,
+              updatedAt: doc.updatedAt,
+              hasFile: doc.hasFile,
+              accessCount: doc.accessCount,
+              lastAccessedAt: doc.lastAccessedAt,
+              notesPreview: fullDoc.metadata.expiryDate 
+                ? `${fullDoc.metadata.notes || ''} | Expira: ${fullDoc.metadata.expiryDate}`
+                : fullDoc.metadata.notes,
+            };
+            
+            offlineDocuments.push(localDoc);
+          }
+        } catch (syncError) {
+          console.log('Failed to sync document', doc.id, 'to offline:', syncError);
+          // Continue with other documents
+        }
+      }
+      
+      if (offlineDocuments.length > 0) {
+        localStorage.setItem('encrypted_travel_documents', JSON.stringify(offlineDocuments));
+        console.log('Successfully synced', offlineDocuments.length, 'documents to offline storage');
+      }
+    } catch (error) {
+      console.log('Error during auto-sync to offline:', error);
+      // Don't throw error as this is a background sync operation
+    }
+  };
+
+  // Helper function to get document from Supabase (for sync purposes)
+  const getDocumentFromSupabase = async (documentId: string, includeFile: boolean): Promise<DecryptedDocument | null> => {
+    try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) return null;
+
+      const { data, error } = await supabase.functions.invoke('decrypt-document', {
+        body: { documentId, includeFile },
+        headers: {
+          Authorization: `Bearer ${session.data.session.access_token}`,
+        },
+      });
+
+      if (error || !data?.success) return null;
+      return data.document;
+    } catch {
+      return null;
+    }
+  };
+
   const loadDocuments = async () => {
     if (!user) {
       console.log('No user found, skipping document load');
@@ -221,6 +305,9 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         if (data?.success) {
           console.log('Setting documents from Supabase:', data.documents?.length || 0, 'documents');
           setDocuments(data.documents || []);
+          
+          // Auto-sync online documents to local encrypted storage for offline access
+          await syncOnlineDocumentsToOffline(data.documents || []);
         } else {
           console.error('Edge function returned error:', data?.error);
           throw new Error(data?.error || 'Error desconocido del servidor');

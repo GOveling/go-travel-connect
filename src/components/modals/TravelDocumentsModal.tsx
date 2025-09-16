@@ -93,6 +93,8 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
         setOnlineDocuments(currentDocuments);
       } else {
         console.log('In offline mode, not updating online count');
+        // Still show offline count based on current documents in offline mode
+        setOfflineDocuments(currentDocuments);
       }
     } catch (error) {
       console.error('Error loading document counts:', error);
@@ -304,10 +306,12 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       
       // Force reload documents in online mode
       await refreshDocuments();
+      // Refresh counts after switching mode
+      setTimeout(() => loadDocumentCounts(), 500);
       
       toast({
         title: "Modo online activado",
-        description: "Los documentos se almacenarán en la nube encriptados",
+        description: "Los documentos se cargarán desde la nube y se sincronizarán para acceso offline",
         className: "bg-blue-50 border-blue-200",
       });
     }
@@ -334,10 +338,12 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       setIsOffline(true);
       localStorage.setItem("offlineMode", "true");
       await refreshDocuments();
+      // Refresh counts after switching mode
+      setTimeout(() => loadDocumentCounts(), 500);
       
       toast({
         title: "Modo offline activado",
-        description: "Los documentos se almacenarán localmente de forma segura",
+        description: "Ahora puedes ver tus documentos sin conexión a internet",
         className: "bg-green-50 border-green-200",
       });
     } else {
@@ -371,10 +377,12 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
         setIsOffline(true);
         localStorage.setItem("offlineMode", "true");
         await refreshDocuments();
+        // Refresh counts after switching mode
+        setTimeout(() => loadDocumentCounts(), 500);
         
         toast({
           title: "Modo offline activado",
-          description: "PIN configurado correctamente. Los documentos se almacenarán localmente de forma segura",
+          description: "PIN configurado. Tus documentos estarán disponibles sin conexión",
           className: "bg-green-50 border-green-200",
         });
       } catch (error: any) {
