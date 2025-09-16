@@ -12,19 +12,6 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Platform-specific Google Client IDs
-  const getGoogleClientId = () => {
-    if (isAndroid()) {
-      // Android Client ID
-      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
-    } else if (isIOS()) {
-      // iOS Client ID - Replace with your actual iOS Client ID when you create one
-      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
-    } else {
-      // Web Client ID
-      return "117845276386-tjagl8ie97jc881vem3qam4kvkq0i34j.apps.googleusercontent.com";
-    }
-  };
 
   useEffect(() => {
     console.log("🔄 useAuth: Initializing auth state...");
@@ -346,21 +333,11 @@ export const useAuth = () => {
   const signInWithGoogleNative = async () => {
     try {
       const platform = isAndroid() ? "Android" : isIOS() ? "iOS" : "Web";
-      const clientId = getGoogleClientId();
       
       console.log(`📱 useAuth: Starting native Google authentication for ${platform}`);
-      console.log(`📱 useAuth: Using Client ID: ${clientId}`);
+      console.log(`📱 useAuth: Plugin will use configuration from capacitor.config.json`);
 
-      // Initialize the plugin first
-      await SocialLogin.initialize({
-        google: {
-          webClientId: clientId,
-          iOSClientId: clientId,
-          mode: 'online',
-        },
-      });
-
-      // Sign in with Google natively using the new plugin
+      // Use the plugin directly - it will read configuration from capacitor.config.json
       const result = await SocialLogin.login({
         provider: "google",
         options: {
