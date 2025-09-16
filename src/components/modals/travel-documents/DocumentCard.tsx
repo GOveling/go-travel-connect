@@ -219,6 +219,7 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onDelete(document.id);
               }}
               className="text-destructive hover:text-destructive"
