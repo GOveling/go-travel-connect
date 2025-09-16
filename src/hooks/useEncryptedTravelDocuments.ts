@@ -216,7 +216,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           updatedAt: new Date().toISOString(),
           hasFile: !!fileData,
           accessCount: 0,
-          notesPreview: metadata.notes ? metadata.notes.substring(0, 100) : undefined, // Store first 100 chars unencrypted for preview
+          notesPreview: metadata.notes, // Store full notes unencrypted for preview
         };
 
         // Store in localStorage
