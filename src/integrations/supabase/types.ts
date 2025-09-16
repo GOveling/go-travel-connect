@@ -280,6 +280,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pin_recovery_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          recovery_token: string
+          used: boolean
+          user_email: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          recovery_token: string
+          used?: boolean
+          user_email: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          recovery_token?: string
+          used?: boolean
+          user_email?: string
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null

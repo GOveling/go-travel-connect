@@ -14,6 +14,7 @@ interface DocumentViewerModalProps {
   documentType: string;
   getDocument: (id: string, includeFile?: boolean) => Promise<DecryptedDocument | null>;
   onDelete: (documentId: string) => Promise<boolean | void>;
+  storageMode?: 'online' | 'offline'; // New prop to indicate storage mode
 }
 
 const DocumentViewerModal = ({ 
@@ -22,7 +23,8 @@ const DocumentViewerModal = ({
   documentId, 
   documentType, 
   getDocument,
-  onDelete 
+  onDelete,
+  storageMode = 'online'
 }: DocumentViewerModalProps) => {
   const [document, setDocument] = useState<DecryptedDocument | null>(null);
   const [loading, setLoading] = useState(false);
@@ -198,7 +200,20 @@ const DocumentViewerModal = ({
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
             {documentType}
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
+            
+            {/* Storage Mode Badge */}
+            <Badge 
+              variant={storageMode === 'online' ? 'default' : 'secondary'} 
+              className={`text-xs ${
+                storageMode === 'online' 
+                  ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                  : 'bg-green-100 text-green-800 border-green-200'
+              }`}
+            >
+              {storageMode === 'online' ? 'ONLINE' : 'OFFLINE'}
+            </Badge>
+            
+            <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">
               <Shield className="w-3 h-3 mr-1" />
               Desencriptado
             </Badge>

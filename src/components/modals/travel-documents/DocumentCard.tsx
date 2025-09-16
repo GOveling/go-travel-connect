@@ -20,9 +20,10 @@ interface DocumentCardProps {
   onDelete: (id: string) => void;
   onView?: (document: TravelDocument) => void;
   isEncrypted?: boolean;
+  storageMode?: 'online' | 'offline'; // New prop to indicate storage mode
 }
 
-const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false }: DocumentCardProps) => {
+const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false, storageMode = 'online' }: DocumentCardProps) => {
   const calculateDaysToExpiry = (expiryDate: string) => {
     if (!expiryDate || expiryDate === "••••••••") return null;
 
@@ -91,8 +92,21 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
               <div className="flex items-center space-x-2">
                 <FileText className="w-4 h-4 text-blue-600" />
                 <h3 className="font-medium">{document.type}</h3>
+                
+                {/* Storage Mode Badge */}
+                <Badge 
+                  variant={storageMode === 'online' ? 'default' : 'secondary'} 
+                  className={`text-xs ${
+                    storageMode === 'online' 
+                      ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                      : 'bg-green-100 text-green-800 border-green-200'
+                  }`}
+                >
+                  {storageMode === 'online' ? 'ONLINE' : 'OFFLINE'}
+                </Badge>
+
                 {isEncrypted && (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                  <Badge variant="outline" className="bg-gray-100 text-gray-800 text-xs border-gray-300">
                     <Lock className="w-3 h-3 mr-1" />
                     Encriptado
                   </Badge>
