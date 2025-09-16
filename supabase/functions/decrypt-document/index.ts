@@ -54,6 +54,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log(`decrypt-document called with method: ${req.method}`);
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -62,6 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('No authorization header provided');
       throw new Error('No authorization header');
     }
 
@@ -69,26 +72,35 @@ const handler = async (req: Request): Promise<Response> => {
       authHeader.replace('Bearer ', '')
     );
 
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    if (authError) {
+      console.error('Auth error:', authError);
+      throw new Error(`Authentication failed: ${authError.message}`);
+    }
+
+    if (!user) {
+      console.error('No user found in token');
+      throw new Error('User not found');
     }
 
     let documentId: string;
     let includeFile: boolean = false;
 
-    // Handle both GET (query params) and POST (body) requests for compatibility
-    if (req.method === 'GET') {
-      const url = new URL(req.url);
-      documentId = url.searchParams.get('documentId') || '';
-      includeFile = url.searchParams.get('includeFile') === 'true';
-    } else {
-      // POST request with body
+    try {
+      // Try to parse as JSON first (POST request)
       const body = await req.json();
       documentId = body.documentId || '';
       includeFile = body.includeFile || false;
+      console.log('Parsed POST body:', { documentId, includeFile });
+    } catch (jsonError) {
+      // Fallback to URL parameters (GET request)
+      const url = new URL(req.url);
+      documentId = url.searchParams.get('documentId') || '';
+      includeFile = url.searchParams.get('includeFile') === 'true';
+      console.log('Parsed URL params:', { documentId, includeFile });
     }
 
     if (!documentId) {
+      console.error('Document ID is missing');
       throw new Error('Document ID is required');
     }
 
@@ -123,41 +135,66 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Decrypt file if requested and exists
     if (includeFile && document.file_path) {
-      const { data: encryptedFileData, error: downloadError } = await supabase.storage
-        .from('encrypted-travel-documents')
-        .download(document.file_path);
-
-      if (downloadError) {
-        console.error('File download error:', downloadError);
-        throw new Error(`File download failed: ${downloadError.message}`);
-      }
-
-      const encryptedFileText = await encryptedFileData.text();
-      const decryptedBase64 = await decryptData(encryptedFileText, encryptionKey);
+      console.log(`Attempting to download file: ${document.file_path}`);
       
-      // Add data URL prefix for images to display properly in the browser
-      fileData = `data:image/jpeg;base64,${decryptedBase64}`;
-      console.log(`File decrypted successfully`);
+      try {
+        const { data: encryptedFileData, error: downloadError } = await supabase.storage
+          .from('encrypted-travel-documents')
+          .download(document.file_path);
+
+        if (downloadError) {
+          console.error('File download error:', downloadError);
+          console.log('Available files check - file_path from DB:', document.file_path);
+          
+          // Don't throw error for missing files, just return without fileData
+          console.log('File not found in storage, continuing without file data');
+          fileData = null;
+        } else {
+          const encryptedFileText = await encryptedFileData.text();
+          const decryptedBase64 = await decryptData(encryptedFileText, encryptionKey);
+          
+          // Add data URL prefix for images to display properly in the browser
+          fileData = `data:image/jpeg;base64,${decryptedBase64}`;
+          console.log(`File decrypted successfully`);
+        }
+      } catch (fileProcessError: any) {
+        console.error('File processing error:', fileProcessError);
+        console.log('Continuing without file data due to processing error');
+        fileData = null;
+      }
     }
 
-    // Update access count and last accessed
-    await supabase
-      .from('encrypted_travel_documents')
-      .update({
-        access_count: document.access_count + 1,
-        last_accessed_at: new Date().toISOString()
-      })
-      .eq('id', documentId);
+    // Update access count and last accessed (don't fail if this fails)
+    try {
+      await supabase
+        .from('encrypted_travel_documents')
+        .update({
+          access_count: document.access_count + 1,
+          last_accessed_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+      console.log('Access count updated successfully');
+    } catch (updateError: any) {
+      console.error('Failed to update access count:', updateError);
+      // Don't fail the request for this
+    }
 
-    // Log access
-    await supabase
-      .from('document_access_log')
-      .insert({
-        user_id: user.id,
-        document_id: documentId,
-        action_type: 'read',
-        success: true
-      });
+    // Log access (don't fail if this fails)
+    try {
+      await supabase
+        .from('document_access_log')
+        .insert({
+          user_id: user.id,
+          document_id: documentId,
+          action_type: 'read',
+          success: true,
+          access_timestamp: new Date().toISOString()
+        });
+      console.log('Access logged successfully');
+    } catch (logError: any) {
+      console.error('Failed to log access:', logError);
+      // Don't fail the request for this
+    }
 
     const response = {
       success: true,

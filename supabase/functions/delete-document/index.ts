@@ -11,6 +11,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log(`delete-document called with method: ${req.method}`);
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -19,6 +21,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('No authorization header provided');
       throw new Error('No authorization header');
     }
 
@@ -26,13 +29,20 @@ const handler = async (req: Request): Promise<Response> => {
       authHeader.replace('Bearer ', '')
     );
 
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    if (authError) {
+      console.error('Auth error:', authError);
+      throw new Error(`Authentication failed: ${authError.message}`);
+    }
+
+    if (!user) {
+      console.error('No user found in token');
+      throw new Error('User not found');
     }
 
     const { documentId } = await req.json();
 
     if (!documentId) {
+      console.error('Document ID is missing');
       throw new Error('Document ID is required');
     }
 
