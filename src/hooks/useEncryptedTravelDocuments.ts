@@ -23,6 +23,7 @@ export interface EncryptedTravelDocument {
   lastAccessedAt?: string;
   isExpired: boolean;
   expiresInDays?: number;
+  notesPreview?: string; // Preview of notes for identification
 }
 
 export interface TravelDocumentMetadata {
@@ -87,6 +88,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
             lastAccessedAt: doc.lastAccessedAt,
             isExpired: false,
             expiresInDays: undefined,
+            notesPreview: doc.notesPreview,
           }));
           
           setDocuments(displayDocs);
@@ -214,6 +216,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           updatedAt: new Date().toISOString(),
           hasFile: !!fileData,
           accessCount: 0,
+          notesPreview: metadata.notes ? metadata.notes.substring(0, 100) : undefined, // Store first 100 chars unencrypted for preview
         };
 
         // Store in localStorage

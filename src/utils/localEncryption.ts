@@ -17,6 +17,7 @@ export interface LocalEncryptedDocument {
   hasFile: boolean;
   accessCount: number;
   lastAccessedAt?: string;
+  notesPreview?: string; // Unencrypted preview of notes for display in list
 }
 
 // Generate a key from user password/PIN using PBKDF2
