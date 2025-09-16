@@ -69,14 +69,9 @@ const DocumentForm = ({
     range: { start: CalendarDate | null; end: CalendarDate | null } | null
   ) => {
     if (range?.start && range?.end) {
-      const issueDate = format(
-        new Date(range.start.year, range.start.month - 1, range.start.day),
-        "yyyy-MM-dd"
-      );
-      const expiryDate = format(
-        new Date(range.end.year, range.end.month - 1, range.end.day),
-        "yyyy-MM-dd"
-      );
+      // Use string formatting to preserve exact date without timezone issues
+      const issueDate = `${range.start.year}-${String(range.start.month).padStart(2, '0')}-${String(range.start.day).padStart(2, '0')}`;
+      const expiryDate = `${range.end.year}-${String(range.end.month).padStart(2, '0')}-${String(range.end.day).padStart(2, '0')}`;
       onDocumentChange({
         ...document,
         issueDate,
@@ -88,10 +83,8 @@ const DocumentForm = ({
 
   const handleIssueDateChange = (date: CalendarDate | null) => {
     if (date) {
-      const issueDate = format(
-        new Date(date.year, date.month - 1, date.day),
-        "yyyy-MM-dd"
-      );
+      // Use string formatting to preserve exact date without timezone issues
+      const issueDate = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
       onDocumentChange({
         ...document,
         issueDate,
