@@ -53,8 +53,9 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Check if in offline mode - default to true to avoid edge function errors
-  const isOfflineMode = localStorage.getItem('offlineMode') !== 'false';
+  // Check if in offline mode - default to false to try online first
+  const isOfflineMode = localStorage.getItem('offlineMode') === 'true';
+  console.log('Offline mode from localStorage:', localStorage.getItem('offlineMode'), 'isOfflineMode:', isOfflineMode);
 
   const loadDocuments = async () => {
     if (!user) {
@@ -68,6 +69,8 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
     
     try {
       console.log('Loading documents, offline mode:', isOfflineMode);
+      console.log('User:', !!user);
+      console.log('Initialized:', initialized);
       
       if (isOfflineMode) {
         // Load from encrypted local storage
@@ -116,7 +119,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           },
         });
 
-        console.log('Edge function response:', { success: data?.success, error });
+        console.log('Edge function response:', { success: data?.success, error, dataKeys: Object.keys(data || {}) });
 
         if (error) {
           console.error('Edge function error:', error);
@@ -138,6 +141,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         }
 
         if (data?.success) {
+          console.log('Setting documents:', data.documents?.length || 0, 'documents');
           setDocuments(data.documents || []);
         } else {
           console.error('Edge function returned error:', data?.error);

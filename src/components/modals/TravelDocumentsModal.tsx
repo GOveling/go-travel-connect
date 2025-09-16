@@ -60,7 +60,9 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
   // Load documents only when modal is opened
   useEffect(() => {
+    console.log('Modal effect:', { isOpen, user: !!user, initialized });
     if (isOpen && user && !initialized) {
+      console.log('Loading documents from modal effect');
       loadDocuments();
     }
   }, [isOpen, user, initialized, loadDocuments]);
