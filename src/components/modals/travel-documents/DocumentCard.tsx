@@ -115,13 +115,25 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
 
             <div className="flex space-x-4">
               {/* Document Photo */}
-              {document.photo && (
+              {document.photo && document.photo !== "encrypted" && (
                 <div className="flex-shrink-0">
                   <img
                     src={document.photo}
                     alt="Document"
                     className="w-20 h-20 object-cover rounded-lg border"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
                   />
+                </div>
+              )}
+              
+              {/* Encrypted Document Placeholder */}
+              {document.photo === "encrypted" && (
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center">
+                    <Lock className="w-6 h-6 text-green-600" />
+                  </div>
                 </div>
               )}
 

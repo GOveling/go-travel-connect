@@ -116,7 +116,10 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       const encryptedFileText = await encryptedFileData.text();
-      fileData = await decryptData(encryptedFileText, encryptionKey);
+      const decryptedBase64 = await decryptData(encryptedFileText, encryptionKey);
+      
+      // Add data URL prefix for images to display properly in the browser
+      fileData = `data:image/jpeg;base64,${decryptedBase64}`;
       console.log(`File decrypted successfully`);
     }
 
