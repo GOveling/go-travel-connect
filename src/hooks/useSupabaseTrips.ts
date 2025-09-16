@@ -101,7 +101,6 @@ export const useSupabaseTrips = () => {
             )
         `
         )
-        .or(`user_id.eq.${user.id},trip_collaborators.user_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
 
       if (tripsError) {
