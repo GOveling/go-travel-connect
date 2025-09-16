@@ -1269,6 +1269,10 @@ export type Database = {
         Args: { p_token: string }
         Returns: Json
       }
+      admin_delete_document: {
+        Args: { document_id: string }
+        Returns: boolean
+      }
       anonymize_location_history: {
         Args: { p_older_than_days?: number; p_user_id: string }
         Returns: boolean
@@ -1321,10 +1325,6 @@ export type Database = {
       decrypt_sensitive_field: {
         Args: { encrypted_value: string }
         Returns: string
-      }
-      delete_document_safely: {
-        Args: { p_document_id: string; p_user_id: string }
-        Returns: boolean
       }
       deobfuscate_location_data: {
         Args: { obfuscated_value: string }
