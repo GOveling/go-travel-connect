@@ -34,19 +34,24 @@ async function generateEncryptionKey(userId: string): Promise<CryptoKey> {
 }
 
 async function decryptData(encryptedWithIv: string, key: CryptoKey): Promise<string> {
-  const { data: encryptedData, iv: ivString } = JSON.parse(encryptedWithIv);
-  
-  const encrypted = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
-  const iv = Uint8Array.from(atob(ivString), c => c.charCodeAt(0));
-  
-  const decrypted = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: iv },
-    key,
-    encrypted
-  );
-  
-  const decoder = new TextDecoder();
-  return decoder.decode(decrypted);
+  try {
+    const { data: encryptedData, iv: ivString } = JSON.parse(encryptedWithIv);
+    
+    const encrypted = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
+    const iv = Uint8Array.from(atob(ivString), c => c.charCodeAt(0));
+    
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      encrypted
+    );
+    
+    const decoder = new TextDecoder();
+    return decoder.decode(decrypted);
+  } catch (error) {
+    console.error('Decryption error:', error);
+    throw new Error('Failed to decrypt data');
+  }
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -73,25 +78,40 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Unauthorized');
     }
 
-    const url = new URL(req.url);
-    const documentId = url.searchParams.get('documentId');
-    const includeFile = url.searchParams.get('includeFile') === 'true';
+    // Support both GET and POST requests for better compatibility
+    let documentId: string;
+    let includeFile: boolean;
+
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      documentId = url.searchParams.get('documentId') || '';
+      includeFile = url.searchParams.get('includeFile') === 'true';
+    } else {
+      const body = await req.json();
+      documentId = body.documentId;
+      includeFile = body.includeFile === true;
+    }
 
     if (!documentId) {
       throw new Error('Document ID is required');
     }
 
-    console.log(`Decrypting document ${documentId} for user: ${user.id}`);
+    console.log(`Decrypting document ${documentId} for user: ${user.id}, includeFile: ${includeFile}`);
 
-    // Get encrypted document
+    // Get encrypted document with proper error handling
     const { data: document, error: dbError } = await supabase
       .from('encrypted_travel_documents')
       .select('*')
       .eq('id', documentId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (dbError || !document) {
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error(`Database error: ${dbError.message}`);
+    }
+
+    if (!document) {
       throw new Error('Document not found or access denied');
     }
 
@@ -99,48 +119,91 @@ const handler = async (req: Request): Promise<Response> => {
     const encryptionKey = await generateEncryptionKey(user.id);
 
     // Decrypt metadata
-    const decryptedMetadata = await decryptData(document.encrypted_metadata, encryptionKey);
-    const metadata = JSON.parse(decryptedMetadata);
+    let metadata: any = {};
+    try {
+      const decryptedMetadata = await decryptData(document.encrypted_metadata, encryptionKey);
+      metadata = JSON.parse(decryptedMetadata);
+    } catch (error) {
+      console.error('Metadata decryption error:', error);
+      throw new Error('Failed to decrypt document metadata');
+    }
 
     let fileData = null;
 
     // Decrypt file if requested and exists
     if (includeFile && document.file_path) {
-      const { data: encryptedFileData, error: downloadError } = await supabase.storage
-        .from('encrypted-travel-documents')
-        .download(document.file_path);
+      try {
+        console.log(`Attempting to download file: ${document.file_path}`);
+        
+        // Check if file exists first
+        const { data: fileList, error: listError } = await supabase.storage
+          .from('encrypted-travel-documents')
+          .list(document.file_path.split('/').slice(0, -1).join('/'));
 
-      if (downloadError) {
-        console.error('File download error:', downloadError);
-        throw new Error(`File download failed: ${downloadError.message}`);
+        if (listError) {
+          console.error('File list error:', listError);
+          console.log('Continuing without file data...');
+        } else {
+          const fileName = document.file_path.split('/').pop();
+          const fileExists = fileList?.some(f => f.name === fileName);
+          
+          if (fileExists) {
+            const { data: encryptedFileData, error: downloadError } = await supabase.storage
+              .from('encrypted-travel-documents')
+              .download(document.file_path);
+
+            if (downloadError) {
+              console.error('File download error:', downloadError);
+              console.log('Continuing without file data...');
+            } else {
+              try {
+                const encryptedFileText = await encryptedFileData.text();
+                const decryptedBase64 = await decryptData(encryptedFileText, encryptionKey);
+                
+                // Add data URL prefix for images to display properly in the browser
+                fileData = `data:image/jpeg;base64,${decryptedBase64}`;
+                console.log(`File decrypted successfully`);
+              } catch (decryptError) {
+                console.error('File decryption error:', decryptError);
+                console.log('Continuing without file data...');
+              }
+            }
+          } else {
+            console.log(`File ${fileName} not found in storage, continuing without file data...`);
+          }
+        }
+      } catch (fileError) {
+        console.error('File processing error:', fileError);
+        console.log('Continuing without file data...');
       }
-
-      const encryptedFileText = await encryptedFileData.text();
-      const decryptedBase64 = await decryptData(encryptedFileText, encryptionKey);
-      
-      // Add data URL prefix for images to display properly in the browser
-      fileData = `data:image/jpeg;base64,${decryptedBase64}`;
-      console.log(`File decrypted successfully`);
     }
 
-    // Update access count and last accessed
-    await supabase
-      .from('encrypted_travel_documents')
-      .update({
-        access_count: document.access_count + 1,
-        last_accessed_at: new Date().toISOString()
-      })
-      .eq('id', documentId);
+    // Try to update access count and last accessed (non-critical)
+    try {
+      await supabase
+        .from('encrypted_travel_documents')
+        .update({
+          access_count: (document.access_count || 0) + 1,
+          last_accessed_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+    } catch (updateError) {
+      console.error('Error updating access count (non-critical):', updateError);
+    }
 
-    // Log access
-    await supabase
-      .from('document_access_log')
-      .insert({
-        user_id: user.id,
-        document_id: documentId,
-        action_type: 'read',
-        success: true
-      });
+    // Try to log access (non-critical)
+    try {
+      await supabase
+        .from('document_access_log')
+        .insert({
+          user_id: user.id,
+          document_id: documentId,
+          action_type: 'read',
+          success: true
+        });
+    } catch (logError) {
+      console.error('Error logging access (non-critical):', logError);
+    }
 
     const response = {
       success: true,
@@ -152,7 +215,7 @@ const handler = async (req: Request): Promise<Response> => {
         createdAt: document.created_at,
         updatedAt: document.updated_at,
         expiresAt: document.expires_at,
-        accessCount: document.access_count + 1,
+        accessCount: (document.access_count || 0) + 1,
         lastAccessedAt: new Date().toISOString()
       }
     };

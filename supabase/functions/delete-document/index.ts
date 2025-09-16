@@ -38,30 +38,50 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Deleting document ${documentId} for user: ${user.id}`);
 
-    // Get document info first
+    // Get document info first with proper error handling
     const { data: document, error: getError } = await supabase
       .from('encrypted_travel_documents')
       .select('file_path')
       .eq('id', documentId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (getError || !document) {
+    if (getError) {
+      console.error('Database error:', getError);
+      throw new Error(`Database error: ${getError.message}`);
+    }
+
+    if (!document) {
       throw new Error('Document not found or access denied');
     }
 
-    // Delete file from storage if exists
+    // Delete file from storage if exists (non-critical)
     if (document.file_path) {
-      const { error: storageError } = await supabase.storage
-        .from('encrypted-travel-documents')
-        .remove([document.file_path]);
+      try {
+        const { error: storageError } = await supabase.storage
+          .from('encrypted-travel-documents')
+          .remove([document.file_path]);
 
-      if (storageError) {
-        console.error('Storage deletion error:', storageError);
-        // Continue with database deletion even if file deletion fails
-      } else {
-        console.log(`File deleted from storage: ${document.file_path}`);
+        if (storageError) {
+          console.error('Storage deletion error (continuing anyway):', storageError);
+        } else {
+          console.log(`File deleted from storage: ${document.file_path}`);
+        }
+      } catch (storageErr) {
+        console.error('Storage deletion failed (continuing anyway):', storageErr);
       }
+    }
+
+    // Delete related log entries first to avoid foreign key constraint issues
+    try {
+      await supabase
+        .from('document_access_log')
+        .delete()
+        .eq('document_id', documentId);
+      
+      console.log(`Deleted access logs for document: ${documentId}`);
+    } catch (logError) {
+      console.error('Error deleting access logs (continuing anyway):', logError);
     }
 
     // Delete document record from database
@@ -76,15 +96,19 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Database deletion failed: ${deleteError.message}`);
     }
 
-    // Log deletion
-    await supabase
-      .from('document_access_log')
-      .insert({
-        user_id: user.id,
-        document_id: documentId,
-        action_type: 'delete',
-        success: true
-      });
+    // Try to log deletion (non-critical since document is already deleted)
+    try {
+      await supabase
+        .from('document_access_log')
+        .insert({
+          user_id: user.id,
+          document_id: documentId,
+          action_type: 'delete',
+          success: true
+        });
+    } catch (logError) {
+      console.error('Error logging deletion (non-critical):', logError);
+    }
 
     console.log(`Document deleted successfully: ${documentId}`);
 

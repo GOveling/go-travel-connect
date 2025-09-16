@@ -69,8 +69,6 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
     
     try {
       console.log('Loading documents, offline mode:', isOfflineMode);
-      console.log('User:', !!user);
-      console.log('Initialized:', initialized);
       
       if (isOfflineMode) {
         // Load from encrypted local storage
@@ -355,29 +353,35 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           lastAccessedAt: doc.lastAccessedAt || new Date().toISOString(),
         };
       } else {
-        // Decrypt from Supabase
-        const url = new URL(`https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/decrypt-document`);
-        url.searchParams.set('documentId', documentId);
-        url.searchParams.set('includeFile', includeFile.toString());
+        // Use supabase.functions.invoke instead of fetch for better error handling
+        const session = await supabase.auth.getSession();
+        if (!session.data.session?.access_token) {
+          throw new Error('No hay sesión válida');
+        }
 
-        const response = await fetch(url.toString(), {
-          method: 'GET',
+        const { data, error } = await supabase.functions.invoke('decrypt-document', {
+          body: {
+            documentId,
+            includeFile
+          },
           headers: {
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.data.session.access_token}`,
           },
         });
 
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error);
+        if (error) {
+          throw error;
         }
 
-        return result.document;
+        if (!data.success) {
+          throw new Error(data.error || 'Error al desencriptar documento');
+        }
+
+        return data.document;
       }
     } catch (err: any) {
-      const errorMessage = err.message || 'Error al obtener documento';
+      const errorMessage = err.message || 'No se pudo cargar el documento';
+      console.error('Error getting document:', err);
       toast({
         title: "Error",
         description: errorMessage,
@@ -415,15 +419,22 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           className: "bg-red-50 border-red-200",
         });
       } else {
-        // Delete from Supabase
+        // Delete from Supabase using proper invoke method
+        const session = await supabase.auth.getSession();
+        if (!session.data.session?.access_token) {
+          throw new Error('No hay sesión válida');
+        }
+
         const { data, error } = await supabase.functions.invoke('delete-document', {
           body: { documentId },
           headers: {
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            Authorization: `Bearer ${session.data.session.access_token}`,
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
 
         if (data.success) {
           toast({
@@ -432,7 +443,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
             className: "bg-red-50 border-red-200",
           });
         } else {
-          throw new Error(data.error);
+          throw new Error(data.error || 'Error al eliminar documento');
         }
       }
       
@@ -440,6 +451,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
       return true;
     } catch (err: any) {
       const errorMessage = err.message || 'Error al eliminar documento';
+      console.error('Error deleting document:', err);
       toast({
         title: "Error",
         description: errorMessage,
