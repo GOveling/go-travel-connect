@@ -50,7 +50,7 @@ export const useSupabaseTrips = () => {
     try {
       setLoading(true);
 
-      // Fetch trips where user is owner or collaborator using proper PostgREST syntax
+      // Fetch trips where user is owner or collaborator - RLS policies handle access control
       const { data: tripsData, error: tripsError } = await supabase
         .from("trips")
         .select(
@@ -101,7 +101,6 @@ export const useSupabaseTrips = () => {
             )
         `
         )
-        .or(`user_id.eq.${user.id},trip_collaborators.user_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
 
       if (tripsError) {
