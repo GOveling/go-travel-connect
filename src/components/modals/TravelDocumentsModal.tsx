@@ -315,14 +315,28 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     
     if (existingPin) {
       // PIN exists, just verify it
-      const enteredPin = prompt('Ingresa tu PIN de 4 dígitos para activar el modo offline:');
+      const enteredPin = prompt('Ingresa tu PIN de 4 dígitos para activar el modo offline:\n\n¿Olvidaste tu PIN? Haz clic en "Cancelar" y usa la opción "¿Olvidaste tu PIN?" para recuperarlo.');
       
-      if (!enteredPin || enteredPin !== existingPin) {
-        toast({
-          title: "PIN incorrecto",
-          description: "El PIN ingresado no es correcto",
-          variant: "destructive",
-        });
+      if (!enteredPin) {
+        // User cancelled - show recovery option
+        const shouldRecover = confirm('¿Deseas recuperar tu PIN? Se enviará un email de recuperación a tu dirección registrada.');
+        if (shouldRecover) {
+          setShowPinRecovery(true);
+        }
+        return;
+      }
+      
+      if (enteredPin !== existingPin) {
+        const shouldRecover = confirm('PIN incorrecto. ¿Deseas recuperar tu PIN? Se enviará un email de recuperación a tu dirección registrada.');
+        if (shouldRecover) {
+          setShowPinRecovery(true);
+        } else {
+          toast({
+            title: "PIN incorrecto",
+            description: "El PIN ingresado no es correcto",
+            variant: "destructive",
+          });
+        }
         return;
       }
       
@@ -435,10 +449,22 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                   </p>
                 </div>
               </div>
-              <Switch
-                checked={isOffline}
-                onCheckedChange={handleOfflineToggle}
-              />
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={isOffline}
+                  onCheckedChange={handleOfflineToggle}
+                />
+                {localStorage.getItem('travel_app_pin') && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPinRecovery(true)}
+                    className="text-xs text-blue-600 hover:text-blue-800 p-1 h-auto"
+                  >
+                    ¿Olvidaste tu PIN?
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Document Count Summary */}
