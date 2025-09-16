@@ -84,47 +84,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Document found, file_path:', document.file_path);
 
-    // Step 2: Delete related log entries first to avoid foreign key constraint issues
-    console.log('Deleting access logs...');
-    try {
-      const { error: logDeleteError } = await supabase
-        .from('document_access_log')
-        .delete()
-        .eq('document_id', documentId);
-      
-      if (logDeleteError) {
-        console.error('Access log deletion error (continuing anyway):', logDeleteError);
-      } else {
-        console.log(`Successfully deleted access logs for document: ${documentId}`);
-      }
-    } catch (logError) {
-      console.error('Exception during log deletion (continuing anyway):', logError);
-    }
-
-    // Step 3: Delete file from storage if exists (non-critical)
-    if (document.file_path) {
-      console.log('Deleting file from storage:', document.file_path);
-      try {
-        const { error: storageError } = await supabase.storage
-          .from('encrypted-travel-documents')
-          .remove([document.file_path]);
-
-        if (storageError) {
-          console.error('Storage deletion error (continuing anyway):', storageError);
-        } else {
-          console.log(`Successfully deleted file from storage: ${document.file_path}`);
-        }
-      } catch (storageErr) {
-        console.error('Exception during storage deletion (continuing anyway):', storageErr);
-      }
-    } else {
-      console.log('No file_path found, skipping storage deletion');
-    }
-
-    // Step 4: Delete document record from database - using simple direct deletion
+    // Step 2: Delete document record FIRST to avoid any triggers or constraints
     console.log('Deleting document record from database...');
     
-    // Direct deletion - simpler and more reliable
     const { error: deleteError, count } = await supabase
       .from('encrypted_travel_documents')
       .delete()
@@ -137,15 +99,48 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (count === 0) {
-      console.log('No document was deleted - may have already been removed');
+      console.log('No document was deleted - document may not exist or access denied');
+      throw new Error('Document not found or already deleted');
     }
-
-    console.log(`Document deletion completed. Rows affected: ${count || 0}`);
 
     console.log(`Document successfully deleted from database: ${documentId}`);
 
-    // Note: We don't log the deletion to document_access_log since the document no longer exists
-    // and it would violate the foreign key constraint
+    // Step 3: Clean up related log entries after document deletion (non-critical)
+    console.log('Cleaning up access logs...');
+    try {
+      const { error: logDeleteError } = await supabase
+        .from('document_access_log')
+        .delete()
+        .eq('document_id', documentId);
+      
+      if (logDeleteError) {
+        console.error('Access log cleanup error (non-critical):', logDeleteError);
+      } else {
+        console.log(`Successfully cleaned up access logs for document: ${documentId}`);
+      }
+    } catch (logError) {
+      console.error('Exception during log cleanup (non-critical):', logError);
+    }
+
+    // Step 4: Delete file from storage if exists (non-critical)
+    if (document.file_path) {
+      console.log('Deleting file from storage:', document.file_path);
+      try {
+        const { error: storageError } = await supabase.storage
+          .from('encrypted-travel-documents')
+          .remove([document.file_path]);
+
+        if (storageError) {
+          console.error('Storage deletion error (non-critical):', storageError);
+        } else {
+          console.log(`Successfully deleted file from storage: ${document.file_path}`);
+        }
+      } catch (storageErr) {
+        console.error('Exception during storage deletion (non-critical):', storageErr);
+      }
+    } else {
+      console.log('No file_path found, skipping storage deletion');
+    }
 
     return new Response(
       JSON.stringify({ 
