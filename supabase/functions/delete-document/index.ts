@@ -12,51 +12,98 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log('Delete document function called');
+    
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Validate request method
+    if (req.method !== 'POST') {
+      console.error('Invalid method:', req.method);
+      throw new Error(`Method ${req.method} not allowed`);
+    }
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('Missing authorization header');
       throw new Error('No authorization header');
     }
 
+    console.log('Authenticating user...');
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       authHeader.replace('Bearer ', '')
     );
 
     if (authError || !user) {
+      console.error('Authentication failed:', authError);
       throw new Error('Unauthorized');
     }
 
-    const { documentId } = await req.json();
+    console.log('User authenticated:', user.id);
+
+    // Parse and validate request body
+    let requestBody;
+    try {
+      const bodyText = await req.text();
+      console.log('Request body text:', bodyText);
+      requestBody = JSON.parse(bodyText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { documentId } = requestBody;
 
     if (!documentId) {
+      console.error('Missing document ID in request');
       throw new Error('Document ID is required');
     }
 
-    console.log(`Deleting document ${documentId} for user: ${user.id}`);
+    console.log(`Starting deletion process for document ${documentId} by user: ${user.id}`);
 
-    // Get document info first with proper error handling
+    // Step 1: Get document info first with proper error handling
+    console.log('Fetching document from database...');
     const { data: document, error: getError } = await supabase
       .from('encrypted_travel_documents')
-      .select('file_path')
+      .select('file_path, user_id')
       .eq('id', documentId)
       .eq('user_id', user.id)
       .maybeSingle();
 
     if (getError) {
-      console.error('Database error:', getError);
-      throw new Error(`Database error: ${getError.message}`);
+      console.error('Database query error:', getError);
+      throw new Error(`Database query failed: ${getError.message}`);
     }
 
     if (!document) {
+      console.error('Document not found or access denied for:', { documentId, userId: user.id });
       throw new Error('Document not found or access denied');
     }
 
-    // Delete file from storage if exists (non-critical)
+    console.log('Document found, file_path:', document.file_path);
+
+    // Step 2: Delete related log entries first to avoid foreign key constraint issues
+    console.log('Deleting access logs...');
+    try {
+      const { error: logDeleteError } = await supabase
+        .from('document_access_log')
+        .delete()
+        .eq('document_id', documentId);
+      
+      if (logDeleteError) {
+        console.error('Access log deletion error (continuing anyway):', logDeleteError);
+      } else {
+        console.log(`Successfully deleted access logs for document: ${documentId}`);
+      }
+    } catch (logError) {
+      console.error('Exception during log deletion (continuing anyway):', logError);
+    }
+
+    // Step 3: Delete file from storage if exists (non-critical)
     if (document.file_path) {
+      console.log('Deleting file from storage:', document.file_path);
       try {
         const { error: storageError } = await supabase.storage
           .from('encrypted-travel-documents')
@@ -65,26 +112,17 @@ const handler = async (req: Request): Promise<Response> => {
         if (storageError) {
           console.error('Storage deletion error (continuing anyway):', storageError);
         } else {
-          console.log(`File deleted from storage: ${document.file_path}`);
+          console.log(`Successfully deleted file from storage: ${document.file_path}`);
         }
       } catch (storageErr) {
-        console.error('Storage deletion failed (continuing anyway):', storageErr);
+        console.error('Exception during storage deletion (continuing anyway):', storageErr);
       }
+    } else {
+      console.log('No file_path found, skipping storage deletion');
     }
 
-    // Delete related log entries first to avoid foreign key constraint issues
-    try {
-      await supabase
-        .from('document_access_log')
-        .delete()
-        .eq('document_id', documentId);
-      
-      console.log(`Deleted access logs for document: ${documentId}`);
-    } catch (logError) {
-      console.error('Error deleting access logs (continuing anyway):', logError);
-    }
-
-    // Delete document record from database
+    // Step 4: Delete document record from database
+    console.log('Deleting document record from database...');
     const { error: deleteError } = await supabase
       .from('encrypted_travel_documents')
       .delete()
@@ -96,7 +134,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Database deletion failed: ${deleteError.message}`);
     }
 
-    console.log(`Document deleted successfully: ${documentId}`);
+    console.log(`Document successfully deleted from database: ${documentId}`);
 
     // Note: We don't log the deletion to document_access_log since the document no longer exists
     // and it would violate the foreign key constraint
@@ -104,7 +142,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Document deleted securely'
+        message: 'Document deleted securely',
+        documentId
       }),
       {
         status: 200,
@@ -113,11 +152,14 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error('Error deleting document:', error);
+    console.error('Critical error in delete-document function:', error);
+    console.error('Error stack:', error.stack);
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to delete document'
+        error: error.message || 'Failed to delete document',
+        details: error.stack ? error.stack.substring(0, 500) : 'No stack trace available'
       }),
       {
         status: 500,
