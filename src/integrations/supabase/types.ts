@@ -1269,10 +1269,6 @@ export type Database = {
         Args: { p_token: string }
         Returns: Json
       }
-      admin_delete_document: {
-        Args: { target_document_id: string }
-        Returns: boolean
-      }
       anonymize_location_history: {
         Args: { p_older_than_days?: number; p_user_id: string }
         Returns: boolean
