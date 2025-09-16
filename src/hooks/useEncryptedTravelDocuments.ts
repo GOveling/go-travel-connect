@@ -51,11 +51,22 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(localStorage.getItem('offlineMode') === 'true');
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Check if in offline mode - default to false to try online first
-  const isOfflineMode = localStorage.getItem('offlineMode') === 'true';
+  // Watch for changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newOfflineMode = localStorage.getItem('offlineMode') === 'true';
+      setIsOfflineMode(newOfflineMode);
+      console.log('Offline mode changed:', newOfflineMode);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   console.log('Offline mode from localStorage:', localStorage.getItem('offlineMode'), 'isOfflineMode:', isOfflineMode);
 
   const loadDocuments = async () => {
@@ -77,19 +88,68 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         if (localDocs) {
           const encryptedDocs: LocalEncryptedDocument[] = JSON.parse(localDocs);
           
-          // Convert to display format without decrypting
-          const displayDocs: EncryptedTravelDocument[] = encryptedDocs.map(doc => ({
-            id: doc.id,
-            documentType: doc.documentType,
-            hasFile: doc.hasFile,
-            createdAt: doc.createdAt,
-            updatedAt: doc.updatedAt,
-            accessCount: doc.accessCount,
-            lastAccessedAt: doc.lastAccessedAt,
-            isExpired: false,
-            expiresInDays: undefined,
-            notesPreview: doc.notesPreview,
-          }));
+          // Convert to display format and extract expiry data for offline documents
+          const displayDocs: EncryptedTravelDocument[] = await Promise.all(
+            encryptedDocs.map(async (doc) => {
+              let expiresAt: string | undefined;
+              let isExpired = false;
+              let expiresInDays: number | undefined;
+
+              // Try to extract expiry date from notes preview or decrypt metadata partially
+              try {
+                if (doc.notesPreview?.includes('Expira:')) {
+                  const expiryMatch = doc.notesPreview.match(/Expira:\s*(\d{4}-\d{2}-\d{2})/);
+                  if (expiryMatch) {
+                    expiresAt = expiryMatch[1];
+                  }
+                }
+                
+                // If no expiry in notes, try to get it from encrypted metadata
+                if (!expiresAt) {
+                  try {
+                    const userPin = localStorage.getItem('travel_app_pin');
+                    if (userPin) {
+                      const salt = getSalt();
+                      const key = await generateLocalKey(userPin, salt);
+                      const metadataJson = await decryptLocalData(doc.encryptedMetadata, key);
+                      const metadata: TravelDocumentMetadata = JSON.parse(metadataJson);
+                      expiresAt = metadata.expiryDate;
+                    }
+                  } catch (decryptError) {
+                    // Silently continue if decryption fails
+                    console.log('Could not decrypt metadata for expiry date');
+                  }
+                }
+
+                // Calculate expiry status
+                if (expiresAt) {
+                  const today = new Date();
+                  const expiry = new Date(expiresAt);
+                  if (!isNaN(expiry.getTime())) {
+                    const timeDiff = expiry.getTime() - today.getTime();
+                    expiresInDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    isExpired = expiresInDays < 0;
+                  }
+                }
+              } catch (error) {
+                console.log('Error extracting expiry date:', error);
+              }
+
+              return {
+                id: doc.id,
+                documentType: doc.documentType,
+                hasFile: doc.hasFile,
+                createdAt: doc.createdAt,
+                updatedAt: doc.updatedAt,
+                accessCount: doc.accessCount,
+                lastAccessedAt: doc.lastAccessedAt,
+                expiresAt,
+                isExpired,
+                expiresInDays,
+                notesPreview: doc.notesPreview,
+              };
+            })
+          );
           
           setDocuments(displayDocs);
         } else {
@@ -216,7 +276,9 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           updatedAt: new Date().toISOString(),
           hasFile: !!fileData,
           accessCount: 0,
-          notesPreview: metadata.notes, // Store full notes unencrypted for preview
+          notesPreview: metadata.expiryDate 
+            ? `${metadata.notes || ''} | Expira: ${metadata.expiryDate}`
+            : metadata.notes,
         };
 
         // Store in localStorage
@@ -473,6 +535,13 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
       setInitialized(true);
     }
   }, [user, autoLoad, initialized]);
+
+  // Reload documents when mode changes
+  useEffect(() => {
+    if (user && initialized) {
+      loadDocuments();
+    }
+  }, [isOfflineMode, user, initialized]);
 
   return {
     documents,

@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useEncryptedTravelDocuments, TravelDocumentMetadata } from "@/hooks/useEncryptedTravelDocuments";
 import { useAuth } from "@/hooks/useAuth";
+import { getUserPin, clearUserPin } from "@/utils/localEncryption";
 
 // Legacy interface for backward compatibility
 interface TravelDocument {
@@ -326,7 +327,60 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               </div>
               <Switch
                 checked={isOffline}
-                onCheckedChange={setIsOffline}
+                onCheckedChange={async (checked) => {
+                  if (checked) {
+                    // Activating offline mode - request PIN
+                    const existingPin = localStorage.getItem('travel_app_pin');
+                    
+                    if (!existingPin) {
+                      const pin = prompt('Ingresa un PIN de 4-8 dígitos para encriptar tus documentos offline:');
+                      
+                      if (!pin || pin.length < 4 || pin.length > 8 || !/^\d+$/.test(pin)) {
+                        toast({
+                          title: "PIN inválido",
+                          description: "El PIN debe tener entre 4-8 dígitos.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      localStorage.setItem('travel_app_pin', pin);
+                      toast({
+                        title: "Modo offline activado",
+                        description: "PIN configurado. Tus documentos se encriptarán localmente.",
+                        className: "bg-blue-50 border-blue-200",
+                      });
+                    } else {
+                      // Verify existing PIN
+                      const pin = prompt('Ingresa tu PIN para activar el modo offline:');
+                      
+                      if (pin !== existingPin) {
+                        toast({
+                          title: "PIN incorrecto",
+                          description: "El PIN ingresado no es válido.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      
+                      toast({
+                        title: "Modo offline activado",
+                        description: "PIN verificado. Acceso a documentos offline habilitado.",
+                        className: "bg-blue-50 border-blue-200",
+                      });
+                    }
+                  } else {
+                    toast({
+                      title: "Modo online activado",
+                      description: "Los documentos se guardarán en la nube.",
+                      className: "bg-green-50 border-green-200",
+                    });
+                  }
+                  
+                  setIsOffline(checked);
+                  // Trigger storage event for the hook
+                  window.dispatchEvent(new Event('storage'));
+                }}
               />
             </div>
 
@@ -454,7 +508,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                         type: document.documentType,
                         documentNumber: "••••••••", // Hidden for security
                         issueDate: "••••••••",
-                        expiryDate: document.expiresAt ? document.expiresAt : "••••••••",
+                        expiryDate: document.expiresAt || "••••••••",
                         issuingCountry: "••••••••",
                         notes: document.notesPreview || `Documento creado el ${new Date(document.createdAt).toLocaleDateString()}`,
                         photo: document.hasFile ? "encrypted" : undefined,
