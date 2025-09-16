@@ -86,8 +86,20 @@ function validateFileSize(fileData: string): boolean {
 // Validate Base64 format
 function isValidBase64(str: string): boolean {
   try {
-    return btoa(atob(str)) === str;
+    // Handle data URLs by extracting the base64 part
+    const base64Part = str.includes(',') ? str.split(',')[1] : str;
+    
+    // Check if it's valid base64
+    if (!base64Part || base64Part.length === 0) return false;
+    
+    // Validate base64 format
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+    if (!base64Regex.test(base64Part)) return false;
+    
+    // Try to decode and encode to verify
+    return btoa(atob(base64Part)) === base64Part;
   } catch (err) {
+    console.error('Base64 validation error:', err);
     return false;
   }
 }
@@ -149,6 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Validate Base64 format
       if (!isValidBase64(fileData)) {
+        console.error('Invalid Base64 format. Data preview:', fileData.substring(0, 100));
         throw new Error('Invalid file format: File must be Base64 encoded');
       }
 
@@ -179,7 +192,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Handle file encryption if provided
     if (fileData && fileName) {
-      const { encrypted: encryptedFile, iv: fileIv } = await encryptData(fileData, encryptionKey);
+      // Extract base64 part if it's a data URL
+      const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
+      
+      const { encrypted: encryptedFile, iv: fileIv } = await encryptData(base64Data, encryptionKey);
       
       // Combine encrypted file with IV
       const encryptedFileWithIv = JSON.stringify({

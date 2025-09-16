@@ -44,7 +44,9 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
         ctx.drawImage(img, 0, 0, width, height);
         
         // Convert to base64 with quality compression (0.8 = 80% quality)
-        const base64 = canvas.toDataURL('image/jpeg', 0.8);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        // Extract only the base64 part (remove "data:image/jpeg;base64," prefix)
+        const base64 = dataUrl.split(',')[1];
         
         // Check final size (target: under 2MB)
         const sizeInBytes = (base64.length * 3) / 4;
@@ -54,7 +56,8 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
         
         if (sizeInMB > 2) {
           // If still too large, reduce quality further
-          const reducedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          const reducedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          const reducedBase64 = reducedDataUrl.split(',')[1];
           resolve(reducedBase64);
         } else {
           resolve(base64);
@@ -99,7 +102,9 @@ const PhotoUpload = ({ photo, onPhotoChange }: PhotoUploadProps) => {
         return;
       }
 
-      onPhotoChange(compressedBase64);
+      // Store as data URL for preview but send only base64 to server
+      const dataUrlForPreview = `data:image/jpeg;base64,${compressedBase64}`;
+      onPhotoChange(dataUrlForPreview);
       
       const originalSizeInMB = file.size / (1024 * 1024);
       const compressionMessage = originalSizeInMB > 2 

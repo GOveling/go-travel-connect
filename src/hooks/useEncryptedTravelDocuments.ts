@@ -235,12 +235,15 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           }
         }
 
+        // Extract only base64 part for server (remove data URL prefix if present)
+        const base64Data = fileData?.includes(',') ? fileData.split(',')[1] : fileData;
+        
         // Store in Supabase
         const { data, error } = await supabase.functions.invoke('encrypt-document', {
           body: {
             documentType,
             metadata,
-            fileData,
+            fileData: base64Data, // Send only base64 part
             fileName,
           },
           headers: {
