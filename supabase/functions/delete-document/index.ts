@@ -121,32 +121,26 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('No file_path found, skipping storage deletion');
     }
 
-    // Step 4: Delete document record from database using a transaction
+    // Step 4: Delete document record from database - using simple direct deletion
     console.log('Deleting document record from database...');
     
-    // Usar una transacción RPC para asegurar eliminación atómica
-    const { data: deleteResult, error: rpcError } = await supabase
-      .rpc('delete_document_safely', { 
-        p_document_id: documentId,
-        p_user_id: user.id 
-      });
+    // Direct deletion - simpler and more reliable
+    const { error: deleteError, count } = await supabase
+      .from('encrypted_travel_documents')
+      .delete()
+      .eq('id', documentId)
+      .eq('user_id', user.id);
 
-    if (rpcError) {
-      console.error('RPC deletion error:', rpcError);
-      
-      // Fallback: intentar eliminación directa
-      console.log('Attempting direct deletion as fallback...');
-      const { error: directDeleteError } = await supabase
-        .from('encrypted_travel_documents')
-        .delete()
-        .eq('id', documentId)
-        .eq('user_id', user.id);
-
-      if (directDeleteError) {
-        console.error('Direct deletion also failed:', directDeleteError);
-        throw new Error(`Database deletion failed: ${directDeleteError.message}`);
-      }
+    if (deleteError) {
+      console.error('Document deletion error:', deleteError);
+      throw new Error(`Failed to delete document: ${deleteError.message}`);
     }
+
+    if (count === 0) {
+      console.log('No document was deleted - may have already been removed');
+    }
+
+    console.log(`Document deletion completed. Rows affected: ${count || 0}`);
 
     console.log(`Document successfully deleted from database: ${documentId}`);
 
