@@ -112,14 +112,19 @@ const DocumentForm = ({
 
   const formatDateRange = () => {
     if (document.issueDate && document.expiryDate) {
-      return `${format(new Date(document.issueDate), "dd/MM/yyyy")} - ${format(new Date(document.expiryDate), "dd/MM/yyyy")}`;
+      // Parse date strings without timezone conversion
+      const issueDate = document.issueDate.split('-');
+      const expiryDate = document.expiryDate.split('-');
+      return `${issueDate[2]}/${issueDate[1]}/${issueDate[0]} - ${expiryDate[2]}/${expiryDate[1]}/${expiryDate[0]}`;
     }
     return "Seleccionar período de validez";
   };
 
   const formatIssueDate = () => {
     if (document.issueDate) {
-      return format(new Date(document.issueDate), "dd/MM/yyyy");
+      // Parse date string without timezone conversion
+      const dateParts = document.issueDate.split('-');
+      return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
     }
     return "Seleccionar fecha de emisión";
   };
