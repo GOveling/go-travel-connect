@@ -393,6 +393,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           documentId={viewingDocumentId}
           documentType={viewingDocumentType}
           getDocument={getDocument}
+          onDelete={handleDeleteDocument}
         />
       )}
     </Dialog>

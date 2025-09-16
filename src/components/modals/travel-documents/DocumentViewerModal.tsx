@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, FileText, Calendar, MapPin, User, Hash, StickyNote, Clock, Shield, X } from "lucide-react";
+import { Loader2, FileText, Calendar, MapPin, User, Hash, StickyNote, Clock, Shield, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DecryptedDocument } from "@/hooks/useEncryptedTravelDocuments";
 
@@ -12,6 +12,7 @@ interface DocumentViewerModalProps {
   documentId: string;
   documentType: string;
   getDocument: (id: string, includeFile?: boolean) => Promise<DecryptedDocument | null>;
+  onDelete: (documentId: string) => Promise<void>;
 }
 
 const DocumentViewerModal = ({ 
@@ -19,7 +20,8 @@ const DocumentViewerModal = ({
   onClose, 
   documentId, 
   documentType, 
-  getDocument 
+  getDocument,
+  onDelete 
 }: DocumentViewerModalProps) => {
   const [document, setDocument] = useState<DecryptedDocument | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,6 +63,26 @@ const DocumentViewerModal = ({
       onClose();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!document) return;
+    
+    try {
+      await onDelete(documentId);
+      toast({
+        title: "Documento eliminado",
+        description: "El documento ha sido eliminado de forma segura",
+      });
+      onClose();
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el documento",
+        variant: "destructive",
+      });
     }
   };
 
@@ -146,7 +168,7 @@ const DocumentViewerModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
             {documentType}
@@ -155,6 +177,15 @@ const DocumentViewerModal = ({
               Desencriptado
             </Badge>
           </DialogTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDelete}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Eliminar
+          </Button>
         </DialogHeader>
 
         {document && (
