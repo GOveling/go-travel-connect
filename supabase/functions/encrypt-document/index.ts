@@ -48,6 +48,50 @@ async function generateEncryptionKey(userId: string): Promise<CryptoKey> {
   );
 }
 
+// Helper function to convert ArrayBuffer to base64 without stack overflow
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000; // 32KB chunks to avoid stack overflow
+  let binary = '';
+  
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.slice(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  
+  return btoa(binary);
+}
+
+// Helper function to convert Uint8Array to base64
+function uint8ArrayToBase64(uint8Array: Uint8Array): string {
+  const chunkSize = 0x8000; // 32KB chunks
+  let binary = '';
+  
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    const chunk = uint8Array.slice(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  
+  return btoa(binary);
+}
+
+// Validate file size (max 10MB for individual files)
+function validateFileSize(fileData: string): boolean {
+  // Base64 encoding increases size by ~33%, so check original size
+  const sizeInBytes = (fileData.length * 3) / 4;
+  const maxSizeInBytes = 10 * 1024 * 1024; // 10MB
+  return sizeInBytes <= maxSizeInBytes;
+}
+
+// Validate Base64 format
+function isValidBase64(str: string): boolean {
+  try {
+    return btoa(atob(str)) === str;
+  } catch (err) {
+    return false;
+  }
+}
+
 async function encryptData(data: string, key: CryptoKey): Promise<{ encrypted: string; iv: string }> {
   const encoder = new TextEncoder();
   const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for GCM
@@ -59,8 +103,8 @@ async function encryptData(data: string, key: CryptoKey): Promise<{ encrypted: s
   );
   
   return {
-    encrypted: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-    iv: btoa(String.fromCharCode(...iv))
+    encrypted: arrayBufferToBase64(encrypted),
+    iv: uint8ArrayToBase64(iv)
   };
 }
 
@@ -91,6 +135,30 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { documentType, metadata, fileData, fileName }: EncryptDocumentRequest = await req.json();
+
+    // Validate required fields
+    if (!documentType || !metadata) {
+      throw new Error('Document type and metadata are required');
+    }
+
+    // Validate file data if provided
+    if (fileData) {
+      if (!fileName) {
+        throw new Error('File name is required when file data is provided');
+      }
+
+      // Validate Base64 format
+      if (!isValidBase64(fileData)) {
+        throw new Error('Invalid file format: File must be Base64 encoded');
+      }
+
+      // Validate file size (max 10MB)
+      if (!validateFileSize(fileData)) {
+        throw new Error('File too large: Maximum file size is 10MB');
+      }
+
+      console.log(`Processing file: ${fileName}, size: ${Math.round((fileData.length * 3) / 4 / 1024)} KB`);
+    }
 
     console.log(`Encrypting document for user: ${user.id}, type: ${documentType}`);
 
