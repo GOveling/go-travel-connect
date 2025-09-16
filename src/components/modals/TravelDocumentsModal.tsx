@@ -7,8 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import DocumentForm from "./travel-documents/DocumentForm";
 import DocumentCard from "./travel-documents/DocumentCard";
 import DocumentViewerModal from "./travel-documents/DocumentViewerModal";
-import { Plus, Download, Shield, Lock, AlertTriangle, RefreshCw } from "lucide-react";
+import { Plus, Download, Shield, Lock, AlertTriangle, RefreshCw, CloudUpload, HardDrive, ArrowLeftRight, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useEncryptedTravelDocuments, TravelDocumentMetadata } from "@/hooks/useEncryptedTravelDocuments";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -35,6 +36,9 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(null);
   const [viewingDocumentId, setViewingDocumentId] = useState<string | null>(null);
   const [viewingDocumentType, setViewingDocumentType] = useState<string>("");
+  const [showSyncOptions, setShowSyncOptions] = useState(false);
+  const [onlineDocuments, setOnlineDocuments] = useState<any[]>([]);
+  const [offlineDocuments, setOfflineDocuments] = useState<any[]>([]);
   const [formData, setFormData] = useState<TravelDocument>({
     id: "",
     type: "",
@@ -47,30 +51,42 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   });
   const { toast } = useToast();
   const { user } = useAuth();
-  const { 
-    documents: encryptedDocuments, 
-    loading, 
+  
+  // Use a single hook instance and manage mode switching manually
+  const {
+    documents: currentDocuments,
+    loading,
     initialized,
-    addDocument, 
-    getDocument, 
+    addDocument,
+    getDocument,
     deleteDocument,
     loadDocuments,
     refreshDocuments
-  } = useEncryptedTravelDocuments(false); // Don't auto-load documents
+  } = useEncryptedTravelDocuments(false);
 
-  // Load documents only when modal is opened
+  // Load documents when modal opens or mode changes
   useEffect(() => {
-    console.log('Modal effect:', { isOpen, user: !!user, initialized, documentsCount: encryptedDocuments.length });
     if (isOpen && user) {
-      console.log('Loading documents from modal effect');
-      if (!initialized) {
-        loadDocuments();
-      } else {
-        // If already initialized, refresh documents
-        refreshDocuments();
-      }
+      loadDocuments();
+      loadDocumentCounts();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, isOffline]);
+
+  const loadDocumentCounts = async () => {
+    try {
+      // Get counts from localStorage for quick display
+      const offlineData = localStorage.getItem('encrypted_travel_documents');
+      const offlineDocs = offlineData ? JSON.parse(offlineData) : [];
+      setOfflineDocuments(offlineDocs);
+      
+      // For online count, we'll use the current hook state when online
+      if (!isOffline) {
+        setOnlineDocuments(currentDocuments);
+      }
+    } catch (error) {
+      console.error('Error loading document counts:', error);
+    }
+  };
 
   // Load offline mode from localStorage (legacy documents are migrated on first use)
   useEffect(() => {
@@ -89,6 +105,11 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   // Save offline mode to localStorage when it changes
   useEffect(() => {
     localStorage.setItem("offlineMode", JSON.stringify(isOffline));
+    // Reload documents when switching modes
+    if (isOpen && user) {
+      loadDocuments();
+      loadDocumentCounts();
+    }
   }, [isOffline]);
 
   const migrateLegacyDocuments = async (legacyDocs: TravelDocument[]) => {
@@ -140,6 +161,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       if (success) {
         resetForm();
         setIsAddingDocument(false);
+        loadDocumentCounts(); // Reload counts
       }
     }
   };
@@ -161,30 +183,30 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
   const handleDeleteDocument = async (id: string) => {
     try {
-      console.log('TravelDocumentsModal: Starting deletion for document:', id);
-      
-      // Llamar a la función de eliminación y obtener el resultado
       const success = await deleteDocument(id);
       
       if (success !== false) {
-        // Solo recargar y cerrar si fue exitoso
         await loadDocuments();
-        console.log('TravelDocumentsModal: Document deleted and list reloaded');
+        loadDocumentCounts(); // Reload counts
         
-        // Cerrar el modal del viewer si está abierto
         if (viewingDocumentId === id) {
           handleCloseViewer();
         }
-      } else {
-        console.log('TravelDocumentsModal: Document deletion failed');
       }
       
       return success;
     } catch (error) {
-      console.error("TravelDocumentsModal: Error in handleDeleteDocument:", error);
-      // Propagar el error para que lo maneje el componente que llama
+      console.error("Error deleting document:", error);
       throw error;
     }
+  };
+
+  const syncDocumentsBetweenModes = async (fromOfflineToOnline: boolean) => {
+    toast({
+      title: "Función de sincronización",
+      description: "Esta funcionalidad estará disponible próximamente",
+      variant: "default",
+    });
   };
 
   const handleViewDocument = (document: TravelDocument) => {
@@ -213,7 +235,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   };
 
   const exportDocuments = async () => {
-    if (encryptedDocuments.length === 0) {
+    if (currentDocuments.length === 0) {
       toast({
         title: "Sin documentos",
         description: "No hay documentos para exportar.",
@@ -223,7 +245,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     }
 
     try {
-      const exportData = encryptedDocuments.map(doc => ({
+      const exportData = currentDocuments.map(doc => ({
         id: doc.id,
         documentType: doc.documentType,
         hasFile: doc.hasFile,
@@ -283,21 +305,108 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
             </div>
           </div>
 
-          {/* Offline Mode Toggle */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <div>
-                <Label className="font-medium">Modo Offline Local</Label>
-                <p className="text-sm text-muted-foreground">
-                  Usar almacenamiento local con encriptación AES-256 (seguro, sin conexión)
-                </p>
+          {/* Mode Selection and Status */}
+          <div className="space-y-4">
+            {/* Current Mode Toggle */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 ${isOffline ? 'bg-blue-500' : 'bg-green-500'} rounded-full animate-pulse`}></div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Label className="font-medium">Modo de Almacenamiento</Label>
+                    {isOffline ? <HardDrive className="w-4 h-4 text-blue-600" /> : <CloudUpload className="w-4 h-4 text-green-600" />}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {isOffline 
+                      ? "Almacenamiento local con encriptación AES-256 (sin conexión)" 
+                      : "Almacenamiento en la nube con encriptación AES-256 (requiere conexión)"
+                    }
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={isOffline}
+                onCheckedChange={setIsOffline}
+              />
+            </div>
+
+            {/* Document Count Summary */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CloudUpload className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium">Online</span>
+                </div>
+                <Badge variant={isOffline ? "secondary" : "default"} className="bg-green-100 text-green-800">
+                  {onlineDocuments.length} docs
+                </Badge>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <HardDrive className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium">Offline</span>
+                </div>
+                <Badge variant={!isOffline ? "secondary" : "default"} className="bg-blue-100 text-blue-800">
+                  {offlineDocuments.length} docs
+                </Badge>
               </div>
             </div>
-            <Switch
-              checked={isOffline}
-              onCheckedChange={setIsOffline}
-            />
+
+            {/* Mode Separation Warning */}
+            {(onlineDocuments.length > 0 && offlineDocuments.length > 0) && (
+              <Alert className="border-amber-200 bg-amber-50">
+                <Info className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-800">
+                  Tienes documentos en ambos modos. Los documentos online y offline están separados.
+                  <Button 
+                    variant="link" 
+                    className="h-auto p-0 ml-1 text-amber-700 underline"
+                    onClick={() => setShowSyncOptions(!showSyncOptions)}
+                  >
+                    Ver opciones de sincronización
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Sync Options */}
+            {showSyncOptions && (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <ArrowLeftRight className="w-4 h-4 text-blue-600" />
+                  <span className="font-medium text-blue-900">Opciones de Sincronización</span>
+                </div>
+                
+                {offlineDocuments.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => syncDocumentsBetweenModes(true)}
+                    className="w-full justify-start"
+                  >
+                    <HardDrive className="w-4 h-4 mr-2" />
+                    Mover {offlineDocuments.length} documento(s) offline → online
+                  </Button>
+                )}
+                
+                {onlineDocuments.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => syncDocumentsBetweenModes(false)}
+                    className="w-full justify-start"
+                  >
+                    <CloudUpload className="w-4 h-4 mr-2" />
+                    Mover {onlineDocuments.length} documento(s) online → offline
+                  </Button>
+                )}
+                
+                <p className="text-xs text-blue-700">
+                  ⚠️ Los documentos se moverán completamente al modo seleccionado
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -327,7 +436,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           <div className="space-y-4">
             {/* Debug info */}
             <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
-              Documentos: {encryptedDocuments.length} | Cargando: {loading ? 'Sí' : 'No'} | Inicializado: {initialized ? 'Sí' : 'No'}
+              Documentos: {currentDocuments.length} | Cargando: {loading ? 'Sí' : 'No'} | Inicializado: {initialized ? 'Sí' : 'No'}
             </div>
             
             {loading ? (
@@ -335,9 +444,9 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                 <Shield className="w-12 h-12 mx-auto mb-4 animate-pulse opacity-50" />
                 <p>Cargando documentos encriptados...</p>
               </div>
-            ) : encryptedDocuments.length > 0 ? (
+            ) : currentDocuments.length > 0 ? (
               <div className="space-y-3">
-                {encryptedDocuments.map((document) => (
+                {currentDocuments.map((document) => (
                   <div key={document.id} className="relative">
                     <DocumentCard
                       document={{
