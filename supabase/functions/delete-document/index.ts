@@ -64,6 +64,16 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    // Log deletion BEFORE actually deleting (due to foreign key constraint)
+    await supabase
+      .from('document_access_log')
+      .insert({
+        user_id: user.id,
+        document_id: documentId,
+        action_type: 'delete',
+        success: true
+      });
+
     // Delete document record from database
     const { error: deleteError } = await supabase
       .from('encrypted_travel_documents')
@@ -75,16 +85,6 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Database deletion error:', deleteError);
       throw new Error(`Database deletion failed: ${deleteError.message}`);
     }
-
-    // Log deletion
-    await supabase
-      .from('document_access_log')
-      .insert({
-        user_id: user.id,
-        document_id: documentId,
-        action_type: 'delete',
-        success: true
-      });
 
     console.log(`Document deleted successfully: ${documentId}`);
 
