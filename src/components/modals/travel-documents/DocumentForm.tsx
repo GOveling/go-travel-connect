@@ -175,31 +175,6 @@ const DocumentForm = ({
 
         <div className="space-y-4">
           <div>
-            <Label>Fecha de Emisión</Label>
-            <Popover open={isIssueDateOpen} onOpenChange={setIsIssueDateOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !document.issueDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formatIssueDate()}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <JollyCalendar
-                  value={getIssueDateValue()}
-                  onChange={handleIssueDateChange}
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div>
             <Label>Período de Validez (Emisión - Vencimiento)</Label>
             <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>
               <PopoverTrigger asChild>
