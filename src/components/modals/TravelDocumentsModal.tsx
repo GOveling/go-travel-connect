@@ -366,14 +366,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                       </div>
                     )}
                     
-                    {document.expiresInDays !== null && document.expiresInDays <= 30 && document.expiresInDays > 0 && (
-                      <div className="absolute top-2 right-2">
-                        <Badge variant="outline" className="gap-1 border-orange-300 text-orange-800">
-                          <AlertTriangle className="w-3 h-3" />
-                          {document.expiresInDays} días
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
