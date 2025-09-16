@@ -70,6 +70,18 @@ verify_jwt = true
 [functions.auth-emails]
 verify_jwt = false
 
+[functions.encrypt-document]
+verify_jwt = true
+
+[functions.decrypt-document]
+verify_jwt = true
+
+[functions.delete-document]
+verify_jwt = true
+
+[functions.list-documents]
+verify_jwt = true
+
 [storage]
 enabled = true
 port = 54324

@@ -38,15 +38,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Deleting document ${documentId} for user: ${user.id}`);
 
-    // Get document info first
+    // Get document info first using maybeSingle to avoid errors
     const { data: document, error: getError } = await supabase
       .from('encrypted_travel_documents')
       .select('file_path')
       .eq('id', documentId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (getError || !document) {
+    if (getError) {
+      console.error('Database error:', getError);
+      throw new Error(`Database error: ${getError.message}`);
+    }
+
+    if (!document) {
+      console.log(`Document not found: ${documentId} for user: ${user.id}`);
       throw new Error('Document not found or access denied');
     }
 

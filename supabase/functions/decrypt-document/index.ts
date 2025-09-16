@@ -73,8 +73,20 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Unauthorized');
     }
 
-    // Get parameters from request body
-    const { documentId, includeFile } = await req.json();
+    let documentId: string;
+    let includeFile: boolean = false;
+
+    // Handle both GET (query params) and POST (body) requests for compatibility
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      documentId = url.searchParams.get('documentId') || '';
+      includeFile = url.searchParams.get('includeFile') === 'true';
+    } else {
+      // POST request with body
+      const body = await req.json();
+      documentId = body.documentId || '';
+      includeFile = body.includeFile || false;
+    }
 
     if (!documentId) {
       throw new Error('Document ID is required');
@@ -82,15 +94,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Decrypting document ${documentId} for user: ${user.id}`);
 
-    // Get encrypted document
+    // Get encrypted document using maybeSingle to avoid errors
     const { data: document, error: dbError } = await supabase
       .from('encrypted_travel_documents')
       .select('*')
       .eq('id', documentId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (dbError || !document) {
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error(`Database error: ${dbError.message}`);
+    }
+
+    if (!document) {
+      console.log(`Document not found: ${documentId} for user: ${user.id}`);
       throw new Error('Document not found or access denied');
     }
 
