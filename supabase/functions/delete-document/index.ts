@@ -121,17 +121,31 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('No file_path found, skipping storage deletion');
     }
 
-    // Step 4: Delete document record from database
+    // Step 4: Delete document record from database using a transaction
     console.log('Deleting document record from database...');
-    const { error: deleteError } = await supabase
-      .from('encrypted_travel_documents')
-      .delete()
-      .eq('id', documentId)
-      .eq('user_id', user.id);
+    
+    // Usar una transacción RPC para asegurar eliminación atómica
+    const { data: deleteResult, error: rpcError } = await supabase
+      .rpc('delete_document_safely', { 
+        p_document_id: documentId,
+        p_user_id: user.id 
+      });
 
-    if (deleteError) {
-      console.error('Database deletion error:', deleteError);
-      throw new Error(`Database deletion failed: ${deleteError.message}`);
+    if (rpcError) {
+      console.error('RPC deletion error:', rpcError);
+      
+      // Fallback: intentar eliminación directa
+      console.log('Attempting direct deletion as fallback...');
+      const { error: directDeleteError } = await supabase
+        .from('encrypted_travel_documents')
+        .delete()
+        .eq('id', documentId)
+        .eq('user_id', user.id);
+
+      if (directDeleteError) {
+        console.error('Direct deletion also failed:', directDeleteError);
+        throw new Error(`Database deletion failed: ${directDeleteError.message}`);
+      }
     }
 
     console.log(`Document successfully deleted from database: ${documentId}`);

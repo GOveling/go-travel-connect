@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, FileText, Calendar, MapPin, User, Hash, StickyNote, Clock, Shield, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DecryptedDocument } from "@/hooks/useEncryptedTravelDocuments";
-import DeleteTripConfirmationModal from "../DeleteTripConfirmationModal";
+import DeleteDocumentConfirmationModal from "./DeleteDocumentConfirmationModal";
 
 interface DocumentViewerModalProps {
   isOpen: boolean;
@@ -346,11 +346,11 @@ const DocumentViewerModal = ({
       )}
 
       {/* Delete Confirmation Modal */}
-      <DeleteTripConfirmationModal
+      <DeleteDocumentConfirmationModal
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        tripName={`documento ${documentType}`}
+        documentType={documentType}
       />
     </Dialog>
   );
