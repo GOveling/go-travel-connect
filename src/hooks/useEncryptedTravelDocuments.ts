@@ -56,12 +56,17 @@ export const useEncryptedTravelDocuments = () => {
   const isOfflineMode = localStorage.getItem('offlineMode') === 'true';
 
   const loadDocuments = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user found, skipping document load');
+      return;
+    }
     
     setLoading(true);
     setError(null);
     
     try {
+      console.log('Loading documents, offline mode:', isOfflineMode);
+      
       if (isOfflineMode) {
         // Load from encrypted local storage
         const localDocs = localStorage.getItem('encrypted_travel_documents');
@@ -86,29 +91,79 @@ export const useEncryptedTravelDocuments = () => {
           setDocuments([]);
         }
       } else {
-        // Load from Supabase
+        // Load from Supabase with enhanced error handling
+        const session = await supabase.auth.getSession();
+        console.log('Session status:', !!session.data.session);
+        
+        if (!session.data.session?.access_token) {
+          console.error('No valid session found');
+          // Fallback to offline mode temporarily
+          localStorage.setItem('offlineMode', 'true');
+          setDocuments([]);
+          toast({
+            title: "Modo offline activado",
+            description: "Usando almacenamiento local debido a problemas de autenticación",
+            variant: "default",
+          });
+          return;
+        }
+
         const { data, error } = await supabase.functions.invoke('list-documents', {
           headers: {
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            Authorization: `Bearer ${session.data.session.access_token}`,
           },
         });
 
-        if (error) throw error;
+        console.log('Edge function response:', { success: data?.success, error });
 
-        if (data.success) {
-          setDocuments(data.documents);
+        if (error) {
+          console.error('Edge function error:', error);
+          
+          // Check if it's an authentication error
+          if (error.message?.includes('auth') || error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+            console.log('Authentication error detected, activating offline mode');
+            localStorage.setItem('offlineMode', 'true');
+            setDocuments([]);
+            toast({
+              title: "Modo offline activado",
+              description: "Problema de autenticación. Usando almacenamiento local",
+              variant: "default",
+            });
+            return;
+          }
+          
+          throw error;
+        }
+
+        if (data?.success) {
+          setDocuments(data.documents || []);
         } else {
-          throw new Error(data.error);
+          console.error('Edge function returned error:', data?.error);
+          throw new Error(data?.error || 'Error desconocido del servidor');
         }
       }
     } catch (err: any) {
+      console.error('Error loading documents:', err);
       const errorMessage = err.message || 'Error al cargar documentos';
       setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      
+      // Activate offline mode as fallback for persistent errors
+      if (err.message?.includes('auth') || err.message?.includes('401') || err.message?.includes('Unauthorized')) {
+        console.log('Activating offline mode due to auth error');
+        localStorage.setItem('offlineMode', 'true');
+        setDocuments([]);
+        toast({
+          title: "Modo offline activado",
+          description: "Problema de conectividad. Los documentos se cargarán desde el almacenamiento local",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
