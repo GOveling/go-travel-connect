@@ -11,8 +11,6 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log(`delete-document called with method: ${req.method}`);
-
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -21,7 +19,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      console.error('No authorization header provided');
       throw new Error('No authorization header');
     }
 
@@ -29,40 +26,27 @@ const handler = async (req: Request): Promise<Response> => {
       authHeader.replace('Bearer ', '')
     );
 
-    if (authError) {
-      console.error('Auth error:', authError);
-      throw new Error(`Authentication failed: ${authError.message}`);
-    }
-
-    if (!user) {
-      console.error('No user found in token');
-      throw new Error('User not found');
+    if (authError || !user) {
+      throw new Error('Unauthorized');
     }
 
     const { documentId } = await req.json();
 
     if (!documentId) {
-      console.error('Document ID is missing');
       throw new Error('Document ID is required');
     }
 
     console.log(`Deleting document ${documentId} for user: ${user.id}`);
 
-    // Get document info first using maybeSingle to avoid errors
+    // Get document info first
     const { data: document, error: getError } = await supabase
       .from('encrypted_travel_documents')
       .select('file_path')
       .eq('id', documentId)
       .eq('user_id', user.id)
-      .maybeSingle();
+      .single();
 
-    if (getError) {
-      console.error('Database error:', getError);
-      throw new Error(`Database error: ${getError.message}`);
-    }
-
-    if (!document) {
-      console.log(`Document not found: ${documentId} for user: ${user.id}`);
+    if (getError || !document) {
       throw new Error('Document not found or access denied');
     }
 
@@ -91,6 +75,16 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Database deletion error:', deleteError);
       throw new Error(`Database deletion failed: ${deleteError.message}`);
     }
+
+    // Log deletion
+    await supabase
+      .from('document_access_log')
+      .insert({
+        user_id: user.id,
+        document_id: documentId,
+        action_type: 'delete',
+        success: true
+      });
 
     console.log(`Document deleted successfully: ${documentId}`);
 

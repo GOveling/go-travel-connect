@@ -102,38 +102,30 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         
         if (!session.data.session?.access_token) {
           console.error('No valid session found');
-          throw new Error('No hay sesión de usuario válida');
+          // Fallback to offline mode temporarily
+          localStorage.setItem('offlineMode', 'true');
+          setDocuments([]);
+          toast({
+            title: "Modo offline activado",
+            description: "Usando almacenamiento local debido a problemas de autenticación",
+            variant: "default",
+          });
+          return;
         }
 
-        try {
-          const { data, error } = await supabase.functions.invoke('list-documents', {
-            headers: {
-              Authorization: `Bearer ${session.data.session.access_token}`,
-            },
-          });
+        const { data, error } = await supabase.functions.invoke('list-documents', {
+          headers: {
+            Authorization: `Bearer ${session.data.session.access_token}`,
+          },
+        });
 
-          console.log('Edge function response:', { success: data?.success, error, dataKeys: Object.keys(data || {}) });
+        console.log('Edge function response:', { success: data?.success, error, dataKeys: Object.keys(data || {}) });
 
-          if (error) {
-            console.error('Edge function error:', error);
-            throw error;
-          }
-
-          if (data?.success) {
-            console.log('Setting documents:', data.documents?.length || 0, 'documents');
-            setDocuments(data.documents || []);
-          } else {
-            console.error('Edge function returned error:', data?.error);
-            throw new Error(data?.error || 'Error desconocido del servidor');
-          }
-        } catch (networkError: any) {
-          console.error('Network error calling list-documents:', networkError);
+        if (error) {
+          console.error('Edge function error:', error);
           
           // Check if it's an authentication error
-          if (networkError.message?.includes('auth') || 
-              networkError.message?.includes('401') || 
-              networkError.message?.includes('Unauthorized') ||
-              networkError.message?.includes('Invalid JWT')) {
+          if (error.message?.includes('auth') || error.message?.includes('401') || error.message?.includes('Unauthorized')) {
             console.log('Authentication error detected, activating offline mode');
             localStorage.setItem('offlineMode', 'true');
             setDocuments([]);
@@ -145,7 +137,15 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
             return;
           }
           
-          throw networkError;
+          throw error;
+        }
+
+        if (data?.success) {
+          console.log('Setting documents:', data.documents?.length || 0, 'documents');
+          setDocuments(data.documents || []);
+        } else {
+          console.error('Edge function returned error:', data?.error);
+          throw new Error(data?.error || 'Error desconocido del servidor');
         }
       }
     } catch (err: any) {
@@ -355,32 +355,26 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           lastAccessedAt: doc.lastAccessedAt || new Date().toISOString(),
         };
       } else {
-        // Decrypt from Supabase using proper function invocation
-        const session = await supabase.auth.getSession();
-        if (!session.data.session?.access_token) {
-          throw new Error('No hay sesión válida');
-        }
+        // Decrypt from Supabase
+        const url = new URL(`https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/decrypt-document`);
+        url.searchParams.set('documentId', documentId);
+        url.searchParams.set('includeFile', includeFile.toString());
 
-        const { data, error } = await supabase.functions.invoke('decrypt-document', {
-          body: {
-            documentId,
-            includeFile
-          },
+        const response = await fetch(url.toString(), {
+          method: 'GET',
           headers: {
-            Authorization: `Bearer ${session.data.session.access_token}`,
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+            'Content-Type': 'application/json',
           },
         });
 
-        if (error) {
-          console.error('Error in decrypt-document function:', error);
-          throw new Error(error.message || 'Error al desencriptar documento');
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error);
         }
 
-        if (!data?.success) {
-          throw new Error(data?.error || 'Error desconocido al desencriptar documento');
-        }
-
-        return data.document;
+        return result.document;
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Error al obtener documento';
@@ -421,37 +415,24 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           className: "bg-red-50 border-red-200",
         });
       } else {
-        // Delete from Supabase with enhanced error handling
-        const session = await supabase.auth.getSession();
-        if (!session.data.session?.access_token) {
-          throw new Error('No hay sesión de usuario válida');
-        }
+        // Delete from Supabase
+        const { data, error } = await supabase.functions.invoke('delete-document', {
+          body: { documentId },
+          headers: {
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+        });
 
-        try {
-          const { data, error } = await supabase.functions.invoke('delete-document', {
-            body: { documentId },
-            headers: {
-              Authorization: `Bearer ${session.data.session.access_token}`,
-            },
+        if (error) throw error;
+
+        if (data.success) {
+          toast({
+            title: "Documento eliminado",
+            description: "El documento ha sido eliminado de forma segura",
+            className: "bg-red-50 border-red-200",
           });
-
-          if (error) {
-            console.error('Error in delete-document function:', error);
-            throw error;
-          }
-
-          if (data?.success) {
-            toast({
-              title: "Documento eliminado",
-              description: "El documento ha sido eliminado de forma segura",
-              className: "bg-red-50 border-red-200",
-            });
-          } else {
-            throw new Error(data?.error || 'Error desconocido al eliminar documento');
-          }
-        } catch (functionError: any) {
-          console.error('Function call error:', functionError);
-          throw functionError;
+        } else {
+          throw new Error(data.error);
         }
       }
       
