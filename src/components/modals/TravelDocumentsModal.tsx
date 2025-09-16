@@ -475,43 +475,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               </p>
             </div>
 
-            {/* Sync Options */}
-            {showSyncOptions && (
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <ArrowLeftRight className="w-4 h-4 text-blue-600" />
-                  <span className="font-medium text-blue-900">Opciones de Sincronización</span>
-                </div>
-                
-                {offlineDocuments.length > 0 && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => syncDocumentsBetweenModes(true)}
-                    className="w-full justify-start"
-                  >
-                    <HardDrive className="w-4 h-4 mr-2" />
-                    Mover {offlineDocuments.length} documento(s) offline → online
-                  </Button>
-                )}
-                
-                {onlineDocuments.length > 0 && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => syncDocumentsBetweenModes(false)}
-                    className="w-full justify-start"
-                  >
-                    <CloudUpload className="w-4 h-4 mr-2" />
-                    Mover {onlineDocuments.length} documento(s) online → offline
-                  </Button>
-                )}
-                
-                <p className="text-xs text-blue-700">
-                  ⚠️ Los documentos se moverán completamente al modo seleccionado
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Actions */}
