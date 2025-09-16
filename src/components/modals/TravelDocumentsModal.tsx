@@ -560,6 +560,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                       onDelete={() => handleDeleteDocument(document.id)}
                       onView={handleViewDocument}
                       isEncrypted={true}
+                      storageMode={isOffline ? 'offline' : 'online'}
                     />
                     
                     {/* Expiration Warning */}

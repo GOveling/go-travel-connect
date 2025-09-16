@@ -95,18 +95,18 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false,
                 
                 {/* Storage Mode Badge */}
                 <Badge 
-                  variant={storageMode === 'online' ? 'default' : 'secondary'} 
+                  variant={storageMode === 'offline' ? 'default' : 'secondary'} 
                   className={`text-xs ${
-                    storageMode === 'online' 
+                    storageMode === 'offline' 
                       ? 'bg-blue-100 text-blue-800 border-blue-200' 
-                      : 'bg-green-100 text-green-800 border-green-200'
+                      : 'bg-gray-100 text-gray-800 border-gray-200'
                   }`}
                 >
-                  {storageMode === 'online' ? 'ONLINE' : 'OFFLINE'}
+                  {storageMode === 'offline' ? 'OFFLINE' : 'ONLINE'}
                 </Badge>
 
                 {isEncrypted && (
-                  <Badge variant="outline" className="bg-gray-100 text-gray-800 text-xs border-gray-300">
+                  <Badge variant="outline" className="bg-green-100 text-green-800 text-xs border-green-300">
                     <Lock className="w-3 h-3 mr-1" />
                     Encriptado
                   </Badge>
