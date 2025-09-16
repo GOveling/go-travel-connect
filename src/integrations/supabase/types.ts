@@ -1322,6 +1322,10 @@ export type Database = {
         Args: { encrypted_value: string }
         Returns: string
       }
+      delete_document_safely: {
+        Args: { p_document_id: string; p_user_id: string }
+        Returns: boolean
+      }
       deobfuscate_location_data: {
         Args: { obfuscated_value: string }
         Returns: string
