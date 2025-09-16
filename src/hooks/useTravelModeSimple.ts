@@ -558,7 +558,7 @@ export const useTravelModeSimple = ({
     }
   }, [isNative, isCapacitor, toast, validateNewReading, addToLocationBuffer, getStablePosition]);
 
-  // Check if there's an active trip today (only for owned trips)
+  // Check if there's an active trip today (including both owned trips and collaborations)
   const getActiveTripToday = useCallback((): Trip | null => {
     if (!trips || !user) return null;
 
@@ -568,16 +568,25 @@ export const useTravelModeSimple = ({
     console.log(`🔍 Checking trips for user: ${user.id}`);
     console.log(`📅 Today: ${todayStr}`);
     
-    // Filter trips to only include those owned by the current user
-    const userOwnedTrips = trips.filter((trip: Trip) => {
+    // Filter trips to include both owned trips and collaborations
+    const accessibleTrips = trips.filter((trip: Trip) => {
       const isOwner = trip.user_id === user.id;
-      console.log(`🎯 Trip "${trip.name}" - Owner: ${trip.user_id}, Current User: ${user.id}, Is Owner: ${isOwner}`);
-      return isOwner;
+      const isCollaborator = trip.collaborators && trip.collaborators.some(
+        (collaborator: any) => collaborator.user_id === user.id
+      );
+      const hasAccess = isOwner || isCollaborator;
+      
+      console.log(`🎯 Trip "${trip.name}"`);
+      console.log(`   - Owner: ${trip.user_id}, Current User: ${user.id}`);
+      console.log(`   - Is Owner: ${isOwner}, Is Collaborator: ${isCollaborator}`);
+      console.log(`   - Collaborators:`, trip.collaborators);
+      console.log(`   - Has Access: ${hasAccess}`);
+      return hasAccess;
     });
     
-    console.log(`👤 Found ${userOwnedTrips.length} trips owned by user out of ${trips.length} total accessible trips`);
+    console.log(`👤 Found ${accessibleTrips.length} accessible trips (owned + collaborations) out of ${trips.length} total trips`);
 
-    const activeTrip = userOwnedTrips.find((trip: Trip) => {
+    const activeTrip = accessibleTrips.find((trip: Trip) => {
       if (!trip.startDate || !trip.endDate) return false;
 
       const startDate = new Date(trip.startDate);
@@ -586,7 +595,8 @@ export const useTravelModeSimple = ({
       const endDateStr = endDate.toISOString().split("T")[0];
 
       const isActive = todayStr >= startDateStr && todayStr <= endDateStr;
-      console.log(`📅 Trip "${trip.name}": ${startDateStr} to ${endDateStr} - Active: ${isActive}`);
+      const tripType = trip.user_id === user.id ? "OWNED" : "COLLABORATION";
+      console.log(`📅 Trip "${trip.name}" (${tripType}): ${startDateStr} to ${endDateStr} - Active: ${isActive}`);
       
       return isActive;
     });
@@ -595,14 +605,15 @@ export const useTravelModeSimple = ({
     setStatus(prev => ({ ...prev, hasActiveTrip }));
 
     if (activeTrip) {
+      const tripType = activeTrip.user_id === user.id ? "OWNED" : "COLLABORATION";
       console.log(
-        `🎯 Active OWNED trip today: ${activeTrip.name} (${activeTrip.startDate} to ${activeTrip.endDate})`
+        `🎯 Active ${tripType} trip today: ${activeTrip.name} (${activeTrip.startDate} to ${activeTrip.endDate})`
       );
       console.log(`📍 Trip has ${activeTrip.savedPlaces?.length || 0} saved places`);
     } else {
-      console.log(`❌ No active OWNED trip today (${todayStr})`);
-      if (userOwnedTrips.length === 0) {
-        console.log(`⚠️ User has no owned trips - may be viewing collaborations only`);
+      console.log(`❌ No active trip today (${todayStr})`);
+      if (accessibleTrips.length === 0) {
+        console.log(`⚠️ User has no accessible trips (owned or collaborations)`);
       }
     }
 

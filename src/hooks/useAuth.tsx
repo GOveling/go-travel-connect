@@ -5,6 +5,7 @@ import { isNative, isAndroid, isIOS } from "@/utils/capacitor";
 import { Session, User } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { SocialLogin } from "@capgo/capacitor-social-login";
+import { Capacitor } from "@capacitor/core";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,19 +13,6 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Platform-specific Google Client IDs
-  const getGoogleClientId = () => {
-    if (isAndroid()) {
-      // Android Client ID
-      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
-    } else if (isIOS()) {
-      // iOS Client ID - Replace with your actual iOS Client ID when you create one
-      return "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com";
-    } else {
-      // Web Client ID
-      return "117845276386-tjagl8ie97jc881vem3qam4kvkq0i34j.apps.googleusercontent.com";
-    }
-  };
 
   useEffect(() => {
     console.log("🔄 useAuth: Initializing auth state...");
@@ -294,18 +282,80 @@ export const useAuth = () => {
 
   const signInWithGoogle = async () => {
     try {
-      console.log("🔍 useAuth: Attempting Google sign in");
-      console.log("🔍 useAuth: Current user state:", user?.email || "No user");
-      console.log("🔍 useAuth: Is native platform:", isNative());
+      console.log("🔍 [MAIN] Attempting Google sign in");
+      console.log("🔍 [MAIN] Current user state:", user?.email || "No user");
+      console.log("🔍 [MAIN] Is native platform:", isNative());
+      console.log("🔍 [MAIN] Capacitor platform:", Capacitor.getPlatform());
 
       // Use native authentication for mobile apps
       if (isNative()) {
-        return await signInWithGoogleNative();
+        console.log("📱 [MAIN] Attempting native authentication...");
+        
+        try {
+          const nativeResult = await signInWithGoogleNative();
+          
+          if (nativeResult.error) {
+            console.warn("⚠️ [FALLBACK] Native auth failed, trying web fallback");
+            console.warn("⚠️ [FALLBACK] Native error:", nativeResult.error.message);
+            
+            // Fallback to web OAuth if native fails
+            const redirectUrl = getRedirectUrl("/");
+            console.log("🔗 [FALLBACK] Using Google redirect URL:", redirectUrl);
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: redirectUrl,
+                queryParams: {
+                  access_type: "offline",
+                  prompt: "select_account",
+                },
+              },
+            });
+
+            if (error) {
+              console.error("❌ [FALLBACK] Web OAuth also failed:", error);
+              throw error;
+            }
+
+            console.log("✅ [FALLBACK] Web OAuth successful:", data);
+            return { error: null };
+          }
+          
+          console.log("✅ [MAIN] Native authentication successful");
+          return nativeResult;
+        } catch (nativeError: any) {
+          console.error("❌ [MAIN] Critical native auth error, forcing web fallback:", nativeError);
+          
+          // Force web fallback on critical errors
+          const redirectUrl = getRedirectUrl("/");
+          console.log("🔗 [FALLBACK] Using Google redirect URL:", redirectUrl);
+
+          const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+              redirectTo: redirectUrl,
+              queryParams: {
+                access_type: "offline",
+                prompt: "select_account",
+              },
+            },
+          });
+
+          if (error) {
+            console.error("❌ [FALLBACK] Critical: Both native and web auth failed:", error);
+            throw error;
+          }
+
+          console.log("✅ [FALLBACK] Web OAuth successful after native failure:", data);
+          return { error: null };
+        }
       }
 
-      // Fallback to web OAuth for browser
+      // Web platform - use OAuth directly
+      console.log("🌐 [MAIN] Web platform - using OAuth");
       const redirectUrl = getRedirectUrl("/");
-      console.log("🔗 useAuth: Using Google redirect URL:", redirectUrl);
+      console.log("🔗 [MAIN] Using Google redirect URL:", redirectUrl);
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -319,26 +369,30 @@ export const useAuth = () => {
       });
 
       if (error) {
-        console.error("❌ useAuth: Google sign in error:", error);
-
-        toast({
-          title: "Error con Google",
-          description: error.message || "Error al iniciar sesión con Google",
-          variant: "destructive",
-        });
-
-        return { error };
+        console.error("❌ [MAIN] Web Google sign in error:", error);
+        throw error;
       }
 
-      console.log("✅ useAuth: Google sign in initiated:", data);
+      console.log("✅ [MAIN] Web Google sign in initiated:", data);
       return { error: null };
     } catch (error: any) {
-      console.error("❌ useAuth: Google sign in exception:", error);
+      console.error("❌ [MAIN] Final Google sign in error:", error);
+      
+      let errorMessage = "Error al iniciar sesión con Google";
+      if (error.message?.includes("network")) {
+        errorMessage = "Error de conexión. Verifica tu internet e inténtalo de nuevo.";
+      } else if (error.message?.includes("cancelled")) {
+        errorMessage = "Autenticación cancelada";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Error con Google",
-        description: error.message || "Ocurrió un error inesperado",
+        description: errorMessage,
         variant: "destructive",
       });
+      
       return { error };
     }
   };
@@ -346,21 +400,15 @@ export const useAuth = () => {
   const signInWithGoogleNative = async () => {
     try {
       const platform = isAndroid() ? "Android" : isIOS() ? "iOS" : "Web";
-      const clientId = getGoogleClientId();
       
-      console.log(`📱 useAuth: Starting native Google authentication for ${platform}`);
-      console.log(`📱 useAuth: Using Client ID: ${clientId}`);
+      console.log(`🔐 [NATIVE] Starting Google authentication for ${platform}`);
+      console.log(`🔐 [NATIVE] Capacitor platform: ${Capacitor.getPlatform()}`);
+      console.log(`🔐 [NATIVE] Plugin will use configuration from capacitor.config.json`);
 
-      // Initialize the plugin first
-      await SocialLogin.initialize({
-        google: {
-          webClientId: clientId,
-          iOSClientId: clientId,
-          mode: 'online',
-        },
-      });
+      // Log plugin configuration
+      console.log(`🔐 [NATIVE] SocialLogin plugin ready for authentication`);
 
-      // Sign in with Google natively using the new plugin
+      // Use the plugin directly - it will read configuration from capacitor.config.json
       const result = await SocialLogin.login({
         provider: "google",
         options: {
@@ -368,12 +416,23 @@ export const useAuth = () => {
         }
       });
       
+      console.log("✅ [NATIVE] Raw plugin response:", JSON.stringify(result, null, 2));
+      
       // Check if we have an online response with profile data
       if (result.result.responseType === 'online') {
-        console.log("📱 useAuth: Native Google sign in successful:", {
+        console.log("📱 [NATIVE] Native Google sign in successful:", {
           email: result.result.profile?.email,
           name: result.result.profile?.name,
+          hasIdToken: !!result.result.idToken,
+          hasAccessToken: !!result.result.accessToken,
         });
+
+        if (!result.result.idToken) {
+          throw new Error("No ID token received from Google authentication");
+        }
+
+        console.log("🎫 [NATIVE] ID Token length:", result.result.idToken.length);
+        console.log("🎫 [NATIVE] ID Token preview:", result.result.idToken.substring(0, 50) + "...");
 
         // Use the ID token to sign in with Supabase
         const { data, error } = await supabase.auth.signInWithIdToken({
@@ -383,25 +442,33 @@ export const useAuth = () => {
         });
 
         if (error) {
-          console.error("❌ useAuth: Supabase native sign in error:", error);
+          console.error("❌ [NATIVE] Supabase sign in error:", error);
+          console.error("❌ [NATIVE] Error details:", JSON.stringify(error, null, 2));
           throw error;
         }
+
+        console.log("✅ [NATIVE] Supabase authentication successful:", {
+          userId: data.user?.id,
+          email: data.user?.email,
+          hasSession: !!data.session,
+        });
       } else {
+        console.error("❌ [NATIVE] Unsupported response type:", result.result.responseType);
         throw new Error("Offline mode not supported for this authentication flow");
       }
 
-      console.log("✅ useAuth: Native Google authentication successful");
-
+      console.log("✅ [NATIVE] Complete Google authentication successful");
       return { error: null };
     } catch (error: any) {
-      console.error("❌ useAuth: Native Google authentication error:", error);
-      
-      toast({
-        title: "Error con Google",
-        description: "Error al iniciar sesión con Google",
-        variant: "destructive",
+      console.error("❌ [NATIVE] Complete error details:", {
+        message: error.message,
+        code: error.code,
+        stack: error.stack,
+        errorType: typeof error,
+        errorKeys: Object.keys(error),
       });
-
+      
+      // Don't show toast here, let the parent function handle it
       return { error };
     }
   };

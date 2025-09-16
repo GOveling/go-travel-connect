@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, FileText, Calendar, MapPin, User, Hash, StickyNote, Clock, Shield, X } from "lucide-react";
+import { Loader2, FileText, Calendar, MapPin, User, Hash, StickyNote, Clock, Shield, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DecryptedDocument } from "@/hooks/useEncryptedTravelDocuments";
+import DeleteDocumentConfirmationModal from "./DeleteDocumentConfirmationModal";
 
 interface DocumentViewerModalProps {
   isOpen: boolean;
@@ -12,6 +13,8 @@ interface DocumentViewerModalProps {
   documentId: string;
   documentType: string;
   getDocument: (id: string, includeFile?: boolean) => Promise<DecryptedDocument | null>;
+  onDelete: (documentId: string) => Promise<boolean | void>;
+  storageMode?: 'online' | 'offline'; // New prop to indicate storage mode
 }
 
 const DocumentViewerModal = ({ 
@@ -19,12 +22,15 @@ const DocumentViewerModal = ({
   onClose, 
   documentId, 
   documentType, 
-  getDocument 
+  getDocument,
+  onDelete,
+  storageMode = 'online'
 }: DocumentViewerModalProps) => {
   const [document, setDocument] = useState<DecryptedDocument | null>(null);
   const [loading, setLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -34,6 +40,7 @@ const DocumentViewerModal = ({
       setDocument(null);
       setImageError(false);
       setShowFullImage(false);
+      setShowDeleteConfirm(false);
     }
   }, [isOpen, documentId]);
 
@@ -62,6 +69,49 @@ const DocumentViewerModal = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    if (!document) return;
+    
+    try {
+      console.log('Starting document deletion for:', documentId);
+      
+      // Llamar a la función de eliminación y esperar el resultado
+      const result = await onDelete(documentId);
+      
+      // Solo proceder si la eliminación fue exitosa (result es true o undefined para compatibilidad)
+      if (result !== false) {
+        console.log('Document deletion completed successfully');
+        setShowDeleteConfirm(false);
+        onClose(); // Cerrar el modal después de eliminar exitosamente
+        
+        // El toast de éxito ya se muestra en el hook useEncryptedTravelDocuments
+        // No necesitamos mostrarlo aquí para evitar duplicados
+      } else {
+        // Si result es false, significa que hubo un error
+        setShowDeleteConfirm(false);
+        // No cerrar el modal principal si hay error
+      }
+    } catch (error: any) {
+      console.error("Error deleting document:", error);
+      
+      // Solo mostrar error adicional si no se manejó en el hook
+      if (!error.message?.includes('Edge Function')) {
+        toast({
+          title: "Error inesperado",
+          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+          variant: "destructive",
+        });
+      }
+      
+      setShowDeleteConfirm(false);
+      // No cerrar el modal principal si hay error
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
   };
 
   const formatDate = (dateString?: string) => {
@@ -146,15 +196,37 @@ const DocumentViewerModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
             {documentType}
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
+            
+            {/* Storage Mode Badge */}
+            <Badge 
+              variant={storageMode === 'online' ? 'default' : 'secondary'} 
+              className={`text-xs ${
+                storageMode === 'online' 
+                  ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                  : 'bg-green-100 text-green-800 border-green-200'
+              }`}
+            >
+              {storageMode === 'online' ? 'ONLINE' : 'OFFLINE'}
+            </Badge>
+            
+            <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">
               <Shield className="w-3 h-3 mr-1" />
               Desencriptado
             </Badge>
           </DialogTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDeleteClick}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Eliminar
+          </Button>
         </DialogHeader>
 
         {document && (
@@ -287,6 +359,14 @@ const DocumentViewerModal = ({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteDocumentConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        documentType={documentType}
+      />
     </Dialog>
   );
 };

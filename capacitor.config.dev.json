@@ -2,10 +2,10 @@
   "appId": "app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8",
   "appName": "goveling-mvp",
   "webDir": "dist",
-  // "server": {
-  //   "url": "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com?forceHideBadge=true",
-  //   "cleartext": true
-  // },
+  "server": {
+    "url": "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
@@ -52,7 +52,7 @@
       "NSLocationAlwaysAndWhenInUseUsageDescription": "Esta aplicación necesita acceso continuo a tu ubicación para el seguimiento de viajes y notificaciones de proximidad.",
       "NSLocationAlwaysUsageDescription": "Esta aplicación necesita acceso continuo a tu ubicación para el seguimiento de viajes en segundo plano.",
       "NSUserNotificationUsageDescription": "Esta aplicación envía notificaciones sobre lugares cercanos y actualizaciones de viajes.",
-      "GIDClientID": "117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9.apps.googleusercontent.com",
+      "GIDClientID": "117845276386-mlvtmjv04mj0m8hfople9v290lonks7c9.apps.googleusercontent.com",
       "LSApplicationQueriesSchemes": [
         "googlechromes",
         "googlechrome",
@@ -61,9 +61,9 @@
       ],
       "CFBundleURLTypes": [
         {
-          "CFBundleURLName": "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9",
+          "CFBundleURLName": "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfople9v290lonks7c9",
           "CFBundleURLSchemes": [
-            "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9"
+            "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfople9v290lonks7c9"
           ]
         }
       ]

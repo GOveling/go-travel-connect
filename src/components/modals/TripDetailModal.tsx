@@ -22,6 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import { supabase } from "@/integrations/supabase/client";
 import {
   calculateTripStatus,
@@ -126,6 +127,9 @@ const TripDetailModal = ({
   const [transferType, setTransferType] = useState<
     "arrival" | "departure" | "between"
   >("arrival");
+
+  // Get owner profile
+  const { ownerProfile } = useOwnerProfile(trip?.user_id || null, trip?.id || null);
 
   // Fetch user role and member count
   useEffect(() => {
@@ -1101,9 +1105,36 @@ const TripDetailModal = ({
                         )}
                       </div>
 
-                      {trip.collaborators && trip.collaborators.length > 0 ? (
+                      {(ownerProfile || (trip.collaborators && trip.collaborators.length > 0)) ? (
                         <div className="space-y-3">
-                          {trip.collaborators.map((collaborator) => (
+                          {/* Show owner first */}
+                          {ownerProfile && (
+                            <Card>
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3 flex-1">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
+                                      {ownerProfile.full_name?.charAt(0).toUpperCase() || ownerProfile.email?.charAt(0).toUpperCase() || 'O'}
+                                    </div>
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-gray-800">
+                                        {ownerProfile.full_name || 'Trip Owner'}
+                                      </h5>
+                                      <p className="text-gray-600 text-sm truncate">
+                                        {ownerProfile.email}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Badge className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 border-amber-200">
+                                    Owner
+                                  </Badge>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+                          
+                          {/* Show collaborators */}
+                          {trip.collaborators?.map((collaborator) => (
                             <Card key={collaborator.id}>
                               <CardContent className="p-4">
                                 <div className="flex items-center justify-between">

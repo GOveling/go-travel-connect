@@ -280,6 +280,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pin_recovery_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          recovery_token: string
+          used: boolean
+          user_email: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          recovery_token: string
+          used?: boolean
+          user_email: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          recovery_token?: string
+          used?: boolean
+          user_email?: string
+        }
+        Relationships: []
+      }
       place_reviews: {
         Row: {
           anonymous: boolean | null
@@ -1259,7 +1286,7 @@ export type Database = {
           | { accepted_date: string; invitation_id: string; user_id: string }
           | { p_token: string }
           | { p_token: string; p_user_id: string }
-        Returns: boolean
+        Returns: undefined
       }
       accept_trip_invitation_v2: {
         Args: { p_token: string }

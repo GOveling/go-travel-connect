@@ -17,6 +17,7 @@ export interface LocalEncryptedDocument {
   hasFile: boolean;
   accessCount: number;
   lastAccessedAt?: string;
+  notesPreview?: string; // Unencrypted preview of notes for display in list
 }
 
 // Generate a key from user password/PIN using PBKDF2
@@ -111,6 +112,14 @@ export const getUserPin = (): string | null => {
   }
   
   return pin;
+};
+
+// Set PIN directly (for recovery)
+export const setUserPin = (pin: string): void => {
+  if (!pin || pin.length < 4 || pin.length > 8 || !/^\d+$/.test(pin)) {
+    throw new Error('PIN inválido. Debe tener entre 4-8 dígitos.');
+  }
+  localStorage.setItem('travel_app_pin', pin);
 };
 
 // Clear PIN (for security)
