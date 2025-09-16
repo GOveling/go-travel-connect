@@ -52,6 +52,12 @@
       "NSLocationAlwaysAndWhenInUseUsageDescription": "Esta aplicación necesita acceso continuo a tu ubicación para el seguimiento de viajes y notificaciones de proximidad.",
       "NSLocationAlwaysUsageDescription": "Esta aplicación necesita acceso continuo a tu ubicación para el seguimiento de viajes en segundo plano.",
       "NSUserNotificationUsageDescription": "Esta aplicación envía notificaciones sobre lugares cercanos y actualizaciones de viajes.",
+      "LSApplicationQueriesSchemes": [
+        "googlechromes",
+        "googlechrome",
+        "comgoogleauth",
+        "googleapi"
+      ],
       "CFBundleURLTypes": [
         {
           "CFBundleURLName": "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9",
