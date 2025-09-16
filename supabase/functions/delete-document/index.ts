@@ -96,21 +96,10 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Database deletion failed: ${deleteError.message}`);
     }
 
-    // Try to log deletion (non-critical since document is already deleted)
-    try {
-      await supabase
-        .from('document_access_log')
-        .insert({
-          user_id: user.id,
-          document_id: documentId,
-          action_type: 'delete',
-          success: true
-        });
-    } catch (logError) {
-      console.error('Error logging deletion (non-critical):', logError);
-    }
-
     console.log(`Document deleted successfully: ${documentId}`);
+
+    // Note: We don't log the deletion to document_access_log since the document no longer exists
+    // and it would violate the foreign key constraint
 
     return new Response(
       JSON.stringify({ 
