@@ -1259,7 +1259,7 @@ export type Database = {
           | { accepted_date: string; invitation_id: string; user_id: string }
           | { p_token: string }
           | { p_token: string; p_user_id: string }
-        Returns: boolean
+        Returns: undefined
       }
       accept_trip_invitation_v2: {
         Args: { p_token: string }
