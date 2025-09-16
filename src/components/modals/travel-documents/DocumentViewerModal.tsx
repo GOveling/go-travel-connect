@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, FileText, Calendar, MapPin, User, Hash, StickyNote, Clock, Shield, X, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DecryptedDocument } from "@/hooks/useEncryptedTravelDocuments";
+import DeleteTripConfirmationModal from "../DeleteTripConfirmationModal";
 
 interface DocumentViewerModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ const DocumentViewerModal = ({
   const [loading, setLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showFullImage, setShowFullImage] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,6 +38,7 @@ const DocumentViewerModal = ({
       setDocument(null);
       setImageError(false);
       setShowFullImage(false);
+      setShowDeleteConfirm(false);
     }
   }, [isOpen, documentId]);
 
@@ -75,7 +78,8 @@ const DocumentViewerModal = ({
         title: "Documento eliminado",
         description: "El documento ha sido eliminado de forma segura",
       });
-      onClose();
+      setShowDeleteConfirm(false);
+      onClose(); // Cerrar el modal después de eliminar
     } catch (error) {
       console.error("Error deleting document:", error);
       toast({
@@ -83,7 +87,12 @@ const DocumentViewerModal = ({
         description: "No se pudo eliminar el documento",
         variant: "destructive",
       });
+      setShowDeleteConfirm(false);
     }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
   };
 
   const formatDate = (dateString?: string) => {
@@ -180,7 +189,7 @@ const DocumentViewerModal = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-4 h-4 mr-2" />
@@ -318,6 +327,14 @@ const DocumentViewerModal = ({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteTripConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        tripName={`documento ${documentType}`}
+      />
     </Dialog>
   );
 };

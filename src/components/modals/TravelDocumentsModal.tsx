@@ -160,7 +160,18 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   };
 
   const handleDeleteDocument = async (id: string) => {
-    await deleteDocument(id);
+    try {
+      await deleteDocument(id);
+      // Recargar la lista de documentos después de eliminar
+      await loadDocuments();
+      // Cerrar el modal del viewer si está abierto
+      if (viewingDocumentId === id) {
+        handleCloseViewer();
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      // El error ya se maneja en la función deleteDocument del hook
+    }
   };
 
   const handleViewDocument = (document: TravelDocument) => {
