@@ -191,10 +191,14 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
                   )}
                 </div>
 
-                {document.notes && (
+                {document.notes && document.notes !== "••••••••" && (
                   <div className="mt-3">
                     <p className="text-gray-600 text-sm">Notes</p>
-                    <p className="text-sm">{document.notes}</p>
+                    <p className="text-sm">{isEncrypted ? (
+                      <span className="italic text-gray-700">{document.notes}</span>
+                    ) : (
+                      document.notes
+                    )}</p>
                   </div>
                 )}
               </div>
