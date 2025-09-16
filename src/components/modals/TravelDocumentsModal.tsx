@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import DocumentForm from "./travel-documents/DocumentForm";
 import DocumentCard from "./travel-documents/DocumentCard";
 import DocumentViewerModal from "./travel-documents/DocumentViewerModal";
-import { Plus, Download, Shield, Lock, AlertTriangle } from "lucide-react";
+import { Plus, Download, Shield, Lock, AlertTriangle, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useEncryptedTravelDocuments, TravelDocumentMetadata } from "@/hooks/useEncryptedTravelDocuments";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,12 +60,17 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
   // Load documents only when modal is opened
   useEffect(() => {
-    console.log('Modal effect:', { isOpen, user: !!user, initialized });
-    if (isOpen && user && !initialized) {
+    console.log('Modal effect:', { isOpen, user: !!user, initialized, documentsCount: encryptedDocuments.length });
+    if (isOpen && user) {
       console.log('Loading documents from modal effect');
-      loadDocuments();
+      if (!initialized) {
+        loadDocuments();
+      } else {
+        // If already initialized, refresh documents
+        refreshDocuments();
+      }
     }
-  }, [isOpen, user, initialized, loadDocuments]);
+  }, [isOpen, user]);
 
   // Load offline mode from localStorage (legacy documents are migrated on first use)
   useEffect(() => {
@@ -296,6 +301,11 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
           {/* Documents List */}
           <div className="space-y-4">
+            {/* Debug info */}
+            <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+              Documentos: {encryptedDocuments.length} | Cargando: {loading ? 'Sí' : 'No'} | Inicializado: {initialized ? 'Sí' : 'No'}
+            </div>
+            
             {loading ? (
               <div className="text-center py-8">
                 <Shield className="w-12 h-12 mx-auto mb-4 animate-pulse opacity-50" />
@@ -348,6 +358,21 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                 <Shield className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>No hay documentos añadidos aún</p>
                 <p className="text-sm">Añade tu primer documento de viaje encriptado para comenzar</p>
+                
+                {/* Manual reload button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    console.log('Manual reload triggered');
+                    refreshDocuments();
+                  }}
+                  className="mt-4"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Recargar documentos
+                </Button>
+                
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <Lock className="w-4 h-4 inline mr-2 text-green-600" />
                   <span className="text-sm text-green-800">
