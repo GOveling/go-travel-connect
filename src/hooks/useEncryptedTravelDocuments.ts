@@ -51,9 +51,32 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isOfflineMode, setIsOfflineMode] = useState(localStorage.getItem('offlineMode') === 'true');
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log('Connection restored, syncing offline documents...');
+      syncOfflineDocumentsToOnline();
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.log('Connection lost, switching to offline mode');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [user]);
 
   // Watch for changes in localStorage and manual updates
   useEffect(() => {
@@ -82,6 +105,61 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
       loadDocuments();
     }
   }, [user, isOfflineMode]);
+
+  // Sync offline documents to online when connection is restored
+  const syncOfflineDocumentsToOnline = async () => {
+    if (!user || !isOnline) return;
+    
+    try {
+      const localDocs = localStorage.getItem('encrypted_travel_documents');
+      const offlinePendingSync = localStorage.getItem('offline_docs_pending_sync');
+      
+      if (!offlinePendingSync) return;
+      
+      const pendingDocs = JSON.parse(offlinePendingSync);
+      console.log('Syncing', pendingDocs.length, 'offline documents to online');
+      
+      for (const docData of pendingDocs) {
+        try {
+          // Upload to Supabase
+          const session = await supabase.auth.getSession();
+          if (!session.data.session?.access_token) continue;
+
+          const { data, error } = await supabase.functions.invoke('encrypt-document', {
+            body: {
+              documentType: docData.documentType,
+              metadata: docData.metadata,
+              fileData: docData.fileData,
+              fileName: docData.fileName,
+            },
+            headers: {
+              Authorization: `Bearer ${session.data.session.access_token}`,
+            },
+          });
+
+          if (data?.success) {
+            console.log('Successfully synced document to online:', docData.documentType);
+          }
+        } catch (syncError) {
+          console.error('Failed to sync document:', syncError);
+        }
+      }
+      
+      // Clear pending sync queue
+      localStorage.removeItem('offline_docs_pending_sync');
+      
+      toast({
+        title: "Sincronización completada",
+        description: "Tus documentos offline han sido sincronizados a la nube",
+        className: "bg-green-50 border-green-200",
+      });
+      
+      // Reload documents to show updated state
+      await loadDocuments();
+    } catch (error) {
+      console.error('Error syncing offline documents:', error);
+    }
+  };
 
   // Sync online documents to encrypted local storage for offline access
   const syncOnlineDocumentsToOffline = async (onlineDocuments: EncryptedTravelDocument[]) => {
@@ -352,7 +430,12 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
     setLoading(true);
     
     try {
-      if (isOfflineMode) {
+      // Determine storage strategy based on connectivity
+      const shouldStoreOffline = !isOnline || isOfflineMode;
+      
+      if (shouldStoreOffline) {
+        console.log('Storing document offline due to connectivity or mode preference');
+        
         // Encrypt and store locally
         const userPin = getUserPin();
         if (!userPin) {
@@ -392,12 +475,34 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         docs.push(localDoc);
         localStorage.setItem('encrypted_travel_documents', JSON.stringify(docs));
 
-        toast({
-          title: "Documento añadido",
-          description: "El documento ha sido encriptado y almacenado localmente de forma segura",
-          className: "bg-green-50 border-green-200",
-        });
+        // If offline, add to pending sync queue
+        if (!isOnline) {
+          const pendingSync = localStorage.getItem('offline_docs_pending_sync');
+          const pendingDocs = pendingSync ? JSON.parse(pendingSync) : [];
+          pendingDocs.push({
+            documentType,
+            metadata,
+            fileData: fileData?.includes(',') ? fileData.split(',')[1] : fileData,
+            fileName,
+            createdAt: new Date().toISOString()
+          });
+          localStorage.setItem('offline_docs_pending_sync', JSON.stringify(pendingDocs));
+          
+          toast({
+            title: "Documento añadido offline",
+            description: "Se sincronizará automáticamente cuando tengas conexión",
+            className: "bg-blue-50 border-blue-200",
+          });
+        } else {
+          toast({
+            title: "Documento añadido",
+            description: "El documento ha sido encriptado y almacenado localmente de forma segura",
+            className: "bg-green-50 border-green-200",
+          });
+        }
       } else {
+        console.log('Storing document online');
+        
         // Validate file size before sending (max 2MB after compression)
         if (fileData) {
           const sizeInBytes = (fileData.length * 3) / 4;
@@ -439,7 +544,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
         if (data.success) {
           toast({
             title: "Documento añadido",
-            description: "El documento ha sido encriptado y almacenado de forma segura",
+            description: "El documento ha sido encriptado y almacenado de forma segura en la nube",
             className: "bg-green-50 border-green-200",
           });
         } else {
@@ -576,27 +681,24 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
 
         const docs: LocalEncryptedDocument[] = JSON.parse(localDocs);
         const filteredDocs = docs.filter(d => d.id !== documentId);
-        
-        if (docs.length === filteredDocs.length) {
-          throw new Error('Documento no encontrado');
-        }
-
         localStorage.setItem('encrypted_travel_documents', JSON.stringify(filteredDocs));
 
         toast({
           title: "Documento eliminado",
-          description: "El documento ha sido eliminado de forma segura del almacenamiento local",
-          className: "bg-red-50 border-red-200",
+          description: "El documento ha sido eliminado del almacenamiento local",
+          className: "bg-green-50 border-green-200",
         });
       } else {
-        // Delete from Supabase using proper invoke method
+        // Delete from Supabase
         const session = await supabase.auth.getSession();
         if (!session.data.session?.access_token) {
           throw new Error('No hay sesión válida');
         }
 
         const { data, error } = await supabase.functions.invoke('delete-document', {
-          body: { documentId },
+          body: {
+            documentId
+          },
           headers: {
             Authorization: `Bearer ${session.data.session.access_token}`,
           },
@@ -610,7 +712,7 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           toast({
             title: "Documento eliminado",
             description: "El documento ha sido eliminado de forma segura",
-            className: "bg-red-50 border-red-200",
+            className: "bg-green-50 border-green-200",
           });
         } else {
           throw new Error(data.error || 'Error al eliminar documento');

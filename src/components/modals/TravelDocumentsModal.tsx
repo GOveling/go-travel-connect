@@ -38,7 +38,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(null);
   const [viewingDocumentId, setViewingDocumentId] = useState<string | null>(null);
   const [viewingDocumentType, setViewingDocumentType] = useState<string>("");
-  const [showSyncOptions, setShowSyncOptions] = useState(false);
   const [showPinRecovery, setShowPinRecovery] = useState(false);
   const [onlineDocuments, setOnlineDocuments] = useState<any[]>([]);
   const [offlineDocuments, setOfflineDocuments] = useState<any[]>([]);
@@ -220,13 +219,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     }
   };
 
-  const syncDocumentsBetweenModes = async (fromOfflineToOnline: boolean) => {
-    toast({
-      title: "Función de sincronización",
-      description: "Esta funcionalidad estará disponible próximamente",
-      variant: "default",
-    });
-  };
 
   const handleViewDocument = (document: TravelDocument) => {
     setViewingDocumentId(document.id);
@@ -472,22 +464,16 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
               </div>
             </div>
 
-            {/* Mode Separation Warning */}
-            {(onlineDocuments.length > 0 && offlineDocuments.length > 0) && (
-              <Alert className="border-amber-200 bg-amber-50">
-                <Info className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="text-amber-800">
-                  Tienes documentos en ambos modos. Los documentos online y offline están separados.
-                  <Button 
-                    variant="link" 
-                    className="h-auto p-0 ml-1 text-amber-700 underline"
-                    onClick={() => setShowSyncOptions(!showSyncOptions)}
-                  >
-                    Ver opciones de sincronización
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
+            {/* Auto-sync Info */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="font-medium text-blue-900">Sincronización Automática</span>
+              </div>
+              <p className="text-sm text-blue-700">
+                Los documentos se sincronizan automáticamente entre online y offline.
+              </p>
+            </div>
 
             {/* Sync Options */}
             {showSyncOptions && (
