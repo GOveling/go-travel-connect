@@ -13,7 +13,7 @@ interface DocumentViewerModalProps {
   documentId: string;
   documentType: string;
   getDocument: (id: string, includeFile?: boolean) => Promise<DecryptedDocument | null>;
-  onDelete: (documentId: string) => Promise<void>;
+  onDelete: (documentId: string) => Promise<boolean | void>;
 }
 
 const DocumentViewerModal = ({ 
@@ -73,21 +73,38 @@ const DocumentViewerModal = ({
     if (!document) return;
     
     try {
-      await onDelete(documentId);
-      toast({
-        title: "Documento eliminado",
-        description: "El documento ha sido eliminado de forma segura",
-      });
-      setShowDeleteConfirm(false);
-      onClose(); // Cerrar el modal después de eliminar
-    } catch (error) {
+      console.log('Starting document deletion for:', documentId);
+      
+      // Llamar a la función de eliminación y esperar el resultado
+      const result = await onDelete(documentId);
+      
+      // Solo proceder si la eliminación fue exitosa (result es true o undefined para compatibilidad)
+      if (result !== false) {
+        console.log('Document deletion completed successfully');
+        setShowDeleteConfirm(false);
+        onClose(); // Cerrar el modal después de eliminar exitosamente
+        
+        // El toast de éxito ya se muestra en el hook useEncryptedTravelDocuments
+        // No necesitamos mostrarlo aquí para evitar duplicados
+      } else {
+        // Si result es false, significa que hubo un error
+        setShowDeleteConfirm(false);
+        // No cerrar el modal principal si hay error
+      }
+    } catch (error: any) {
       console.error("Error deleting document:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el documento",
-        variant: "destructive",
-      });
+      
+      // Solo mostrar error adicional si no se manejó en el hook
+      if (!error.message?.includes('Edge Function')) {
+        toast({
+          title: "Error inesperado",
+          description: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+          variant: "destructive",
+        });
+      }
+      
       setShowDeleteConfirm(false);
+      // No cerrar el modal principal si hay error
     }
   };
 
