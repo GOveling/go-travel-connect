@@ -355,26 +355,32 @@ export const useEncryptedTravelDocuments = (autoLoad: boolean = false) => {
           lastAccessedAt: doc.lastAccessedAt || new Date().toISOString(),
         };
       } else {
-        // Decrypt from Supabase
-        const url = new URL(`https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/decrypt-document`);
-        url.searchParams.set('documentId', documentId);
-        url.searchParams.set('includeFile', includeFile.toString());
+        // Decrypt from Supabase using proper function invocation
+        const session = await supabase.auth.getSession();
+        if (!session.data.session?.access_token) {
+          throw new Error('No hay sesión válida');
+        }
 
-        const response = await fetch(url.toString(), {
-          method: 'GET',
+        const { data, error } = await supabase.functions.invoke('decrypt-document', {
+          body: {
+            documentId,
+            includeFile
+          },
           headers: {
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.data.session.access_token}`,
           },
         });
 
-        const result = await response.json();
-
-        if (!result.success) {
-          throw new Error(result.error);
+        if (error) {
+          console.error('Error in decrypt-document function:', error);
+          throw new Error(error.message || 'Error al desencriptar documento');
         }
 
-        return result.document;
+        if (!data?.success) {
+          throw new Error(data?.error || 'Error desconocido al desencriptar documento');
+        }
+
+        return data.document;
       }
     } catch (err: any) {
       const errorMessage = err.message || 'Error al obtener documento';

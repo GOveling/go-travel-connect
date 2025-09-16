@@ -73,9 +73,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Unauthorized');
     }
 
-    const url = new URL(req.url);
-    const documentId = url.searchParams.get('documentId');
-    const includeFile = url.searchParams.get('includeFile') === 'true';
+    // Get parameters from request body
+    const { documentId, includeFile } = await req.json();
 
     if (!documentId) {
       throw new Error('Document ID is required');
