@@ -6,8 +6,6 @@ import { Trip } from "@/types/aiSmartRoute";
 import { ApiDayItinerary } from "@/types/aiSmartRouteApi";
 import { calculateDestinationDays } from "@/utils/aiSmartRoute";
 import InteractiveItineraryMap from "@/components/maps/InteractiveItineraryMap";
-import RouteSegmentComponent from "@/components/ui/RouteSegment";
-import { useGoogleDirections, RouteSegment } from "@/hooks/useGoogleDirections";
 import { MapPin, Navigation, Calendar, Clock } from "lucide-react";
 
 interface MapTabProps {
@@ -26,9 +24,6 @@ const MapTab = ({ trip, totalSavedPlaces, totalTripDays, optimizedItinerary }: M
 
   const [selectedDay, setSelectedDay] = React.useState<number | undefined>(undefined);
   const [transportMode, setTransportMode] = React.useState<'walking' | 'driving' | 'transit' | 'bicycling'>('walking');
-  const [routeSegments, setRouteSegments] = React.useState<RouteSegment[]>([]);
-  
-  const { calculateItineraryRoutes } = useGoogleDirections();
 
   // Convert legacy DayItinerary to ApiDayItinerary format if needed
   const apiItinerary: ApiDayItinerary[] = React.useMemo(() => {
@@ -82,34 +77,6 @@ const MapTab = ({ trip, totalSavedPlaces, totalTripDays, optimizedItinerary }: M
       } as ApiDayItinerary;
     });
   }, [optimizedItinerary]);
-
-  // Calculate route segments when API itinerary changes
-  React.useEffect(() => {
-    if (apiItinerary.length > 0) {
-      // Get all places from current day or all days if no day selected
-      const relevantDays = selectedDay ? apiItinerary.filter(day => day.day === selectedDay) : apiItinerary;
-      const allPlaces = relevantDays.flatMap(day => 
-        day.places.map(place => ({
-          lat: place.lat,
-          lng: place.lng,
-          name: place.name
-        }))
-      );
-
-      if (allPlaces.length > 1) {
-        calculateItineraryRoutes(allPlaces, transportMode)
-          .then(segments => {
-            setRouteSegments(segments);
-          })
-          .catch(error => {
-            console.error('Error calculating routes:', error);
-            setRouteSegments([]);
-          });
-      } else {
-        setRouteSegments([]);
-      }
-    }
-  }, [apiItinerary, selectedDay, transportMode, calculateItineraryRoutes]);
 
   // If no optimized itinerary, show placeholder
   if (!apiItinerary || apiItinerary.length === 0) {

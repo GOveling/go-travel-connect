@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { 
   Navigation, 
   Car, 
@@ -9,8 +8,7 @@ import {
   Clock, 
   Route,
   Train,
-  Bike,
-  Play
+  Bike
 } from "lucide-react";
 import { DirectionsResult } from "@/hooks/useGoogleDirections";
 
@@ -22,7 +20,6 @@ interface RouteSegmentProps {
   loading?: boolean;
   error?: string;
   showDetails?: boolean;
-  onStartNavigation?: () => void;
 }
 
 const RouteSegment: React.FC<RouteSegmentProps> = ({
@@ -32,8 +29,7 @@ const RouteSegment: React.FC<RouteSegmentProps> = ({
   result,
   loading,
   error,
-  showDetails = false,
-  onStartNavigation
+  showDetails = false
 }) => {
   const getTransportIcon = () => {
     switch (mode) {
@@ -113,27 +109,15 @@ const RouteSegment: React.FC<RouteSegmentProps> = ({
                 {getTransportLabel()}
               </Badge>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {result.duration}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Route className="h-3 w-3" />
-                  {result.distance}
-                </div>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {result.duration}
               </div>
-              {onStartNavigation && (
-                <Button
-                  size="sm"
-                  onClick={onStartNavigation}
-                  className="h-7 px-2 text-xs"
-                >
-                  <Play className="h-3 w-3 mr-1" />
-                  Navegar
-                </Button>
-              )}
+              <div className="flex items-center gap-1">
+                <Route className="h-3 w-3" />
+                {result.distance}
+              </div>
             </div>
           </div>
 
