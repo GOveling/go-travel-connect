@@ -316,9 +316,9 @@ const TravelModeMap: React.FC<TravelModeMapProps> = ({
                 variant={isFollowingUser ? "default" : "outline"}
                 size="sm"
                 onClick={() => setIsFollowingUser(!isFollowingUser)}
-                className="bg-background/80 backdrop-blur-sm"
+                className={isFollowingUser ? "bg-primary text-primary-foreground shadow-md" : "bg-background/90 backdrop-blur-sm border-border"}
               >
-                <Target className={`h-4 w-4 ${isFollowingUser ? 'text-white' : ''}`} />
+                <Target className="h-4 w-4" />
               </Button>
             )}
           </div>
