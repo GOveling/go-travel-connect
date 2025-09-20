@@ -331,29 +331,6 @@ const TravelModeMap: React.FC<TravelModeMapProps> = ({
             )}
           </div>
 
-          {/* Status panel */}
-          <div className="absolute bottom-4 left-4 right-4 z-[1000]">
-            <Card className="bg-background/90 backdrop-blur-sm p-3">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <Navigation className="h-4 w-4 text-primary" />
-                  <span className="font-medium">
-                    {nearbyPlaces.length} lugar{nearbyPlaces.length !== 1 ? 'es' : ''} cercano{nearbyPlaces.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                {pathCoordinates.length > 1 && (
-                  <div className="text-xs text-muted-foreground">
-                    Ruta: {pathCoordinates.length} puntos
-                  </div>
-                )}
-              </div>
-              {nearbyPlaces.length > 0 && (
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Más cercano: {nearbyPlaces[0]?.name} ({Math.round(nearbyPlaces[0]?.distance)}m)
-                </div>
-              )}
-            </Card>
-          </div>
         </div>
       </Card>
     </div>
