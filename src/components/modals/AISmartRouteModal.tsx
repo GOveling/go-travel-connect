@@ -26,10 +26,13 @@ import { useMapData } from "@/hooks/useMapData";
 import { generateMissingDaysForMultipleDestinations } from "@/utils/itineraryUtils";
 import { aiRoutesService } from "@/services/aiRoutesApi";
 import type { ApiItineraryResponse, OptimizationMetrics } from "@/types/aiSmartRouteApi";
+import { analyzeMultiDestination, predictExcludedPlaces, type MultiDestinationAnalysis } from "@/utils/multiDestinationUtils";
 import InitialView from "./ai-smart-route/InitialView";
 import ItineraryTab from "./ai-smart-route/ItineraryTab";
 import MapTab from "./ai-smart-route/MapTab";
 import AnalyticsTab from "./ai-smart-route/AnalyticsTab";
+import MultiDestinationWarning from "./ai-smart-route/MultiDestinationWarning";
+import APIDebugPanel from "./ai-smart-route/APIDebugPanel";
 import PlaceRecommendationsModal from "./PlaceRecommendationsModal";
 
 const AISmartRouteModal = ({
@@ -49,6 +52,10 @@ const AISmartRouteModal = ({
   const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
   const [optimizationMetrics, setOptimizationMetrics] = useState<OptimizationMetrics | null>(null);
   const [apiRecommendations, setApiRecommendations] = useState<string[]>([]);
+  const [multiDestinationAnalysis, setMultiDestinationAnalysis] = useState<MultiDestinationAnalysis | null>(null);
+  const [currentTransportMode, setCurrentTransportMode] = useState<'walk' | 'drive' | 'transit' | 'bike'>('walk');
+  const [apiDebugInfo, setApiDebugInfo] = useState<any>(null);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const { toast } = useToast();
 
   // Use map data hook for distance calculations
@@ -69,6 +76,13 @@ const AISmartRouteModal = ({
       setActiveTab("itinerary");
       setSelectedRouteType("balanced");
       setOptimizedItinerary([]);
+      setApiDebugInfo(null);
+      setShowDebugPanel(false);
+      
+      // Analyze multi-destination characteristics
+      const analysis = analyzeMultiDestination(trip);
+      setMultiDestinationAnalysis(analysis);
+      setCurrentTransportMode(analysis.recommendedTransportMode);
     }
   }, [isOpen, trip]);
 
@@ -80,6 +94,7 @@ const AISmartRouteModal = ({
   // Generate AI optimized route using the new backend service
   const generateAIRoute = async () => {
     setIsGenerating(true);
+    setApiDebugInfo(null);
 
     try {
       if (!workingTrip.savedPlaces || workingTrip.savedPlaces.length === 0) {
@@ -94,6 +109,17 @@ const AISmartRouteModal = ({
         priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
       }));
 
+      // 🔍 DEBUG: Log what we're sending to the API
+      console.log("🚀 AI Smart Route DEBUG - Sending to API:", {
+        placesCount: places.length,
+        places: places,
+        transportMode: currentTransportMode,
+        startDate: workingTrip.startDate?.toISOString().split('T')[0],
+        endDate: workingTrip.endDate?.toISOString().split('T')[0],
+        multiDestination: multiDestinationAnalysis?.isMultiDestination,
+        maxDistanceKm: multiDestinationAnalysis?.maxDistanceKm
+      });
+
       // Calculate distances and optimized routes
       const distanceMatrix = calculateTripDistances(workingTrip);
       const optimizedRoute = calculateOptimizedRoute(workingTrip);
@@ -107,17 +133,65 @@ const AISmartRouteModal = ({
         }
       ] : undefined;
 
+      // Prepare request parameters
+      const requestParams = {
+        places,
+        start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
+        end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
+        transport_mode: currentTransportMode,
+        daily_start_hour: 9,
+        daily_end_hour: 18,
+        accommodations,
+      };
+
       // Try new API first
       try {
-        const response: ApiItineraryResponse = await aiRoutesService.generateHybridItineraryV2({
-          places,
-          start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
-          end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
-          transport_mode: 'walk',
-          daily_start_hour: 9,
-          daily_end_hour: 18,
-          accommodations,
+        const response: ApiItineraryResponse = await aiRoutesService.generateHybridItineraryV2(requestParams);
+        
+        // 🔍 DEBUG: Log what we received from the API
+        console.log("✅ AI Smart Route DEBUG - API Response:", {
+          success: true,
+          sentPlaces: places.length,
+          receivedDays: response.itinerary?.length || 0,
+          totalReceivedPlaces: response.itinerary?.reduce((sum, day) => sum + (day.places?.length || 0), 0) || 0,
+          optimizationMetrics: response.optimization_metrics,
+          fullResponse: response
         });
+
+        // Track which places were included/excluded
+        const receivedPlaceNames = response.itinerary.flatMap(day => 
+          day.places.map(p => p.name)
+        );
+        const excludedPlaces = workingTrip.savedPlaces.filter(place => 
+          !receivedPlaceNames.includes(place.name)
+        );
+
+        // 🔍 DEBUG: Detailed analysis of included/excluded places
+        console.log("🔍 AI Smart Route DEBUG - Place Analysis:", {
+          sentPlaceNames: places.map(p => p.name),
+          receivedPlaceNames,
+          excludedPlaceNames: excludedPlaces.map(p => p.name),
+          exclusionRate: (excludedPlaces.length / places.length * 100).toFixed(1) + "%"
+        });
+
+        // Store debug information for UI
+        setApiDebugInfo({
+          sentPlaces: places,
+          receivedPlaces: response.itinerary.flatMap(day => day.places),
+          excludedPlaces,
+          apiResponse: response,
+          requestParams,
+        });
+
+        // Show debug panel if places were excluded
+        if (excludedPlaces.length > 0) {
+          setShowDebugPanel(true);
+          toast({
+            title: "⚠️ Algunos lugares no fueron incluidos",
+            description: `${excludedPlaces.length} de ${places.length} lugares no pudieron ser optimizados en la ruta. Ver panel de debug para detalles.`,
+            variant: "destructive",
+          });
+        }
 
         // Transform V2 response into our DayItinerary format
         const apiItinerary = response.itinerary.map((day, index) => ({
@@ -169,12 +243,23 @@ const AISmartRouteModal = ({
       } catch (v2Error) {
         console.warn("V2 API failed, falling back to V1:", v2Error);
         
+        // Store error debug info
+        setApiDebugInfo({
+          sentPlaces: places,
+          receivedPlaces: [],
+          excludedPlaces: workingTrip.savedPlaces,
+          apiResponse: null,
+          requestParams,
+          error: v2Error instanceof Error ? v2Error.message : 'Unknown API error'
+        });
+        setShowDebugPanel(true);
+        
         // Fallback to V1 API
         const response = await aiRoutesService.generateHybridItinerary({
           places,
           start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
           end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
-          transport_mode: 'bicycle',
+          transport_mode: currentTransportMode === 'bike' ? 'bicycle' : currentTransportMode,
         });
 
         if (response.itinerary) {
@@ -377,16 +462,34 @@ const AISmartRouteModal = ({
 
           <div className="space-y-6">
             {!routeGenerated ? (
-              <InitialView
-                trip={workingTrip}
-                isGenerating={isGenerating}
-                onGenerateRoute={generateAIRoute}
-                onStartRecommendations={
-                  totalSavedPlaces === 0
-                    ? handleStartRecommendations
-                    : undefined
-                }
-              />
+              <div className="space-y-4">
+                {/* Multi-destination warning */}
+                {multiDestinationAnalysis?.isMultiDestination && (
+                  <MultiDestinationWarning
+                    analysis={multiDestinationAnalysis}
+                    onTransportModeChange={setCurrentTransportMode}
+                    currentTransportMode={currentTransportMode}
+                  />
+                )}
+                
+                {/* API Debug Panel */}
+                <APIDebugPanel
+                  debugInfo={apiDebugInfo}
+                  isVisible={showDebugPanel}
+                  onToggle={() => setShowDebugPanel(!showDebugPanel)}
+                />
+                
+                <InitialView
+                  trip={workingTrip}
+                  isGenerating={isGenerating}
+                  onGenerateRoute={generateAIRoute}
+                  onStartRecommendations={
+                    totalSavedPlaces === 0
+                      ? handleStartRecommendations
+                      : undefined
+                  }
+                />
+              </div>
             ) : (
               <Tabs
                 value={activeTab}
