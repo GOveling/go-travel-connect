@@ -10,6 +10,7 @@ import { useAuth } from "./useAuth";
 import { getAdaptiveProximityThresholds, logAdaptiveRadiusInfo } from "../utils/adaptiveRadius";
 import { backgroundTravelManager } from '../services/backgroundTravelManager';
 import { compassService } from '../services/compassService';
+import { activityDetectionService, type ActivityData } from '@/services/activityDetectionService';
 
 interface TravelModeConfig {
   isEnabled: boolean;
@@ -78,6 +79,8 @@ export const useTravelModeSimple = ({
   const [energyMode, setEnergyMode] = useState<'normal' | 'saving' | 'ultra-saving'>('normal');
   const [compassEnabled, setCompassEnabled] = useState(false);
   const [isStationary, setIsStationary] = useState(false);
+  const [currentActivity, setCurrentActivity] = useState<ActivityData | null>(null);
+  const [activitySupported, setActivitySupported] = useState<boolean>(false);
   const [stationaryStartTime, setStationaryStartTime] = useState<number | null>(null);
   const [lastSignificantMovement, setLastSignificantMovement] = useState<number>(Date.now());
   
@@ -278,7 +281,7 @@ export const useTravelModeSimple = ({
     }
   }, [currentPosition, isStationary, stationaryStartTime]);
 
-  // Intelligent interval calculation with ultra-saving mode
+  // Intelligent interval calculation with Activity Recognition and ultra-saving mode
   const getIntelligentInterval = useCallback(
     (minDistanceToPlace: number): number => {
       const currentSpeed = currentSpeedRef.current; // m/s
@@ -289,32 +292,40 @@ export const useTravelModeSimple = ({
         return Math.min(120000, 60000 * platformMultiplier); // 2 minutes max for stationary
       }
       
-      // Base intervals based on movement state
-      const staticInterval = 30000; // 30s when not moving
-      const slowMovingInterval = 15000; // 15s when moving slowly
-      const movingInterval = 8000; // 8s when moving normally
-      const fastMovingInterval = 4000; // 4s when moving fast
+      // Base intervals - Activity Recognition has priority over speed-based detection
+      let baseInterval: number;
       
-      // Speed thresholds (m/s)
-      const isCurrentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
-      const isSlowMoving = currentSpeed < 2.0; // < 7.2 km/h (walking)
-      const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
-      const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
+      if (activitySupported && currentActivity && currentActivity.confidence > 0.6) {
+        // Use Activity Recognition for base interval
+        baseInterval = activityDetectionService.getIntelligentInterval(config.baseCheckInterval);
+        console.log(`🎯 Activity-based interval: ${baseInterval}ms for ${currentActivity.activity} (confidence: ${currentActivity.confidence})`);
+      } else {
+        // Fallback to speed-based intervals
+        const staticInterval = 30000; // 30s when not moving
+        const slowMovingInterval = 15000; // 15s when moving slowly
+        const movingInterval = 8000; // 8s when moving normally
+        const fastMovingInterval = 4000; // 4s when moving fast
+        
+        // Speed thresholds (m/s)
+        const isCurrentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
+        const isSlowMoving = currentSpeed < 2.0; // < 7.2 km/h (walking)
+        const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
+        const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
+        
+        // Determine base interval based on movement
+        if (isCurrentlyStationary) {
+          baseInterval = staticInterval;
+        } else if (isSlowMoving) {
+          baseInterval = slowMovingInterval;
+        } else if (isMovingNormally) {
+          baseInterval = movingInterval;
+        } else {
+          baseInterval = fastMovingInterval;
+        }
+      }
       
       // Calculate ETA to nearest place
       const eta = calculateETA(minDistanceToPlace, currentSpeed);
-      
-      // Determine base interval based on movement
-      let baseInterval: number;
-      if (isCurrentlyStationary) {
-        baseInterval = staticInterval;
-      } else if (isSlowMoving) {
-        baseInterval = slowMovingInterval;
-      } else if (isMovingNormally) {
-        baseInterval = movingInterval;
-      } else {
-        baseInterval = fastMovingInterval;
-      }
       
       // Proximity-based adjustments (more frequent when closer)
       let proximityMultiplier = 1;
@@ -333,16 +344,20 @@ export const useTravelModeSimple = ({
       
       // ETA-based adjustments (more frequent when approaching)
       let etaMultiplier = 1;
-      if (eta < 30 && !isCurrentlyStationary) { // Less than 30 seconds to arrival
+      const currentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
+      if (eta < 30 && !currentlyStationary) { // Less than 30 seconds to arrival
         etaMultiplier = 0.2; // Very frequent checking
-      } else if (eta < 60 && !isCurrentlyStationary) { // Less than 1 minute
+      } else if (eta < 60 && !currentlyStationary) { // Less than 1 minute
         etaMultiplier = 0.4; // Frequent checking
-      } else if (eta < 300 && !isCurrentlyStationary) { // Less than 5 minutes
+      } else if (eta < 300 && !currentlyStationary) { // Less than 5 minutes
         etaMultiplier = 0.6; // More frequent
       }
       
+      // Apply battery optimization based on activity recognition
+      const batteryFactor = activitySupported ? activityDetectionService.getBatteryOptimizationFactor() : 1;
+      
       // Combine all factors
-      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * platformMultiplier);
+      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * platformMultiplier * batteryFactor);
       
       // Enforce reasonable bounds
       const minInterval = isNative ? 2000 : 1500; // 2s native, 1.5s web
@@ -365,7 +380,7 @@ export const useTravelModeSimple = ({
       
       return clampedInterval;
     },
-    [calculateETA, isNative, isStationary, energyMode]
+    [calculateETA, isNative, isStationary, energyMode, activitySupported, currentActivity, config.baseCheckInterval]
   );
 
   // Check and request location permissions - Enhanced for both platforms
@@ -1152,6 +1167,18 @@ export const useTravelModeSimple = ({
       // Initialize notification service
       await travelNotificationService.initialize();
 
+      // Initialize activity detection service
+      if (activityDetectionService.isSupported()) {
+        try {
+          await activityDetectionService.startDetection();
+          setActivitySupported(true);
+          console.log('✅ Activity detection service started');
+        } catch (error) {
+          console.warn('⚠️ Activity detection initialization failed:', error);
+          setActivitySupported(false);
+        }
+      }
+
       // Request location permissions
       if (isNative) {
         const locationPermission = await Geolocation.requestPermissions();
@@ -1221,6 +1248,13 @@ export const useTravelModeSimple = ({
       intervalRef.current = null;
     }
     intervalIdRef.current = 0; // Reset interval ID
+
+    // Stop activity detection service
+    if (activitySupported) {
+      activityDetectionService.stopDetection();
+      setActivitySupported(false);
+      console.log('🛑 Activity detection service stopped');
+    }
 
     if (watchIdRef.current) {
       try {

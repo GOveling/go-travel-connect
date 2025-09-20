@@ -38,6 +38,8 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     loading,
     status,
     currentSpeed,
+    currentActivity,
+    activitySupported,
     toggleTravelMode,
     checkProximity,
     checkLocationPermissions,

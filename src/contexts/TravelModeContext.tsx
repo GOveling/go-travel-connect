@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useTravelModeSimple } from '@/hooks/useTravelModeSimple';
+import type { ActivityData } from '@/services/activityDetectionService';
 
 interface PlaceArrivalData {
   id: string;
@@ -47,6 +48,8 @@ interface TravelModeContextType {
   status: any;
   currentSpeed: number; // Speed in m/s
   isStationary: boolean;
+  currentActivity: ActivityData | null;
+  activitySupported: boolean;
   showArrivalModal: boolean;
   arrivalPlace: PlaceArrivalData | null;
   setShowArrivalModal: (show: boolean) => void;
@@ -108,6 +111,8 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     status: hook.status,
     currentSpeed: hook.currentSpeed,
     isStationary: hook.isStationary,
+    currentActivity: hook.currentActivity || null,
+    activitySupported: hook.activitySupported || false,
     showArrivalModal,
     arrivalPlace,
     setShowArrivalModal,
@@ -147,6 +152,8 @@ export const useTravelModeContext = () => {
       status: {},
       currentSpeed: 0,
       isStationary: false,
+      currentActivity: null,
+      activitySupported: false,
       showArrivalModal: false,
       arrivalPlace: null,
       setShowArrivalModal: () => {},
