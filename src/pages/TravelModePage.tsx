@@ -3,6 +3,7 @@ import React from "react";
 import { TravelMode } from "../components/travel/TravelMode";
 import { TravelStats } from "../components/travel/TravelStats";
 import { DirectionalGuidance } from "../components/travel/DirectionalGuidance";
+import TravelModeMap from "../components/maps/TravelModeMap";
 import { Card, CardContent } from "../components/ui/card";
 import {
   Tabs,
@@ -33,6 +34,15 @@ const TravelModePage: React.FC = () => {
             userLocation={currentPosition}
             targetPlace={closestPlace}
             isEnabled={isTracking}
+          />
+        )}
+
+        {/* Travel Mode Map */}
+        {isTracking && (
+          <TravelModeMap
+            currentPosition={currentPosition}
+            nearbyPlaces={nearbyPlaces}
+            className="mb-6"
           />
         )}
 
