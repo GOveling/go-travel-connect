@@ -170,7 +170,7 @@ const SmartTransportSelector: React.FC<SmartTransportSelectorProps> = ({
   analysis,
   currentMode,
   onModeChange,
-  maxDistance: analysis.maxDistanceKm
+  maxDistance
 }) => {
   const [transportOptions, setTransportOptions] = useState<TransportOption[]>([]);
   const [selectedOption, setSelectedOption] = useState<TransportOption | null>(null);
@@ -203,7 +203,7 @@ const SmartTransportSelector: React.FC<SmartTransportSelectorProps> = ({
             {analysis.isMultiDestination ? (
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
-                Multi-destination trip detected ({analysis.maxDistance.toFixed(1)}km max distance)
+                Multi-destination trip detected ({analysis.maxDistanceKm.toFixed(1)}km max distance)
               </div>
             ) : (
               <div className="flex items-center gap-2">
