@@ -65,7 +65,7 @@ class FreeTimeManager {
         const nextPlace = day.places[i + 1];
         
         // Calculate arrival time for current place
-        let arrivalTime = place.time || new Date().toISOString();
+        let arrivalTime = place.best_time || new Date().toISOString();
         if (i > 0) {
           const prevPlace = day.places[i - 1];
           try {
@@ -76,7 +76,7 @@ class FreeTimeManager {
             );
             
             const travelTime = this.parseDuration(directions.duration);
-            const prevDeparture = new Date(prevPlace.time || new Date().toISOString());
+            const prevDeparture = new Date(prevPlace.best_time || new Date().toISOString());
             arrivalTime = new Date(prevDeparture.getTime() + travelTime * 60000).toISOString();
           } catch (error) {
             console.error('Error calculating travel time:', error);
@@ -84,7 +84,7 @@ class FreeTimeManager {
         }
 
         // Calculate departure time and travel to next place
-        let departureTime = place.time;
+        let departureTime = place.best_time;
         let travelTimeToNext = 0;
         
         if (nextPlace) {
@@ -160,8 +160,8 @@ class FreeTimeManager {
 
             const transferBlock: TransferBlock = {
               type: 'transfer',
-              start_time: currentPlace.departureTime || currentPlace.arrivalTime,
-              end_time: nextPlace.arrivalTime || '',
+              start_time: currentPlace.best_time || new Date().toISOString(),
+              end_time: nextPlace.best_time || '',
               duration_minutes: totalTime,
               from_place: currentPlace.name,
               to_place: nextPlace.name,
@@ -185,7 +185,7 @@ class FreeTimeManager {
    * Enhance free blocks with real-time data and dynamic suggestions
    */
   public async enhanceFreeBlocks(
-    freeBlocks: ApiFreeBlock[],
+    freeBlocks: FreeBlock[],
     currentLocation?: { lat: number; lng: number },
     transportMode: 'walking' | 'driving' | 'transit' | 'bicycling' = 'walking'
   ): Promise<EnhancedFreeBlock[]> {
@@ -198,17 +198,17 @@ class FreeTimeManager {
       if (currentLocation && block.suggestions && block.suggestions.length > 0) {
         try {
           const suggestions = block.suggestions.slice(0, 3); // Limit to top 3
-          const updatedSuggestions: ApiSuggestedPlace[] = [];
+          const updatedSuggestions: any[] = [];
 
           for (const suggestion of suggestions) {
             const directions = await this.navigationService.getEnhancedDirections(
               currentLocation,
-              { lat: suggestion.lat, lng: suggestion.lng },
+              { lat: suggestion.lat, lng: suggestion.lon },
               transportMode
             );
 
             const travelTime = this.parseDuration(directions.duration);
-            const visitTime = this.estimateVisitDuration(suggestion.category);
+            const visitTime = this.estimateVisitDuration(suggestion.type);
             const returnTime = travelTime; // Assume same time to return
 
             const totalTimeNeeded = travelTime + visitTime + returnTime;
@@ -255,9 +255,9 @@ class FreeTimeManager {
         if (actualArrival) {
           return {
             ...place,
-            arrivalTime: actualArrival,
+            best_time: actualArrival,
             // Recalculate departure based on actual arrival + visit duration
-            departureTime: new Date(
+            estimated_time: new Date(
               new Date(actualArrival).getTime() + 
               this.estimateVisitDuration(place.category, place.category) * 60000
             ).toISOString()
@@ -265,7 +265,7 @@ class FreeTimeManager {
         }
         return place;
       }),
-      freeBlocks: day.freeBlocks ? day.freeBlocks.map(block => {
+      free_blocks: day.free_blocks ? day.free_blocks.map(block => {
         // Recalculate free block durations based on new timings
         return this.recalculateFreeBlockDuration(block, day.places, actualArrivalTimes);
       }) : []

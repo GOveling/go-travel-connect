@@ -205,13 +205,10 @@ const ItineraryTabEnhanced = ({
                             </div>
 
                             <div className="flex flex-wrap gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
-                              {place.time && (
+                              {place.bestTimeToVisit && (
                                 <div className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  {new Date(place.time).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
+                                  {place.bestTimeToVisit}
                                 </div>
                               )}
                               {place.rating && (
