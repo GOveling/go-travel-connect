@@ -345,13 +345,19 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {nearbyPlaces.slice(0, 5).map((place) => (
+              {nearbyPlaces
+                .sort((a, b) => a.distance - b.distance) // Ordenar por distancia (más cercano primero)
+                .slice(0, 5)
+                .map((place, index) => (
                 <div
                   key={place.id}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <MapPin className="w-4 h-4 text-blue-600" />
+                    {/* Número correlativo */}
+                    <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      {index + 1}
+                    </div>
                     <div>
                       <p className="font-medium">{place.name}</p>
                       <p className="text-sm text-gray-600">

@@ -76,10 +76,10 @@ const createUserIcon = (heading?: number) => {
   });
 };
 
-// Nearby place marker
-const createPlaceIcon = (distance: number, visited: boolean = false) => {
+// Nearby place marker with number
+const createPlaceIcon = (distance: number, visited: boolean = false, placeIndex?: number) => {
   const color = visited ? '#10b981' : distance < 100 ? '#ef4444' : distance < 500 ? '#f59e0b' : '#6b7280';
-  const icon = visited ? '✓' : distance < 100 ? '📍' : '📌';
+  const displayContent = placeIndex !== undefined ? (placeIndex + 1).toString() : (visited ? '✓' : distance < 100 ? '📍' : '📌');
   
   return L.divIcon({
     html: `<div style="
@@ -92,11 +92,11 @@ const createPlaceIcon = (distance: number, visited: boolean = false) => {
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 16px;
+      font-size: ${placeIndex !== undefined ? '14px' : '16px'};
       border: 2px solid white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       animation: ${distance < 100 ? 'pulse 2s infinite' : 'none'};
-    ">${icon}</div>
+    ">${displayContent}</div>
     <style>
       @keyframes pulse {
         0% { transform: scale(1); opacity: 1; }
@@ -264,15 +264,23 @@ const TravelModeMap: React.FC<TravelModeMapProps> = ({
             )}
 
             {/* Nearby places markers */}
-            {nearbyPlaces.filter(place => place.lat && place.lng).map((place, index) => (
+            {nearbyPlaces
+              .sort((a, b) => a.distance - b.distance) // Ordenar por distancia
+              .filter(place => place.lat && place.lng)
+              .map((place, index) => (
               <Marker
                 key={`place-${place.id || index}`}
                 position={[place.lat!, place.lng!]}
-                icon={createPlaceIcon(place.distance, place.visited)}
+                icon={createPlaceIcon(place.distance, place.visited, index)}
               >
                 <Popup>
                   <div className="text-sm max-w-48">
-                    <div className="font-semibold">{place.name}</div>
+                    <div className="font-semibold flex items-center gap-2">
+                      <span className="w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                        {index + 1}
+                      </span>
+                      {place.name}
+                    </div>
                     <div className="text-muted-foreground text-xs">
                       {Math.round(place.distance)}m de distancia
                     </div>
