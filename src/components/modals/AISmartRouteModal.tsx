@@ -543,10 +543,12 @@ const AISmartRouteModal = ({
 
                 <TabsContent value="map">
                   <MapTab
-                    trip={workingTrip}
-                    totalSavedPlaces={totalSavedPlaces}
-                    totalTripDays={totalTripDays}
                     optimizedItinerary={optimizedItinerary}
+                    selectedRouteType={selectedRouteType}
+                    onNavigateToPlace={(place) => {
+                      // Simple navigation handler for now
+                      console.log('Navigate to place:', place);
+                    }}
                   />
                 </TabsContent>
 
