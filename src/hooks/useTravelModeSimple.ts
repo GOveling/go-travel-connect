@@ -77,6 +77,9 @@ export const useTravelModeSimple = ({
   const [currentSpeed, setCurrentSpeed] = useState<number>(0);
   const [energyMode, setEnergyMode] = useState<'normal' | 'saving' | 'ultra-saving'>('normal');
   const [compassEnabled, setCompassEnabled] = useState(false);
+  const [isStationary, setIsStationary] = useState(false);
+  const [stationaryStartTime, setStationaryStartTime] = useState<number | null>(null);
+  const [lastSignificantMovement, setLastSignificantMovement] = useState<number>(Date.now());
   
   const { trips, loading } = useSupabaseTrips();
   const { toast } = useToast();
@@ -242,11 +245,49 @@ export const useTravelModeSimple = ({
     return distance / speed; // Time in seconds
   }, []);
 
-  // Intelligent interval calculation based on speed, distance, and ETA
+  // Enhanced stationary detection for ultra-saving mode
+  const checkStationaryStatus = useCallback((position: Position) => {
+    const now = Date.now();
+    const STATIONARY_THRESHOLD = 10; // meters
+    const STATIONARY_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+    const MOVEMENT_THRESHOLD = 20; // meters for significant movement
+    
+    if (currentPosition) {
+      const distance = calculateDistance(
+        currentPosition.coords.latitude,
+        currentPosition.coords.longitude,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      
+      // Check for significant movement
+      if (distance > MOVEMENT_THRESHOLD) {
+        setLastSignificantMovement(now);
+        setIsStationary(false);
+        setStationaryStartTime(null);
+        setEnergyMode('normal');
+      } else if (distance < STATIONARY_THRESHOLD) {
+        // User is stationary
+        if (!isStationary && !stationaryStartTime) {
+          setStationaryStartTime(now);
+        } else if (stationaryStartTime && (now - stationaryStartTime) > STATIONARY_TIME_THRESHOLD) {
+          setIsStationary(true);
+          setEnergyMode('ultra-saving');
+        }
+      }
+    }
+  }, [currentPosition, isStationary, stationaryStartTime]);
+
+  // Intelligent interval calculation with ultra-saving mode
   const getIntelligentInterval = useCallback(
     (minDistanceToPlace: number): number => {
       const currentSpeed = currentSpeedRef.current; // m/s
       const platformMultiplier = isNative ? 1 : 0.8; // Web needs slightly more frequent checks
+      
+      // Ultra-saving mode for stationary users
+      if (isStationary || energyMode === 'ultra-saving') {
+        return Math.min(120000, 60000 * platformMultiplier); // 2 minutes max for stationary
+      }
       
       // Base intervals based on movement state
       const staticInterval = 30000; // 30s when not moving
@@ -255,7 +296,7 @@ export const useTravelModeSimple = ({
       const fastMovingInterval = 4000; // 4s when moving fast
       
       // Speed thresholds (m/s)
-      const isStationary = currentSpeed < 0.5; // < 1.8 km/h
+      const isCurrentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
       const isSlowMoving = currentSpeed < 2.0; // < 7.2 km/h (walking)
       const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
       const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
@@ -265,7 +306,7 @@ export const useTravelModeSimple = ({
       
       // Determine base interval based on movement
       let baseInterval: number;
-      if (isStationary) {
+      if (isCurrentlyStationary) {
         baseInterval = staticInterval;
       } else if (isSlowMoving) {
         baseInterval = slowMovingInterval;
@@ -292,11 +333,11 @@ export const useTravelModeSimple = ({
       
       // ETA-based adjustments (more frequent when approaching)
       let etaMultiplier = 1;
-      if (eta < 30 && !isStationary) { // Less than 30 seconds to arrival
+      if (eta < 30 && !isCurrentlyStationary) { // Less than 30 seconds to arrival
         etaMultiplier = 0.2; // Very frequent checking
-      } else if (eta < 60 && !isStationary) { // Less than 1 minute
+      } else if (eta < 60 && !isCurrentlyStationary) { // Less than 1 minute
         etaMultiplier = 0.4; // Frequent checking
-      } else if (eta < 300 && !isStationary) { // Less than 5 minutes
+      } else if (eta < 300 && !isCurrentlyStationary) { // Less than 5 minutes
         etaMultiplier = 0.6; // More frequent
       }
       
@@ -324,7 +365,7 @@ export const useTravelModeSimple = ({
       
       return clampedInterval;
     },
-    [calculateETA, isNative]
+    [calculateETA, isNative, isStationary, energyMode]
   );
 
   // Check and request location permissions - Enhanced for both platforms
@@ -735,6 +776,9 @@ export const useTravelModeSimple = ({
 
     if (positionChanged) {
       console.log("📍 Position changed! New location:", position.coords);
+      
+      // Check stationary status for ultra-saving mode
+      checkStationaryStatus(position);
       
       // Update speed tracking with new position
       updateSpeedTracking(position);
@@ -1352,5 +1396,6 @@ export const useTravelModeSimple = ({
 
     // Utils
     calculateDistance,
+    isStationary,
   };
 };

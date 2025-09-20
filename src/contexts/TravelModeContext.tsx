@@ -46,6 +46,7 @@ interface TravelModeContextType {
   loading: boolean;
   status: any;
   currentSpeed: number; // Speed in m/s
+  isStationary: boolean;
   showArrivalModal: boolean;
   arrivalPlace: PlaceArrivalData | null;
   setShowArrivalModal: (show: boolean) => void;
@@ -72,22 +73,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   // Initialize the hook with proper error handling
-  const {
-    config,
-    currentPosition,
-    nearbyPlaces,
-    isTracking,
-    loading,
-    status,
-    currentSpeed,
-    toggleTravelMode,
-    startTravelMode,
-    stopTravelMode,
-    checkLocationPermissions,
-    checkNotificationPermissions,
-    getActiveTripToday,
-    calculateDistance,
-  } = useTravelModeSimple({
+  const hook = useTravelModeSimple({
     config: {
       isEnabled: false, // Travel mode disabled by default
       proximityRadius: 5000, // 5km detection radius
@@ -100,38 +86,39 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const value: TravelModeContextType = {
     config: {
-      isEnabled: config.isEnabled,
-      proximityRadius: config.proximityRadius,
-      baseCheckInterval: config.baseCheckInterval,
-      notificationCooldown: config.notificationCooldown,
-      notificationThresholds: config.notificationThresholds,
+      isEnabled: hook.config.isEnabled,
+      proximityRadius: hook.config.proximityRadius,
+      baseCheckInterval: hook.config.baseCheckInterval,
+      notificationCooldown: hook.config.notificationCooldown,
+      notificationThresholds: hook.config.notificationThresholds,
     },
-    currentPosition: currentPosition ? {
-      lat: currentPosition.coords?.latitude || 0,
-      lng: currentPosition.coords?.longitude || 0,
-      accuracy: currentPosition.coords?.accuracy,
+    currentPosition: hook.currentPosition ? {
+      lat: hook.currentPosition.coords?.latitude || 0,
+      lng: hook.currentPosition.coords?.longitude || 0,
+      accuracy: hook.currentPosition.coords?.accuracy,
       coords: {
-        latitude: currentPosition.coords?.latitude || 0,
-        longitude: currentPosition.coords?.longitude || 0,
-        accuracy: currentPosition.coords?.accuracy || 0,
+        latitude: hook.currentPosition.coords?.latitude || 0,
+        longitude: hook.currentPosition.coords?.longitude || 0,
+        accuracy: hook.currentPosition.coords?.accuracy || 0,
       }
     } : null,
-    nearbyPlaces,
-    isTracking,
-    loading,
-    status,
-    currentSpeed,
+    nearbyPlaces: hook.nearbyPlaces,
+    isTracking: hook.isTracking,
+    loading: hook.loading,
+    status: hook.status,
+    currentSpeed: hook.currentSpeed,
+    isStationary: hook.isStationary,
     showArrivalModal,
     arrivalPlace,
     setShowArrivalModal,
     checkProximity: () => {},
-    toggleTravelMode: async () => { await toggleTravelMode(); return; },
-    startTravelMode: async () => { await startTravelMode(); },
-    stopTravelMode,
-    checkLocationPermissions: async () => { checkLocationPermissions(); },
-    checkNotificationPermissions: async () => { checkNotificationPermissions(); },
-    getActiveTripToday,
-    calculateDistance,
+    toggleTravelMode: async () => { await hook.toggleTravelMode(); return; },
+    startTravelMode: async () => { await hook.startTravelMode(); },
+    stopTravelMode: hook.stopTravelMode,
+    checkLocationPermissions: async () => { hook.checkLocationPermissions(); },
+    checkNotificationPermissions: async () => { hook.checkNotificationPermissions(); },
+    getActiveTripToday: hook.getActiveTripToday,
+    calculateDistance: hook.calculateDistance,
   };
 
   return (
@@ -159,6 +146,7 @@ export const useTravelModeContext = () => {
       loading: false,
       status: {},
       currentSpeed: 0,
+      isStationary: false,
       showArrivalModal: false,
       arrivalPlace: null,
       setShowArrivalModal: () => {},

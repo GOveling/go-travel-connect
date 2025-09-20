@@ -2,6 +2,7 @@ import { BarChart3, Route } from "lucide-react";
 import React from "react";
 import { TravelMode } from "../components/travel/TravelMode";
 import { TravelStats } from "../components/travel/TravelStats";
+import { DirectionalGuidance } from "../components/travel/DirectionalGuidance";
 import { Card, CardContent } from "../components/ui/card";
 import {
   Tabs,
@@ -10,12 +11,31 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { useI18n } from "../hooks/useI18n";
+import { useTravelModeContext } from "../contexts/TravelModeContext";
 
 const TravelModePage: React.FC = () => {
   const { t } = useI18n();
+  const { currentPosition, nearbyPlaces, isTracking } = useTravelModeContext();
+  
+  // Find the closest place for directional guidance
+  const closestPlace = nearbyPlaces.length > 0 
+    ? nearbyPlaces.reduce((closest, current) => 
+        current.distance < closest.distance ? current : closest
+      )
+    : null;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 space-y-8">
+        {/* Directional Guidance */}
+        {closestPlace && closestPlace.distance < 150 && (
+          <DirectionalGuidance 
+            userLocation={currentPosition}
+            targetPlace={closestPlace}
+            isEnabled={isTracking}
+          />
+        )}
+
         {/* Main Content */}
         <TravelMode />
 
