@@ -309,20 +309,6 @@ const TravelModeMap: React.FC<TravelModeMapProps> = ({
 
           {/* Map controls */}
           <div className="absolute top-4 right-4 z-[1000] space-y-2">
-            {/* Map style toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const styles: Array<'street' | 'satellite' | 'terrain'> = ['street', 'satellite', 'terrain'];
-                const currentIndex = styles.indexOf(mapStyle);
-                const nextIndex = (currentIndex + 1) % styles.length;
-                setMapStyle(styles[nextIndex]);
-              }}
-              className="bg-background/80 backdrop-blur-sm"
-            >
-              <Layers className="h-4 w-4" />
-            </Button>
             
             {/* Follow user toggle */}
             {currentPosition && (
