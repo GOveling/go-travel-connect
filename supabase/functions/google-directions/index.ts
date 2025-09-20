@@ -20,9 +20,55 @@ interface DirectionsResponse {
     instruction: string;
     distance: string;
     duration: string;
+    maneuver?: string;
+    street_name?: string;
+    start_location?: { lat: number; lng: number };
+    end_location?: { lat: number; lng: number };
+    travel_mode?: string;
+    transit_details?: {
+      departure_stop?: {
+        name: string;
+        location: { lat: number; lng: number };
+      };
+      arrival_stop?: {
+        name: string;
+        location: { lat: number; lng: number };
+      };
+      line?: {
+        name: string;
+        short_name: string;
+        color: string;
+        vehicle: {
+          type: string;
+          name: string;
+          icon: string;
+        };
+      };
+      departure_time?: {
+        text: string;
+        value: number;
+      };
+      arrival_time?: {
+        text: string;
+        value: number;
+      };
+      headsign?: string;
+      num_stops?: number;
+    };
+    polyline?: {
+      points: string;
+    };
   }>;
   route_polyline: string;
   coordinates: Array<{ lat: number; lng: number }>;
+  departure_time?: string;
+  arrival_time?: string;
+  fare?: {
+    currency: string;
+    value: number;
+    text: string;
+  };
+  warnings?: string[];
 }
 
 function decodePolyline(encoded: string): Array<{ lat: number; lng: number }> {
@@ -104,7 +150,22 @@ serve(async (req) => {
     const steps = leg.steps.map((step: any) => ({
       instruction: step.html_instructions.replace(/<[^>]*>/g, ''),
       distance: step.distance.text,
-      duration: step.duration.text
+      duration: step.duration.text,
+      maneuver: step.maneuver,
+      street_name: step.street_name,
+      start_location: step.start_location,
+      end_location: step.end_location,
+      travel_mode: step.travel_mode,
+      transit_details: step.transit_details ? {
+        departure_stop: step.transit_details.departure_stop,
+        arrival_stop: step.transit_details.arrival_stop,
+        line: step.transit_details.line,
+        departure_time: step.transit_details.departure_time,
+        arrival_time: step.transit_details.arrival_time,
+        headsign: step.transit_details.headsign,
+        num_stops: step.transit_details.num_stops
+      } : undefined,
+      polyline: step.polyline
     }));
 
     const coordinates = decodePolyline(route.overview_polyline.points);
@@ -114,7 +175,15 @@ serve(async (req) => {
       duration: leg.duration.text,
       steps,
       route_polyline: route.overview_polyline.points,
-      coordinates
+      coordinates,
+      departure_time: leg.departure_time?.text,
+      arrival_time: leg.arrival_time?.text,
+      fare: route.fare ? {
+        currency: route.fare.currency,
+        value: route.fare.value,
+        text: route.fare.text
+      } : undefined,
+      warnings: data.warnings
     };
 
     console.log('Directions calculated successfully:', {
