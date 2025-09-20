@@ -8,6 +8,8 @@ import { getEnvironmentConfig } from "../utils/environment";
 import { useToast } from "./use-toast";
 import { useAuth } from "./useAuth";
 import { getAdaptiveProximityThresholds, logAdaptiveRadiusInfo } from "../utils/adaptiveRadius";
+import { backgroundTravelManager } from '../services/backgroundTravelManager';
+import { compassService } from '../services/compassService';
 
 interface TravelModeConfig {
   isEnabled: boolean;
@@ -72,6 +74,10 @@ export const useTravelModeSimple = ({
     isLocationAvailable: false,
     lastError: null,
   });
+  const [currentSpeed, setCurrentSpeed] = useState<number>(0);
+  const [energyMode, setEnergyMode] = useState<'normal' | 'saving' | 'ultra-saving'>('normal');
+  const [compassEnabled, setCompassEnabled] = useState(false);
+  
   const { trips, loading } = useSupabaseTrips();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -1332,6 +1338,8 @@ export const useTravelModeSimple = ({
     loading,
     status,
     currentSpeed: currentSpeedRef.current,
+    energyMode,
+    compassEnabled,
 
     // Actions
     toggleTravelMode,
