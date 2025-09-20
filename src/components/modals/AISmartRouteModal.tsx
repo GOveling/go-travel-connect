@@ -33,6 +33,7 @@ import MapTab from "./ai-smart-route/MapTab";
 import AnalyticsTab from "./ai-smart-route/AnalyticsTab";
 import MultiDestinationWarning from "./ai-smart-route/MultiDestinationWarning";
 import APIDebugPanel from "./ai-smart-route/APIDebugPanel";
+import SmartTransportSelector from "./ai-smart-route/SmartTransportSelector";
 import PlaceRecommendationsModal from "./PlaceRecommendationsModal";
 
 const AISmartRouteModal = ({
@@ -469,6 +470,16 @@ const AISmartRouteModal = ({
                     analysis={multiDestinationAnalysis}
                     onTransportModeChange={setCurrentTransportMode}
                     currentTransportMode={currentTransportMode}
+                  />
+                )}
+                
+                {/* Smart Transport Selector */}
+                {multiDestinationAnalysis?.isMultiDestination && (
+                  <SmartTransportSelector
+                    analysis={multiDestinationAnalysis}
+                    currentMode={currentTransportMode}
+                    onModeChange={(mode) => setCurrentTransportMode(mode as 'walk' | 'drive' | 'transit' | 'bike')}
+                    maxDistance={multiDestinationAnalysis.maxDistanceKm}
                   />
                 )}
                 
