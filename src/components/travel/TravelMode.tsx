@@ -266,8 +266,13 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
                   {Math.round(currentPosition.coords.accuracy)}m
                 </p>
                 <p className="text-xs text-blue-600 font-medium">
-                  🏃 {formatSpeed(currentSpeed)}
+                  🏃 {formatSpeed(currentSpeed)} ({(currentSpeed * 3.6).toFixed(1)} km/h)
                 </p>
+                {activitySupported && currentActivity && (
+                  <p className="text-xs text-green-600 font-medium">
+                    🎯 {currentActivity.activity} ({Math.round(currentActivity.confidence * 100)}%)
+                  </p>
+                )}
               </div>
             </div>
           )}

@@ -1407,6 +1407,18 @@ export const useTravelModeSimple = ({
     getActiveTripToday(); // This will update the hasActiveTrip status
   }, [trips, getActiveTripToday]);
 
+  // Effect to setup activity detection callback
+  useEffect(() => {
+    if (!activitySupported) return;
+
+    const unsubscribe = activityDetectionService.onActivityUpdate((activity) => {
+      setCurrentActivity(activity);
+      console.log(`🎯 Activity detected: ${activity.activity} (confidence: ${activity.confidence.toFixed(2)})`);
+    });
+
+    return unsubscribe;
+  }, [activitySupported]);
+
   return {
     // State
     config,
@@ -1418,6 +1430,8 @@ export const useTravelModeSimple = ({
     currentSpeed: currentSpeedRef.current,
     energyMode,
     compassEnabled,
+    currentActivity,
+    activitySupported,
 
     // Actions
     toggleTravelMode,
