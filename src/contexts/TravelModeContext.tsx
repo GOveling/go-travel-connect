@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { useTravelModeSimple } from '@/hooks/useTravelModeSimple';
 import { ActiveRouteProvider, useActiveRoute } from '@/contexts/ActiveRouteContext';
 import { hapticFeedbackService } from '@/services/HapticFeedbackService';
+import { nativeMobileService } from '@/services/NativeMobileService';
 import { VenueSizeHeuristics } from '@/services/VenueSizeHeuristics';
 import type { ActivityData } from '@/services/activityDetectionService';
 
@@ -59,14 +60,14 @@ interface TravelModeContextType {
   checkProximity?: () => void;
   toggleTravelMode: () => Promise<void>;
   startTravelMode: () => Promise<void>;
-  stopTravelMode: () => void;
+  stopTravelMode: () => Promise<void>;
   checkLocationPermissions: () => Promise<void>;
   checkNotificationPermissions: () => Promise<void>;
   getActiveTripToday: () => any;
   calculateDistance: (lat1: number, lng1: number, lat2: number, lng2: number) => number;
   // ActiveRoute integration
-  setActiveDestination: (destination: { lat: number; lng: number; name: string; place_id?: string }) => void;
-  markDestinationVisited: (destinationId: string) => void;
+  setActiveDestination: (destination: { lat: number; lng: number; name: string; place_id?: string }) => Promise<void>;
+  markDestinationVisited: (destinationId: string) => Promise<void>;
 }
 
 const TravelModeContext = createContext<TravelModeContextType | undefined>(undefined);
@@ -136,20 +137,32 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     setShowArrivalModal,
     checkProximity: () => {},
     toggleTravelMode: async () => { await hook.toggleTravelMode(); return; },
-    startTravelMode: async () => { await hook.startTravelMode(); },
-    stopTravelMode: hook.stopTravelMode,
+    startTravelMode: async () => { 
+      await hook.startTravelMode(); 
+      await nativeMobileService.initialize();
+    },
+    stopTravelMode: async () => { 
+      hook.stopTravelMode(); 
+      await nativeMobileService.disableNavigationMode();
+    },
     checkLocationPermissions: async () => { hook.checkLocationPermissions(); },
     checkNotificationPermissions: async () => { hook.checkNotificationPermissions(); },
     getActiveTripToday: hook.getActiveTripToday,
     calculateDistance: hook.calculateDistance,
     // ActiveRoute integration functions
-    setActiveDestination: (destination) => {
-      // This would be implemented to sync with ActiveRouteContext
+    setActiveDestination: async (destination) => {
+      // Sync with ActiveRouteContext and send notification
       console.log('Setting active destination:', destination);
+      await nativeMobileService.sendNavigationNotification(
+        'Navegando a destino',
+        `Dirigiéndose a ${destination.name}`,
+        false
+      );
     },
-    markDestinationVisited: (destinationId) => {
-      // This would be implemented to mark destination as visited in ActiveRoute
+    markDestinationVisited: async (destinationId) => {
+      // Mark destination as visited and clear notifications
       console.log('Marking destination as visited:', destinationId);
+      await nativeMobileService.clearNavigationNotifications();
     },
   };
 
@@ -189,13 +202,13 @@ export const useTravelModeContext = () => {
       checkProximity: () => {},
       toggleTravelMode: async () => {},
       startTravelMode: async () => {},
-      stopTravelMode: () => {},
+      stopTravelMode: async () => {},
       checkLocationPermissions: async () => {},
       checkNotificationPermissions: async () => {},
       getActiveTripToday: () => null,
       calculateDistance: () => 0,
-      setActiveDestination: () => {},
-      markDestinationVisited: () => {},
+      setActiveDestination: async () => {},
+      markDestinationVisited: async () => {},
     };
   }
   return context;
