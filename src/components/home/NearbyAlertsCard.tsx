@@ -115,7 +115,10 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
         
         <CardContent className="pt-0">
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {nearbyPlaces.slice(0, 3).map((place, index) => (
+            {nearbyPlaces
+              .sort((a, b) => a.distance - b.distance) // Ordenar por distancia
+              .slice(0, 3)
+              .map((place, index) => (
               <div
                 key={place.id || index}
                 onClick={() => handlePlaceClick(place)}
