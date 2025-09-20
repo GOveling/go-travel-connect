@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import { useTravelModeSimple } from '@/hooks/useTravelModeSimple';
+import { ActiveRouteProvider, useActiveRoute } from '@/contexts/ActiveRouteContext';
+import { hapticFeedbackService } from '@/services/HapticFeedbackService';
+import { VenueSizeHeuristics } from '@/services/VenueSizeHeuristics';
 import type { ActivityData } from '@/services/activityDetectionService';
 
 interface PlaceArrivalData {
@@ -61,6 +64,9 @@ interface TravelModeContextType {
   checkNotificationPermissions: () => Promise<void>;
   getActiveTripToday: () => any;
   calculateDistance: (lat1: number, lng1: number, lat2: number, lng2: number) => number;
+  // ActiveRoute integration
+  setActiveDestination: (destination: { lat: number; lng: number; name: string; place_id?: string }) => void;
+  markDestinationVisited: (destinationId: string) => void;
 }
 
 const TravelModeContext = createContext<TravelModeContextType | undefined>(undefined);
@@ -69,17 +75,29 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [showArrivalModal, setShowArrivalModal] = useState(false);
   const [arrivalPlace, setArrivalPlace] = useState<PlaceArrivalData | null>(null);
 
-  const handlePlaceArrival = (place: PlaceArrivalData) => {
+  // Enhanced place arrival handler with ActiveRoute integration
+  const handlePlaceArrival = async (place: PlaceArrivalData) => {
     console.log('🎯 Place arrival detected:', place);
+    
+    // Trigger haptic feedback for arrival
+    await hapticFeedbackService.trigger('arrival_confirmed');
+    
     setArrivalPlace(place);
     setShowArrivalModal(true);
+  };
+
+  // Enhanced configuration with adaptive radii
+  const getProximityRadiusForPlace = (placeId: string, category?: string) => {
+    const venueHeuristics = VenueSizeHeuristics.getInstance();
+    const venueSize = venueHeuristics.getVenueSize(placeId);
+    return venueSize.arrival_radius;
   };
 
   // Initialize the hook with proper error handling
   const hook = useTravelModeSimple({
     config: {
       isEnabled: false, // Travel mode disabled by default
-      proximityRadius: 5000, // 5km detection radius
+      proximityRadius: 5000, // Default 5km detection radius (can be overridden per place)
       baseCheckInterval: 15000,
       notificationCooldown: 300000,
       notificationThresholds: [5000, 2000, 1000, 500, 100, 50, 10],
@@ -124,12 +142,23 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     checkNotificationPermissions: async () => { hook.checkNotificationPermissions(); },
     getActiveTripToday: hook.getActiveTripToday,
     calculateDistance: hook.calculateDistance,
+    // ActiveRoute integration functions
+    setActiveDestination: (destination) => {
+      // This would be implemented to sync with ActiveRouteContext
+      console.log('Setting active destination:', destination);
+    },
+    markDestinationVisited: (destinationId) => {
+      // This would be implemented to mark destination as visited in ActiveRoute
+      console.log('Marking destination as visited:', destinationId);
+    },
   };
 
   return (
-    <TravelModeContext.Provider value={value}>
-      {children}
-    </TravelModeContext.Provider>
+    <ActiveRouteProvider>
+      <TravelModeContext.Provider value={value}>
+        {children}
+      </TravelModeContext.Provider>
+    </ActiveRouteProvider>
   );
 };
 
@@ -165,6 +194,8 @@ export const useTravelModeContext = () => {
       checkNotificationPermissions: async () => {},
       getActiveTripToday: () => null,
       calculateDistance: () => 0,
+      setActiveDestination: () => {},
+      markDestinationVisited: () => {},
     };
   }
   return context;

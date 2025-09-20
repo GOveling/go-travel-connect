@@ -7,6 +7,9 @@ import { Card } from "@/components/ui/card";
 import { MapPin, Navigation, Layers } from "lucide-react";
 import { ApiDayItinerary } from "@/types/aiSmartRouteApi";
 import { useGoogleDirections } from "@/hooks/useGoogleDirections";
+import { useActiveRoute } from "@/contexts/ActiveRouteContext";
+import { useTravelModeContext } from "@/contexts/TravelModeContext";
+import { hapticFeedbackService } from "@/services/HapticFeedbackService";
 
 // Fix default markers
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -21,6 +24,8 @@ interface InteractiveItineraryMapProps {
   selectedDay?: number;
   transportMode?: 'walking' | 'driving' | 'transit' | 'bicycling';
   className?: string;
+  showNavigationControls?: boolean;
+  onStartNavigation?: (place: any) => void;
 }
 
 // Custom numbered marker icons
@@ -85,11 +90,15 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
   itinerary,
   selectedDay,
   transportMode = 'walking',
-  className = ""
+  className = "",
+  showNavigationControls = false,
+  onStartNavigation
 }) => {
   const [mapStyle, setMapStyle] = useState<'street' | 'satellite' | 'terrain'>('street');
   const { calculateItineraryRoutes } = useGoogleDirections();
   const [routeSegments, setRouteSegments] = useState<any[]>([]);
+  const { activeRoute, currentLeg } = useActiveRoute();
+  const { currentPosition } = useTravelModeContext();
 
   // Filter itinerary based on selected day
   const displayItinerary = useMemo(() => {
@@ -221,6 +230,21 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                         💡 Recommended for your free time
                       </div>
                     )}
+                    {showNavigationControls && place.type === 'place' && (
+                      <div className="mt-2">
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            await hapticFeedbackService.trigger('navigation_start');
+                            onStartNavigation?.(place);
+                          }}
+                          className="text-xs"
+                        >
+                          <Navigation className="h-3 w-3 mr-1" />
+                          Navegar aquí
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </Popup>
               </Marker>
@@ -236,6 +260,41 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                 opacity={0.7}
               />
             ))}
+
+            {/* Render active route if available */}
+            {currentLeg && currentLeg.result.coordinates && (
+              <Polyline
+                positions={currentLeg.result.coordinates.map(coord => [coord.lat, coord.lng])}
+                color="#10b981"
+                weight={6}
+                opacity={0.9}
+                dashArray="10, 5"
+              />
+            )}
+
+            {/* Show current position */}
+            {currentPosition && (
+              <Marker 
+                position={[currentPosition.lat, currentPosition.lng]}
+                icon={L.divIcon({
+                  html: `<div style="
+                    background-color: #3b82f6;
+                    color: white;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                  ">📍</div>`,
+                  className: 'current-position-icon',
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10],
+                })}
+              />
+            )}
 
             <MapController bounds={mapBounds} selectedDay={selectedDay} />
           </MapContainer>
