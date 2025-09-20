@@ -62,7 +62,7 @@ export const useTravelModeSimple = ({
 }: {
   config: TravelModeConfig;
   onPlaceArrival?: (place: PlaceArrivalData) => void;
-} = { config: DEFAULT_CONFIG }) => {
+}) => {
   const [config, setConfig] = useState<TravelModeConfig>(userConfig || DEFAULT_CONFIG);
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
