@@ -130,15 +130,15 @@ async function searchPlacesWithGoogle(
                   textQuery: `${query} ${category}`,
                   includedType: googleTypes[0], // Use primary type for category
                   languageCode: "en",
-                  maxResultCount: 5,
+                  maxResultCount: 8, // Increased to get more results per category
                   ...(userLocation && {
-                    locationBias: {
+                    locationRestriction: { // Changed from locationBias to ensure results are within radius
                       circle: {
                         center: {
                           latitude: userLocation.lat,
                           longitude: userLocation.lng,
                         },
-                        radius: 1000, // 1km radius
+                        radius: 1000, // 1km radius - strict constraint
                       },
                     },
                   }),
@@ -190,15 +190,15 @@ async function searchPlacesWithGoogle(
             body: JSON.stringify({
               textQuery: query,
               languageCode: "en",
-              maxResultCount: 10,
+              maxResultCount: 15, // Increased for general search
               ...(userLocation && {
-                locationBias: {
+                locationRestriction: { // Changed from locationBias to ensure results are within radius
                   circle: {
                     center: {
                       latitude: userLocation.lat,
                       longitude: userLocation.lng,
                     },
-                    radius: 1000, // 1km radius
+                    radius: 1000, // 1km radius - strict constraint
                   },
                 },
               }),
@@ -438,7 +438,7 @@ serve(async (req) => {
     }
 
     // If Google Places didn't return enough results, fallback to Gemini
-    if (results.length < 3) {
+    if (results.length < 5) { // Lowered threshold to allow more Google results
       console.log("Using Gemini fallback for additional results");
       const geminiResults = await fallbackToGemini(input, selectedCategories);
 
@@ -450,8 +450,13 @@ serve(async (req) => {
       }
     }
 
-    // Sort by confidence score and rating
+    // Sort by confidence score and rating, prioritizing nearby results
     results.sort((a, b) => {
+      // If we have user location, prioritize results that are actually geocoded
+      if (userLocation && a.geocoded !== b.geocoded) {
+        return b.geocoded ? 1 : -1;
+      }
+      
       const scoreA = (a.confidence_score || 0) + (a.rating || 0) * 10;
       const scoreB = (b.confidence_score || 0) + (b.rating || 0) * 10;
       return scoreB - scoreA;
@@ -459,7 +464,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        predictions: results.slice(0, 15), // Limit final results
+        predictions: results.slice(0, 10), // Return up to 10 results as requested
         status: "OK",
         source: googleApiKey ? "google_places_enhanced" : "gemini_fallback",
       }),
