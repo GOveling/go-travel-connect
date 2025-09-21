@@ -997,6 +997,36 @@ export type Database = {
           },
         ]
       }
+      trip_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          message_type: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          message_type?: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          message_type?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       trip_shared_locations: {
         Row: {
           created_at: string
