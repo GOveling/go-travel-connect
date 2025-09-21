@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useInvitationNotifications } from "./useInvitationNotifications";
 import { useLanguage } from "./useLanguage";
 import { useAuth } from "./useAuth";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -27,7 +26,6 @@ export interface GeneralNotification {
 export const useUnifiedNotifications = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [pendingInvitationId, setPendingInvitationId] = useState<string | null>(null);
   const [pendingInvitationToken, setPendingInvitationToken] = useState<string | null>(null);
   const {
@@ -401,20 +399,23 @@ export const useUnifiedNotifications = () => {
     }
   };
 
-  // Function to handle notification click and open modal
+  // Function to handle notification click and navigation
   const handleNotificationClick = useCallback(async (notification: GeneralNotification) => {
     // Mark notification as read
     await markGeneralNotificationAsRead(notification.id);
     
-    // Dispatch custom event to open trip details modal
+    // Navigate to trip page
     if (notification.trip_id) {
-      const event = new CustomEvent("openTripDetailsModal", {
-        detail: { 
-          tripId: notification.trip_id,
-          initialTab: 'places'
-        },
-      });
-      window.dispatchEvent(event);
+      const tripUrl = `/trip/${notification.trip_id}`;
+      window.location.href = tripUrl;
+      
+      // Scroll to saved places section after navigation
+      setTimeout(() => {
+        const savedPlacesSection = document.querySelector('[data-section="saved-places"]');
+        if (savedPlacesSection) {
+          savedPlacesSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
     }
   }, [markGeneralNotificationAsRead]);
 
