@@ -132,13 +132,13 @@ async function searchPlacesWithGoogle(
                   languageCode: "en",
                   maxResultCount: 8, // Increased to get more results per category
                   ...(userLocation && {
-                    locationRestriction: { // Changed from locationBias to ensure results are within radius
+                    locationBias: { // Back to locationBias for more flexibility
                       circle: {
                         center: {
                           latitude: userLocation.lat,
                           longitude: userLocation.lng,
                         },
-                        radius: 1000, // 1km radius - strict constraint
+                        radius: 5000, // Increased to 5km for initial search
                       },
                     },
                   }),
@@ -192,13 +192,13 @@ async function searchPlacesWithGoogle(
               languageCode: "en",
               maxResultCount: 15, // Increased for general search
               ...(userLocation && {
-                locationRestriction: { // Changed from locationBias to ensure results are within radius
+                locationBias: { // Back to locationBias for more flexibility
                   circle: {
                     center: {
                       latitude: userLocation.lat,
                       longitude: userLocation.lng,
                     },
-                    radius: 1000, // 1km radius - strict constraint
+                    radius: 5000, // Increased to 5km for initial search
                   },
                 },
               }),
@@ -465,9 +465,10 @@ serve(async (req) => {
       }
     }
 
-    // Filter results by distance if user location is provided (1km radius)
-    if (userLocation && results.length > 0) {
-      const filteredResults = results.filter(place => {
+    // Apply distance filter only when user explicitly wants nearby results
+    // and only if we have enough results to filter from
+    if (userLocation && results.length > 3) {
+      const nearbyResults = results.filter(place => {
         if (!place.coordinates) return false;
         
         const distance = calculateDistance(
@@ -477,19 +478,25 @@ serve(async (req) => {
           place.coordinates.lng
         );
         
-        console.log(`Place: ${place.name}, Distance: ${distance.toFixed(2)}km`);
-        return distance <= 1.0; // 1km radius
+        return distance <= 1.0; // 1km radius for nearby results
       });
       
-      console.log(`Filtered ${results.length} results to ${filteredResults.length} within 1km`);
-      results = filteredResults;
+      // Only use filtered results if we have at least some nearby results
+      // Otherwise, keep all results to ensure user gets something
+      if (nearbyResults.length > 0) {
+        console.log(`Filtered to ${nearbyResults.length} nearby results within 1km`);
+        results = nearbyResults;
+      } else {
+        console.log(`No results within 1km, keeping all ${results.length} results`);
+      }
     }
 
-    // Sort by confidence score and rating, prioritizing nearby results
+    // Sort by distance when user location is available, otherwise by rating
     results.sort((a, b) => {
-      // If we have user location, prioritize results that are actually geocoded
-      if (userLocation && a.geocoded !== b.geocoded) {
-        return b.geocoded ? 1 : -1;
+      if (userLocation && a.coordinates && b.coordinates) {
+        const distA = calculateDistance(userLocation.lat, userLocation.lng, a.coordinates.lat, a.coordinates.lng);
+        const distB = calculateDistance(userLocation.lat, userLocation.lng, b.coordinates.lat, b.coordinates.lng);
+        return distA - distB; // Sort by distance (closest first)
       }
       
       const scoreA = (a.confidence_score || 0) + (a.rating || 0) * 10;
