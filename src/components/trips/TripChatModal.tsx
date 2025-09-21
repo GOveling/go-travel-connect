@@ -235,7 +235,7 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              <span>{collaborators.length + 1} colaboradores</span>
+              <span>{collaborators.length + 1} viajeros</span>
               {onlineUsers.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
                   {onlineUsers.length} en línea
