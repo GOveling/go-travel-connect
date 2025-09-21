@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { TripSavedPlaces } from "./TripSavedPlaces";
 
 export const TripDetails = () => {
   const { tripId } = useParams();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [trip, setTrip] = useState<any>(null);
@@ -23,6 +24,7 @@ export const TripDetails = () => {
   const [userRole, setUserRole] = useState<string>("viewer");
   const [collaborators, setCollaborators] = useState([]);
   const [savedPlaces, setSavedPlaces] = useState([]);
+  const [activeTab, setActiveTab] = useState<string>("overview");
 
   // Cargar datos del trip y verificar permisos
   useEffect(() => {
@@ -101,6 +103,11 @@ export const TripDetails = () => {
         // Cargar colaboradores y lugares guardados
         fetchCollaborators();
         fetchSavedPlaces();
+
+        // Check if we should switch to a specific tab from navigation state
+        if (location.state?.activeTab) {
+          setActiveTab(location.state.activeTab);
+        }
 
         console.log("Datos del viaje cargados:", tripData);
         console.log("Rol del usuario:", role);
@@ -287,7 +294,7 @@ export const TripDetails = () => {
         )}
       </div>
 
-      <Tabs defaultValue="overview">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="overview">Resumen</TabsTrigger>
           <TabsTrigger value="itinerary">Itinerario</TabsTrigger>

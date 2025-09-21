@@ -79,7 +79,7 @@ export const TripSavedPlaces = ({
   }
 
   return (
-    <div>
+    <div data-section="saved-places">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">
           Lugares guardados ({places.length})

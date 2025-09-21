@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useInvitationNotifications } from "./useInvitationNotifications";
 import { useLanguage } from "./useLanguage";
 import { useAuth } from "./useAuth";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -26,6 +27,7 @@ export interface GeneralNotification {
 export const useUnifiedNotifications = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [pendingInvitationId, setPendingInvitationId] = useState<string | null>(null);
   const [pendingInvitationToken, setPendingInvitationToken] = useState<string | null>(null);
   const {
@@ -404,10 +406,10 @@ export const useUnifiedNotifications = () => {
     // Mark notification as read
     await markGeneralNotificationAsRead(notification.id);
     
-    // Navigate to trip page
+    // Navigate to trip page with state to switch to places tab
     if (notification.trip_id) {
       const tripUrl = `/trip/${notification.trip_id}`;
-      window.location.href = tripUrl;
+      navigate(tripUrl, { state: { activeTab: 'places' } });
       
       // Scroll to saved places section after navigation
       setTimeout(() => {
@@ -417,7 +419,7 @@ export const useUnifiedNotifications = () => {
         }
       }, 500);
     }
-  }, [markGeneralNotificationAsRead]);
+  }, [markGeneralNotificationAsRead, navigate]);
 
   // Calculate total count of unviewed notifications (for red badge)
   const totalCount = useMemo(() => {
