@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Send, MessageCircle, Users } from 'lucide-react';
+import { Send, MessageCircle, Users, MapPin } from 'lucide-react';
+import { TripLocationsModal } from '@/components/modals/TripLocationsModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -44,6 +45,7 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+  const [showLocationsModal, setShowLocationsModal] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -208,90 +210,111 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Chat Grupal - {tripName}
-          </DialogTitle>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4" />
-            <span>{collaborators.length} colaboradores</span>
-            {onlineUsers.length > 0 && (
-              <Badge variant="secondary" className="text-xs">
-                {onlineUsers.length} en línea
-              </Badge>
-            )}
-          </div>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
+          <DialogHeader className="border-b pb-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                Chat Grupal - {tripName}
+              </DialogTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLocationsModal(true)}
+                className="flex items-center gap-2"
+              >
+                <MapPin className="h-4 w-4" />
+                Compartir Ubicación
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>{collaborators.length} colaboradores</span>
+              {onlineUsers.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {onlineUsers.length} en línea
+                </Badge>
+              )}
+            </div>
+          </DialogHeader>
 
-        {/* Messages Area */}
-        <ScrollArea className="flex-1 px-1">
-          {isLoadingMessages ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-              <MessageCircle className="h-8 w-8 mb-2" />
-              <p>No hay mensajes aún</p>
-              <p className="text-xs">¡Sé el primero en escribir algo!</p>
-            </div>
-          ) : (
-            <div className="space-y-4 pb-4">
-              {messages.map((message) => (
-                <div key={message.id} className="flex gap-3">
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarImage src={message.user_profile?.avatar_url} />
-                    <AvatarFallback className="text-xs">
-                      {getInitials(message.user_profile?.full_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm">
-                        {message.user_profile?.full_name || 'Usuario'}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(message.created_at), {
-                          addSuffix: true,
-                          locale: es,
-                        })}
-                      </span>
-                    </div>
-                    <div className="bg-muted rounded-lg p-3 text-sm">
-                      {message.message}
+          {/* Messages Area */}
+          <ScrollArea className="flex-1 px-1">
+            {isLoadingMessages ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+                <MessageCircle className="h-8 w-8 mb-2" />
+                <p>No hay mensajes aún</p>
+                <p className="text-xs">¡Sé el primero en escribir algo!</p>
+              </div>
+            ) : (
+              <div className="space-y-4 pb-4">
+                {messages.map((message) => (
+                  <div key={message.id} className="flex gap-3">
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarImage src={message.user_profile?.avatar_url} />
+                      <AvatarFallback className="text-xs">
+                        {getInitials(message.user_profile?.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-sm">
+                          {message.user_profile?.full_name || 'Usuario'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(message.created_at), {
+                            addSuffix: true,
+                            locale: es,
+                          })}
+                        </span>
+                      </div>
+                      <div className="bg-muted rounded-lg p-3 text-sm">
+                        {message.message}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </ScrollArea>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </ScrollArea>
 
-        {/* Message Input */}
-        <div className="border-t pt-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Escribe un mensaje..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={loading}
-              className="flex-1"
-            />
-            <Button 
-              onClick={sendMessage} 
-              disabled={!newMessage.trim() || loading}
-              size="icon"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+          {/* Message Input */}
+          <div className="border-t pt-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Escribe un mensaje..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={loading}
+                className="flex-1"
+              />
+              <Button 
+                onClick={sendMessage} 
+                disabled={!newMessage.trim() || loading}
+                size="icon"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Nested Locations Modal */}
+      <TripLocationsModal
+        isOpen={showLocationsModal}
+        onClose={() => setShowLocationsModal(false)}
+        tripId={tripId}
+        collaborators={collaborators}
+      />
+    </>
   );
 };
