@@ -6,12 +6,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Bell, MapPin, Trophy, Utensils, Check } from "lucide-react";
 import { useUnifiedNotifications } from "@/hooks/useUnifiedNotifications";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useNavigate } from "react-router-dom";
+import { useRef, useEffect } from "react";
 import { ActiveInvitations } from "@/components/invitations/ActiveInvitations";
 
 const iconMap = {
@@ -23,6 +23,7 @@ const iconMap = {
 const NotificationBell = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const {
     activeInvitations,
     completedInvitations,
@@ -54,6 +55,58 @@ const NotificationBell = () => {
       minute: "2-digit"
     });
   };
+
+  // Handle touch events for mobile scroll
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    let startY = 0;
+    let isScrolling = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      isScrolling = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isScrolling) {
+        const currentY = e.touches[0].clientY;
+        const diffY = Math.abs(currentY - startY);
+        
+        // Si el movimiento es principalmente vertical
+        if (diffY > 5) {
+          isScrolling = true;
+          
+          // Verificar si podemos hacer scroll en el contenedor
+          const canScrollUp = scrollContainer.scrollTop > 0;
+          const canScrollDown = scrollContainer.scrollTop < (scrollContainer.scrollHeight - scrollContainer.clientHeight);
+          
+          // Prevenir scroll del fondo si podemos hacer scroll en el contenedor
+          if ((currentY < startY && canScrollDown) || (currentY > startY && canScrollUp)) {
+            e.preventDefault();
+          }
+        }
+      } else {
+        // Una vez que determinamos que es scroll vertical, prevenir propagación
+        e.preventDefault();
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isScrolling = false;
+    };
+
+    scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+    scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      scrollContainer.removeEventListener('touchstart', handleTouchStart);
+      scrollContainer.removeEventListener('touchmove', handleTouchMove);
+      scrollContainer.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -97,7 +150,14 @@ const NotificationBell = () => {
             </div>
           </div>
 
-          <ScrollArea className="max-h-96">
+          <div 
+            ref={scrollContainerRef}
+            className="max-h-96 overflow-y-auto overscroll-contain touch-pan-y scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y'
+            }}
+          >
             {loading ? (
               <div className="p-4 text-center text-gray-500">
                 Cargando notificaciones...
@@ -291,7 +351,7 @@ const NotificationBell = () => {
                 )}
               </div>
             )}
-          </ScrollArea>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
