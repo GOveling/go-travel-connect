@@ -216,7 +216,7 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
+        <DialogContent className="max-w-sm w-[90vw] h-[70vh] flex flex-col rounded-xl border-0 shadow-2xl mx-auto my-auto fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm">
           <DialogHeader className="border-b pb-4">
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2">
