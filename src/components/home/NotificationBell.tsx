@@ -53,7 +53,12 @@ const NotificationBell = () => {
 
   return (
     <div className="relative">
-      <Popover>
+      <Popover onOpenChange={(open) => {
+        if (open && totalCount > 0) {
+          // Marcar todas las notificaciones como leídas cuando se abre el popover
+          markAllNotificationsAsRead();
+        }
+      }}>
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
