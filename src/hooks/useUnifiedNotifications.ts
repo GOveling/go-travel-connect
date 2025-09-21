@@ -401,25 +401,22 @@ export const useUnifiedNotifications = () => {
     }
   };
 
-  // Function to handle notification click and navigation
+  // Function to handle notification click and open modal
   const handleNotificationClick = useCallback(async (notification: GeneralNotification) => {
     // Mark notification as read
     await markGeneralNotificationAsRead(notification.id);
     
-    // Navigate to trip page with state to switch to places tab
+    // Dispatch custom event to open trip details modal
     if (notification.trip_id) {
-      const tripUrl = `/trip/${notification.trip_id}`;
-      navigate(tripUrl, { state: { activeTab: 'places' } });
-      
-      // Scroll to saved places section after navigation
-      setTimeout(() => {
-        const savedPlacesSection = document.querySelector('[data-section="saved-places"]');
-        if (savedPlacesSection) {
-          savedPlacesSection.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 500);
+      const event = new CustomEvent("openTripDetailsModal", {
+        detail: { 
+          tripId: notification.trip_id,
+          initialTab: 'places'
+        },
+      });
+      window.dispatchEvent(event);
     }
-  }, [markGeneralNotificationAsRead, navigate]);
+  }, [markGeneralNotificationAsRead]);
 
   // Calculate total count of unviewed notifications (for red badge)
   const totalCount = useMemo(() => {

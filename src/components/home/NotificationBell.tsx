@@ -11,8 +11,9 @@ import { Bell, MapPin, Trophy, Utensils, Check } from "lucide-react";
 import { useUnifiedNotifications } from "@/hooks/useUnifiedNotifications";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useNavigate } from "react-router-dom";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ActiveInvitations } from "@/components/invitations/ActiveInvitations";
+import { TripDetailsModal } from "@/components/modals/TripDetailsModal";
 
 const iconMap = {
   MapPin,
@@ -24,6 +25,11 @@ const NotificationBell = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [tripDetailsModal, setTripDetailsModal] = useState({
+    isOpen: false,
+    tripId: null as string | null,
+    initialTab: 'places'
+  });
   const {
     activeInvitations,
     completedInvitations,
@@ -109,14 +115,39 @@ const NotificationBell = () => {
     };
   }, []);
 
+  // Handle trip details modal opening
+  useEffect(() => {
+    const handleOpenTripDetailsModal = (event: CustomEvent) => {
+      setTripDetailsModal({
+        isOpen: true,
+        tripId: event.detail.tripId,
+        initialTab: event.detail.initialTab || 'places'
+      });
+    };
+
+    window.addEventListener('openTripDetailsModal', handleOpenTripDetailsModal as EventListener);
+    
+    return () => {
+      window.removeEventListener('openTripDetailsModal', handleOpenTripDetailsModal as EventListener);
+    };
+  }, []);
+
   return (
-    <div className="relative">
-      <Popover onOpenChange={(open) => {
-        if (open && totalCount > 0) {
-          // Marcar notificaciones como vistas (quitar badge rojo) sin eliminarlas
-          markNotificationsAsViewed();
-        }
-      }}>
+    <>
+      <TripDetailsModal
+        isOpen={tripDetailsModal.isOpen}
+        onClose={() => setTripDetailsModal(prev => ({ ...prev, isOpen: false }))}
+        tripId={tripDetailsModal.tripId}
+        initialTab={tripDetailsModal.initialTab}
+      />
+      
+      <div className="relative">
+        <Popover onOpenChange={(open) => {
+          if (open && totalCount > 0) {
+            // Marcar notificaciones como vistas (quitar badge rojo) sin eliminarlas
+            markNotificationsAsViewed();
+          }
+        }}>
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
@@ -355,6 +386,7 @@ const NotificationBell = () => {
         </PopoverContent>
       </Popover>
     </div>
+    </>
   );
 };
 
