@@ -343,6 +343,21 @@ function inferCategoryFromTypes(types: string[]): string {
   return "attraction"; // Default category
 }
 
+// Calculate distance between two points using Haversine formula
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLng = (lng2 - lng1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 // Fallback to Gemini if Google Places fails or returns insufficient results
 async function fallbackToGemini(
   query: string,
@@ -448,6 +463,26 @@ serve(async (req) => {
           results.push(geminiResult);
         }
       }
+    }
+
+    // Filter results by distance if user location is provided (1km radius)
+    if (userLocation && results.length > 0) {
+      const filteredResults = results.filter(place => {
+        if (!place.coordinates) return false;
+        
+        const distance = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          place.coordinates.lat,
+          place.coordinates.lng
+        );
+        
+        console.log(`Place: ${place.name}, Distance: ${distance.toFixed(2)}km`);
+        return distance <= 1.0; // 1km radius
+      });
+      
+      console.log(`Filtered ${results.length} results to ${filteredResults.length} within 1km`);
+      results = filteredResults;
     }
 
     // Sort by confidence score and rating, prioritizing nearby results
