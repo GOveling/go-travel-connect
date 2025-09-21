@@ -1,3 +1,4 @@
+import React, { useRef, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ const iconMap = {
 const NotificationBell = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const popoverContentRef = useRef<HTMLDivElement>(null);
   const {
     activeInvitations,
     completedInvitations,
@@ -55,6 +57,66 @@ const NotificationBell = () => {
     });
   };
 
+  // Touch event handling for mobile scroll prevention
+  useEffect(() => {
+    const popoverElement = popoverContentRef.current;
+    if (!popoverElement) return;
+
+    let startY = 0;
+    let isScrolling = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      isScrolling = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isScrolling) {
+        const currentY = e.touches[0].clientY;
+        const diffY = Math.abs(currentY - startY);
+        
+        // Determine if it's a vertical scroll
+        if (diffY > 5) {
+          isScrolling = true;
+          
+          // Find the scroll container
+          const scrollContainer = popoverElement.querySelector('[data-radix-scroll-area-viewport]');
+          if (scrollContainer) {
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+            const isAtTop = scrollTop === 0;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+            const scrollingUp = currentY > startY;
+            const scrollingDown = currentY < startY;
+            
+            // Prevent default only if we can scroll in that direction
+            if ((scrollingDown && !isAtBottom) || (scrollingUp && !isAtTop)) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }
+        }
+      } else {
+        // Continue preventing default for vertical scrolling
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    const handleTouchEnd = () => {
+      isScrolling = false;
+    };
+
+    popoverElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+    popoverElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    popoverElement.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      popoverElement.removeEventListener('touchstart', handleTouchStart);
+      popoverElement.removeEventListener('touchmove', handleTouchMove);
+      popoverElement.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
+
   return (
     <div className="relative">
       <Popover onOpenChange={(open) => {
@@ -80,7 +142,11 @@ const NotificationBell = () => {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-0" align="end">
+        <PopoverContent 
+          ref={popoverContentRef}
+          className="w-80 p-0 touch-pan-y overscroll-contain" 
+          align="end"
+        >
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Notificaciones</h3>
