@@ -399,6 +399,26 @@ export const useUnifiedNotifications = () => {
     }
   };
 
+  // Function to handle notification click and navigation
+  const handleNotificationClick = useCallback(async (notification: GeneralNotification) => {
+    // Mark notification as read
+    await markGeneralNotificationAsRead(notification.id);
+    
+    // Navigate to trip page
+    if (notification.trip_id) {
+      const tripUrl = `/trip/${notification.trip_id}`;
+      window.location.href = tripUrl;
+      
+      // Scroll to saved places section after navigation
+      setTimeout(() => {
+        const savedPlacesSection = document.querySelector('[data-section="saved-places"]');
+        if (savedPlacesSection) {
+          savedPlacesSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
+    }
+  }, [markGeneralNotificationAsRead]);
+
   // Calculate total count of unviewed notifications (for red badge)
   const totalCount = useMemo(() => {
     const unviewedGeneral = generalNotifications.filter(n => !n.viewed_at).length;
@@ -423,6 +443,7 @@ export const useUnifiedNotifications = () => {
     handleAcceptPendingInvitation,
     handleDeclinePendingInvitation,
     handleDeclineInvitation,
+    handleNotificationClick,
     pendingInvitationId,
     pendingInvitationToken
   };

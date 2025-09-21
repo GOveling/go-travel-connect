@@ -36,6 +36,7 @@ const NotificationBell = () => {
     handleAcceptPendingInvitation,
     handleDeclinePendingInvitation,
     handleDeclineInvitation,
+    handleNotificationClick,
     markAsRead,
     getInvitationLink,
     pendingInvitationId,
@@ -301,11 +302,7 @@ const NotificationBell = () => {
                             className={`flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer group relative mx-2 ${
                               isUnviewed ? 'bg-primary/5 border border-primary/20' : 'hover:bg-accent/50'
                             }`}
-                            onClick={() => {
-                              if (isUnread) {
-                                markGeneralNotificationAsRead(notification.id);
-                              }
-                            }}
+                            onClick={() => handleNotificationClick(notification)}
                           >
                             <div className={`p-2 rounded-lg ${notification.color || 'text-blue-600'}`}>
                               <IconComponent size={20} />
@@ -321,8 +318,11 @@ const NotificationBell = () => {
                               }`}>
                                 {notification.actor_name} {notification.message}
                               </p>
-                              <p className="text-xs text-muted-foreground/60">
+                               <p className="text-xs text-muted-foreground/60">
                                 {formatDate(notification.created_at)}
+                              </p>
+                              <p className="text-xs text-primary/70 mt-1">
+                                Toca para ir al viaje →
                               </p>
                             </div>
                             {/* Indicador visual para notificaciones no leídas */}
