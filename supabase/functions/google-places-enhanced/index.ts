@@ -465,29 +465,15 @@ serve(async (req) => {
             );
             
             console.log(`Place: ${place.name}, Distance: ${distance.toFixed(2)}km`);
-            return distance <= 1.0; // 1km radius for nearby results
+            return distance <= 5.0; // 5km radius for nearby results
           });
           
-          console.log(`Filtered to ${nearbyResults.length} nearby results within 1km`);
+          console.log(`Filtered to ${nearbyResults.length} nearby results within 5km`);
           
-          // If less than 2 results within 1km, expand to 2km
+          // If less than 2 results within 5km, keep all results from broader search
           if (nearbyResults.length < 2) {
-            console.log("Less than 2 results within 1km, expanding to 2km");
-            const expandedResults = results.filter(place => {
-              if (!place.coordinates) return false;
-              
-              const distance = calculateDistance(
-                userLocation.lat,
-                userLocation.lng,
-                place.coordinates.lat,
-                place.coordinates.lng
-              );
-              
-              return distance <= 2.0; // 2km radius
-            });
-            
-            console.log(`Found ${expandedResults.length} results within 2km`);
-            results = expandedResults.length > 0 ? expandedResults : nearbyResults;
+            console.log("Less than 2 results within 5km, keeping all results from broader search");
+            // Keep all results from the initial search
           } else {
             results = nearbyResults;
           }
