@@ -53,6 +53,7 @@ const ExploreSection = ({
   const { t } = useLanguage();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [lastSearchQuery, setLastSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Place[]>([]);
   const [allSearchResults, setAllSearchResults] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
@@ -86,6 +87,7 @@ const ExploreSection = ({
 
   const handleSearchSubmit = async (query: string) => {
     setSearchQuery(query);
+    setLastSearchQuery(query);
     setSelectedPlaceId(null);
     // Clear search results when doing a new search
     setSearchResults([]);
@@ -186,7 +188,16 @@ const ExploreSection = ({
     // This ensures the search will use the new location preference
     setSearchResults([]);
     setAllSearchResults([]);
-  }, []);
+    
+    // If we have a previous search query, re-execute the search
+    // This will automatically show nearby results when location is available
+    if (lastSearchQuery.trim()) {
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        handleSearchSubmit(lastSearchQuery);
+      }, 100);
+    }
+  }, [lastSearchQuery, handleSearchSubmit]);
 
   const handleLocationChange = useCallback(
     (location: { lat: number; lng: number } | null) => {
