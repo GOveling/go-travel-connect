@@ -67,18 +67,20 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
 
       if (error) throw error;
 
-      // Fetch user profiles separately
+      // Fetch user profiles using the secure function
       const messagesWithProfiles = await Promise.all(
         (data || []).map(async (message) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url')
-            .eq('id', message.user_id)
-            .single();
+          const { data: profileData } = await supabase
+            .rpc('get_collaborator_profile_safe', { p_user_id: message.user_id });
+          
+          const userProfile = profileData?.[0];
           
           return {
             ...message,
-            user_profile: profile,
+            user_profile: userProfile ? {
+              full_name: userProfile.full_name,
+              avatar_url: userProfile.avatar_url,
+            } : null,
           };
         })
       );
@@ -146,16 +148,18 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
           filter: `trip_id=eq.${tripId}`,
         },
         async (payload) => {
-          // Fetch user profile for the new message
-          const { data: userProfile } = await supabase
-            .from('profiles')
-            .select('full_name, avatar_url')
-            .eq('id', payload.new.user_id)
-            .single();
+          // Fetch user profile using the secure function
+          const { data: profileData } = await supabase
+            .rpc('get_collaborator_profile_safe', { p_user_id: payload.new.user_id });
+
+          const userProfile = profileData?.[0];
 
           const newMessage = {
             ...payload.new,
-            user_profile: userProfile,
+            user_profile: userProfile ? {
+              full_name: userProfile.full_name,
+              avatar_url: userProfile.avatar_url,
+            } : null,
           } as TripMessage;
 
           setMessages((prev) => [...prev, newMessage]);
