@@ -8,7 +8,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Bell, MapPin, Trophy, Utensils } from "lucide-react";
+import { Bell, MapPin, Trophy, Utensils, Check } from "lucide-react";
 import { useUnifiedNotifications } from "@/hooks/useUnifiedNotifications";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useNavigate } from "react-router-dom";
@@ -27,27 +27,31 @@ const NotificationBell = () => {
     activeInvitations,
     completedInvitations,
     generalNotifications,
-    totalCount,
     loading,
-    markInvitationAsRead,
+    totalCount,
+    markNotificationsAsViewed,
     markGeneralNotificationAsRead,
-    markAllNotificationsAsRead,
-    getInvitationLink,
-    pendingInvitation,
+    markAllGeneralNotificationsAsRead,
     handleAcceptPendingInvitation,
     handleDeclinePendingInvitation,
     handleDeclineInvitation,
+    markAsRead,
+    getInvitationLink,
+    pendingInvitationId,
+    pendingInvitationToken
   } = useUnifiedNotifications();
 
   const handleAcceptInvitation = (token: string, invitationId: string) => {
     navigate(`/accept-invitation?token=${token}`);
-    markInvitationAsRead(invitationId);
+    markAsRead(invitationId);
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("es-ES", {
       month: "short",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
     });
   };
 
@@ -55,8 +59,8 @@ const NotificationBell = () => {
     <div className="relative">
       <Popover onOpenChange={(open) => {
         if (open && totalCount > 0) {
-          // Marcar todas las notificaciones como leídas cuando se abre el popover
-          markAllNotificationsAsRead();
+          // Marcar notificaciones como vistas (quitar badge rojo) sin eliminarlas
+          markNotificationsAsViewed();
         }
       }}>
         <PopoverTrigger asChild>
@@ -80,11 +84,11 @@ const NotificationBell = () => {
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Notificaciones</h3>
-              {totalCount > 0 && (
+              {generalNotifications.some(n => !n.is_read) && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={markAllNotificationsAsRead}
+                  onClick={markAllGeneralNotificationsAsRead}
                   className="text-xs"
                 >
                   Marcar todas como leídas
@@ -98,14 +102,14 @@ const NotificationBell = () => {
               <div className="p-4 text-center text-gray-500">
                 Cargando notificaciones...
               </div>
-            ) : totalCount === 0 ? (
+            ) : (activeInvitations.length === 0 && completedInvitations.length === 0 && generalNotifications.length === 0 && !pendingInvitationId) ? (
               <div className="p-4 text-center text-gray-500">
-                No tienes notificaciones nuevas
+                No tienes notificaciones
               </div>
             ) : (
               <div className="space-y-1">
                 {/* Pending Invitation from localStorage */}
-                {pendingInvitation && (
+                {pendingInvitationId && pendingInvitationToken && (
                   <>
                     <div className="px-4 py-2 bg-blue-50">
                       <h4 className="text-sm font-medium text-blue-700">
@@ -118,12 +122,10 @@ const NotificationBell = () => {
                           <div className="space-y-2">
                             <div>
                               <p className="font-medium text-sm">
-                                {pendingInvitation.trips?.name}
+                                Tienes una invitación pendiente
                               </p>
                               <p className="text-xs text-gray-600">
-                                Invitado por{" "}
-                                {pendingInvitation.inviter?.full_name} como{" "}
-                                {pendingInvitation.role}
+                                Revisa tu email para más detalles
                               </p>
                             </div>
                             <div className="flex gap-2">
@@ -147,34 +149,31 @@ const NotificationBell = () => {
                         </CardContent>
                       </Card>
                     </div>
-                    {(activeInvitations.length > 0 ||
-                      completedInvitations.length > 0 ||
-                      generalNotifications.filter((n) => !n.isRead).length >
-                        0) && <Separator />}
+                    <Separator />
                   </>
                 )}
 
-                {/* Active Invitations Section with new component */}
-                <ActiveInvitations
-                  invitations={activeInvitations.map((inv) => ({
-                    token: inv.token,
-                    tripName: inv.trip_name,
-                    inviterName: inv.inviter_name,
-                    role: inv.role,
-                  }))}
-                  onAccepted={() => {
-                    // Refresh notifications after acceptance
-                    window.location.reload();
-                  }}
-                  onDeclined={() => {
-                    // Refresh notifications after decline
-                    window.location.reload();
-                  }}
-                  className="mx-3 mb-2"
-                />
-                {(completedInvitations.length > 0 ||
-                  generalNotifications.filter((n) => !n.isRead).length > 0) &&
-                  activeInvitations.length > 0 && <Separator />}
+                {/* Active Invitations Section */}
+                {activeInvitations.length > 0 && (
+                  <>
+                    <ActiveInvitations
+                      invitations={activeInvitations.map((inv) => ({
+                        token: inv.token,
+                        tripName: inv.trip_name,
+                        inviterName: inv.inviter_name,
+                        role: inv.role,
+                      }))}
+                      onAccepted={() => {
+                        window.location.reload();
+                      }}
+                      onDeclined={() => {
+                        window.location.reload();
+                      }}
+                      className="mx-3 mb-2"
+                    />
+                    <Separator />
+                  </>
+                )}
 
                 {/* Completed Invitations Section */}
                 {completedInvitations.length > 0 && (
@@ -223,62 +222,71 @@ const NotificationBell = () => {
                         </Card>
                       </div>
                     ))}
-                    {generalNotifications.filter((n) => !n.isRead).length >
-                      0 && <Separator />}
+                    <Separator />
                   </>
                 )}
 
-                {/* General Notifications Section */}
-                {generalNotifications.filter((n) => !n.isRead).length > 0 && (
+                {/* General notifications */}
+                {generalNotifications.length > 0 && (
                   <>
-                    <div className="px-4 py-2 bg-gray-50">
-                      <h4 className="text-sm font-medium text-gray-700">
-                        Otras notificaciones
-                      </h4>
-                    </div>
-                    {generalNotifications
-                      .filter((notification) => !notification.isRead)
-                      .map((notification) => {
-                        const IconComponent =
-                          iconMap[notification.icon as keyof typeof iconMap] ||
-                          Bell;
+                    <div className="space-y-2">
+                      {generalNotifications.map((notification) => {
+                        const IconComponent = iconMap[notification.icon as keyof typeof iconMap] || Bell;
+                        const isUnread = !notification.is_read;
+                        const isUnviewed = !notification.viewed_at;
+                        
                         return (
-                          <div
-                            key={notification.id}
-                            className="p-3 hover:bg-gray-50 cursor-pointer"
-                            onClick={() =>
-                              markGeneralNotificationAsRead(notification.id)
-                            }
+                          <div 
+                            key={notification.id} 
+                            className={`flex items-start gap-3 p-3 rounded-lg transition-colors cursor-pointer group relative mx-2 ${
+                              isUnviewed ? 'bg-primary/5 border border-primary/20' : 'hover:bg-accent/50'
+                            }`}
+                            onClick={() => {
+                              if (isUnread) {
+                                markGeneralNotificationAsRead(notification.id);
+                              }
+                            }}
                           >
-                            <div className="flex items-start space-x-3">
-                              <div
-                                className={`p-2 rounded-full ${
-                                  notification.color === "blue"
-                                    ? "bg-blue-100 text-blue-600"
-                                    : notification.color === "gold"
-                                      ? "bg-yellow-100 text-yellow-600"
-                                      : notification.color === "orange"
-                                        ? "bg-orange-100 text-orange-600"
-                                        : "bg-gray-100 text-gray-600"
-                                }`}
-                              >
-                                <IconComponent size={16} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900">
-                                  {notification.title}
-                                </p>
-                                <p className="text-xs text-gray-600">
-                                  {notification.message}
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {notification.time}
-                                </p>
-                              </div>
+                            <div className={`p-2 rounded-lg ${notification.color || 'text-blue-600'}`}>
+                              <IconComponent size={20} />
                             </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className={`text-sm mb-1 ${
+                                isUnread ? 'font-semibold text-foreground' : 'font-medium text-foreground/80'
+                              }`}>
+                                {notification.title}
+                              </h4>
+                              <p className={`text-sm mb-2 ${
+                                isUnread ? 'text-muted-foreground font-medium' : 'text-muted-foreground/80'
+                              }`}>
+                                {notification.actor_name} {notification.message}
+                              </p>
+                              <p className="text-xs text-muted-foreground/60">
+                                {formatDate(notification.created_at)}
+                              </p>
+                            </div>
+                            {/* Indicador visual para notificaciones no leídas */}
+                            {isUnread && (
+                              <div className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full"></div>
+                            )}
+                            {/* Botón para marcar como leída */}
+                            {isUnread && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="absolute top-2 right-6 opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markGeneralNotificationAsRead(notification.id);
+                                }}
+                              >
+                                <Check size={12} />
+                              </Button>
+                            )}
                           </div>
                         );
                       })}
+                    </div>
                   </>
                 )}
               </div>
