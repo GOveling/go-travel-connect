@@ -133,7 +133,7 @@ async function searchPlacesWithGoogle(
                   languageCode: "en",
                   maxResultCount: 8, // Increased to get more results per category
                   ...(userLocation && {
-                    locationRestriction: { // Use restriction for nearby searches
+                    locationBias: { // Use bias instead of restriction for more flexible results
                       circle: {
                         center: {
                           latitude: userLocation.lat,
@@ -193,7 +193,7 @@ async function searchPlacesWithGoogle(
               languageCode: "en",
               maxResultCount: 15, // Increased for general search
               ...(userLocation && {
-                locationRestriction: { // Use restriction for nearby searches
+                locationBias: { // Use bias instead of restriction for more flexible results
                   circle: {
                     center: {
                       latitude: userLocation.lat,
@@ -438,8 +438,8 @@ serve(async (req) => {
 
     let results: EnhancedPlace[] = [];
 
-    // Try Google Places API first with initial radius
-    let searchRadius = userLocation ? 1000 : 5000; // 1km for nearby, 5km for general
+    // For nearby searches, use a wider search first then filter by distance
+    let initialSearchRadius = userLocation ? 5000 : 5000; // Start with 5km for both
     
     if (googleApiKey) {
       try {
@@ -448,22 +448,49 @@ serve(async (req) => {
           selectedCategories,
           googleApiKey,
           userLocation,
-          searchRadius
+          initialSearchRadius
         );
-        console.log(`Google Places returned ${results.length} results with ${searchRadius}m radius`);
+        console.log(`Google Places returned ${results.length} results with ${initialSearchRadius}m radius`);
         
-        // If nearby search and less than 2 results, expand to 2km
-        if (userLocation && results.length < 2 && searchRadius === 1000) {
-          console.log("Less than 2 results found, expanding search to 2km");
-          searchRadius = 2000;
-          results = await searchPlacesWithGoogle(
-            input,
-            selectedCategories,
-            googleApiKey,
-            userLocation,
-            searchRadius
-          );
-          console.log(`Google Places returned ${results.length} results with expanded ${searchRadius}m radius`);
+        // If nearby search is active, filter results by distance after getting broader results
+        if (userLocation && results.length > 0) {
+          const nearbyResults = results.filter(place => {
+            if (!place.coordinates) return false;
+            
+            const distance = calculateDistance(
+              userLocation.lat,
+              userLocation.lng,
+              place.coordinates.lat,
+              place.coordinates.lng
+            );
+            
+            console.log(`Place: ${place.name}, Distance: ${distance.toFixed(2)}km`);
+            return distance <= 1.0; // 1km radius for nearby results
+          });
+          
+          console.log(`Filtered to ${nearbyResults.length} nearby results within 1km`);
+          
+          // If less than 2 results within 1km, expand to 2km
+          if (nearbyResults.length < 2) {
+            console.log("Less than 2 results within 1km, expanding to 2km");
+            const expandedResults = results.filter(place => {
+              if (!place.coordinates) return false;
+              
+              const distance = calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                place.coordinates.lat,
+                place.coordinates.lng
+              );
+              
+              return distance <= 2.0; // 2km radius
+            });
+            
+            console.log(`Found ${expandedResults.length} results within 2km`);
+            results = expandedResults.length > 0 ? expandedResults : nearbyResults;
+          } else {
+            results = nearbyResults;
+          }
         }
       } catch (error) {
         console.error("Google Places API error:", error);
