@@ -217,12 +217,24 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-sm w-[90vw] h-[70vh] flex flex-col rounded-xl border-0 shadow-2xl mx-auto my-auto fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm">
+          {/* Title Header */}
+          <div className="px-4 py-3 border-b bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-t-xl">
+            <h2 className="text-lg font-semibold text-center">
+              Chat - {tripName}
+            </h2>
+          </div>
+          
           <DialogHeader className="border-b pb-4">
             <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5" />
-                Chat Grupal - {tripName}
-              </DialogTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span>{collaborators.length + 1} viajeros</span>
+                {onlineUsers.length > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {onlineUsers.length} en línea
+                  </Badge>
+                )}
+              </div>
               <Button
                 variant="outline"
                 size="sm"
@@ -232,15 +244,6 @@ export const TripChatModal: React.FC<TripChatModalProps> = ({
                 <MapPin className="h-4 w-4" />
                 Compartir Ubicación
               </Button>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>{collaborators.length + 1} viajeros</span>
-              {onlineUsers.length > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  {onlineUsers.length} en línea
-                </Badge>
-              )}
             </div>
           </DialogHeader>
 
