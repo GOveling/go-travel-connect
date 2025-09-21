@@ -99,7 +99,8 @@ async function searchPlacesWithGoogle(
   query: string,
   selectedCategories: string[],
   googleApiKey: string,
-  userLocation?: { lat: number; lng: number }
+  userLocation?: { lat: number; lng: number },
+  searchRadius: number = 5000
 ): Promise<EnhancedPlace[]> {
   const results: EnhancedPlace[] = [];
   const processedPlaceIds = new Set<string>();
@@ -132,13 +133,13 @@ async function searchPlacesWithGoogle(
                   languageCode: "en",
                   maxResultCount: 8, // Increased to get more results per category
                   ...(userLocation && {
-                    locationBias: { // Back to locationBias for more flexibility
+                    locationRestriction: { // Use restriction for nearby searches
                       circle: {
                         center: {
                           latitude: userLocation.lat,
                           longitude: userLocation.lng,
                         },
-                        radius: 5000, // Increased to 5km for initial search
+                        radius: searchRadius,
                       },
                     },
                   }),
@@ -192,13 +193,13 @@ async function searchPlacesWithGoogle(
               languageCode: "en",
               maxResultCount: 15, // Increased for general search
               ...(userLocation && {
-                locationBias: { // Back to locationBias for more flexibility
+                locationRestriction: { // Use restriction for nearby searches
                   circle: {
                     center: {
                       latitude: userLocation.lat,
                       longitude: userLocation.lng,
                     },
-                    radius: 5000, // Increased to 5km for initial search
+                    radius: searchRadius,
                   },
                 },
               }),
@@ -437,23 +438,40 @@ serve(async (req) => {
 
     let results: EnhancedPlace[] = [];
 
-    // Try Google Places API first
+    // Try Google Places API first with initial radius
+    let searchRadius = userLocation ? 1000 : 5000; // 1km for nearby, 5km for general
+    
     if (googleApiKey) {
       try {
         results = await searchPlacesWithGoogle(
           input,
           selectedCategories,
           googleApiKey,
-          userLocation
+          userLocation,
+          searchRadius
         );
-        console.log(`Google Places returned ${results.length} results`);
+        console.log(`Google Places returned ${results.length} results with ${searchRadius}m radius`);
+        
+        // If nearby search and less than 2 results, expand to 2km
+        if (userLocation && results.length < 2 && searchRadius === 1000) {
+          console.log("Less than 2 results found, expanding search to 2km");
+          searchRadius = 2000;
+          results = await searchPlacesWithGoogle(
+            input,
+            selectedCategories,
+            googleApiKey,
+            userLocation,
+            searchRadius
+          );
+          console.log(`Google Places returned ${results.length} results with expanded ${searchRadius}m radius`);
+        }
       } catch (error) {
         console.error("Google Places API error:", error);
       }
     }
 
     // If Google Places didn't return enough results, fallback to Gemini
-    if (results.length < 5) { // Lowered threshold to allow more Google results
+    if (results.length < 5 && !userLocation) { // Only use Gemini fallback for general searches
       console.log("Using Gemini fallback for additional results");
       const geminiResults = await fallbackToGemini(input, selectedCategories);
 
@@ -462,32 +480,6 @@ serve(async (req) => {
         if (!results.some((r) => r.id === geminiResult.id)) {
           results.push(geminiResult);
         }
-      }
-    }
-
-    // Apply distance filter only when user explicitly wants nearby results
-    // and only if we have enough results to filter from
-    if (userLocation && results.length > 3) {
-      const nearbyResults = results.filter(place => {
-        if (!place.coordinates) return false;
-        
-        const distance = calculateDistance(
-          userLocation.lat,
-          userLocation.lng,
-          place.coordinates.lat,
-          place.coordinates.lng
-        );
-        
-        return distance <= 1.0; // 1km radius for nearby results
-      });
-      
-      // Only use filtered results if we have at least some nearby results
-      // Otherwise, keep all results to ensure user gets something
-      if (nearbyResults.length > 0) {
-        console.log(`Filtered to ${nearbyResults.length} nearby results within 1km`);
-        results = nearbyResults;
-      } else {
-        console.log(`No results within 1km, keeping all ${results.length} results`);
       }
     }
 
