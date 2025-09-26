@@ -1432,7 +1432,7 @@ export const useTravelModeSimple = ({
     isTracking,
     loading,
     status,
-    currentSpeed: currentSpeedRef.current,
+    currentSpeed: currentSpeed,
     energyMode,
     compassEnabled,
     currentActivity,
