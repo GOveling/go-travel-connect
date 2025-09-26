@@ -264,7 +264,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
             {/* Render active route if available */}
             {currentLeg && currentLeg.result.coordinates && (
               <Polyline
-                positions={currentLeg.result.coordinates.map(coord => [coord.lat, coord.lng])}
+                positions={currentLeg.result.coordinates.map(coord => [coord.lat, coord.lng] as [number, number])}
                 color="#10b981"
                 weight={6}
                 opacity={0.9}

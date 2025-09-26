@@ -1,6 +1,7 @@
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { travelNotificationService } from './travelNotificationService';
+import { unifiedSpeedTracker } from '../utils/unifiedSpeedTracker';
 
 interface BackgroundTaskConfig {
   isEnabled: boolean;
@@ -139,18 +140,28 @@ class BackgroundTravelManager {
   private adjustEnergyModeByMovement(currentPosition: GeolocationPosition) {
     if (!this.config.lastPosition) return;
 
-    const distance = this.calculateDistance(
-      this.config.lastPosition.coords.latitude,
-      this.config.lastPosition.coords.longitude,
-      currentPosition.coords.latitude,
-      currentPosition.coords.longitude
-    );
+    // Convert to Capacitor Position format for unified tracker
+    const capacitorPosition = {
+      coords: {
+        latitude: currentPosition.coords.latitude,
+        longitude: currentPosition.coords.longitude,
+        accuracy: currentPosition.coords.accuracy || 50,
+        altitude: currentPosition.coords.altitude,
+        altitudeAccuracy: currentPosition.coords.altitudeAccuracy,
+        heading: currentPosition.coords.heading,
+        speed: currentPosition.coords.speed,
+      },
+      timestamp: currentPosition.timestamp
+    };
+
+    // Use unified speed tracker
+    const currentSpeed = unifiedSpeedTracker.updatePosition(capacitorPosition);
+    const movementType = unifiedSpeedTracker.getMovementType();
 
     const timeDiff = currentPosition.timestamp - this.config.lastPosition.timestamp;
-    const speed = distance / (timeDiff / 1000); // m/s
 
     // If user is stationary for extended period, switch to ultra-saving
-    if (speed < 0.5 && timeDiff > 300000) { // < 0.5 m/s for 5 minutes
+    if (movementType === 'stationary' && timeDiff > 300000) { // stationary for 5 minutes
       if (this.config.energyMode !== 'ultra-saving') {
         this.config.energyMode = 'ultra-saving';
         this.callbacks.onEnergyModeChange?.(this.config.energyMode);

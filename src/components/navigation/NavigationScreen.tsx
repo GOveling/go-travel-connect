@@ -269,7 +269,7 @@ const NavigationScreen: React.FC<NavigationScreenProps> = ({ onClose, className 
           {/* Route polyline */}
           {currentLeg.result.coordinates && currentLeg.result.coordinates.length > 0 && (
             <Polyline
-              positions={currentLeg.result.coordinates.map(coord => [coord.lat, coord.lng])}
+              positions={currentLeg.result.coordinates.map(coord => [coord.lat, coord.lng] as [number, number])}
               color="#3b82f6"
               weight={5}
               opacity={0.8}

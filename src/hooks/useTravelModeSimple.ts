@@ -11,6 +11,7 @@ import { getAdaptiveProximityThresholds, logAdaptiveRadiusInfo } from "../utils/
 import { backgroundTravelManager } from '../services/backgroundTravelManager';
 import { compassService } from '../services/compassService';
 import { activityDetectionService, type ActivityData } from '@/services/activityDetectionService';
+import { unifiedSpeedTracker } from '../utils/unifiedSpeedTracker';
 
 interface TravelModeConfig {
   isEnabled: boolean;
@@ -171,13 +172,17 @@ export const useTravelModeSimple = ({
   }, []);
 
   const validateNewReading = useCallback((position: Position): boolean => {
-    // Check accuracy - reject readings with poor accuracy
-    if (position.coords.accuracy > 50) {
-      console.log(`⚠️ Rejecting GPS reading with poor accuracy: ${position.coords.accuracy}m`);
+    // Use unified speed tracker validation (less aggressive)
+    if (!position?.coords) return false;
+    
+    // Check accuracy - use unified threshold (100m for web, 30m for native)
+    const maxAccuracy = isNative ? 30 : 100;
+    if (position.coords.accuracy > maxAccuracy) {
+      console.log(`⚠️ Rejecting GPS reading with poor accuracy: ${position.coords.accuracy}m > ${maxAccuracy}m`);
       return false;
     }
     
-    // Check for large jumps from previous position
+    // Check for large jumps from previous position (less aggressive)
     if (lastStablePositionRef.current) {
       const distance = calculateDistance(
         lastStablePositionRef.current.coords.latitude,
@@ -186,61 +191,30 @@ export const useTravelModeSimple = ({
         position.coords.longitude
       );
       
-      // Reject readings that show >100m jump unless accuracy is very good
-      if (distance > 100 && position.coords.accuracy > 10) {
+      // Reject readings that show >200m jump (increased from 100m)
+      if (distance > 200 && position.coords.accuracy > 20) {
         console.log(`⚠️ Rejecting GPS reading with large jump: ${distance.toFixed(0)}m`);
         return false;
       }
     }
     
     return true;
-  }, [calculateDistance]);
+  }, [calculateDistance, isNative]);
 
-  // Calculate and track user speed
-  const calculateSpeed = useCallback((currentPosition: Position, previousPosition: Position): number => {
-    if (!previousPosition || !currentPosition) return 0;
-    
-    const distance = calculateDistance(
-      previousPosition.coords.latitude,
-      previousPosition.coords.longitude,
-      currentPosition.coords.latitude,
-      currentPosition.coords.longitude
-    );
-    
-    const timeDifference = (currentPosition.timestamp - previousPosition.timestamp) / 1000; // seconds
-    
-    if (timeDifference <= 0) return 0;
-    
-    const speed = distance / timeDifference; // m/s
-    return Math.max(0, speed); // Ensure non-negative speed
-  }, [calculateDistance]);
-
-  // Add speed to buffer and get smoothed speed
+  // Unified speed tracking using the new tracker
   const updateSpeedTracking = useCallback((position: Position) => {
-    const now = Date.now();
+    // Use unified speed tracker for consistent speed calculation
+    const currentSpeed = unifiedSpeedTracker.updatePosition(position);
     
-    // Calculate speed if we have a previous position
-    if (lastStablePositionRef.current) {
-      const speed = calculateSpeed(position, lastStablePositionRef.current);
-      
-      // Add to speed buffer
-      speedBufferRef.current.push({ speed, timestamp: now });
-      
-      // Keep only last 10 readings or readings from last 60 seconds
-      speedBufferRef.current = speedBufferRef.current.filter(
-        entry => speedBufferRef.current.length <= 10 && (now - entry.timestamp) <= 60000
-      );
-      
-      // Calculate smoothed speed (average of recent readings)
-      const recentSpeeds = speedBufferRef.current.slice(-5); // Last 5 readings
-      const smoothedSpeed = recentSpeeds.reduce((sum, entry) => sum + entry.speed, 0) / recentSpeeds.length;
-      
-      currentSpeedRef.current = smoothedSpeed;
-      lastSpeedCalculationRef.current = now;
-      
-      console.log(`🏃 Speed updated: ${(smoothedSpeed * 3.6).toFixed(1)} km/h (${smoothedSpeed.toFixed(2)} m/s)`);
-    }
-  }, [calculateSpeed]);
+    // Update our refs to maintain compatibility
+    currentSpeedRef.current = currentSpeed;
+    lastSpeedCalculationRef.current = Date.now();
+    
+    // Update state
+    setCurrentSpeed(currentSpeed);
+    
+    console.log(`🏃 Unified speed: ${(currentSpeed * 3.6).toFixed(1)} km/h (${currentSpeed.toFixed(2)} m/s) - ${unifiedSpeedTracker.getMovementType()}`);
+  }, []);
 
   // Calculate ETA to nearest place
   const calculateETA = useCallback((distance: number, speed: number): number => {
@@ -248,12 +222,15 @@ export const useTravelModeSimple = ({
     return distance / speed; // Time in seconds
   }, []);
 
-  // Enhanced stationary detection for ultra-saving mode
+  // Enhanced stationary detection using unified speed tracker
   const checkStationaryStatus = useCallback((position: Position) => {
     const now = Date.now();
-    const STATIONARY_THRESHOLD = 10; // meters
     const STATIONARY_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-    const MOVEMENT_THRESHOLD = 20; // meters for significant movement
+    const MOVEMENT_THRESHOLD = 40; // increased from 20m for less false positives
+    
+    // Use unified speed tracker for movement detection
+    const movementType = unifiedSpeedTracker.getMovementType();
+    const isCurrentlyStationary = movementType === 'stationary';
     
     if (currentPosition) {
       const distance = calculateDistance(
@@ -263,14 +240,14 @@ export const useTravelModeSimple = ({
         position.coords.longitude
       );
       
-      // Check for significant movement
-      if (distance > MOVEMENT_THRESHOLD) {
+      // Check for significant movement (increased threshold)
+      if (distance > MOVEMENT_THRESHOLD || !isCurrentlyStationary) {
         setLastSignificantMovement(now);
         setIsStationary(false);
         setStationaryStartTime(null);
         setEnergyMode('normal');
-      } else if (distance < STATIONARY_THRESHOLD) {
-        // User is stationary
+      } else if (isCurrentlyStationary) {
+        // User is stationary based on speed
         if (!isStationary && !stationaryStartTime) {
           setStationaryStartTime(now);
         } else if (stationaryStartTime && (now - stationaryStartTime) > STATIONARY_TIME_THRESHOLD) {
@@ -279,7 +256,7 @@ export const useTravelModeSimple = ({
         }
       }
     }
-  }, [currentPosition, isStationary, stationaryStartTime]);
+  }, [currentPosition, isStationary, stationaryStartTime, calculateDistance]);
 
   // Intelligent interval calculation with Activity Recognition and ultra-saving mode
   const getIntelligentInterval = useCallback(
@@ -306,9 +283,10 @@ export const useTravelModeSimple = ({
         const movingInterval = 8000; // 8s when moving normally
         const fastMovingInterval = 4000; // 4s when moving fast
         
-        // Speed thresholds (m/s)
-        const isCurrentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
-        const isSlowMoving = currentSpeed < 2.0; // < 7.2 km/h (walking)
+        // Use unified thresholds - more realistic
+        const movementType = unifiedSpeedTracker.getMovementType();
+        const isCurrentlyStationary = movementType === 'stationary'; // < 3.6 km/h
+        const isSlowMoving = movementType === 'walking'; // < 10.8 km/h
         const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
         const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
         
@@ -359,9 +337,9 @@ export const useTravelModeSimple = ({
       // Combine all factors
       const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * platformMultiplier * batteryFactor);
       
-      // Enforce reasonable bounds
-      const minInterval = isNative ? 2000 : 1500; // 2s native, 1.5s web
-      const maxInterval = isNative ? 60000 : 45000; // 1min native, 45s web
+      // Enforce reasonable bounds (reduced minimum intervals)
+      const minInterval = isNative ? 5000 : 3000; // 5s native, 3s web (increased from 2s/1.5s)
+      const maxInterval = isNative ? 120000 : 90000; // 2min native, 1.5min web (increased)
       
       const clampedInterval = Math.max(minInterval, Math.min(maxInterval, finalInterval));
       
