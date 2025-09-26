@@ -100,13 +100,13 @@ const HomeSection = () => {
         onNavigateToTrips={handlers.handleNavigateToTrips}
       />
 
-      <NearbyAlertsCard onToggleTravelMode={toggleTravelMode} />
+      <NearbyAlertsCard onOpenTravelModeModal={() => homeState.setIsTravelModeModalOpen(true)} />
 
       {/* Development: Quick access to Travel Mode for web testing */}
       {typeof window !== "undefined" && !window.Capacitor && (
         <div className="px-4 py-2">
           <button
-            onClick={() => (window.location.href = "/travel-mode")}
+            onClick={() => homeState.setIsTravelModeModalOpen(true)}
             className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors"
           >
             🧭 Travel Mode (Dev)
