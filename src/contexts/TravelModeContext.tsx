@@ -51,6 +51,7 @@ interface TravelModeContextType {
   loading: boolean;
   status: any;
   currentSpeed: number; // Speed in m/s
+  energyMode: string; // Energy mode for battery optimization
   isStationary: boolean;
   currentActivity: ActivityData | null;
   activitySupported: boolean;
@@ -129,6 +130,7 @@ export const TravelModeProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     loading: hook.loading,
     status: hook.status,
     currentSpeed: hook.currentSpeed,
+    energyMode: hook.energyMode || 'balanced',
     isStationary: hook.isStationary,
     currentActivity: hook.currentActivity || null,
     activitySupported: hook.activitySupported || false,
@@ -193,6 +195,7 @@ export const useTravelModeContext = () => {
       loading: false,
       status: {},
       currentSpeed: 0,
+      energyMode: 'balanced',
       isStationary: false,
       currentActivity: null,
       activitySupported: false,
