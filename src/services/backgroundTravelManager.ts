@@ -82,17 +82,17 @@ class BackgroundTravelManager {
       // Detect platform
       const isNative = Boolean((window as any).Capacitor?.isNativePlatform?.());
       
-      // Platform-specific configurations
+      // Platform-specific configurations - Intervalos más agresivos para mejor detección
       const config = {
         native: {
-          minInterval: 15000, // 15s
-          maxInterval: 60000, // 60s (reduced from previous implementation)
+          minInterval: 3000, // 3s (reducido de 15s para mayor responsividad)
+          maxInterval: 30000, // 30s (reducido de 60s)
           backgroundMultiplier: 2,
           foregroundMultiplier: 1,
         },
         web: {
-          minInterval: 20000, // 20s  
-          maxInterval: 90000, // 90s
+          minInterval: 5000, // 5s (reducido de 20s)
+          maxInterval: 45000, // 45s (reducido de 90s)
           backgroundMultiplier: 2.5,
           foregroundMultiplier: 1.2,
         }

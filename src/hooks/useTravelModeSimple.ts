@@ -39,7 +39,7 @@ interface NearbyPlace extends SavedPlace {
 const DEFAULT_CONFIG: TravelModeConfig = {
   isEnabled: false,
   proximityRadius: 20000, // 20km para asegurar detección (incrementado de 15km)
-  baseCheckInterval: 30000, // 30 segundos como base
+  baseCheckInterval: 5000, // 5 segundos como base (reducido de 30s para mejor responsividad)
   notificationCooldown: 300000, // 5 minutos entre notificaciones del mismo lugar
   notificationThresholds: [5000, 2000, 1000, 500, 100, 50, 10], // Eliminado 10000 (10km)
 };
