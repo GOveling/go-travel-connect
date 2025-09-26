@@ -77,14 +77,41 @@ class BackgroundTravelManager {
   }
 
   private startLocationTracking() {
+    // Phase 2: Platform-optimized interval calculation
     const getInterval = () => {
+      // Detect platform
+      const isNative = Boolean((window as any).Capacitor?.isNativePlatform?.());
+      
+      // Platform-specific configurations
+      const config = {
+        native: {
+          minInterval: 15000, // 15s
+          maxInterval: 60000, // 60s (reduced from previous implementation)
+          backgroundMultiplier: 2,
+          foregroundMultiplier: 1,
+        },
+        web: {
+          minInterval: 20000, // 20s  
+          maxInterval: 90000, // 90s
+          backgroundMultiplier: 2.5,
+          foregroundMultiplier: 1.2,
+        }
+      };
+      
+      const platformConfig = isNative ? config.native : config.web;
+      
+      const baseInterval = this.config.isInBackground ? 
+        platformConfig.minInterval * platformConfig.backgroundMultiplier : 
+        platformConfig.minInterval * platformConfig.foregroundMultiplier;
+      
+      // Adjust based on energy mode with platform considerations
       switch (this.config.energyMode) {
         case 'ultra-saving':
-          return this.config.isInBackground ? 60000 : 30000; // 60s/30s
+          return platformConfig.maxInterval;
         case 'saving':
-          return this.config.isInBackground ? 30000 : 15000; // 30s/15s
+          return Math.min(platformConfig.maxInterval, baseInterval * 1.5);
         default:
-          return this.config.isInBackground ? 15000 : 5000;   // 15s/5s
+          return Math.max(platformConfig.minInterval, baseInterval);
       }
     };
 

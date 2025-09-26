@@ -1,5 +1,5 @@
 import { Geolocation, Position } from "@capacitor/geolocation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { travelNotificationService } from "../services/travelNotificationService";
 import { SavedPlace, Trip } from "../types";
 import { useSupabaseTrips } from "./useSupabaseTrips";
@@ -258,15 +258,39 @@ export const useTravelModeSimple = ({
     }
   }, [currentPosition, isStationary, stationaryStartTime, calculateDistance]);
 
-  // Intelligent interval calculation with Activity Recognition and ultra-saving mode
+  // Phase 2: Platform-specific proximity optimization configuration
+  const PROXIMITY_CONFIG = useMemo(() => {
+    return {
+      native: {
+        consecutiveRequired: 1, // Immediate response for better UX
+        minInterval: 15000, // 15s minimum (reduced from 30s)
+        maxInterval: 60000, // 60s maximum (reduced from 120s)
+        accuracyThreshold: 30, // 30m accuracy threshold
+        proximityBoost: 0.8, // More aggressive proximity detection
+        hysteresisDistance: 5, // 5m hysteresis for state changes
+      },
+      web: {
+        consecutiveRequired: 2, // Keep 2 for less accurate web GPS
+        minInterval: 20000, // 20s minimum
+        maxInterval: 90000, // 90s maximum  
+        accuracyThreshold: 50, // 50m accuracy threshold (less strict)
+        proximityBoost: 0.9, // Slightly less aggressive
+        hysteresisDistance: 10, // 10m hysteresis for web GPS noise
+      }
+    };
+  }, []);
+
+  const currentProximityConfig = isNative ? PROXIMITY_CONFIG.native : PROXIMITY_CONFIG.web;
+
+  // Intelligent interval calculation with Phase 2 optimizations
   const getIntelligentInterval = useCallback(
     (minDistanceToPlace: number): number => {
       const currentSpeed = currentSpeedRef.current; // m/s
-      const platformMultiplier = isNative ? 1 : 0.8; // Web needs slightly more frequent checks
+      const config = currentProximityConfig;
       
-      // Ultra-saving mode for stationary users
+      // Ultra-saving mode for stationary users (optimized)
       if (isStationary || energyMode === 'ultra-saving') {
-        return Math.min(120000, 60000 * platformMultiplier); // 2 minutes max for stationary
+        return config.maxInterval; // Use platform-specific max interval
       }
       
       // Base intervals - Activity Recognition has priority over speed-based detection
@@ -274,91 +298,92 @@ export const useTravelModeSimple = ({
       
       if (activitySupported && currentActivity && currentActivity.confidence > 0.6) {
         // Use Activity Recognition for base interval
-        baseInterval = activityDetectionService.getIntelligentInterval(config.baseCheckInterval);
+        baseInterval = activityDetectionService.getIntelligentInterval(config.minInterval);
         console.log(`🎯 Activity-based interval: ${baseInterval}ms for ${currentActivity.activity} (confidence: ${currentActivity.confidence})`);
       } else {
-        // Fallback to speed-based intervals
-        const staticInterval = 30000; // 30s when not moving
-        const slowMovingInterval = 15000; // 15s when moving slowly
-        const movingInterval = 8000; // 8s when moving normally
-        const fastMovingInterval = 4000; // 4s when moving fast
-        
-        // Use unified thresholds - more realistic
+        // Platform-optimized speed-based intervals
         const movementType = unifiedSpeedTracker.getMovementType();
-        const isCurrentlyStationary = movementType === 'stationary'; // < 3.6 km/h
-        const isSlowMoving = movementType === 'walking'; // < 10.8 km/h
-        const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
-        const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
         
-        // Determine base interval based on movement
-        if (isCurrentlyStationary) {
-          baseInterval = staticInterval;
-        } else if (isSlowMoving) {
-          baseInterval = slowMovingInterval;
-        } else if (isMovingNormally) {
-          baseInterval = movingInterval;
-        } else {
-          baseInterval = fastMovingInterval;
+        switch (movementType) {
+          case 'stationary':
+            baseInterval = config.maxInterval * 0.8; // 80% of max for stationary
+            break;
+          case 'walking':
+            baseInterval = config.minInterval * 1.2; // 20% above min for walking
+            break;
+          case 'vehicle':
+            baseInterval = config.minInterval; // Minimum for vehicle movement
+            break;
+          default:
+            baseInterval = (config.minInterval + config.maxInterval) / 2; // Average fallback
         }
       }
       
       // Calculate ETA to nearest place
       const eta = calculateETA(minDistanceToPlace, currentSpeed);
       
-      // Proximity-based adjustments (more frequent when closer)
+      // Phase 2: Enhanced proximity-based adjustments
       let proximityMultiplier = 1;
-      if (minDistanceToPlace <= 50) {
-        proximityMultiplier = 0.3; // Very close - much more frequent
+      const boostFactor = config.proximityBoost;
+      
+      if (minDistanceToPlace <= 30) {
+        proximityMultiplier = 0.2 * boostFactor; // Ultra close - very frequent
+      } else if (minDistanceToPlace <= 50) {
+        proximityMultiplier = 0.3 * boostFactor; // Very close - frequent
       } else if (minDistanceToPlace <= 100) {
-        proximityMultiplier = 0.5; // Close - more frequent
+        proximityMultiplier = 0.5 * boostFactor; // Close - more frequent
       } else if (minDistanceToPlace <= 200) {
-        proximityMultiplier = 0.7; // Medium close
+        proximityMultiplier = 0.7 * boostFactor; // Medium close
       } else if (minDistanceToPlace <= 500) {
-        proximityMultiplier = 0.8; // Medium distance
+        proximityMultiplier = 0.8 * boostFactor; // Medium distance
       } else if (minDistanceToPlace <= 1000) {
-        proximityMultiplier = 0.9; // Far
+        proximityMultiplier = 0.9; // Far - slight reduction
       }
       // For > 1000m, use full base interval
       
-      // ETA-based adjustments (more frequent when approaching)
+      // Enhanced ETA-based adjustments
       let etaMultiplier = 1;
       const currentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
-      if (eta < 30 && !currentlyStationary) { // Less than 30 seconds to arrival
-        etaMultiplier = 0.2; // Very frequent checking
-      } else if (eta < 60 && !currentlyStationary) { // Less than 1 minute
-        etaMultiplier = 0.4; // Frequent checking
-      } else if (eta < 300 && !currentlyStationary) { // Less than 5 minutes
-        etaMultiplier = 0.6; // More frequent
+      
+      if (!currentlyStationary) {
+        if (eta < 20) { // Less than 20 seconds to arrival
+          etaMultiplier = 0.15; // Ultra frequent checking
+        } else if (eta < 45) { // Less than 45 seconds
+          etaMultiplier = 0.25; // Very frequent checking
+        } else if (eta < 90) { // Less than 1.5 minutes
+          etaMultiplier = 0.4; // Frequent checking
+        } else if (eta < 300) { // Less than 5 minutes
+          etaMultiplier = 0.6; // More frequent
+        }
       }
       
       // Apply battery optimization based on activity recognition
       const batteryFactor = activitySupported ? activityDetectionService.getBatteryOptimizationFactor() : 1;
       
       // Combine all factors
-      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * platformMultiplier * batteryFactor);
+      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * batteryFactor);
       
-      // Enforce reasonable bounds (reduced minimum intervals)
-      const minInterval = isNative ? 5000 : 3000; // 5s native, 3s web (increased from 2s/1.5s)
-      const maxInterval = isNative ? 120000 : 90000; // 2min native, 1.5min web (increased)
+      // Enforce platform-specific bounds
+      const clampedInterval = Math.max(config.minInterval, Math.min(config.maxInterval, finalInterval));
       
-      const clampedInterval = Math.max(minInterval, Math.min(maxInterval, finalInterval));
-      
-      // Log interval decision for debugging
-      if (Math.random() < 0.1) { // Log 10% of calculations to avoid spam
-        console.log(`🔄 Interval calculation:`, {
+      // Enhanced logging for Phase 2 debugging
+      if (Math.random() < 0.15) { // Log 15% of calculations for better monitoring
+        console.log(`🔄 Phase 2 Interval calculation (${isNative ? 'Native' : 'Web'}):`, {
           distance: `${minDistanceToPlace.toFixed(0)}m`,
           speed: `${(currentSpeed * 3.6).toFixed(1)} km/h`,
+          movement: unifiedSpeedTracker.getMovementType(),
           eta: eta === Infinity ? 'stationary' : `${(eta / 60).toFixed(1)}min`,
           baseInterval: `${baseInterval / 1000}s`,
-          proximityMult: proximityMultiplier,
-          etaMult: etaMultiplier,
-          finalInterval: `${clampedInterval / 1000}s`
+          proximityMult: proximityMultiplier.toFixed(2),
+          etaMult: etaMultiplier.toFixed(2),
+          finalInterval: `${clampedInterval / 1000}s`,
+          platform: isNative ? 'native' : 'web'
         });
       }
       
       return clampedInterval;
     },
-    [calculateETA, isNative, isStationary, energyMode, activitySupported, currentActivity, config.baseCheckInterval]
+    [isNative, currentProximityConfig, calculateETA, isStationary, energyMode, activitySupported, currentActivity]
   );
 
   // Check and request location permissions - Enhanced for both platforms
@@ -809,7 +834,7 @@ export const useTravelModeSimple = ({
           `   📍 Place coords: ${place.lat.toFixed(6)}, ${place.lng.toFixed(6)}`
         );
 
-        // Implement hysteresis and consecutive confirmation system
+        // Phase 2: Platform-optimized hysteresis and consecutive confirmation system
         const placeStateKey = place.id;
         const currentState = nearPlacesStateRef.current.get(placeStateKey) || { 
           isNear: false, 
@@ -819,7 +844,9 @@ export const useTravelModeSimple = ({
         // Calculate adaptive proximity thresholds based on place type/category
         const adaptiveThresholds = getAdaptiveProximityThresholds(place);
         const { NEAR_THRESHOLD, FAR_THRESHOLD, ARRIVAL_THRESHOLD } = adaptiveThresholds;
-        const CONSECUTIVE_REQUIRED = 2; // readings required to confirm state change
+        
+        // Phase 2: Platform-specific consecutive confirmation requirements
+        const CONSECUTIVE_REQUIRED = currentProximityConfig.consecutiveRequired;
         
         // Log adaptive radius info for debugging (first time only)
         const debugKey = `${place.id}-debug-logged`;
