@@ -98,6 +98,7 @@ const HomeSection = () => {
         onViewDetail={handlers.handleViewCurrentTripDetail}
         onPlanNewTrip={handlers.handlePlanNewTrip}
         onNavigateToTrips={handlers.handleNavigateToTrips}
+        onOpenTravelModeModal={() => homeState.setIsTravelModeModalOpen(true)}
       />
 
       <NearbyAlertsCard onOpenTravelModeModal={() => homeState.setIsTravelModeModalOpen(true)} />
