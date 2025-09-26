@@ -326,18 +326,18 @@ export const useTravelModeSimple = ({
       let proximityMultiplier = 1;
       const boostFactor = config.proximityBoost;
       
-      if (minDistanceToPlace <= 30) {
-        proximityMultiplier = 0.2 * boostFactor; // Ultra close - very frequent
-      } else if (minDistanceToPlace <= 50) {
-        proximityMultiplier = 0.3 * boostFactor; // Very close - frequent
+      if (minDistanceToPlace <= 60) {
+        proximityMultiplier = 0.2 * boostFactor; // ≤60m = 1 segundo (5000ms × 0.2)
       } else if (minDistanceToPlace <= 100) {
-        proximityMultiplier = 0.5 * boostFactor; // Close - more frequent
+        proximityMultiplier = 0.3 * boostFactor; // ≤100m = 1.5 segundos
       } else if (minDistanceToPlace <= 200) {
-        proximityMultiplier = 0.7 * boostFactor; // Medium close
+        proximityMultiplier = 0.5 * boostFactor; // ≤200m = 2.5 segundos
       } else if (minDistanceToPlace <= 500) {
-        proximityMultiplier = 0.8 * boostFactor; // Medium distance
+        proximityMultiplier = 0.7 * boostFactor; // ≤500m = 3.5 segundos
       } else if (minDistanceToPlace <= 1000) {
-        proximityMultiplier = 0.9; // Far - slight reduction
+        proximityMultiplier = 0.8; // ≤1000m = 4 segundos
+      } else {
+        proximityMultiplier = 0.9; // >1000m = 4.5 segundos
       }
       // For > 1000m, use full base interval
       
