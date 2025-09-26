@@ -108,6 +108,7 @@ export interface ApiItineraryResponse {
 
 export interface GenerateHybridItineraryParamsV2 {
   places: Array<{
+    place_id?: string; // New requirement for API V2
     name: string;
     lat: number;
     lon: number;

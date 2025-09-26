@@ -76,11 +76,22 @@ export const aiRoutesService = {
 
   formatPlacesForApi: (savedPlaces: SavedPlace[]) => {
     return savedPlaces.map(place => ({
+      ...(place.placeReference && { place_id: place.placeReference }), // Include place_id for API V2 when available
       name: place.name,
       lat: place.lat || 0,
       lon: place.lng || 0,
       type: place.category?.toLowerCase() || 'point_of_interest',
       priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
     }));
+  },
+
+  // Utility to check if places are ready for API V2 (have place_id)
+  validatePlacesForV2: (savedPlaces: SavedPlace[]): boolean => {
+    return savedPlaces.every(place => place.placeReference && place.placeReference.trim() !== '');
+  },
+
+  // Get places missing place_id for logging/debugging
+  getPlacesMissingId: (savedPlaces: SavedPlace[]): SavedPlace[] => {
+    return savedPlaces.filter(place => !place.placeReference || place.placeReference.trim() === '');
   }
 };
