@@ -27,19 +27,11 @@ const TravelModeModal = ({ isOpen, onClose }: TravelModeModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-        {/* Custom Header with Close Button */}
-        <DialogHeader className="sticky top-0 bg-background border-b px-6 py-4 flex flex-row items-center justify-between">
+        {/* Custom Header */}
+        <DialogHeader className="sticky top-0 bg-background border-b px-6 py-4">
           <DialogTitle className="text-xl font-semibold">
             🧭 Travel Mode
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
 
         <div className="px-6 py-4 space-y-6">
