@@ -366,9 +366,10 @@ export const useTravelModeSimple = ({
       // Enforce platform-specific bounds
       const clampedInterval = Math.max(config.minInterval, Math.min(config.maxInterval, finalInterval));
       
-      // Enhanced logging for Phase 2 debugging
-      if (Math.random() < 0.15) { // Log 15% of calculations for better monitoring
-        console.log(`🔄 Phase 2 Interval calculation (${isNative ? 'Native' : 'Web'}):`, {
+      // ENHANCED logging for debugging interval issues - Always log when close to POI
+      const shouldLog = minDistanceToPlace <= 200 || Math.random() < 0.1; // Always log when close OR 10% random
+      if (shouldLog) {
+        console.log(`🔄 Interval calculation (${isNative ? 'Native' : 'Web'}):`, {
           distance: `${minDistanceToPlace.toFixed(0)}m`,
           speed: `${(currentSpeed * 3.6).toFixed(1)} km/h`,
           movement: unifiedSpeedTracker.getMovementType(),
@@ -377,7 +378,12 @@ export const useTravelModeSimple = ({
           proximityMult: proximityMultiplier.toFixed(2),
           etaMult: etaMultiplier.toFixed(2),
           finalInterval: `${clampedInterval / 1000}s`,
-          platform: isNative ? 'native' : 'web'
+          platform: isNative ? 'native' : 'web',
+          appliedFactors: {
+            stationary: isStationary,
+            energyMode: energyMode,
+            hasActivity: !!currentActivity
+          }
         });
       }
       
@@ -1085,14 +1091,17 @@ export const useTravelModeSimple = ({
     const previousMinDistance = minDistanceRef.current;
     minDistanceRef.current = minDistance;
 
-      // Schedule next check with dynamic interval if distance changed significantly
-    if (
-      Math.abs(minDistance - previousMinDistance) > 100 ||
-      nearby.length === 0
-    ) {
-      const nextInterval = getIntelligentInterval(minDistance);
+    // ENHANCED: Always recalculate interval for better responsiveness
+    const nextInterval = getIntelligentInterval(minDistance);
+    const shouldUpdateInterval = (
+      Math.abs(minDistance - previousMinDistance) > 50 || // Reduced threshold for more responsive updates
+      nearby.length === 0 ||
+      minDistance <= 200 // Always update when very close to POI
+    );
+
+    if (shouldUpdateInterval) {
       console.log(
-        `🔄 Updating check interval: ${nextInterval}ms (closest place: ${minDistance.toFixed(0)}m)`
+        `🔄 Updating check interval: ${nextInterval}ms (closest: ${minDistance.toFixed(0)}m, prev: ${previousMinDistance.toFixed(0)}m)`
       );
 
       // Clear current interval and set new one with interval ID tracking
@@ -1109,10 +1118,16 @@ export const useTravelModeSimple = ({
         intervalRef.current = setInterval(() => {
           // Double-check we're still using the same interval before executing
           if (intervalIdRef.current === newIntervalId && isTrackingRef.current) {
+            console.log(`⏰ Proximity check triggered (interval: ${nextInterval}ms)`);
             checkProximity();
           }
         }, nextInterval);
+        
+        console.log(`⏰ New interval set: ${nextInterval}ms (ID: ${newIntervalId})`);
       }
+    } else {
+      // Log that we kept the same interval for debugging
+      console.log(`⏰ Keeping current interval (distance change: ${Math.abs(minDistance - previousMinDistance).toFixed(0)}m)`);
     }
 
     console.log(

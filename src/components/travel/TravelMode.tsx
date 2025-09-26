@@ -41,6 +41,10 @@ interface DebugMetrics {
   averageAccuracy: number;
   platformType: 'native' | 'web';
   energyMode: string;
+  currentInterval: number;
+  nearbyPlacesCount: number;
+  closestDistance: number;
+  renderCount: number;
 }
 
 export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
@@ -71,24 +75,59 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     updateCount: 0,
     averageAccuracy: 0,
     platformType: 'web',
-    energyMode: energyMode || 'normal'
+    energyMode: energyMode || 'normal',
+    currentInterval: 0,
+    nearbyPlacesCount: 0,
+    closestDistance: 0,
+    renderCount: 0
   });
 
-  // Update debug metrics when position changes
+  // Track component re-renders
   React.useEffect(() => {
-    if (currentPosition) {
-      setDebugMetrics(prev => ({
+    setDebugMetrics(prev => ({
+      ...prev,
+      renderCount: prev.renderCount + 1
+    }));
+    console.log(`🎨 TravelMode component re-rendered (#${debugMetrics.renderCount + 1})`);
+  });
+
+  // Update debug metrics when position or places change
+  React.useEffect(() => {
+    const closestDistance = nearbyPlaces.length > 0 
+      ? Math.min(...nearbyPlaces.map(p => p.distance))
+      : 0;
+
+    setDebugMetrics(prev => {
+      const newMetrics = {
         ...prev,
-        lastUpdate: new Date(),
-        updateCount: prev.updateCount + 1,
-        averageAccuracy: prev.averageAccuracy === 0 
-          ? currentPosition.coords.accuracy 
-          : (prev.averageAccuracy + currentPosition.coords.accuracy) / 2,
-        platformType: typeof window !== 'undefined' && 'Capacitor' in window ? 'native' : 'web',
-        energyMode: energyMode || 'normal'
-      }));
-    }
-  }, [currentPosition, energyMode]);
+        lastUpdate: currentPosition ? new Date() : prev.lastUpdate,
+        updateCount: currentPosition ? prev.updateCount + 1 : prev.updateCount,
+        averageAccuracy: currentPosition 
+          ? (prev.averageAccuracy === 0 
+            ? currentPosition.coords.accuracy 
+            : (prev.averageAccuracy + currentPosition.coords.accuracy) / 2)
+          : prev.averageAccuracy,
+        platformType: (typeof window !== 'undefined' && 'Capacitor' in window ? 'native' : 'web') as 'native' | 'web',
+        energyMode: energyMode || 'normal',
+        nearbyPlacesCount: nearbyPlaces.length,
+        closestDistance: closestDistance,
+        currentInterval: closestDistance > 0 ? (closestDistance <= 60 ? 1 : closestDistance <= 100 ? 1.5 : closestDistance <= 200 ? 2.5 : 5) : 0
+      };
+      
+      // Log changes in real-time metrics
+      if (prev.nearbyPlacesCount !== newMetrics.nearbyPlacesCount || 
+          Math.abs(prev.closestDistance - newMetrics.closestDistance) > 10) {
+        console.log(`📊 TravelMode metrics updated:`, {
+          places: newMetrics.nearbyPlacesCount,
+          closest: `${newMetrics.closestDistance.toFixed(0)}m`,
+          expectedInterval: `${newMetrics.currentInterval}s`,
+          lastUpdate: newMetrics.lastUpdate?.toLocaleTimeString()
+        });
+      }
+      
+      return newMetrics;
+    });
+  }, [currentPosition, energyMode, nearbyPlaces]);
 
   // Función temporal para obtener ubicación actual
   const getCurrentLocation = () => {
@@ -421,11 +460,33 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
                       <div className="text-gray-600">
                         Total actualizaciones: {debugMetrics.updateCount}
                       </div>
+                      <div className="text-gray-600">
+                        Re-renders: {debugMetrics.renderCount}
+                      </div>
+                      <div className="text-gray-600">
+                        Intervalo esperado: ~{debugMetrics.currentInterval}s
+                      </div>
                     </div>
                   </div>
                 )}
 
-                {/* Activity Recognition */}
+                 {/* Real-time Proximity Metrics */}
+                 <div className="space-y-2">
+                   <h5 className="font-medium text-gray-800 flex items-center gap-2">
+                     <MapPin className="w-4 h-4" />
+                     Métricas de Proximidad
+                   </h5>
+                   <div className="grid grid-cols-2 gap-3 text-sm">
+                     <div className="text-gray-600">
+                       Lugares cercanos: {debugMetrics.nearbyPlacesCount}
+                     </div>
+                     <div className="text-gray-600">
+                       Distancia mínima: {debugMetrics.closestDistance > 0 ? `${debugMetrics.closestDistance.toFixed(0)}m` : 'N/A'}
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* Activity Recognition */}
                 {activitySupported && (
                   <div className="space-y-2">
                     <h5 className="font-medium text-gray-800 flex items-center gap-2">
