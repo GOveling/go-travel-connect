@@ -1,4 +1,4 @@
-import { Clock, Lightbulb, Star, MapPin } from "lucide-react";
+import { Clock, Lightbulb, Star, MapPin, Sparkles, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { FreeBlock } from "@/types/aiSmartRouteApi";
@@ -45,30 +45,62 @@ const FreeTimeBlock = ({ freeBlock }: FreeTimeBlockProps) => {
         )}
         
         {freeBlock.suggestions.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center space-x-1 mb-2">
               <Lightbulb className="h-3 w-3 text-green-600" />
-              <span className="text-xs font-medium text-green-800">Sugerencias:</span>
+              <span className="text-xs font-medium text-green-800">Sugerencias AI V2:</span>
+              <Badge variant="outline" className="text-xs">
+                {freeBlock.suggestions.filter(s => !s.synthetic).length} reales
+              </Badge>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-3">
               {freeBlock.suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className={`flex items-center space-x-1 px-2 py-1 rounded-md text-xs ${
+                  className={`p-3 rounded-lg border transition-all duration-200 ${
                     suggestion.synthetic
-                      ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                      : 'bg-white text-gray-800 border border-gray-200 cursor-pointer hover:bg-gray-50'
+                      ? 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                      : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-green-300'
                   }`}
                 >
-                  <MapPin className="h-3 w-3" />
-                  <span className="font-medium">{suggestion.name}</span>
-                  {suggestion.rating > 0 && (
-                    <div className="flex items-center space-x-1">
-                      <Star className="h-2 w-2 fill-current text-yellow-400" />
-                      <span>{suggestion.rating.toFixed(1)}</span>
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
+                        {suggestion.synthetic ? (
+                          <Sparkles className="h-4 w-4 text-blue-600" />
+                        ) : (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        )}
+                        <span className="font-medium text-sm">{suggestion.name}</span>
+                      </div>
+                      <Badge 
+                        variant={suggestion.synthetic ? "secondary" : "default"}
+                        className="text-xs"
+                      >
+                        {suggestion.synthetic ? "IA" : "Real"}
+                      </Badge>
                     </div>
-                  )}
-                  <span className="text-gray-500">• {suggestion.eta_minutes}min</span>
+                    {suggestion.rating > 0 && (
+                      <div className="flex items-center space-x-1">
+                        <Star className="h-3 w-3 fill-current text-yellow-400" />
+                        <span className="text-sm font-medium">{suggestion.rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-gray-600 mb-2 leading-relaxed">
+                    {suggestion.reason}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-1 text-gray-500">
+                      <MapPin className="h-3 w-3" />
+                      <span>{suggestion.eta_minutes}min caminando</span>
+                    </div>
+                    <Badge variant="outline" className="text-xs capitalize">
+                      {suggestion.type.replace(/_/g, ' ')}
+                    </Badge>
+                  </div>
                 </div>
               ))}
             </div>

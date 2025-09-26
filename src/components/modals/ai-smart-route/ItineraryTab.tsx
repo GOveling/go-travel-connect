@@ -295,23 +295,33 @@ const ItineraryTab = ({
               <div className="space-y-3">
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-3 rounded-lg border border-emerald-200">
                   <h6 className="font-medium text-emerald-800 text-sm flex items-center">
-                    <span className="mr-2">💡</span>
-                    AI Suggestions for your free time
+                    <span className="mr-2">🎯</span>
+                    AI V2 Enhanced Suggestions
                   </h6>
                   <p className="text-emerald-600 text-xs mt-1">
-                    These are recommended places you can explore during your available time slots
+                    Curated recommendations with quality filters (4.5⭐+ rating, 20+ reviews)
                   </p>
                 </div>
                 
                 {day.freeBlocks?.map((block, blockIndex) => 
                   block.suggestions?.map((suggestion, suggestionIndex) => (
                     <div key={`${blockIndex}-${suggestionIndex}`} className="relative">
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-3 bg-white p-3 rounded-lg border border-emerald-200">
+                      <div className={`flex flex-col sm:flex-row sm:items-start gap-3 p-3 rounded-lg border transition-all duration-200 ${
+                        suggestion.synthetic 
+                          ? 'bg-blue-50 border-blue-200 hover:bg-blue-100' 
+                          : 'bg-white border-emerald-200 hover:border-emerald-300'
+                      }`}>
                         <div className="flex sm:flex-col items-center sm:items-center gap-2 sm:gap-1">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
-                            💡
+                          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base ${
+                            suggestion.synthetic 
+                              ? 'bg-gradient-to-br from-blue-500 to-indigo-500' 
+                              : 'bg-gradient-to-br from-emerald-500 to-teal-500'
+                          }`}>
+                            {suggestion.synthetic ? '🤖' : '✅'}
                           </div>
-                          <span className="text-xs text-emerald-600 font-medium">
+                          <span className={`text-xs font-medium ${
+                            suggestion.synthetic ? 'text-blue-600' : 'text-emerald-600'
+                          }`}>
                             {suggestion.eta_minutes}min walk
                           </span>
                         </div>
@@ -320,30 +330,37 @@ const ItineraryTab = ({
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                             <div className="flex-1">
                               <h5 className="font-semibold text-gray-800 flex items-center space-x-2 text-sm sm:text-base">
-                                <span className="text-lg sm:text-xl">🌟</span>
+                                <span className="text-lg sm:text-xl">{suggestion.synthetic ? '🤖' : '✅'}</span>
                                 <span className="break-words">{suggestion.name}</span>
-                                <span className="text-xs text-emerald-600 font-normal">
-                                  (AI Suggestion)
-                                </span>
+                                <Badge 
+                                  variant={suggestion.synthetic ? "secondary" : "default"}
+                                  className="text-xs"
+                                >
+                                  {suggestion.synthetic ? "AI Generated" : "Google Places"}
+                                </Badge>
                               </h5>
-                              <p className="text-xs sm:text-sm text-gray-600">
-                                {suggestion.type}
-                              </p>
-                            </div>
-                            <div className="flex sm:flex-col items-center sm:items-end gap-2 sm:gap-1">
-                              <Badge className="text-xs bg-emerald-100 text-emerald-800 border-emerald-300">
-                                Suggestion
-                              </Badge>
-                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                                <Star size={12} className="text-yellow-500 fill-current mr-1" />
-                                {suggestion.rating}
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-xs capitalize bg-gray-50"
+                                >
+                                  {suggestion.type.replace(/_/g, ' ')}
+                                </Badge>
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                  <Star size={12} className="text-yellow-500 fill-current mr-1" />
+                                  {suggestion.rating}
+                                </div>
                               </div>
                             </div>
                           </div>
 
-                          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                            {suggestion.reason}
-                          </p>
+                          <div className={`p-3 rounded-md ${
+                            suggestion.synthetic ? 'bg-blue-50 border border-blue-200' : 'bg-emerald-50 border border-emerald-200'
+                          }`}>
+                            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed font-medium">
+                              📍 {suggestion.reason}
+                            </p>
+                          </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                             <div className="bg-emerald-50 p-2 rounded">
