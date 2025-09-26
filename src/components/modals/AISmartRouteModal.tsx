@@ -255,57 +255,8 @@ const AISmartRouteModal = ({
         });
         setShowDebugPanel(true);
         
-        // Fallback to V1 API
-        const response = await aiRoutesService.generateHybridItinerary({
-          places,
-          start_date: workingTrip.startDate?.toISOString().split('T')[0] || '',
-          end_date: workingTrip.endDate?.toISOString().split('T')[0] || '',
-          transport_mode: currentTransportMode === 'bike' ? 'bicycle' : currentTransportMode,
-        });
-
-        if (response.itinerary) {
-          // Transform V1 response into our DayItinerary format
-          const transformedItinerary = response.itinerary.map((day: any, index: number) => ({
-            day: index + 1,
-            date: day.date,
-            destinationName: workingTrip.destination,
-            places: day.places.map((place: any) => ({
-              id: place.id || String(Math.random()),
-              name: place.name,
-              category: place.type || 'point_of_interest',
-              rating: place.rating || 0,
-              image: place.image || '',
-              description: place.description || '',
-              estimatedTime: place.estimated_time || '2h',
-              priority: (place.priority >= 7 ? 'high' : place.priority >= 4 ? 'medium' : 'low') as "high" | "medium" | "low",
-              lat: place.lat,
-              lng: place.lon,
-              aiRecommendedDuration: place.recommended_duration || '2h',
-              bestTimeToVisit: place.best_time || 'Anytime',
-              orderInRoute: place.order || 0,
-              destinationName: workingTrip.destination
-            })),
-            totalTime: day.total_time || '8h',
-            walkingTime: day.walking_time || '2h',
-            transportTime: day.transport_time || '1h',
-            freeTime: day.free_time || '2h',
-            allocatedDays: 1,
-            isSuggested: Boolean(day.is_suggested),
-            isTentative: Boolean(day.is_tentative)
-          }));
-
-          // Fill missing days for V1 response as well
-          const completeItinerary = generateMissingDaysForMultipleDestinations(transformedItinerary, workingTrip);
-          setOptimizedItinerary(completeItinerary);
-          setRouteGenerated(true);
-
-          toast({
-            title: "AI Smart Route Generated!",
-            description: "Your intelligent route has been optimized using real distance data and AI.",
-          });
-        } else {
-          throw new Error("Invalid response from V1 AI service");
-        }
+        // No fallback available - throw the error
+        throw v2Error;
       }
     } catch (error) {
       console.error("Error generating AI route:", error);
