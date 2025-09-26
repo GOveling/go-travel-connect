@@ -5,6 +5,14 @@ import {
   MapPin,
   Navigation,
   Settings,
+  Activity,
+  Zap,
+  Smartphone,
+  Globe,
+  ChevronDown,
+  ChevronUp,
+  Signal,
+  Cpu,
 } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +35,14 @@ interface TravelModeProps {
   className?: string;
 }
 
+interface DebugMetrics {
+  lastUpdate: Date | null;
+  updateCount: number;
+  averageAccuracy: number;
+  platformType: 'native' | 'web';
+  energyMode: string;
+}
+
 export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -38,6 +54,7 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     loading,
     status,
     currentSpeed,
+    energyMode,
     currentActivity,
     activitySupported,
     toggleTravelMode,
@@ -46,6 +63,32 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
     checkNotificationPermissions,
     getActiveTripToday,
   } = useTravelModeContext();
+
+  // UI State
+  const [debugExpanded, setDebugExpanded] = React.useState(false);
+  const [debugMetrics, setDebugMetrics] = React.useState<DebugMetrics>({
+    lastUpdate: null,
+    updateCount: 0,
+    averageAccuracy: 0,
+    platformType: 'web',
+    energyMode: energyMode || 'normal'
+  });
+
+  // Update debug metrics when position changes
+  React.useEffect(() => {
+    if (currentPosition) {
+      setDebugMetrics(prev => ({
+        ...prev,
+        lastUpdate: new Date(),
+        updateCount: prev.updateCount + 1,
+        averageAccuracy: prev.averageAccuracy === 0 
+          ? currentPosition.coords.accuracy 
+          : (prev.averageAccuracy + currentPosition.coords.accuracy) / 2,
+        platformType: typeof window !== 'undefined' && 'Capacitor' in window ? 'native' : 'web',
+        energyMode: energyMode || 'normal'
+      }));
+    }
+  }, [currentPosition, energyMode]);
 
   // Función temporal para obtener ubicación actual
   const getCurrentLocation = () => {
@@ -77,6 +120,31 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
         return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getGpsStatusColor = (accuracy: number) => {
+    if (accuracy <= 10) return "bg-green-500"; // Excellent
+    if (accuracy <= 30) return "bg-yellow-500"; // Good
+    return "bg-red-500"; // Poor
+  };
+
+  const getGpsStatusText = (accuracy: number) => {
+    if (accuracy <= 10) return "Excelente";
+    if (accuracy <= 30) return "Buena";
+    return "Pobre";
+  };
+
+  const getPlatformIcon = () => {
+    return debugMetrics.platformType === 'native' ? <Smartphone className="w-4 h-4" /> : <Globe className="w-4 h-4" />;
+  };
+
+  const getEnergyModeColor = (mode: string) => {
+    switch (mode) {
+      case 'normal': return "text-green-600";
+      case 'saving': return "text-yellow-600";
+      case 'ultra-saving': return "text-red-600";
+      default: return "text-gray-600";
     }
   };
 
@@ -277,13 +345,20 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
             </div>
           )}
 
-          {/* Debug Status Panel */}
+          {/* Enhanced Debug Panel */}
           <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-            <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              {t("home.travelMode.systemStatus")}
-            </h4>
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setDebugExpanded(!debugExpanded)}
+            >
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Sistema y Debug
+              </h4>
+              {debugExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
             
+            {/* Quick Status Row */}
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${status.hasLocationPermission ? 'bg-green-500' : 'bg-red-500'}`}></div>
@@ -305,6 +380,84 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
                 <span>GPS disponible</span>
               </div>
             </div>
+
+            {/* Expanded Debug Information */}
+            {debugExpanded && (
+              <div className="space-y-4 pt-3 border-t border-gray-200">
+                {/* Platform and Energy Mode */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    {getPlatformIcon()}
+                    <span className="font-medium">Plataforma:</span>
+                    <span className="text-blue-600">{debugMetrics.platformType}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Zap className="w-4 h-4" />
+                    <span className="font-medium">Energía:</span>
+                    <span className={getEnergyModeColor(debugMetrics.energyMode)}>
+                      {debugMetrics.energyMode}
+                    </span>
+                  </div>
+                </div>
+
+                {/* GPS Performance Metrics */}
+                {currentPosition && (
+                  <div className="space-y-2">
+                    <h5 className="font-medium text-gray-800 flex items-center gap-2">
+                      <Signal className="w-4 h-4" />
+                      GPS Performance
+                    </h5>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${getGpsStatusColor(currentPosition.coords.accuracy)}`}></div>
+                        <span>Precisión: {Math.round(currentPosition.coords.accuracy)}m ({getGpsStatusText(currentPosition.coords.accuracy)})</span>
+                      </div>
+                      <div className="text-gray-600">
+                        Promedio: {Math.round(debugMetrics.averageAccuracy)}m
+                      </div>
+                      <div className="text-gray-600">
+                        Última actualización: {debugMetrics.lastUpdate?.toLocaleTimeString() || 'N/A'}
+                      </div>
+                      <div className="text-gray-600">
+                        Total actualizaciones: {debugMetrics.updateCount}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Activity Recognition */}
+                {activitySupported && (
+                  <div className="space-y-2">
+                    <h5 className="font-medium text-gray-800 flex items-center gap-2">
+                      <Cpu className="w-4 h-4" />
+                      Reconocimiento de Actividad
+                    </h5>
+                    <div className="text-sm">
+                      {currentActivity ? (
+                        <div className="flex items-center gap-4">
+                          <span>Actividad: <strong>{currentActivity.activity}</strong></span>
+                          <span>Confianza: <strong>{Math.round(currentActivity.confidence * 100)}%</strong></span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-500">Sin datos de actividad</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Speed Analytics */}
+                <div className="space-y-2">
+                  <h5 className="font-medium text-gray-800 flex items-center gap-2">
+                    <Navigation className="w-4 h-4" />
+                    Análisis de Velocidad
+                  </h5>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>Velocidad actual: <strong>{formatSpeed(currentSpeed)}</strong></div>
+                    <div>Km/h: <strong>{(currentSpeed * 3.6).toFixed(1)}</strong></div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {status.lastError && (
               <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
