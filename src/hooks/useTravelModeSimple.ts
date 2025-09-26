@@ -263,7 +263,7 @@ export const useTravelModeSimple = ({
     return {
       native: {
         consecutiveRequired: 1, // Immediate response for better UX
-        minInterval: 15000, // 15s minimum (reduced from 30s)
+        minInterval: 3000, // 3s minimum para permitir 1s cerca de POIs
         maxInterval: 60000, // 60s maximum (reduced from 120s)
         accuracyThreshold: 30, // 30m accuracy threshold
         proximityBoost: 0.8, // More aggressive proximity detection
@@ -271,7 +271,7 @@ export const useTravelModeSimple = ({
       },
       web: {
         consecutiveRequired: 2, // Keep 2 for less accurate web GPS
-        minInterval: 20000, // 20s minimum
+        minInterval: 5000, // 5s minimum para permitir 1s cerca de POIs
         maxInterval: 90000, // 90s maximum  
         accuracyThreshold: 50, // 50m accuracy threshold (less strict)
         proximityBoost: 0.9, // Slightly less aggressive
