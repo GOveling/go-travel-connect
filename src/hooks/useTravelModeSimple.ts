@@ -1297,10 +1297,27 @@ export const useTravelModeSimple = ({
     notifiedPlacesRef.current.clear();
     lastPositionRef.current = null;
 
+    // Update status to reflect that systems are now inactive
+    // Keep hasActiveTrip as it is (trip still exists, just not tracking)
+    // Keep permissions as they are still available
+    // Set isLocationAvailable to false as we're no longer actively tracking location
+    setStatus(prev => ({ 
+      ...prev, 
+      isLocationAvailable: false,
+      lastError: null
+    }));
+
+    // Reset speed and movement tracking
+    setCurrentSpeed(0);
+    setIsStationary(false);
+    setStationaryStartTime(null);
+    setCurrentActivity(null);
+    unifiedSpeedTracker.reset();
+
     // Clear persisted state when manually stopped
     localStorage.removeItem('travelModeEnabled');
 
-    console.log("✅ Travel Mode stopped");
+    console.log("✅ Travel Mode stopped - all systems inactive");
   }, [isNative]);
 
   // Toggle Travel Mode with comprehensive validation and debouncing
