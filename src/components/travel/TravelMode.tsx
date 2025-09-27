@@ -14,7 +14,7 @@ import {
   Signal,
   Cpu,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "../../hooks/useI18n";
 import { useTravelModeContext } from "../../contexts/TravelModeContext";
@@ -70,64 +70,48 @@ export const TravelMode: React.FC<TravelModeProps> = ({ className }) => {
 
   // UI State
   const [debugExpanded, setDebugExpanded] = React.useState(false);
-  const [debugMetrics, setDebugMetrics] = React.useState<DebugMetrics>({
-    lastUpdate: null,
-    updateCount: 0,
-    averageAccuracy: 0,
-    platformType: 'web',
-    energyMode: energyMode || 'normal',
-    currentInterval: 0,
-    nearbyPlacesCount: 0,
-    closestDistance: 0,
-    renderCount: 0
-  });
+  const renderCountRef = useRef(0);
+  
+  // Track component re-renders without causing infinite loops
+  renderCountRef.current += 1;
+  console.log(`🎨 TravelMode component re-rendered (#${renderCountRef.current})`);
 
-  // Track component re-renders
-  React.useEffect(() => {
-    setDebugMetrics(prev => ({
-      ...prev,
-      renderCount: prev.renderCount + 1
-    }));
-    console.log(`🎨 TravelMode component re-rendered (#${debugMetrics.renderCount + 1})`);
-  });
-
-  // Update debug metrics when position or places change
-  React.useEffect(() => {
+  // Memoized debug metrics calculation
+  const debugMetrics = useMemo(() => {
     const closestDistance = nearbyPlaces.length > 0 
       ? Math.min(...nearbyPlaces.map(p => p.distance))
       : 0;
 
-    setDebugMetrics(prev => {
-      const newMetrics = {
-        ...prev,
-        lastUpdate: currentPosition ? new Date() : prev.lastUpdate,
-        updateCount: currentPosition ? prev.updateCount + 1 : prev.updateCount,
-        averageAccuracy: currentPosition 
-          ? (prev.averageAccuracy === 0 
-            ? currentPosition.coords.accuracy 
-            : (prev.averageAccuracy + currentPosition.coords.accuracy) / 2)
-          : prev.averageAccuracy,
-        platformType: (typeof window !== 'undefined' && 'Capacitor' in window ? 'native' : 'web') as 'native' | 'web',
-        energyMode: energyMode || 'normal',
-        nearbyPlacesCount: nearbyPlaces.length,
-        closestDistance: closestDistance,
-        currentInterval: closestDistance > 0 ? (closestDistance <= 60 ? 1 : closestDistance <= 100 ? 1.5 : closestDistance <= 200 ? 2.5 : 5) : 0
-      };
-      
-      // Log changes in real-time metrics
-      if (prev.nearbyPlacesCount !== newMetrics.nearbyPlacesCount || 
-          Math.abs(prev.closestDistance - newMetrics.closestDistance) > 10) {
+    return {
+      lastUpdate: currentPosition ? new Date() : null,
+      updateCount: renderCountRef.current,
+      averageAccuracy: currentPosition?.coords?.accuracy || 0,
+      platformType: (typeof window !== 'undefined' && 'Capacitor' in window ? 'native' : 'web') as 'native' | 'web',
+      energyMode: energyMode || 'normal',
+      currentInterval: closestDistance > 0 ? (closestDistance <= 60 ? 1 : closestDistance <= 100 ? 1.5 : closestDistance <= 200 ? 2.5 : 5) : 0,
+      nearbyPlacesCount: nearbyPlaces.length,
+      closestDistance: closestDistance,
+      renderCount: renderCountRef.current
+    };
+  }, [currentPosition, energyMode, nearbyPlaces]);
+
+  // Log significant changes only when they actually happen
+  const prevMetricsRef = useRef<DebugMetrics | null>(null);
+  useEffect(() => {
+    if (prevMetricsRef.current) {
+      const prev = prevMetricsRef.current;
+      if (prev.nearbyPlacesCount !== debugMetrics.nearbyPlacesCount || 
+          Math.abs(prev.closestDistance - debugMetrics.closestDistance) > 10) {
         console.log(`📊 TravelMode metrics updated:`, {
-          places: newMetrics.nearbyPlacesCount,
-          closest: `${newMetrics.closestDistance.toFixed(0)}m`,
-          expectedInterval: `${newMetrics.currentInterval}s`,
-          lastUpdate: newMetrics.lastUpdate?.toLocaleTimeString()
+          places: debugMetrics.nearbyPlacesCount,
+          closest: `${debugMetrics.closestDistance.toFixed(0)}m`,
+          expectedInterval: `${debugMetrics.currentInterval}s`,
+          lastUpdate: debugMetrics.lastUpdate?.toLocaleTimeString()
         });
       }
-      
-      return newMetrics;
-    });
-  }, [currentPosition, energyMode, nearbyPlaces]);
+    }
+    prevMetricsRef.current = debugMetrics;
+  }, [debugMetrics]);
 
   // Función temporal para obtener ubicación actual
   const getCurrentLocation = () => {

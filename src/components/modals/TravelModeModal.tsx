@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { TravelMode } from "@/components/travel/TravelMode";
+import TravelModeWrapper from "@/components/travel/TravelModeWrapper";
 import { DirectionalGuidance } from "@/components/travel/DirectionalGuidance";
 import TravelModeMap from "@/components/maps/TravelModeMap";
 import { useI18n } from "@/hooks/useI18n";
@@ -53,8 +53,8 @@ const TravelModeModal = ({ isOpen, onClose }: TravelModeModalProps) => {
             />
           )}
 
-          {/* Main Travel Mode Component */}
-          <TravelMode />
+          {/* Main Travel Mode Component - Only render when modal is open */}
+          {isOpen && <TravelModeWrapper />}
 
           {/* Privacy Notice */}
           <Card className="bg-muted/50 border-muted">
