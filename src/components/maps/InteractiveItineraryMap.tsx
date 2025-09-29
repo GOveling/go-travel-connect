@@ -153,8 +153,9 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
   onStartNavigation
 }) => {
   const [mapStyle, setMapStyle] = useState<'street' | 'satellite' | 'terrain'>('street');
-  const { calculateItineraryRoutes } = useOSRMDirections();
+  const { calculateItineraryRoutes, calculateTransferRoutes } = useOSRMDirections();
   const [routeSegments, setRouteSegments] = useState<any[]>([]);
+  const [transferRoutes, setTransferRoutes] = useState<any[]>([]);
   const { activeRoute, currentLeg } = useActiveRoute();
   const { currentPosition } = useTravelModeContext();
 
@@ -185,23 +186,9 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     let globalOrder = 1;
 
     displayItinerary.forEach(day => {
-      // Process regular places, hotels, and transfers
+      // Process regular places and hotels (skip transfers - they'll be handled separately as routes)
       day.places.forEach(place => {
-        if (place.category === 'transfer') {
-          // Handle transfers
-          places.push({
-            lat: place.lat,
-            lng: place.lng,
-            name: place.name,
-            day: day.day,
-            order: globalOrder++,
-            type: 'transfer',
-            transportMode: place.transport_mode || 'walk',
-            distance: place.distance_km,
-            duration: place.estimated_time,
-            place: place
-          });
-        } else if (place.category === 'hotel' || 
+        if (place.category === 'hotel' ||
                    (day.base && place.name.toLowerCase().includes('hotel')) ||
                    (day.base && place.name.toLowerCase().includes('check-in'))) {
           // Handle hotels (including check-in activities)
@@ -340,8 +327,6 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                 icon = createSuggestionIcon('#10b981');
               } else if (place.type === 'hotel') {
                 icon = createHotelIcon(place.autoRecommended || false);
-              } else if (place.type === 'transfer') {
-                icon = createTransferIcon(place.transportMode || 'walk');
               } else {
                 // Regular numbered icon for attractions/places
                 icon = createNumberedIcon(place.order);
@@ -367,17 +352,6 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                         </div>
                       )}
                       
-                      {place.type === 'transfer' && (
-                        <div className="text-muted-foreground">
-                          Día {place.day} - Transfer ({place.transportMode})
-                          {place.distance && (
-                            <div className="text-xs mt-1">
-                              📍 Distancia: {place.distance}km • Duración: {place.duration}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
                       {place.type === 'place' && (
                         <div className="text-muted-foreground">
                           Día {place.day} - Parada #{place.order}
@@ -395,7 +369,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                         </>
                       )}
                       
-                      {showNavigationControls && place.type !== 'suggestion' && place.type !== 'transfer' && (
+                      {showNavigationControls && place.type !== 'suggestion' && (
                         <div className="mt-2">
                           <Button
                             size="sm"
@@ -453,6 +427,83 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                       {segment.transferType === 'intercity_transfer' && (
                         <div className="text-xs text-red-600 mt-1">
                           ✈️ Transfer intercity
+                        </div>
+                      )}
+                    </div>
+                  </Popup>
+                </Polyline>
+              );
+            })}
+
+            {/* Render transfer routes */}
+            {transferRoutes.map((transferRoute, index) => {
+              const { transfer, route } = transferRoute;
+              
+              if (!route || !route.polyline) {
+                // Fallback to straight line for flights or failed routes
+                return (
+                  <Polyline
+                    key={`transfer-${index}`}
+                    positions={[
+                      [transfer.from_lat, transfer.from_lon],
+                      [transfer.to_lat, transfer.to_lon]
+                    ]}
+                    color={getRouteColor(transfer.mode)}
+                    weight={5}
+                    opacity={0.8}
+                    dashArray={transfer.mode === 'flight' ? '10, 10' : undefined}
+                  >
+                    <Popup>
+                      <div className="text-sm">
+                        <div className="font-semibold">
+                          Transfer: {transfer.from} → {transfer.to}
+                        </div>
+                        <div className="text-muted-foreground">
+                          📍 Distancia: {transfer.distance_km}km
+                        </div>
+                        <div className="text-muted-foreground">
+                          ⏱️ Duración: {transfer.duration_minutes} min
+                        </div>
+                        <div className="text-muted-foreground">
+                          🚗 Modo: {transfer.mode}
+                        </div>
+                        {transfer.overnight && (
+                          <div className="text-orange-600 text-xs mt-1">
+                            🌙 Transfer nocturno
+                          </div>
+                        )}
+                      </div>
+                    </Popup>
+                  </Polyline>
+                );
+              }
+
+              return (
+                <Polyline
+                  key={`transfer-${index}`}
+                  positions={route.polyline}
+                  color={getRouteColor(transfer.mode)}
+                  weight={5}
+                  opacity={0.8}
+                  dashArray={transfer.overnight ? '15, 10' : undefined}
+                >
+                  <Popup>
+                    <div className="text-sm">
+                      <div className="font-semibold">
+                        Transfer: {transfer.from} → {transfer.to}
+                      </div>
+                      <div className="text-muted-foreground">
+                        📍 Distancia: {(route.distance / 1000).toFixed(1)}km
+                      </div>
+                      <div className="text-muted-foreground">
+                        ⏱️ Duración: {Math.round(route.duration / 60)} min
+                      </div>
+                      <div className="text-muted-foreground">
+                        🚗 Modo: {transfer.mode}
+                      </div>
+                      {transfer.overnight && (
+                        <div className="text-orange-600 text-xs mt-1">
+                          🌙 Transfer nocturno
                         </div>
                       )}
                     </div>

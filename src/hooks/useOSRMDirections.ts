@@ -247,9 +247,50 @@ export const useOSRMDirections = () => {
     setErrors(new Map());
   }, []);
 
+  const calculateTransferRoutes = useCallback(async (transfers: Array<{
+    from_lat: number;
+    from_lon: number;
+    to_lat: number;
+    to_lon: number;
+    mode: string;
+    from?: string;
+    to?: string;
+    distance_km?: number;
+    duration_minutes?: number;
+    overnight?: boolean;
+  }>): Promise<Array<{
+    transfer: any;
+    route: DirectionsResult | null;
+  }>> => {
+    const transferRoutes = [];
+    
+    for (const transfer of transfers) {
+      // Skip flights - they don't need road routes
+      if (transfer.mode === 'flight') {
+        transferRoutes.push({ transfer, route: null });
+        continue;
+      }
+
+      const request: DirectionsRequest = {
+        origin: { lat: transfer.from_lat, lng: transfer.from_lon },
+        destination: { lat: transfer.to_lat, lng: transfer.to_lon },
+        mode: transfer.mode === 'drive' ? 'driving' : 
+              transfer.mode === 'walk' ? 'walking' : 
+              transfer.mode === 'bike' ? 'bicycling' : 'driving',
+        language: 'es'
+      };
+
+      const route = await getDirections(request);
+      transferRoutes.push({ transfer, route });
+    }
+
+    return transferRoutes;
+  }, [getDirections]);
+
   return {
     getDirections,
     calculateItineraryRoutes,
+    calculateTransferRoutes,
     isLoading,
     getError,
     clearCache,
