@@ -261,6 +261,28 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     }
   }, [allPlaces, transportMode, calculateItineraryRoutes]);
 
+  // Calculate transfer routes
+  useEffect(() => {
+    const transfers: any[] = [];
+    displayItinerary.forEach(day => {
+      if (day.transfers && day.transfers.length > 0) {
+        transfers.push(...day.transfers);
+      }
+    });
+
+    if (transfers.length > 0) {
+      console.log('Processing transfers:', transfers);
+      calculateTransferRoutes(transfers).then(transferRoutes => {
+        setTransferRoutes(transferRoutes);
+      }).catch(error => {
+        console.error('Error calculating transfer routes:', error);
+        setTransferRoutes([]);
+      });
+    } else {
+      setTransferRoutes([]);
+    }
+  }, [displayItinerary, calculateTransferRoutes]);
+
   const getTileLayerUrl = () => {
     switch (mapStyle) {
       case 'satellite':
@@ -481,7 +503,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
               return (
                 <Polyline
                   key={`transfer-${index}`}
-                  positions={route.polyline}
+                  positions={route.coordinates.map((coord: any) => [coord.lat, coord.lng])}
                   color={getRouteColor(transfer.mode)}
                   weight={5}
                   opacity={0.8}
