@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MapPin, Navigation, Layers } from "lucide-react";
 import { ApiDayItinerary } from "@/types/aiSmartRouteApi";
-import { useGoogleDirections } from "@/hooks/useGoogleDirections";
+import { useOSRMDirections } from "@/hooks/useOSRMDirections";
 import { useActiveRoute } from "@/contexts/ActiveRouteContext";
 import { useTravelModeContext } from "@/contexts/TravelModeContext";
 import { hapticFeedbackService } from "@/services/HapticFeedbackService";
@@ -153,7 +153,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
   onStartNavigation
 }) => {
   const [mapStyle, setMapStyle] = useState<'street' | 'satellite' | 'terrain'>('street');
-  const { calculateItineraryRoutes } = useGoogleDirections();
+  const { calculateItineraryRoutes } = useOSRMDirections();
   const [routeSegments, setRouteSegments] = useState<any[]>([]);
   const { activeRoute, currentLeg } = useActiveRoute();
   const { currentPosition } = useTravelModeContext();
@@ -292,20 +292,21 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     
     switch (mode) {
       case 'driving': 
-      case 'drive': return '#ef4444';
-      case 'transit': return '#10b981';
-      case 'bicycling': return '#f59e0b';
+      case 'drive': return '#ef4444'; // Red for driving
+      case 'transit': return '#10b981'; // Green for transit
+      case 'bicycling': 
+      case 'cycling': return '#f59e0b'; // Orange for cycling
       case 'walk':
       case 'walking':
-      default: return '#3b82f6';
+      default: return '#3b82f6'; // Blue for walking
     }
   };
 
   const getRouteStyle = (transferType?: string) => {
     if (transferType === 'intercity_transfer') {
-      return { weight: 6, opacity: 0.8, dashArray: undefined };
+      return { weight: 5, opacity: 0.8, dashArray: undefined };
     }
-    return { weight: 4, opacity: 0.7, dashArray: '5, 5' };
+    return { weight: 3, opacity: 0.7, dashArray: undefined };
   };
 
   if (allPlaces.length === 0) {
@@ -426,7 +427,37 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                   weight={routeStyle.weight}
                   opacity={routeStyle.opacity}
                   dashArray={routeStyle.dashArray}
-                />
+                  eventHandlers={{
+                    click: () => {
+                      console.log(`Route: ${segment.from} → ${segment.to}`, {
+                        mode: segment.mode,
+                        distance: segment.result.distance,
+                        duration: segment.result.duration
+                      });
+                    }
+                  }}
+                >
+                  <Popup>
+                    <div className="text-sm">
+                      <div className="font-semibold">📍 {segment.from} → {segment.to}</div>
+                      <div className="text-muted-foreground mt-1">
+                        🚶‍♂️ Modo: {segment.mode === 'walking' ? 'Caminando' : 
+                                      segment.mode === 'driving' ? 'Conduciendo' :
+                                      segment.mode === 'cycling' ? 'Ciclismo' : segment.mode}
+                      </div>
+                      {segment.result.distance !== 'N/A' && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          📏 {segment.result.distance} • 🕒 {segment.result.duration}
+                        </div>
+                      )}
+                      {segment.transferType === 'intercity_transfer' && (
+                        <div className="text-xs text-red-600 mt-1">
+                          ✈️ Transfer intercity
+                        </div>
+                      )}
+                    </div>
+                  </Popup>
+                </Polyline>
               );
             })}
 
