@@ -102,13 +102,8 @@ const AISmartRouteModal = ({
         throw new Error("No places saved in trip");
       }
 
-      const places = workingTrip.savedPlaces.map(place => ({
-        name: place.name,
-        lat: place.lat || 0,
-        lon: place.lng || 0,
-        type: place.category?.toLowerCase() || 'point_of_interest',
-        priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
-      }));
+      // Use the proper formatPlacesForApi function to ensure all fields are included
+      const places = aiRoutesService.formatPlacesForApi(workingTrip.savedPlaces);
 
       // 🔍 DEBUG: Log what we're sending to the API
       console.log("🚀 AI Smart Route DEBUG - Sending to API:", {
@@ -125,14 +120,17 @@ const AISmartRouteModal = ({
       const distanceMatrix = calculateTripDistances(workingTrip);
       const optimizedRoute = calculateOptimizedRoute(workingTrip);
 
-      // Extract accommodations from trip if available
+      // Extract accommodations from trip if available - send empty array for auto-recommendation
       const accommodations = workingTrip.accommodation ? [
         {
           name: workingTrip.accommodation,
           lat: workingTrip.coordinates?.[0]?.lat || 0,
           lon: workingTrip.coordinates?.[0]?.lng || 0,
+          type: 'lodging',
+          rating: 4.0, // Default rating
+          address: workingTrip.accommodation
         }
-      ] : undefined;
+      ] : []; // Empty array triggers auto-recommendation according to API docs
 
       // Prepare request parameters
       const requestParams = {
@@ -156,6 +154,11 @@ const AISmartRouteModal = ({
           receivedDays: response.itinerary?.length || 0,
           totalReceivedPlaces: response.itinerary?.reduce((sum, day) => sum + (day.places?.length || 0), 0) || 0,
           optimizationMetrics: response.optimization_metrics,
+          hotelsAutoRecommended: response.itinerary?.some(day => day.base?.auto_recommended) || false,
+          autoRecommendedHotels: response.itinerary?.filter(day => day.base?.auto_recommended).map(day => ({
+            name: day.base.name,
+            source: day.base.recommendation_source
+          })) || [],
           fullResponse: response
         });
 
@@ -213,7 +216,14 @@ const AISmartRouteModal = ({
             aiRecommendedDuration: place.recommended_duration,
             bestTimeToVisit: place.best_time,
             orderInRoute: place.order,
-            destinationName: workingTrip.destination
+            destinationName: workingTrip.destination,
+            // Include transfer-specific data when available
+            ...(place.from_lat && { fromLat: place.from_lat }),
+            ...(place.from_lng && { fromLng: place.from_lng }),
+            ...(place.to_lat && { toLat: place.to_lat }),
+            ...(place.to_lng && { toLng: place.to_lng }),
+            ...(place.distance_km && { distanceKm: place.distance_km }),
+            ...(place.transport_mode && { transportMode: place.transport_mode })
           })),
           totalTime: day.total_time,
           walkingTime: day.walking_time,
@@ -225,7 +235,12 @@ const AISmartRouteModal = ({
           // Store V2 specific data for rendering
           transfers: day.transfers,
           base: day.base,
-          freeBlocks: day.free_blocks
+          freeBlocks: day.free_blocks,
+          // Log hotel auto-recommendation status
+          ...(day.base?.auto_recommended && {
+            hotelAutoRecommended: day.base.auto_recommended,
+            hotelRecommendationSource: day.base.recommendation_source
+          })
         }));
 
         // For V2 API, use the complete response directly since it already includes all days
@@ -234,11 +249,17 @@ const AISmartRouteModal = ({
         setApiRecommendations(response.recommendations);
         setRouteGenerated(true);
 
+        // Check if hotels were auto-recommended and show appropriate message
+        const hasAutoRecommendedHotels = response.itinerary?.some(day => day.base?.auto_recommended);
+        const autoRecommendedCount = response.itinerary?.filter(day => day.base?.auto_recommended).length || 0;
+        
         toast({
           title: "AI Smart Route Generated!",
           description: response.optimization_metrics.fallback_active 
             ? "Route generated with limited optimization. Try again for better results."
-            : "Your intelligent route has been optimized using advanced AI algorithms.",
+            : hasAutoRecommendedHotels 
+              ? `Your intelligent route has been optimized with ${autoRecommendedCount} hotels automatically recommended.`
+              : "Your intelligent route has been optimized using advanced AI algorithms.",
         });
         return;
       } catch (v2Error) {

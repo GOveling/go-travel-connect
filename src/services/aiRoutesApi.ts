@@ -112,9 +112,16 @@ export const aiRoutesService = {
       ...(place.placeReference && { place_id: place.placeReference }), // Include place_id for API V2 when available
       name: place.name,
       lat: place.lat || 0,
-      lon: place.lng || 0,
-      type: place.category?.toLowerCase() || 'point_of_interest',
-      priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3
+      lon: place.lng || 0, // Correct field name for API V2
+      type: place.category?.toLowerCase() || 'tourist_attraction',
+      priority: place.priority === 'high' ? 8 : place.priority === 'medium' ? 5 : 3,
+      // Include optional fields when available
+      ...(place.rating && { rating: place.rating }),
+      ...(place.formattedAddress && { address: place.formattedAddress }),
+      ...(place.category && { category: place.category.toLowerCase() }),
+      ...(place.description && { description: place.description }),
+      // Map estimated time from savedPlace if available
+      ...(place.estimatedTime && { estimated_time: place.estimatedTime })
     }));
   },
 

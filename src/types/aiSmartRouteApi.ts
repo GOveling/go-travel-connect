@@ -15,19 +15,34 @@ export interface ApiPlace {
   best_time: string;
   order: number;
   is_intercity: boolean;
+  quality_flag?: string | null;
+  // Transfer-specific fields when category is "transfer"
+  from_lat?: number;
+  from_lng?: number;
+  to_lat?: number;
+  to_lng?: number;
+  from_place?: string;
+  to_place?: string;
+  distance_km?: number;
+  transport_mode?: string;
 }
 
 export interface Transfer {
   type: "intercity_transfer";
   from: string;
   to: string;
+  from_lat: number;
+  from_lon: number;
+  to_lat: number;
+  to_lon: number;
   distance_km: number;
   duration_minutes: number;
   mode: "flight" | "drive" | "transit" | "walk" | "bike";
   time: string;
   overnight: boolean;
-  has_activity: boolean;
-  is_between_days: boolean;
+  has_activity?: boolean;
+  is_between_days?: boolean;
+  description?: string;
 }
 
 export interface BaseAccommodation {
@@ -36,8 +51,12 @@ export interface BaseAccommodation {
   lon: number;
   address: string;
   rating: number;
-  type: "hotel_from_cluster" | "virtual_base" | "smart_centroid";
-  reference_place: string | null;
+  type: "accommodation" | "hotel_from_cluster" | "virtual_base" | "smart_centroid";
+  place_id?: string;
+  price_level?: number;
+  auto_recommended: boolean;
+  recommendation_source: "auto_recommended_by_system" | "user_provided" | "auto_detected_in_original_places";
+  reference_place?: string | null;
 }
 
 export interface FreeBlockSuggestion {
@@ -49,6 +68,12 @@ export interface FreeBlockSuggestion {
   eta_minutes: number;
   reason: string;
   synthetic: boolean;
+  source: string;
+  place_id?: string;
+  vicinity?: string;
+  user_ratings_total?: number;
+  distance_km: number;
+  price_level?: number;
 }
 
 export interface FreeBlock {
@@ -108,12 +133,19 @@ export interface ApiItineraryResponse {
 
 export interface GenerateHybridItineraryParamsV2 {
   places: Array<{
-    place_id?: string; // New requirement for API V2
+    place_id?: string; // Google Places ID when available
     name: string;
     lat: number;
     lon: number;
     type: string;
+    rating?: number;
+    address?: string;
+    category?: string;
+    description?: string;
+    estimated_time?: string;
     priority: number;
+    user_ratings_total?: number;
+    price_level?: number;
   }>;
   start_date: string;
   end_date: string;
@@ -124,5 +156,9 @@ export interface GenerateHybridItineraryParamsV2 {
     name: string;
     lat: number;
     lon: number;
+    place_id?: string;
+    type?: string;
+    rating?: number;
+    address?: string;
   }>;
 }
