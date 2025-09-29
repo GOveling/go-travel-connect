@@ -51,6 +51,64 @@ const createNumberedIcon = (number: number, color: string = '#3b82f6') => {
   });
 };
 
+// Custom hotel marker icons
+const createHotelIcon = (autoRecommended: boolean) => {
+  const icon = autoRecommended ? '🏠' : '🏨';
+  const color = autoRecommended ? '#2563eb' : '#6b7280';
+  
+  return L.divIcon({
+    html: `<div style="
+      background-color: ${color};
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    ">${icon}</div>`,
+    className: 'custom-div-icon',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+  });
+};
+
+// Custom transfer marker icons
+const createTransferIcon = (transportMode: string) => {
+  const getTransferIcon = (mode: string) => {
+    switch (mode) {
+      case 'drive': return '🚗';
+      case 'transit': return '🚌';
+      case 'walk': return '🚶';
+      default: return '🚗';
+    }
+  };
+  
+  return L.divIcon({
+    html: `<div style="
+      background-color: #f59e0b;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      border: 2px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    ">${getTransferIcon(transportMode)}</div>`,
+    className: 'custom-div-icon',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
+};
+
 // Custom suggestion marker icon
 const createSuggestionIcon = (color: string = '#10b981') => {
   return L.divIcon({
@@ -108,22 +166,70 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     return itinerary;
   }, [itinerary, selectedDay]);
 
-  // Extract all places with coordinates and suggestions for days without places
+  // Extract all places with coordinates and categorize them
   const allPlaces = useMemo(() => {
-    const places: Array<{ lat: number; lng: number; name: string; day: number; order: number; type: 'place' | 'suggestion' }> = [];
+    const places: Array<{ 
+      lat: number; 
+      lng: number; 
+      name: string; 
+      day: number; 
+      order: number; 
+      type: 'place' | 'hotel' | 'transfer' | 'suggestion';
+      autoRecommended?: boolean;
+      transportMode?: string;
+      category?: string;
+      distance?: number;
+      duration?: string;
+      place?: any;
+    }> = [];
     let globalOrder = 1;
 
     displayItinerary.forEach(day => {
-      // Add regular places
+      // Process regular places, hotels, and transfers
       day.places.forEach(place => {
-        places.push({
-          lat: place.lat,
-          lng: place.lng,
-          name: place.name,
-          day: day.day,
-          order: globalOrder++,
-          type: 'place'
-        });
+        if (place.category === 'transfer') {
+          // Handle transfers
+          places.push({
+            lat: place.lat,
+            lng: place.lng,
+            name: place.name,
+            day: day.day,
+            order: globalOrder++,
+            type: 'transfer',
+            transportMode: place.transport_mode || 'walk',
+            distance: place.distance_km,
+            duration: place.estimated_time,
+            place: place
+          });
+        } else if (place.category === 'hotel' || 
+                   (day.base && place.name.toLowerCase().includes('hotel')) ||
+                   (day.base && place.name.toLowerCase().includes('check-in'))) {
+          // Handle hotels (including check-in activities)
+          const autoRecommended = day.base?.auto_recommended || false;
+          places.push({
+            lat: place.lat,
+            lng: place.lng,
+            name: place.name,
+            day: day.day,
+            order: globalOrder++,
+            type: 'hotel',
+            autoRecommended: autoRecommended,
+            category: place.category,
+            place: place
+          });
+        } else {
+          // Handle regular places/attractions
+          places.push({
+            lat: place.lat,
+            lng: place.lng,
+            name: place.name,
+            day: day.day,
+            order: globalOrder++,
+            type: 'place',
+            category: place.category,
+            place: place
+          });
+        }
       });
 
       // Add suggestions only for days without places
@@ -136,7 +242,8 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
               name: suggestion.name,
               day: day.day,
               order: globalOrder++,
-              type: 'suggestion'
+              type: 'suggestion',
+              place: suggestion
             });
           });
         });
@@ -178,13 +285,27 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     }
   };
 
-  const getRouteColor = (mode: string) => {
+  const getRouteColor = (mode: string, transferType?: string) => {
+    if (transferType === 'intercity_transfer') {
+      return '#dc2626'; // Red for intercity transfers
+    }
+    
     switch (mode) {
-      case 'driving': return '#ef4444';
+      case 'driving': 
+      case 'drive': return '#ef4444';
       case 'transit': return '#10b981';
       case 'bicycling': return '#f59e0b';
+      case 'walk':
+      case 'walking':
       default: return '#3b82f6';
     }
+  };
+
+  const getRouteStyle = (transferType?: string) => {
+    if (transferType === 'intercity_transfer') {
+      return { weight: 6, opacity: 0.8, dashArray: undefined };
+    }
+    return { weight: 4, opacity: 0.7, dashArray: '5, 5' };
   };
 
   if (allPlaces.length === 0) {
@@ -210,56 +331,104 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
             <TileLayer url={getTileLayerUrl()} />
             
             {/* Render markers */}
-            {allPlaces.map((place, index) => (
-              <Marker
-                key={`${place.day}-${index}`}
-                position={[place.lat, place.lng]}
-                icon={place.type === 'suggestion' 
-                  ? createSuggestionIcon('#10b981') 
-                  : createNumberedIcon(place.order)
-                }
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <div className="font-semibold">{place.name}</div>
-                    <div className="text-muted-foreground">
-                      Día {place.day} - {place.type === 'suggestion' ? 'AI Suggestion' : `Parada #${place.order}`}
+            {allPlaces.map((place, index) => {
+              let icon;
+              
+              // Select appropriate icon based on place type
+              if (place.type === 'suggestion') {
+                icon = createSuggestionIcon('#10b981');
+              } else if (place.type === 'hotel') {
+                icon = createHotelIcon(place.autoRecommended || false);
+              } else if (place.type === 'transfer') {
+                icon = createTransferIcon(place.transportMode || 'walk');
+              } else {
+                // Regular numbered icon for attractions/places
+                icon = createNumberedIcon(place.order);
+              }
+
+              return (
+                <Marker
+                  key={`${place.day}-${index}`}
+                  position={[place.lat, place.lng]}
+                  icon={icon}
+                >
+                  <Popup>
+                    <div className="text-sm">
+                      <div className="font-semibold">{place.name}</div>
+                      
+                      {place.type === 'hotel' && (
+                        <div className="text-muted-foreground">
+                          Día {place.day} - Hotel {place.autoRecommended && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 ml-1">
+                              Auto-recomendado 🏠
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      
+                      {place.type === 'transfer' && (
+                        <div className="text-muted-foreground">
+                          Día {place.day} - Transfer ({place.transportMode})
+                          {place.distance && (
+                            <div className="text-xs mt-1">
+                              📍 Distancia: {place.distance}km • Duración: {place.duration}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {place.type === 'place' && (
+                        <div className="text-muted-foreground">
+                          Día {place.day} - Parada #{place.order}
+                        </div>
+                      )}
+                      
+                      {place.type === 'suggestion' && (
+                        <>
+                          <div className="text-muted-foreground">
+                            Día {place.day} - AI Suggestion
+                          </div>
+                          <div className="text-xs text-emerald-600 mt-1">
+                            💡 Recommended for your free time
+                          </div>
+                        </>
+                      )}
+                      
+                      {showNavigationControls && place.type !== 'suggestion' && place.type !== 'transfer' && (
+                        <div className="mt-2">
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              await hapticFeedbackService.trigger('navigation_start');
+                              onStartNavigation?.(place);
+                            }}
+                            className="text-xs"
+                          >
+                            <Navigation className="h-3 w-3 mr-1" />
+                            Navegar aquí
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                    {place.type === 'suggestion' && (
-                      <div className="text-xs text-emerald-600 mt-1">
-                        💡 Recommended for your free time
-                      </div>
-                    )}
-                    {showNavigationControls && place.type === 'place' && (
-                      <div className="mt-2">
-                        <Button
-                          size="sm"
-                          onClick={async () => {
-                            await hapticFeedbackService.trigger('navigation_start');
-                            onStartNavigation?.(place);
-                          }}
-                          className="text-xs"
-                        >
-                          <Navigation className="h-3 w-3 mr-1" />
-                          Navegar aquí
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+                  </Popup>
+                </Marker>
+              );
+            })}
 
             {/* Render route lines */}
-            {routeSegments.map((segment, index) => (
-              <Polyline
-                key={index}
-                positions={segment.result.coordinates.map((coord: any) => [coord.lat, coord.lng])}
-                color={getRouteColor(segment.mode)}
-                weight={4}
-                opacity={0.7}
-              />
-            ))}
+            {routeSegments.map((segment, index) => {
+              const routeStyle = getRouteStyle(segment.transferType);
+              return (
+                <Polyline
+                  key={index}
+                  positions={segment.result.coordinates.map((coord: any) => [coord.lat, coord.lng])}
+                  color={getRouteColor(segment.mode, segment.transferType)}
+                  weight={routeStyle.weight}
+                  opacity={routeStyle.opacity}
+                  dashArray={routeStyle.dashArray}
+                />
+              );
+            })}
 
             {/* Render active route if available */}
             {currentLeg && currentLeg.result.coordinates && (
