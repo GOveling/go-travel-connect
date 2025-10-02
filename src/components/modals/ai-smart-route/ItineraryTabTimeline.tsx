@@ -59,21 +59,6 @@ const ItineraryTabTimeline = ({
           </p>
         </div>
 
-        <div className="flex flex-col">
-          <span className="text-sm font-medium text-gray-600 mb-2">
-            Tipo de Ruta:
-          </span>
-          <Select value={selectedRouteType} onValueChange={onRouteTypeChange}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="current">Ruta Actual</SelectItem>
-              <SelectItem value="speed">Ruta Rápida</SelectItem>
-              <SelectItem value="leisure">Ruta Relajada</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       {/* Timeline Itinerary */}
