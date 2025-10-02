@@ -54,28 +54,6 @@ const MultiDestinationWarning = ({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            Destinos por Región
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {analysis.groups.map((group, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-sm">{group.region}</p>
-                <p className="text-xs text-muted-foreground">{group.country}</p>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                {group.places.length} lugares
-              </Badge>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle className="text-sm">Modo de Transporte Recomendado</CardTitle>
         </CardHeader>
         <CardContent>
@@ -103,24 +81,6 @@ const MultiDestinationWarning = ({
           )}
         </CardContent>
       </Card>
-
-      {analysis.suggestions.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Sugerencias</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-1">
-              {analysis.suggestions.map((suggestion, index) => (
-                <li key={index} className="text-xs text-muted-foreground flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
