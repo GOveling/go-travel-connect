@@ -216,14 +216,7 @@ const AISmartRouteModal = ({
             aiRecommendedDuration: place.recommended_duration,
             bestTimeToVisit: place.best_time,
             orderInRoute: place.order,
-            destinationName: workingTrip.destination,
-            // Include transfer-specific data when available
-            ...(place.from_lat && { fromLat: place.from_lat }),
-            ...(place.from_lng && { fromLng: place.from_lng }),
-            ...(place.to_lat && { toLat: place.to_lat }),
-            ...(place.to_lng && { toLng: place.to_lng }),
-            ...(place.distance_km && { distanceKm: place.distance_km }),
-            ...(place.transport_mode && { transportMode: place.transport_mode })
+            destinationName: workingTrip.destination
           })),
           totalTime: day.total_time,
           walkingTime: day.walking_time,

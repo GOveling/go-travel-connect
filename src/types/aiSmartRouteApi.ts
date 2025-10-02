@@ -1,5 +1,6 @@
 // New API types for AI Smart Route V2 - keeps existing types unaffected
 
+// ApiPlace now only contains activity/place data (no transfers)
 export interface ApiPlace {
   id: string;
   name: string;
@@ -16,15 +17,33 @@ export interface ApiPlace {
   order: number;
   is_intercity: boolean;
   quality_flag?: string | null;
-  // Transfer-specific fields when category is "transfer"
-  from_lat?: number;
-  from_lng?: number;
-  to_lat?: number;
-  to_lng?: number;
-  from_place?: string;
-  to_place?: string;
-  distance_km?: number;
-  transport_mode?: string;
+}
+
+// Transfer interface for day.transfers array
+export interface ApiTransfer {
+  id: string;
+  name: string;
+  category: "transfer";
+  rating: number;
+  image: string;
+  description: string;
+  estimated_time: string;
+  priority: number;
+  lat: number;
+  lng: number;
+  recommended_duration: string;
+  best_time: string | null;
+  is_intercity: boolean;
+  quality_flag?: string | null;
+  from_lat: number;
+  from_lng: number;
+  to_lat: number;
+  to_lng: number;
+  from_place: string;
+  to_place: string;
+  distance_km: number;
+  transport_mode: string;
+  transfer_order: number;
 }
 
 export interface Transfer {
@@ -114,7 +133,9 @@ export interface ApiDayItinerary {
   day: number;
   date: string;
   places: ApiPlace[];
-  transfers: Transfer[];
+  transfers: ApiTransfer[];
+  total_places: number;
+  total_transfers: number;
   base: BaseAccommodation;
   free_blocks: FreeBlock[];
   total_time: string;

@@ -77,37 +77,7 @@ const createHotelIcon = (autoRecommended: boolean) => {
   });
 };
 
-// Custom transfer marker icons
-const createTransferIcon = (transportMode: string) => {
-  const getTransferIcon = (mode: string) => {
-    switch (mode) {
-      case 'drive': return '🚗';
-      case 'transit': return '🚌';
-      case 'walk': return '🚶';
-      default: return '🚗';
-    }
-  };
-  
-  return L.divIcon({
-    html: `<div style="
-      background-color: #f59e0b;
-      color: white;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
-      border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    ">${getTransferIcon(transportMode)}</div>`,
-    className: 'custom-div-icon',
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-  });
-};
+// Removed createTransferIcon - transfers are now shown as routes, not markers
 
 // Custom suggestion marker icon
 const createSuggestionIcon = (color: string = '#10b981') => {
@@ -186,7 +156,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     let globalOrder = 1;
 
     displayItinerary.forEach(day => {
-      // Process regular places and hotels (skip transfers - they'll be handled separately as routes)
+      // Process only regular places (transfers are handled separately as routes)
       day.places.forEach(place => {
         if (place.category === 'hotel' ||
                    (day.base && place.name.toLowerCase().includes('hotel')) ||
@@ -205,7 +175,7 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
             place: place
           });
         } else {
-          // Handle regular places/attractions
+          // Handle regular places/attractions (no transfers in places[] anymore)
           places.push({
             lat: place.lat,
             lng: place.lng,
@@ -261,18 +231,26 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     }
   }, [allPlaces, transportMode, calculateItineraryRoutes]);
 
-  // Calculate transfer routes
+  // Calculate transfer routes from day.transfers array
   useEffect(() => {
     const transfers: any[] = [];
     displayItinerary.forEach(day => {
       if (day.transfers && day.transfers.length > 0) {
-        transfers.push(...day.transfers);
+        // Map from_lng/to_lng to from_lon/to_lon for OSRM hook
+        const mappedTransfers = day.transfers.map(t => ({
+          ...t,
+          from_lon: t.from_lng,
+          to_lon: t.to_lng,
+          mode: t.transport_mode
+        }));
+        transfers.push(...mappedTransfers);
       }
     });
 
     if (transfers.length > 0) {
-      console.log('Processing transfers:', transfers);
+      console.log('Processing transfers from day.transfers:', transfers);
       calculateTransferRoutes(transfers).then(transferRoutes => {
+        console.log('Transfer routes calculated:', transferRoutes);
         setTransferRoutes(transferRoutes);
       }).catch(error => {
         console.error('Error calculating transfer routes:', error);
@@ -311,10 +289,12 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     }
   };
 
-  const getRouteStyle = (transferType?: string) => {
-    if (transferType === 'intercity_transfer') {
-      return { weight: 5, opacity: 0.8, dashArray: undefined };
+  const getRouteStyle = (transfer?: any) => {
+    // Intercity transfers (long distance) are thicker
+    if (transfer?.distance_km && transfer.distance_km > 50) {
+      return { weight: 6, opacity: 0.9, dashArray: undefined };
     }
+    // Local transfers are thinner
     return { weight: 3, opacity: 0.7, dashArray: undefined };
   };
 
@@ -457,41 +437,45 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
               );
             })}
 
-            {/* Render transfer routes */}
+            {/* Render transfer routes from day.transfers */}
             {transferRoutes.map((transferRoute, index) => {
               const { transfer, route } = transferRoute;
+              const routeStyle = getRouteStyle(transfer);
+              const isIntercity = transfer.distance_km && transfer.distance_km > 50;
               
-              if (!route || !route.polyline) {
-                // Fallback to straight line for flights or failed routes
+              if (!route || !route.coordinates || route.coordinates.length === 0) {
+                // Fallback to straight line for flights or failed OSRM routes
                 return (
                   <Polyline
-                    key={`transfer-${index}`}
+                    key={`transfer-fallback-${index}`}
                     positions={[
-                      [transfer.from_lat, transfer.from_lon],
-                      [transfer.to_lat, transfer.to_lon]
+                      [transfer.from_lat, transfer.from_lng],
+                      [transfer.to_lat, transfer.to_lng]
                     ]}
-                    color={getRouteColor(transfer.mode)}
-                    weight={5}
-                    opacity={0.8}
-                    dashArray={transfer.mode === 'flight' ? '10, 10' : undefined}
+                    color={getRouteColor(transfer.transport_mode)}
+                    weight={routeStyle.weight}
+                    opacity={routeStyle.opacity}
+                    dashArray={transfer.transport_mode === 'flight' ? '10, 10' : undefined}
                   >
                     <Popup>
                       <div className="text-sm">
                         <div className="font-semibold">
-                          Transfer: {transfer.from} → {transfer.to}
+                          🔄 Transfer #{transfer.transfer_order}: {transfer.name}
+                        </div>
+                        {transfer.from_place && transfer.to_place && (
+                          <div className="text-muted-foreground text-xs mt-1">
+                            {transfer.from_place} → {transfer.to_place}
+                          </div>
+                        )}
+                        <div className="text-muted-foreground mt-1">
+                          📍 Distancia: {transfer.distance_km?.toFixed(1)}km
                         </div>
                         <div className="text-muted-foreground">
-                          📍 Distancia: {transfer.distance_km}km
+                          🚗 Modo: {transfer.transport_mode}
                         </div>
-                        <div className="text-muted-foreground">
-                          ⏱️ Duración: {transfer.duration_minutes} min
-                        </div>
-                        <div className="text-muted-foreground">
-                          🚗 Modo: {transfer.mode}
-                        </div>
-                        {transfer.overnight && (
-                          <div className="text-orange-600 text-xs mt-1">
-                            🌙 Transfer nocturno
+                        {isIntercity && (
+                          <div className="text-red-600 text-xs mt-1 font-semibold">
+                            ✈️ Transfer intercity
                           </div>
                         )}
                       </div>
@@ -500,32 +484,37 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                 );
               }
 
+              // Render actual OSRM route
               return (
                 <Polyline
-                  key={`transfer-${index}`}
+                  key={`transfer-route-${index}`}
                   positions={route.coordinates.map((coord: any) => [coord.lat, coord.lng])}
-                  color={getRouteColor(transfer.mode)}
-                  weight={5}
-                  opacity={0.8}
-                  dashArray={transfer.overnight ? '15, 10' : undefined}
+                  color={getRouteColor(transfer.transport_mode)}
+                  weight={routeStyle.weight}
+                  opacity={routeStyle.opacity}
                 >
                   <Popup>
                     <div className="text-sm">
                       <div className="font-semibold">
-                        Transfer: {transfer.from} → {transfer.to}
+                        🔄 Transfer #{transfer.transfer_order}: {transfer.name}
+                      </div>
+                      {transfer.from_place && transfer.to_place && (
+                        <div className="text-muted-foreground text-xs mt-1">
+                          {transfer.from_place} → {transfer.to_place}
+                        </div>
+                      )}
+                      <div className="text-muted-foreground mt-1">
+                        📍 {route.distance}
                       </div>
                       <div className="text-muted-foreground">
-                        📍 Distancia: {(route.distance / 1000).toFixed(1)}km
+                        ⏱️ {route.duration}
                       </div>
                       <div className="text-muted-foreground">
-                        ⏱️ Duración: {Math.round(route.duration / 60)} min
+                        🚗 Modo: {transfer.transport_mode}
                       </div>
-                      <div className="text-muted-foreground">
-                        🚗 Modo: {transfer.mode}
-                      </div>
-                      {transfer.overnight && (
-                        <div className="text-orange-600 text-xs mt-1">
-                          🌙 Transfer nocturno
+                      {isIntercity && (
+                        <div className="text-red-600 text-xs mt-1 font-semibold">
+                          ✈️ Transfer intercity ({transfer.distance_km?.toFixed(0)}km)
                         </div>
                       )}
                     </div>
