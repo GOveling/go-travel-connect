@@ -438,22 +438,6 @@ const AISmartRouteModal = ({
                   />
                 )}
                 
-                {/* Smart Transport Selector */}
-                {multiDestinationAnalysis?.isMultiDestination && (
-                  <SmartTransportSelector
-                    analysis={multiDestinationAnalysis}
-                    currentMode={currentTransportMode}
-                    onModeChange={(mode) => setCurrentTransportMode(mode as 'walk' | 'drive' | 'transit' | 'bike')}
-                    maxDistance={multiDestinationAnalysis.maxDistanceKm}
-                  />
-                )}
-                
-                {/* API Debug Panel */}
-                <APIDebugPanel
-                  debugInfo={apiDebugInfo}
-                  isVisible={showDebugPanel}
-                  onToggle={() => setShowDebugPanel(!showDebugPanel)}
-                />
                 
                 <InitialView
                   trip={workingTrip}
