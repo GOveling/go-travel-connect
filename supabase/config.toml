@@ -76,3 +76,6 @@ port = 54324
 image_transformation = {
   enabled = true
 }
+
+[functions.weather-service]
+verify_jwt = false

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LocationCoordinates } from "../services/types";
-import { weatherService } from "../services/weatherService";
+import { supabase } from "../integrations/supabase/client";
 import { RootState } from "../store";
 import {
   setWeatherData,
@@ -79,10 +79,16 @@ export const useWeatherData = () => {
           `🌤️ WeatherData: Obteniendo clima... ${isRetry ? "(reintento)" : ""}`
         );
 
-        const newWeatherData = await weatherService.getCurrentWeather(
-          coordinates,
-          city
-        );
+        // Call Supabase Edge Function directly
+        const { data, error } = await supabase.functions.invoke('weather-service', {
+          body: { coordinates, city }
+        });
+
+        if (error) {
+          throw new Error(error.message || 'Weather service error');
+        }
+
+        const newWeatherData = data;
 
         const isSameData =
           currentData &&

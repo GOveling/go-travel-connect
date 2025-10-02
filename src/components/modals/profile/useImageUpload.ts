@@ -8,6 +8,63 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
 
+  const compressAvatar = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      if (!ctx) {
+        reject(new Error("Could not get canvas context"));
+        return;
+      }
+
+      img.onload = () => {
+        // Avatar optimized dimensions: 400x400px max
+        const maxSize = 400;
+        let { width, height } = img;
+
+        // Calculate square crop dimensions (center crop)
+        const size = Math.min(width, height);
+        const offsetX = (width - size) / 2;
+        const offsetY = (height - size) / 2;
+
+        // Scale down if necessary
+        const scale = Math.min(maxSize / size, 1);
+        const finalSize = Math.round(size * scale);
+
+        canvas.width = finalSize;
+        canvas.height = finalSize;
+
+        // Draw cropped and scaled image
+        ctx.drawImage(
+          img,
+          offsetX, offsetY, size, size,
+          0, 0, finalSize, finalSize
+        );
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              reject(new Error("Failed to compress image"));
+            }
+          },
+          "image/jpeg",
+          0.85 // 85% quality for avatars
+        );
+      };
+
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const uploadImageToSupabase = async (file: File): Promise<string | null> => {
     if (!user) {
       console.error("No user found");
@@ -64,13 +121,20 @@ export const useImageUpload = (onImageChange: (imageUrl: string) => void) => {
 
     setIsUploading(true);
     try {
-      const imageUrl = await uploadImageToSupabase(file);
+      // Compress the image before uploading
+      const originalSize = (file.size / 1024).toFixed(1);
+      const compressedFile = await compressAvatar(file);
+      const compressedSize = (compressedFile.size / 1024).toFixed(1);
+      
+      console.log(`Avatar compressed: ${originalSize}KB → ${compressedSize}KB`);
+      
+      const imageUrl = await uploadImageToSupabase(compressedFile);
 
       if (imageUrl) {
         onImageChange(imageUrl);
         toast({
           title: "Éxito",
-          description: "Imagen subida correctamente",
+          description: `Avatar optimizado (${originalSize}KB → ${compressedSize}KB) y subido correctamente`,
         });
       } else {
         toast({

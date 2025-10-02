@@ -39,6 +39,7 @@ import {
   ExternalLink,
   Hotel,
   MapPin,
+  MessageCircle,
   Plane,
   Share2,
   UserPlus,
@@ -48,6 +49,7 @@ import { useEffect, useMemo, useState } from "react";
 import { EditTripModal } from "./EditTripModal";
 import InviteFriendsModal from "./InviteFriendsModal";
 import { TripLocationsModal } from "./TripLocationsModal";
+import { TripChatModal } from "@/components/trips/TripChatModal";
 
 import { SavedPlace, Trip, TripCoordinate } from "@/types";
 import PlaceDetailModal from "./PlaceDetailModal";
@@ -111,6 +113,7 @@ const TripDetailModal = ({
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
   const [showLocationsModal, setShowLocationsModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
   const [userRole, setUserRole] = useState<string>("viewer");
   const [memberCount, setMemberCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -1184,10 +1187,10 @@ const TripDetailModal = ({
                     <>
                       <Button
                         className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
-                        onClick={() => setShowLocationsModal(true)}
+                        onClick={() => setShowChatModal(true)}
                       >
-                        <MapPin size={16} className="mr-2" />
-                        Ubicaciones
+                        <MessageCircle size={16} className="mr-2" />
+                        Chat Grupal
                       </Button>
                       <Button
                         className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
@@ -1340,6 +1343,17 @@ const TripDetailModal = ({
           isOpen={showLocationsModal}
           onClose={() => setShowLocationsModal(false)}
           tripId={trip.id}
+          collaborators={trip.collaborators || []}
+        />
+      )}
+
+      {/* Trip Chat Modal */}
+      {showChatModal && trip && (
+        <TripChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          tripId={trip.id}
+          tripName={trip.name}
           collaborators={trip.collaborators || []}
         />
       )}

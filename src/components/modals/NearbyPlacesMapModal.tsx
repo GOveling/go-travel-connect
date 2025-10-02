@@ -37,17 +37,36 @@ const userIcon = new L.Icon({
   popupAnchor: [0, -12],
 });
 
-// Create numbered icons for nearby places
-const createNumberedIcon = (number: number) => {
+// Create numbered icons for nearby places with distance-based colors
+const createNumberedIcon = (number: number, distance?: number) => {
+  // Colores basados en distancia como en TravelModeMap
+  const color = distance ? (
+    distance < 100 ? '#ef4444' : // Rojo para < 100m
+    distance < 500 ? '#f59e0b' : // Amarillo para < 500m  
+    '#16a34a' // Verde para > 500m
+  ) : '#16a34a';
+
   return new L.Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg width="32" height="42" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 0C7.16 0 0 7.16 0 16C0 24 16 42 16 42S32 24 32 16C32 7.16 24.84 0 16 0Z" fill="#16a34a"/>
-        <circle cx="16" cy="16" r="10" fill="white"/>
-        <text x="16" y="21" text-anchor="middle" fill="#16a34a" font-family="Arial, sans-serif" font-weight="bold" font-size="12">${number}</text>
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="16" fill="${color}"/>
+        <circle cx="16" cy="16" r="14" fill="white" stroke="${color}" stroke-width="2"/>
+        <text x="16" y="21" text-anchor="middle" fill="${color}" font-family="Arial, sans-serif" font-weight="bold" font-size="14">${number}</text>
+        ${distance && distance < 100 ? `
+          <style>
+            @keyframes pulse {
+              0% { r: 16; opacity: 1; }
+              50% { r: 18; opacity: 0.8; }
+              100% { r: 16; opacity: 1; }
+            }
+            circle:first-child {
+              animation: pulse 2s infinite;
+            }
+          </style>
+        ` : ''}
       </svg>
     `)}`,
-    iconSize: [32, 42],
+    iconSize: [32, 32],
     iconAnchor: [16, 42],
     popupAnchor: [0, -42],
   });
@@ -189,27 +208,38 @@ const NearbyPlacesMapModal = ({
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
-            {/* Render nearby places with numbered markers */}
-            {places.map((place, index) => (
+            {/* Render nearby places with numbered markers - sorted by distance */}
+            {places
+              .sort((a, b) => {
+                const distanceA = typeof a.distance === 'number' ? a.distance : 0;
+                const distanceB = typeof b.distance === 'number' ? b.distance : 0;
+                return distanceA - distanceB;
+              }) // Ordenar por distancia (más cercano primero)
+              .map((place, index) => (
               <Marker
                 key={place.id || index}
                 position={[place.lat, place.lng]}
-                icon={createNumberedIcon(index + 1)}
+                icon={createNumberedIcon(index + 1, typeof place.distance === 'number' ? place.distance : undefined)}
               >
                 <Popup>
                   <div className="text-center">
-                    <h3 className="font-semibold text-gray-900">{place.name}</h3>
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <span className="w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                        {index + 1}
+                      </span>
+                      <h3 className="font-semibold text-gray-900">{place.name}</h3>
+                    </div>
                     {place.category && (
                       <p className="text-sm text-gray-600 mt-1">{place.category}</p>
                     )}
                     {place.distance && (
-                      <p className="text-sm text-green-600 font-medium mt-1">
+                      <p className="text-xs text-green-600 font-medium mt-1">
                         {typeof place.distance === 'string' 
                           ? place.distance 
                           : place.distance >= 1000 
                             ? `${(place.distance / 1000).toFixed(1)} km`
                             : `${Math.round(place.distance)} m`
-                        }
+                         }
                       </p>
                     )}
                   </div>

@@ -8,10 +8,10 @@ import { useTravelModeContext } from "@/contexts/TravelModeContext";
 import NearbyPlacesMapModal from "@/components/modals/NearbyPlacesMapModal";
 
 interface NearbyAlertsCardProps {
-  onToggleTravelMode?: () => void;
+  onOpenTravelModeModal?: () => void;
 }
 
-const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
+const NearbyAlertsCard = ({ onOpenTravelModeModal }: NearbyAlertsCardProps) => {
   const { t } = useLanguage();
   const { isTracking, nearbyPlaces, config } = useTravelModeContext();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
@@ -47,7 +47,7 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
             </div>
             <Button
               size="sm"
-              onClick={onToggleTravelMode}
+              onClick={onOpenTravelModeModal}
               className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               {t("home.travelMode.activate")}
@@ -115,7 +115,10 @@ const NearbyAlertsCard = ({ onToggleTravelMode }: NearbyAlertsCardProps) => {
         
         <CardContent className="pt-0">
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {nearbyPlaces.slice(0, 3).map((place, index) => (
+            {nearbyPlaces
+              .sort((a, b) => a.distance - b.distance) // Ordenar por distancia
+              .slice(0, 3)
+              .map((place, index) => (
               <div
                 key={place.id || index}
                 onClick={() => handlePlaceClick(place)}

@@ -99,7 +99,8 @@ async function searchPlacesWithGoogle(
   query: string,
   selectedCategories: string[],
   googleApiKey: string,
-  userLocation?: { lat: number; lng: number }
+  userLocation?: { lat: number; lng: number },
+  searchRadius: number = 5000
 ): Promise<EnhancedPlace[]> {
   const results: EnhancedPlace[] = [];
   const processedPlaceIds = new Set<string>();
@@ -130,15 +131,15 @@ async function searchPlacesWithGoogle(
                   textQuery: `${query} ${category}`,
                   includedType: googleTypes[0], // Use primary type for category
                   languageCode: "en",
-                  maxResultCount: 5,
+                  maxResultCount: 8, // Increased to get more results per category
                   ...(userLocation && {
-                    locationBias: {
+                    locationBias: { // Use bias instead of restriction for more flexible results
                       circle: {
                         center: {
                           latitude: userLocation.lat,
                           longitude: userLocation.lng,
                         },
-                        radius: 1000, // 1km radius
+                        radius: searchRadius,
                       },
                     },
                   }),
@@ -190,15 +191,15 @@ async function searchPlacesWithGoogle(
             body: JSON.stringify({
               textQuery: query,
               languageCode: "en",
-              maxResultCount: 10,
+              maxResultCount: 15, // Increased for general search
               ...(userLocation && {
-                locationBias: {
+                locationBias: { // Use bias instead of restriction for more flexible results
                   circle: {
                     center: {
                       latitude: userLocation.lat,
                       longitude: userLocation.lng,
                     },
-                    radius: 1000, // 1km radius
+                    radius: searchRadius,
                   },
                 },
               }),
@@ -343,6 +344,21 @@ function inferCategoryFromTypes(types: string[]): string {
   return "attraction"; // Default category
 }
 
+// Calculate distance between two points using Haversine formula
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLng = (lng2 - lng1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 // Fallback to Gemini if Google Places fails or returns insufficient results
 async function fallbackToGemini(
   query: string,
@@ -422,23 +438,53 @@ serve(async (req) => {
 
     let results: EnhancedPlace[] = [];
 
-    // Try Google Places API first
+    // For nearby searches, use a wider search first then filter by distance
+    let initialSearchRadius = userLocation ? 5000 : 5000; // Start with 5km for both
+    
     if (googleApiKey) {
       try {
         results = await searchPlacesWithGoogle(
           input,
           selectedCategories,
           googleApiKey,
-          userLocation
+          userLocation,
+          initialSearchRadius
         );
-        console.log(`Google Places returned ${results.length} results`);
+        console.log(`Google Places returned ${results.length} results with ${initialSearchRadius}m radius`);
+        
+        // If nearby search is active, filter results by distance after getting broader results
+        if (userLocation && results.length > 0) {
+          const nearbyResults = results.filter(place => {
+            if (!place.coordinates) return false;
+            
+            const distance = calculateDistance(
+              userLocation.lat,
+              userLocation.lng,
+              place.coordinates.lat,
+              place.coordinates.lng
+            );
+            
+            console.log(`Place: ${place.name}, Distance: ${distance.toFixed(2)}km`);
+            return distance <= 5.0; // 5km radius for nearby results
+          });
+          
+          console.log(`Filtered to ${nearbyResults.length} nearby results within 5km`);
+          
+          // If less than 2 results within 5km, keep all results from broader search
+          if (nearbyResults.length < 2) {
+            console.log("Less than 2 results within 5km, keeping all results from broader search");
+            // Keep all results from the initial search
+          } else {
+            results = nearbyResults;
+          }
+        }
       } catch (error) {
         console.error("Google Places API error:", error);
       }
     }
 
     // If Google Places didn't return enough results, fallback to Gemini
-    if (results.length < 3) {
+    if (results.length < 5 && !userLocation) { // Only use Gemini fallback for general searches
       console.log("Using Gemini fallback for additional results");
       const geminiResults = await fallbackToGemini(input, selectedCategories);
 
@@ -450,8 +496,14 @@ serve(async (req) => {
       }
     }
 
-    // Sort by confidence score and rating
+    // Sort by distance when user location is available, otherwise by rating
     results.sort((a, b) => {
+      if (userLocation && a.coordinates && b.coordinates) {
+        const distA = calculateDistance(userLocation.lat, userLocation.lng, a.coordinates.lat, a.coordinates.lng);
+        const distB = calculateDistance(userLocation.lat, userLocation.lng, b.coordinates.lat, b.coordinates.lng);
+        return distA - distB; // Sort by distance (closest first)
+      }
+      
       const scoreA = (a.confidence_score || 0) + (a.rating || 0) * 10;
       const scoreB = (b.confidence_score || 0) + (b.rating || 0) * 10;
       return scoreB - scoreA;
@@ -459,7 +511,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        predictions: results.slice(0, 15), // Limit final results
+        predictions: results.slice(0, 10), // Return up to 10 results as requested
         status: "OK",
         source: googleApiKey ? "google_places_enhanced" : "gemini_fallback",
       }),

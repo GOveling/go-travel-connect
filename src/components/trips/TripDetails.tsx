@@ -322,6 +322,8 @@ export const TripDetails = () => {
             tripId={tripId!}
             userRole={userRole}
             onUpdate={fetchCollaborators}
+            tripName={trip.name}
+            isGroupTrip={trip.is_group_trip}
           />
         </TabsContent>
       </Tabs>

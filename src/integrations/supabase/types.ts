@@ -218,6 +218,7 @@ export type Database = {
           type: string
           updated_at: string
           user_id: string
+          viewed_at: string | null
         }
         Insert: {
           actor_name: string
@@ -234,6 +235,7 @@ export type Database = {
           type: string
           updated_at?: string
           user_id: string
+          viewed_at?: string | null
         }
         Update: {
           actor_name?: string
@@ -250,6 +252,7 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+          viewed_at?: string | null
         }
         Relationships: []
       }
@@ -996,6 +999,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trip_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          message_type: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          message_type?: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          message_type?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       trip_shared_locations: {
         Row: {

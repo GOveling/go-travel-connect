@@ -1,9 +1,76 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.app',
-  appName: 'vite_react_shadcn_ts',
-  webDir: 'dist'
+  appId: 'app.lovable.bc24aefb38204bdbbbd4aa7d5ea01cf8',
+  appName: 'goveling-mvp',
+  webDir: 'dist',
+  server: {
+    url: "https://bc24aefb-3820-4bdb-bbd4-aa7d5ea01cf8.lovableproject.com?forceHideBadge=true",
+    cleartext: true
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: "#6366f1",
+      androidScaleType: "CENTER_CROP",
+      splashFullScreen: true,
+      splashImmersive: true
+    },
+    StatusBar: {
+      style: "dark",
+      backgroundColor: "#6366f1"
+    },
+    LocalNotifications: {
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#488AFF",
+      sound: "default",
+      requestPermissions: true,
+      enableBadge: true,
+      presentationOptions: ["alert", "badge", "sound"],
+      categoryType: "default",
+      androidChannelOptions: {
+        importance: 4,
+        visibility: 1
+      }
+    },
+    Geolocation: {
+      permissions: ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
+    },
+    SocialLogin: {
+      google: {
+        webClientId: "117845276386-tjagl8ie97jc881vem3qam4kvkq0i34j.apps.googleusercontent.com",
+        androidClientId: "117845276386-mbdal5loltmqik4nakq7aja9ioiejplt.apps.googleusercontent.com",
+        iosClientId: "117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9.apps.googleusercontent.com"
+      }
+    }
+  },
+  android: {
+    allowMixedContent: true
+  },
+  ios: {
+    contentInset: "automatic",
+    infoPlist: {
+      NSLocationWhenInUseUsageDescription: "Esta aplicación necesita acceso a tu ubicación para mostrarte lugares cercanos y activar el modo viaje.",
+      NSLocationAlwaysAndWhenInUseUsageDescription: "Esta aplicación necesita acceso continuo a tu ubicación para el seguimiento de viajes y notificaciones de proximidad.",
+      NSLocationAlwaysUsageDescription: "Esta aplicación necesita acceso continuo a tu ubicación para el seguimiento de viajes en segundo plano.",
+      NSUserNotificationUsageDescription: "Esta aplicación envía notificaciones sobre lugares cercanos y actualizaciones de viajes.",
+      GIDClientID: "117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9.apps.googleusercontent.com",
+      LSApplicationQueriesSchemes: [
+        "googlechromes",
+        "googlechrome", 
+        "comgoogleauth",
+        "googleapi"
+      ],
+      CFBundleURLTypes: [
+        {
+          CFBundleURLName: "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9",
+          CFBundleURLSchemes: [
+            "com.googleusercontent.apps.117845276386-mlvtmjv04mj0m8hfple9v290lonks7c9"
+          ]
+        }
+      ]
+    }
+  }
 };
 
 export default config;
