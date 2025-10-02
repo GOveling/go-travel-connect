@@ -252,12 +252,30 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
     });
 
     if (transfers.length > 0) {
-      console.log('Processing transfers from day.transfers:', transfers);
+      console.log('🚗 Processing transfers:', {
+        count: transfers.length,
+        transfers: transfers.map(t => ({
+          from: `${t.from_lat},${t.from_lon}`,
+          to: `${t.to_lat},${t.to_lon}`,
+          mode: t.mode,
+          hasOriginalTransfer: !!t.originalTransfer
+        }))
+      });
+      
       calculateTransferRoutes(transfers).then(transferRoutes => {
-        console.log('Transfer routes calculated:', transferRoutes);
+        console.log('✅ Transfer routes calculated:', {
+          count: transferRoutes.length,
+          summary: transferRoutes.map(tr => ({
+            mode: tr.transfer.mode,
+            hasRoute: !!tr.route,
+            coordinatesCount: tr.route?.coordinates?.length || 0,
+            distance: tr.route?.distance,
+            isFallback: tr.route?.coordinates?.length === 2 && tr.route?.distance === "N/A"
+          }))
+        });
         setTransferRoutes(transferRoutes);
       }).catch(error => {
-        console.error('Error calculating transfer routes:', error);
+        console.error('❌ Error calculating transfer routes:', error);
         setTransferRoutes([]);
       });
     } else {

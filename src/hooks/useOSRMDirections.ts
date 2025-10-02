@@ -116,16 +116,53 @@ export const useOSRMDirections = () => {
       const coordsString = `${request.origin.lng},${request.origin.lat};${request.destination.lng},${request.destination.lat}`;
       const url = `https://router.project-osrm.org/route/v1/${profile}/${coordsString}?overview=full&geometries=polyline&steps=true`;
 
-      console.log("Getting OSRM directions for:", request);
+      console.log("🗺️ OSRM Request:", {
+        routeKey,
+        mode: request.mode,
+        profile,
+        origin: request.origin,
+        destination: request.destination,
+        url
+      });
 
       const response = await fetch(url);
+      
+      console.log("📡 OSRM Response Status:", {
+        routeKey,
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
-        throw new Error(`OSRM API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error("❌ OSRM HTTP Error:", {
+          routeKey,
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        throw new Error(`OSRM API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      
+      console.log("📦 OSRM Response Data:", {
+        routeKey,
+        code: data.code,
+        message: data.message,
+        routesCount: data.routes?.length || 0,
+        fullData: data
+      });
 
       if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+        console.error("❌ OSRM No Route:", {
+          routeKey,
+          code: data.code,
+          message: data.message,
+          dataReceived: data
+        });
         throw new Error(data.message || 'No route found');
       }
 
@@ -152,14 +189,27 @@ export const useOSRMDirections = () => {
         coordinates: routeCoordinates
       };
 
-      console.log("OSRM directions result:", result);
+      console.log("✅ OSRM Success:", {
+        routeKey,
+        distance: result.distance,
+        duration: result.duration,
+        coordinatesCount: result.coordinates.length,
+        stepsCount: result.steps.length
+      });
       
       setRoutes(prev => new Map(prev).set(routeKey, result));
       return result;
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to get directions";
-      console.error("Error getting OSRM directions:", err);
+      console.error("❌ OSRM Error - Using Fallback:", {
+        routeKey,
+        error: errorMessage,
+        errorStack: err instanceof Error ? err.stack : undefined,
+        willUseStraightLine: true
+      });
+      
+      setErrors(prev => new Map(prev).set(routeKey, errorMessage));
       
       // Fallback: create straight line route
       const straightLineResult: DirectionsResult = {
@@ -169,6 +219,13 @@ export const useOSRMDirections = () => {
         route_polyline: "",
         coordinates: [request.origin, request.destination]
       };
+      
+      console.warn("⚠️ Using Straight Line Fallback:", {
+        routeKey,
+        origin: request.origin,
+        destination: request.destination,
+        coordinates: straightLineResult.coordinates
+      });
       
       setRoutes(prev => new Map(prev).set(routeKey, straightLineResult));
       return straightLineResult;
