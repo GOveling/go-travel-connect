@@ -132,19 +132,6 @@ const ItineraryTabTimeline = ({
                     </div>
                   </div>
                 </div>
-                
-                {day.places.length > 0 && (
-                  <button className={`px-4 py-2 ${
-                    day.isTentative
-                      ? "bg-blue-500 hover:bg-blue-600"
-                      : day.isSuggested
-                        ? "bg-orange-500 hover:bg-orange-600"
-                        : "bg-purple-500 hover:bg-purple-600"
-                  } text-white font-medium rounded-lg flex items-center gap-2 shadow-md transition-colors`}>
-                    <span className="text-lg">▶️</span>
-                    Iniciar Día Completo
-                  </button>
-                )}
               </div>
 
               {day.isTentative && (
@@ -290,30 +277,6 @@ const ItineraryTabTimeline = ({
                       </div>
                     )}
 
-                    {/* Card Actions */}
-                    <div className="bg-gray-50/50 px-4 py-3 border-t border-gray-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex gap-2 text-xs">
-                          <span className="px-2 py-1 bg-white rounded border text-gray-600">
-                            🚶‍♂️ {place.bestTimeToVisit}
-                          </span>
-                        </div>
-                        <div className="flex gap-2">
-                          <button className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                            place.category === "accommodation" && (place as any).auto_recommended
-                              ? "bg-blue-500 hover:bg-blue-600 text-white"
-                              : place.category === "transfer"
-                                ? "bg-green-500 hover:bg-green-600 text-white"
-                                : "bg-purple-500 hover:bg-purple-600 text-white"
-                          }`}>
-                            🧭 Navegar
-                          </button>
-                          <button className="px-3 py-1 text-xs font-medium border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                            🗺️ Maps
-                          </button>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               ))}
