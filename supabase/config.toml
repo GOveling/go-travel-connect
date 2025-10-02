@@ -79,3 +79,6 @@ image_transformation = {
 
 [functions.weather-service]
 verify_jwt = false
+
+[functions.osrm-proxy]
+verify_jwt = false

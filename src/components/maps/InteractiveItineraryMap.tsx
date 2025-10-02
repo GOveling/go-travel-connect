@@ -508,14 +508,18 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                 );
               }
 
+              // Check if this is a fallback route (straight line)
+              const isFallback = route.coordinates.length === 2 && route.distance === "N/A";
+              
               // Render actual OSRM route
               return (
                 <Polyline
                   key={`transfer-route-${index}`}
                   positions={route.coordinates.map((coord: any) => [coord.lat, coord.lng])}
-                  color={getRouteColor(originalTransfer.transport_mode)}
-                  weight={routeStyle.weight}
-                  opacity={routeStyle.opacity}
+                  color={isFallback ? "#94a3b8" : getRouteColor(originalTransfer.transport_mode)}
+                  weight={isFallback ? 2 : routeStyle.weight}
+                  opacity={isFallback ? 0.5 : routeStyle.opacity}
+                  dashArray={isFallback ? "5, 5" : undefined}
                 >
                   <Popup>
                     <div className="text-sm">
@@ -536,7 +540,12 @@ const InteractiveItineraryMap: React.FC<InteractiveItineraryMapProps> = ({
                       <div className="text-muted-foreground">
                         🚗 Modo: {originalTransfer.transport_mode}
                       </div>
-                      {isIntercity && (
+                      {isFallback && (
+                        <div className="text-slate-500 italic text-xs mt-1">
+                          ⚠️ Ruta aproximada (sin datos precisos)
+                        </div>
+                      )}
+                      {isIntercity && !isFallback && (
                         <div className="text-red-600 text-xs mt-1 font-semibold">
                           ✈️ Transfer intercity ({originalTransfer.distance_km?.toFixed(0)}km)
                         </div>

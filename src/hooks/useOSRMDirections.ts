@@ -112,56 +112,60 @@ export const useOSRMDirections = () => {
     });
 
     try {
-      const profile = getOSRMProfile(request.mode);
-      const coordsString = `${request.origin.lng},${request.origin.lat};${request.destination.lng},${request.destination.lat}`;
-      const url = `https://router.project-osrm.org/route/v1/${profile}/${coordsString}?overview=full&geometries=polyline&steps=true`;
-
-      console.log("🗺️ OSRM Request:", {
+      console.log("🗺️ OSRM Proxy Request:", {
         routeKey,
         mode: request.mode,
-        profile,
         origin: request.origin,
-        destination: request.destination,
-        url
+        destination: request.destination
       });
 
-      const response = await fetch(url);
+      // Use Edge Function proxy instead of direct OSRM call
+      const response = await fetch(
+        `https://suhttfxcurgurshlkcpz.supabase.co/functions/v1/osrm-proxy`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            origin: request.origin,
+            destination: request.destination,
+            mode: request.mode
+          })
+        }
+      );
       
-      console.log("📡 OSRM Response Status:", {
+      console.log("📡 Proxy Response Status:", {
         routeKey,
         status: response.status,
         statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries())
+        ok: response.ok
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ OSRM HTTP Error:", {
+      const data = await response.json();
+
+      // Check if proxy returned fallback indication
+      if (data.useFallback || data.error) {
+        console.warn("⚠️ Proxy indicated fallback:", {
           routeKey,
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText
+          error: data.error,
+          cached: data.cached
         });
-        throw new Error(`OSRM API error: ${response.status} - ${errorText}`);
+        throw new Error(data.error || 'Proxy indicated fallback');
       }
 
-      const data = await response.json();
-      
-      console.log("📦 OSRM Response Data:", {
+      console.log("📦 Proxy Response Data:", {
         routeKey,
         code: data.code,
-        message: data.message,
-        routesCount: data.routes?.length || 0,
-        fullData: data
+        cached: data.cached,
+        routesCount: data.routes?.length || 0
       });
 
       if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-        console.error("❌ OSRM No Route:", {
+        console.error("❌ Proxy No Route:", {
           routeKey,
           code: data.code,
-          message: data.message,
-          dataReceived: data
+          message: data.message
         });
         throw new Error(data.message || 'No route found');
       }
@@ -321,11 +325,21 @@ export const useOSRMDirections = () => {
   }>> => {
     const transferRoutes = [];
     
-    for (const transfer of transfers) {
+    console.log('🚦 Processing transfers sequentially with rate limiting...');
+    
+    for (let i = 0; i < transfers.length; i++) {
+      const transfer = transfers[i];
+      
       // Skip flights - they don't need road routes
       if (transfer.mode === 'flight') {
         transferRoutes.push({ transfer, route: null });
         continue;
+      }
+
+      // Add delay between requests (except for first one)
+      if (i > 0) {
+        console.log(`⏱️ Waiting 1.2s before request ${i + 1}/${transfers.length}...`);
+        await new Promise(resolve => setTimeout(resolve, 1200));
       }
 
       const request: DirectionsRequest = {
@@ -341,6 +355,7 @@ export const useOSRMDirections = () => {
       transferRoutes.push({ transfer, route });
     }
 
+    console.log('✅ All transfers processed sequentially');
     return transferRoutes;
   }, [getDirections]);
 
