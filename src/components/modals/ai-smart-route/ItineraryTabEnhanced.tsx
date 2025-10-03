@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Clock, Navigation, ExternalLink, Play, Route, Info, Map } from "lucide-react";
-import { DayItinerary, RouteConfiguration } from "@/types/aiSmartRoute";
+import { DayItinerary, RouteConfiguration, OptimizedPlace } from "@/types/aiSmartRoute";
 import { getPriorityColor } from "@/utils/aiSmartRoute";
 import { useActiveRoute } from "@/contexts/ActiveRouteContext";
 import { hapticFeedbackService } from "@/services/HapticFeedbackService";
@@ -18,6 +18,7 @@ import RouteSegment from "@/components/ui/RouteSegment";
 import NavigationScreen from "@/components/navigation/NavigationScreen";
 import DetailedNavigationPanel from "./DetailedNavigationPanel";
 import EnrichedPlaceCard from "./EnrichedPlaceCard";
+import PlaceDetailModal from "@/components/modals/PlaceDetailModal";
 import type { OptimizationMetrics as OptimizationMetricsType } from "@/types/aiSmartRouteApi";
 
 interface ItineraryTabEnhancedProps {
@@ -46,6 +47,8 @@ const ItineraryTabEnhanced = ({
   const [isCreatingRoute, setIsCreatingRoute] = useState(false);
   const [activeTab, setActiveTab] = useState('itinerary');
   const [expandedPlaces, setExpandedPlaces] = useState<Set<string>>(new Set());
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [showPlaceDetail, setShowPlaceDetail] = useState(false);
 
   const handleStartDayNavigation = async (day: DayItinerary) => {
     if (day.places.length === 0) {
@@ -161,6 +164,21 @@ const ItineraryTabEnhanced = ({
     }
   };
 
+  const handlePlaceClick = (place: OptimizedPlace) => {
+    setSelectedPlace({
+      id: place.id,
+      name: place.name,
+      location: place.formattedAddress || place.destinationName,
+      rating: place.rating,
+      image: place.image,
+      category: place.category,
+      description: place.description,
+      lat: place.lat,
+      lng: place.lng,
+    });
+    setShowPlaceDetail(true);
+  };
+
   if (showNavigationScreen) {
     return (
       <NavigationScreen 
@@ -227,6 +245,19 @@ const ItineraryTabEnhanced = ({
           recommendations={apiRecommendations}
         />
       )}
+
+      {/* Place Detail Modal */}
+      {selectedPlace && (
+        <PlaceDetailModal
+          place={selectedPlace}
+          isOpen={showPlaceDetail}
+          onClose={() => {
+            setShowPlaceDetail(false);
+            setSelectedPlace(null);
+          }}
+          isFromSavedPlaces={true}
+        />
+      )}
     </div>
   );
 
@@ -278,7 +309,10 @@ const ItineraryTabEnhanced = ({
                   <div key={`place-${place.id}`}>
                     <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow">
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <div className="flex-1">
+                        <div 
+                          className="flex-1 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => handlePlaceClick(place)}
+                        >
                           <div className="flex flex-wrap items-start gap-2 mb-2">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
@@ -329,7 +363,10 @@ const ItineraryTabEnhanced = ({
 
                         <div className="flex sm:flex-col gap-2">
                           <Button
-                            onClick={() => handleStartPlaceNavigation(place)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartPlaceNavigation(place);
+                            }}
                             disabled={isCreatingRoute}
                             size="sm"
                             className="flex items-center gap-1 text-xs"
@@ -339,7 +376,10 @@ const ItineraryTabEnhanced = ({
                           </Button>
                           
                           <Button
-                            onClick={() => window.open(getExternalMapsUrl(place), '_blank')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(getExternalMapsUrl(place), '_blank');
+                            }}
                             variant="outline"
                             size="sm"
                             className="flex items-center gap-1 text-xs"
