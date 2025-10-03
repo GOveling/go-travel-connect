@@ -18,6 +18,7 @@ import OptimizationMetrics from "./OptimizationMetrics";
 import RouteSegment from "@/components/ui/RouteSegment";
 import type { OptimizationMetrics as OptimizationMetricsType } from "@/types/aiSmartRouteApi";
 import ItineraryTabTimeline from "./ItineraryTabTimeline";
+import type { OptimizedPlace } from "@/types/aiSmartRoute";
 
 interface ItineraryTabProps {
   optimizedItinerary: DayItinerary[];
@@ -28,6 +29,7 @@ interface ItineraryTabProps {
   onRouteTypeChange: (routeType: string) => void;
   optimizationMetrics?: OptimizationMetricsType | null;
   apiRecommendations?: string[];
+  onPlaceClick?: (place: OptimizedPlace) => void;
 }
 
 const ItineraryTab = ({
@@ -39,6 +41,7 @@ const ItineraryTab = ({
   onRouteTypeChange,
   optimizationMetrics,
   apiRecommendations = [],
+  onPlaceClick,
 }: ItineraryTabProps) => {
   return (
     <ItineraryTabTimeline
@@ -50,6 +53,7 @@ const ItineraryTab = ({
       onRouteTypeChange={onRouteTypeChange}
       optimizationMetrics={optimizationMetrics}
       apiRecommendations={apiRecommendations}
+      onPlaceClick={onPlaceClick}
     />
   );
 };

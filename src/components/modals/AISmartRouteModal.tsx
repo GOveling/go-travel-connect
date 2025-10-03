@@ -35,6 +35,8 @@ import MultiDestinationWarning from "./ai-smart-route/MultiDestinationWarning";
 import APIDebugPanel from "./ai-smart-route/APIDebugPanel";
 import SmartTransportSelector from "./ai-smart-route/SmartTransportSelector";
 import PlaceRecommendationsModal from "./PlaceRecommendationsModal";
+import PlaceDetailModal from "./PlaceDetailModal";
+import type { OptimizedPlace } from "@/types/aiSmartRoute";
 
 const AISmartRouteModal = ({
   trip,
@@ -57,6 +59,8 @@ const AISmartRouteModal = ({
   const [currentTransportMode, setCurrentTransportMode] = useState<'walk' | 'drive' | 'transit' | 'bike'>('walk');
   const [apiDebugInfo, setApiDebugInfo] = useState<any>(null);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [showPlaceDetail, setShowPlaceDetail] = useState(false);
   const { toast } = useToast();
 
   // Use map data hook for distance calculations
@@ -317,6 +321,22 @@ const AISmartRouteModal = ({
     // Keep the same optimized itinerary since we only generate one balanced route
   };
 
+  // Handle place click to open detail modal
+  const handlePlaceClick = (place: OptimizedPlace) => {
+    setSelectedPlace({
+      id: place.id,
+      name: place.name,
+      location: place.destinationName,
+      rating: place.rating,
+      image: place.image,
+      category: place.category,
+      description: place.description,
+      lat: place.lat,
+      lng: place.lng,
+    });
+    setShowPlaceDetail(true);
+  };
+
   // Action button handlers
   const handleSaveToTrip = async () => {
     try {
@@ -503,6 +523,7 @@ const AISmartRouteModal = ({
                     onRouteTypeChange={handleRouteTypeChange}
                     optimizationMetrics={optimizationMetrics}
                     apiRecommendations={apiRecommendations}
+                    onPlaceClick={handlePlaceClick}
                   />
                 </TabsContent>
 
@@ -572,6 +593,18 @@ const AISmartRouteModal = ({
         onClose={() => setShowRecommendationsModal(false)}
         onAcceptRecommendations={handleAcceptRecommendations}
       />
+
+      {selectedPlace && (
+        <PlaceDetailModal
+          place={selectedPlace}
+          isOpen={showPlaceDetail}
+          onClose={() => {
+            setShowPlaceDetail(false);
+            setSelectedPlace(null);
+          }}
+          isFromSavedPlaces={true}
+        />
+      )}
     </>
   );
 };

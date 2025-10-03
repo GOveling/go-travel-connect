@@ -17,6 +17,7 @@ import AccommodationBase from "./AccommodationBase";
 import OptimizationMetrics from "./OptimizationMetrics";
 import RouteSegment from "@/components/ui/RouteSegment";
 import type { OptimizationMetrics as OptimizationMetricsType } from "@/types/aiSmartRouteApi";
+import type { OptimizedPlace } from "@/types/aiSmartRoute";
 
 interface ItineraryTabTimelineProps {
   optimizedItinerary: DayItinerary[];
@@ -27,6 +28,7 @@ interface ItineraryTabTimelineProps {
   onRouteTypeChange: (routeType: string) => void;
   optimizationMetrics?: OptimizationMetricsType | null;
   apiRecommendations?: string[];
+  onPlaceClick?: (place: OptimizedPlace) => void;
 }
 
 const ItineraryTabTimeline = ({
@@ -38,6 +40,7 @@ const ItineraryTabTimeline = ({
   onRouteTypeChange,
   optimizationMetrics,
   apiRecommendations = [],
+  onPlaceClick,
 }: ItineraryTabTimelineProps) => {
   return (
     <div className="space-y-6 mt-4 px-2 sm:px-0">
@@ -176,17 +179,24 @@ const ItineraryTabTimeline = ({
                   </div>
 
                   {/* Timeline Card */}
-                  <div className={`bg-white rounded-xl border-2 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden ${
-                    place.category === "accommodation" && (place as any).auto_recommended
-                      ? "border-blue-200 bg-gradient-to-r from-blue-50/30 to-cyan-50/30"
-                      : place.category === "transfer"
-                        ? "border-green-200 bg-gradient-to-r from-green-50/30 to-emerald-50/30"
-                        : day.isTentative
-                          ? "border-blue-200 hover:border-blue-300"
-                          : day.isSuggested
-                            ? "border-orange-200 hover:border-orange-300"
-                            : "border-gray-200 hover:border-purple-300"
-                  }`}>
+                  <div 
+                    className={`bg-white rounded-xl border-2 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden ${
+                      place.category === "accommodation" && (place as any).auto_recommended
+                        ? "border-blue-200 bg-gradient-to-r from-blue-50/30 to-cyan-50/30"
+                        : place.category === "transfer"
+                          ? "border-green-200 bg-gradient-to-r from-green-50/30 to-emerald-50/30"
+                          : day.isTentative
+                            ? "border-blue-200 hover:border-blue-300"
+                            : day.isSuggested
+                              ? "border-orange-200 hover:border-orange-300"
+                              : "border-gray-200 hover:border-purple-300"
+                    } ${place.category !== "accommodation" && place.category !== "transfer" ? "cursor-pointer hover:scale-[1.01]" : ""}`}
+                    onClick={() => {
+                      if (place.category !== "accommodation" && place.category !== "transfer" && onPlaceClick) {
+                        onPlaceClick(place);
+                      }
+                    }}
+                  >
                     {/* Card Header */}
                     <div className="p-4 pb-3">
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
