@@ -61,6 +61,7 @@ const AISmartRouteModal = ({
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
   const [showPlaceDetail, setShowPlaceDetail] = useState(false);
+  const [loadingPlaceDetails, setLoadingPlaceDetails] = useState(false);
   const { toast } = useToast();
 
   // Use map data hook for distance calculations
@@ -321,20 +322,86 @@ const AISmartRouteModal = ({
     // Keep the same optimized itinerary since we only generate one balanced route
   };
 
-  // Handle place click to open detail modal
-  const handlePlaceClick = (place: OptimizedPlace) => {
-    setSelectedPlace({
-      id: place.id,
-      name: place.name,
-      location: place.destinationName,
-      rating: place.rating,
-      image: place.image,
-      category: place.category,
-      description: place.description,
-      lat: place.lat,
-      lng: place.lng,
-    });
-    setShowPlaceDetail(true);
+  // Handle place click to open detail modal with full Google Places data
+  const handlePlaceClick = async (place: OptimizedPlace) => {
+    setLoadingPlaceDetails(true);
+    
+    try {
+      // Call google-places-enhanced to get full place details
+      const { data, error } = await supabase.functions.invoke(
+        "google-places-enhanced",
+        {
+          body: {
+            input: place.name,
+            selectedCategories: [place.category],
+            userLocation: {
+              lat: place.lat,
+              lng: place.lng,
+            },
+          },
+        }
+      );
+
+      if (error) {
+        console.error("Error fetching place details:", error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los detalles del lugar",
+          variant: "destructive",
+        });
+        setLoadingPlaceDetails(false);
+        return;
+      }
+
+      // Find the best match from the results (should be the first one with matching coordinates)
+      const predictions = data?.predictions || [];
+      const matchedPlace = predictions.find((p: any) => 
+        Math.abs(p.coordinates.lat - place.lat) < 0.001 && 
+        Math.abs(p.coordinates.lng - place.lng) < 0.001
+      ) || predictions[0];
+
+      if (matchedPlace) {
+        setSelectedPlace(matchedPlace);
+        setShowPlaceDetail(true);
+      } else {
+        // Fallback to basic information if no match found
+        const transformedPlace = {
+          id: place.id,
+          name: place.name,
+          address: place.formattedAddress || place.destinationName || "",
+          coordinates: {
+            lat: place.lat,
+            lng: place.lng,
+          },
+          rating: place.rating || 0,
+          category: place.category,
+          image: place.image || "",
+          description: place.description || "",
+          hours: place.aiRecommendedDuration || "",
+          phone: "",
+          website: "",
+          priceLevel: 0,
+          confidence_score: 1,
+          geocoded: true,
+          business_status: "OPERATIONAL",
+          photos: place.image ? [place.image] : [],
+          reviews_count: 0,
+          opening_hours: undefined,
+        };
+        
+        setSelectedPlace(transformedPlace);
+        setShowPlaceDetail(true);
+      }
+    } catch (err) {
+      console.error("Error in handlePlaceClick:", err);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los detalles del lugar",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlaceDetails(false);
+    }
   };
 
   // Action button handlers
