@@ -7,10 +7,13 @@ import { useToast } from "@/hooks/use-toast";
 import DocumentForm from "./travel-documents/DocumentForm";
 import DocumentCard from "./travel-documents/DocumentCard";
 import DocumentViewerModal from "./travel-documents/DocumentViewerModal";
-import { Plus, Download, Shield, Lock, AlertTriangle } from "lucide-react";
+import { Plus, Download, Shield, Lock, AlertTriangle, RefreshCw, CloudUpload, HardDrive, ArrowLeftRight, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useEncryptedTravelDocuments, TravelDocumentMetadata } from "@/hooks/useEncryptedTravelDocuments";
 import { useAuth } from "@/hooks/useAuth";
+import { getUserPin, clearUserPin, setUserPin } from "@/utils/localEncryption";
+import PinRecoveryModal from "./travel-documents/PinRecoveryModal";
 
 // Legacy interface for backward compatibility
 interface TravelDocument {
@@ -35,6 +38,9 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   const [editingDocument, setEditingDocument] = useState<TravelDocument | null>(null);
   const [viewingDocumentId, setViewingDocumentId] = useState<string | null>(null);
   const [viewingDocumentType, setViewingDocumentType] = useState<string>("");
+  const [showPinRecovery, setShowPinRecovery] = useState(false);
+  const [onlineDocuments, setOnlineDocuments] = useState<any[]>([]);
+  const [offlineDocuments, setOfflineDocuments] = useState<any[]>([]);
   const [formData, setFormData] = useState<TravelDocument>({
     id: "",
     type: "",
@@ -47,32 +53,81 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   });
   const { toast } = useToast();
   const { user } = useAuth();
-  const { 
-    documents: encryptedDocuments, 
-    loading, 
-    addDocument, 
-    getDocument, 
+  
+  // Use the hook with autoLoad enabled when modal is open
+  const {
+    documents: currentDocuments,
+    loading,
+    initialized,
+    addDocument,
+    getDocument,
     deleteDocument,
+    loadDocuments,
     refreshDocuments
-  } = useEncryptedTravelDocuments();
+  } = useEncryptedTravelDocuments(isOpen && !!user);
 
-  // Load offline mode from localStorage (legacy documents are migrated on first use)
+  // Load documents when modal opens or mode changes
+  useEffect(() => {
+    if (isOpen && user) {
+      console.log('Modal effect triggered - loading documents with offline mode:', isOffline);
+      // Sync the localStorage with the current offline state before loading
+      localStorage.setItem("offlineMode", isOffline.toString());
+      loadDocuments();
+      loadDocumentCounts();
+    }
+  }, [isOpen, user, isOffline]);
+
+  const loadDocumentCounts = async () => {
+    try {
+      console.log('Loading document counts...');
+      // Get counts from localStorage for quick display
+      const offlineData = localStorage.getItem('encrypted_travel_documents');
+      const offlineDocs = offlineData ? JSON.parse(offlineData) : [];
+      console.log('Offline docs count:', offlineDocs.length);
+      setOfflineDocuments(offlineDocs);
+      
+      // For online count, we'll use the current hook state when online
+      if (!isOffline) {
+        console.log('Online docs count:', currentDocuments.length);
+        setOnlineDocuments(currentDocuments);
+      } else {
+        console.log('In offline mode, not updating online count');
+        // Still show offline count based on current documents in offline mode
+        setOfflineDocuments(currentDocuments);
+      }
+    } catch (error) {
+      console.error('Error loading document counts:', error);
+    }
+  };
+
+  // Update counts when documents change
+  useEffect(() => {
+    if (initialized) {
+      console.log('Documents updated, refreshing counts. Current docs:', currentDocuments.length);
+      loadDocumentCounts();
+    }
+  }, [currentDocuments, initialized]);
+
+  // Load offline mode from localStorage and sync with hook
   useEffect(() => {
     const savedOfflineMode = localStorage.getItem("offlineMode");
-    if (savedOfflineMode) {
-      setIsOffline(JSON.parse(savedOfflineMode));
-    }
+    const offlineMode = savedOfflineMode ? JSON.parse(savedOfflineMode) : false;
+    setIsOffline(offlineMode);
+    console.log('Modal initialized with offline mode:', offlineMode);
     
     // Migrate legacy documents to encrypted storage on first load
     const legacyDocuments = localStorage.getItem("travelDocuments");
-    if (legacyDocuments && user) {
+    if (legacyDocuments && user && isOpen) {
       migrateLegacyDocuments(JSON.parse(legacyDocuments));
     }
-  }, [user]);
+  }, [user, isOpen]);
 
-  // Save offline mode to localStorage when it changes
+  // Sync localStorage when offline state changes
   useEffect(() => {
-    localStorage.setItem("offlineMode", JSON.stringify(isOffline));
+    localStorage.setItem("offlineMode", isOffline.toString());
+    console.log('Offline mode changed to:', isOffline);
+    // Trigger storage event for the hook to pick up the change
+    window.dispatchEvent(new Event('storage'));
   }, [isOffline]);
 
   const migrateLegacyDocuments = async (legacyDocs: TravelDocument[]) => {
@@ -124,6 +179,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
       if (success) {
         resetForm();
         setIsAddingDocument(false);
+        loadDocumentCounts(); // Reload counts
       }
     }
   };
@@ -144,8 +200,25 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   };
 
   const handleDeleteDocument = async (id: string) => {
-    await deleteDocument(id);
+    try {
+      const success = await deleteDocument(id);
+      
+      if (success !== false) {
+        await loadDocuments();
+        loadDocumentCounts(); // Reload counts
+        
+        if (viewingDocumentId === id) {
+          handleCloseViewer();
+        }
+      }
+      
+      return success;
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      throw error;
+    }
   };
+
 
   const handleViewDocument = (document: TravelDocument) => {
     setViewingDocumentId(document.id);
@@ -173,7 +246,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
   };
 
   const exportDocuments = async () => {
-    if (encryptedDocuments.length === 0) {
+    if (currentDocuments.length === 0) {
       toast({
         title: "Sin documentos",
         description: "No hay documentos para exportar.",
@@ -183,7 +256,7 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
     }
 
     try {
-      const exportData = encryptedDocuments.map(doc => ({
+      const exportData = currentDocuments.map(doc => ({
         id: doc.id,
         documentType: doc.documentType,
         hasFile: doc.hasFile,
@@ -211,6 +284,120 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
         description: "No se pudieron exportar los documentos.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleOfflineToggle = async (checked: boolean) => {
+    if (checked) {
+      // Activating offline mode - request PIN
+      await requestOfflinePin();
+    } else {
+      // Deactivating offline mode
+      setIsOffline(false);
+      localStorage.setItem("offlineMode", "false");
+      
+      // Force reload documents in online mode
+      await refreshDocuments();
+      // Refresh counts after switching mode
+      setTimeout(() => loadDocumentCounts(), 500);
+      
+      toast({
+        title: "Modo online activado",
+        description: "Los documentos se cargarán desde la nube y se sincronizarán para acceso offline",
+        className: "bg-blue-50 border-blue-200",
+      });
+    }
+  };
+
+  const requestOfflinePin = async () => {
+    // Check if PIN already exists
+    const existingPin = localStorage.getItem('travel_app_pin');
+    
+    if (existingPin) {
+      // PIN exists, just verify it
+      const enteredPin = prompt('Ingresa tu PIN de 4 dígitos para activar el modo offline:\n\n¿Olvidaste tu PIN? Haz clic en "Cancelar" y usa la opción "¿Olvidaste tu PIN?" para recuperarlo.');
+      
+      if (!enteredPin) {
+        // User cancelled - show recovery option
+        const shouldRecover = confirm('¿Deseas recuperar tu PIN? Se enviará un email de recuperación a tu dirección registrada.');
+        if (shouldRecover) {
+          setShowPinRecovery(true);
+        }
+        return;
+      }
+      
+      if (enteredPin !== existingPin) {
+        const shouldRecover = confirm('PIN incorrecto. ¿Deseas recuperar tu PIN? Se enviará un email de recuperación a tu dirección registrada.');
+        if (shouldRecover) {
+          setShowPinRecovery(true);
+        } else {
+          toast({
+            title: "PIN incorrecto",
+            description: "El PIN ingresado no es correcto",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+      
+      // PIN verified, activate offline mode
+      setIsOffline(true);
+      localStorage.setItem("offlineMode", "true");
+      await refreshDocuments();
+      // Refresh counts after switching mode
+      setTimeout(() => loadDocumentCounts(), 500);
+      
+      toast({
+        title: "Modo offline activado",
+        description: "Ahora puedes ver tus documentos sin conexión a internet",
+        className: "bg-green-50 border-green-200",
+      });
+    } else {
+      // No PIN exists, create a new one
+      const newPin = prompt('Crea un PIN de 4 dígitos para proteger tus documentos offline:');
+      
+      if (!newPin || newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+        toast({
+          title: "PIN inválido",
+          description: "El PIN debe tener exactamente 4 dígitos",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Confirm PIN
+      const confirmPin = prompt('Confirma tu PIN de 4 dígitos:');
+      
+      if (confirmPin !== newPin) {
+        toast({
+          title: "PIN no coincide",
+          description: "Los PINs ingresados no coinciden",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Save PIN and activate offline mode
+      try {
+        setUserPin(newPin);
+        setIsOffline(true);
+        localStorage.setItem("offlineMode", "true");
+        await refreshDocuments();
+        // Refresh counts after switching mode
+        setTimeout(() => loadDocumentCounts(), 500);
+        
+        toast({
+          title: "Modo offline activado",
+          description: "PIN configurado. Tus documentos estarán disponibles sin conexión",
+          className: "bg-green-50 border-green-200",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Error al configurar PIN",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -243,21 +430,77 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
             </div>
           </div>
 
-          {/* Offline Mode Toggle */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <div>
-                <Label className="font-medium">Modo Offline Local</Label>
-                <p className="text-sm text-muted-foreground">
-                  Usar almacenamiento local con encriptación AES-256 (seguro, sin conexión)
-                </p>
+          {/* Mode Selection and Status */}
+          <div className="space-y-4">
+            {/* Current Mode Toggle */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 ${isOffline ? 'bg-blue-500' : 'bg-green-500'} rounded-full animate-pulse`}></div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Label className="font-medium">Modo de Almacenamiento</Label>
+                    {isOffline ? <HardDrive className="w-4 h-4 text-blue-600" /> : <CloudUpload className="w-4 h-4 text-green-600" />}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {isOffline 
+                      ? "Almacenamiento local con encriptación AES-256 (sin conexión)" 
+                      : "Almacenamiento en la nube con encriptación AES-256 (requiere conexión)"
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={isOffline}
+                  onCheckedChange={handleOfflineToggle}
+                />
+                {localStorage.getItem('travel_app_pin') && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPinRecovery(true)}
+                    className="text-xs text-blue-600 hover:text-blue-800 p-1 h-auto"
+                  >
+                    ¿Olvidaste tu PIN?
+                  </Button>
+                )}
               </div>
             </div>
-            <Switch
-              checked={isOffline}
-              onCheckedChange={setIsOffline}
-            />
+
+            {/* Document Count Summary */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CloudUpload className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium">Online</span>
+                </div>
+                <Badge variant={isOffline ? "secondary" : "default"} className="bg-green-100 text-green-800">
+                  {onlineDocuments.length} docs
+                </Badge>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <HardDrive className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium">Offline</span>
+                </div>
+                <Badge variant={!isOffline ? "secondary" : "default"} className="bg-blue-100 text-blue-800">
+                  {offlineDocuments.length} docs
+                </Badge>
+              </div>
+            </div>
+
+            {/* Auto-sync Info */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                <span className="font-medium text-blue-900">Sincronización Automática</span>
+              </div>
+              <p className="text-sm text-blue-700">
+                Los documentos se sincronizan automáticamente entre online y offline.
+              </p>
+            </div>
+
           </div>
 
           {/* Actions */}
@@ -285,14 +528,19 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
 
           {/* Documents List */}
           <div className="space-y-4">
+            {/* Debug info */}
+            <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+              Documentos: {currentDocuments.length} | Cargando: {loading ? 'Sí' : 'No'} | Inicializado: {initialized ? 'Sí' : 'No'}
+            </div>
+            
             {loading ? (
               <div className="text-center py-8">
                 <Shield className="w-12 h-12 mx-auto mb-4 animate-pulse opacity-50" />
                 <p>Cargando documentos encriptados...</p>
               </div>
-            ) : encryptedDocuments.length > 0 ? (
+            ) : currentDocuments.length > 0 ? (
               <div className="space-y-3">
-                {encryptedDocuments.map((document) => (
+                {currentDocuments.map((document) => (
                   <div key={document.id} className="relative">
                     <DocumentCard
                       document={{
@@ -300,15 +548,16 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                         type: document.documentType,
                         documentNumber: "••••••••", // Hidden for security
                         issueDate: "••••••••",
-                        expiryDate: document.expiresAt ? document.expiresAt : "••••••••",
+                        expiryDate: document.expiresAt || "••••••••",
                         issuingCountry: "••••••••",
-                        notes: `Accesos: ${document.accessCount}`,
+                        notes: document.notesPreview || `Documento creado el ${new Date(document.createdAt).toLocaleDateString()}`,
                         photo: document.hasFile ? "encrypted" : undefined,
                       }}
                       onEdit={() => {}} // Disabled for encrypted documents
                       onDelete={() => handleDeleteDocument(document.id)}
                       onView={handleViewDocument}
                       isEncrypted={true}
+                      storageMode={isOffline ? 'offline' : 'online'}
                     />
                     
                     {/* Expiration Warning */}
@@ -321,14 +570,6 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                       </div>
                     )}
                     
-                    {document.expiresInDays !== null && document.expiresInDays <= 30 && document.expiresInDays > 0 && (
-                      <div className="absolute top-2 right-2">
-                        <Badge variant="outline" className="gap-1 border-orange-300 text-orange-800">
-                          <AlertTriangle className="w-3 h-3" />
-                          {document.expiresInDays} días
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -337,6 +578,21 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
                 <Shield className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>No hay documentos añadidos aún</p>
                 <p className="text-sm">Añade tu primer documento de viaje encriptado para comenzar</p>
+                
+                {/* Manual reload button */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    console.log('Manual reload triggered');
+                    refreshDocuments();
+                  }}
+                  className="mt-4"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Recargar documentos
+                </Button>
+                
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <Lock className="w-4 h-4 inline mr-2 text-green-600" />
                   <span className="text-sm text-green-800">
@@ -357,8 +613,15 @@ const TravelDocumentsModal = ({ isOpen, onClose }: TravelDocumentsModalProps) =>
           documentId={viewingDocumentId}
           documentType={viewingDocumentType}
           getDocument={getDocument}
+          onDelete={handleDeleteDocument}
+          storageMode={isOffline ? 'offline' : 'online'}
         />
       )}
+      {/* PIN Recovery Modal */}
+      <PinRecoveryModal 
+        isOpen={showPinRecovery}
+        onClose={() => setShowPinRecovery(false)}
+      />
     </Dialog>
   );
 };

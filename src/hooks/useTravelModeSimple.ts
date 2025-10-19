@@ -1,5 +1,5 @@
 import { Geolocation, Position } from "@capacitor/geolocation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { travelNotificationService } from "../services/travelNotificationService";
 import { SavedPlace, Trip } from "../types";
 import { useSupabaseTrips } from "./useSupabaseTrips";
@@ -8,6 +8,10 @@ import { getEnvironmentConfig } from "../utils/environment";
 import { useToast } from "./use-toast";
 import { useAuth } from "./useAuth";
 import { getAdaptiveProximityThresholds, logAdaptiveRadiusInfo } from "../utils/adaptiveRadius";
+import { backgroundTravelManager } from '../services/backgroundTravelManager';
+import { compassService } from '../services/compassService';
+import { activityDetectionService, type ActivityData } from '@/services/activityDetectionService';
+import { unifiedSpeedTracker } from '../utils/unifiedSpeedTracker';
 
 interface TravelModeConfig {
   isEnabled: boolean;
@@ -35,7 +39,7 @@ interface NearbyPlace extends SavedPlace {
 const DEFAULT_CONFIG: TravelModeConfig = {
   isEnabled: false,
   proximityRadius: 20000, // 20km para asegurar detección (incrementado de 15km)
-  baseCheckInterval: 30000, // 30 segundos como base
+  baseCheckInterval: 5000, // 5 segundos como base (reducido de 30s para mejor responsividad)
   notificationCooldown: 300000, // 5 minutos entre notificaciones del mismo lugar
   notificationThresholds: [5000, 2000, 1000, 500, 100, 50, 10], // Eliminado 10000 (10km)
 };
@@ -60,7 +64,7 @@ export const useTravelModeSimple = ({
 }: {
   config: TravelModeConfig;
   onPlaceArrival?: (place: PlaceArrivalData) => void;
-} = { config: DEFAULT_CONFIG }) => {
+}) => {
   const [config, setConfig] = useState<TravelModeConfig>(userConfig || DEFAULT_CONFIG);
   const [currentPosition, setCurrentPosition] = useState<Position | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
@@ -72,6 +76,15 @@ export const useTravelModeSimple = ({
     isLocationAvailable: false,
     lastError: null,
   });
+  const [currentSpeed, setCurrentSpeed] = useState<number>(0);
+  const [energyMode, setEnergyMode] = useState<'normal' | 'saving' | 'ultra-saving'>('normal');
+  const [compassEnabled, setCompassEnabled] = useState(false);
+  const [isStationary, setIsStationary] = useState(false);
+  const [currentActivity, setCurrentActivity] = useState<ActivityData | null>(null);
+  const [activitySupported, setActivitySupported] = useState<boolean>(false);
+  const [stationaryStartTime, setStationaryStartTime] = useState<number | null>(null);
+  const [lastSignificantMovement, setLastSignificantMovement] = useState<number>(Date.now());
+  
   const { trips, loading } = useSupabaseTrips();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -159,13 +172,17 @@ export const useTravelModeSimple = ({
   }, []);
 
   const validateNewReading = useCallback((position: Position): boolean => {
-    // Check accuracy - reject readings with poor accuracy
-    if (position.coords.accuracy > 50) {
-      console.log(`⚠️ Rejecting GPS reading with poor accuracy: ${position.coords.accuracy}m`);
+    // Use unified speed tracker validation (less aggressive)
+    if (!position?.coords) return false;
+    
+    // Check accuracy - use unified threshold (100m for web, 30m for native)
+    const maxAccuracy = isNative ? 30 : 100;
+    if (position.coords.accuracy > maxAccuracy) {
+      console.log(`⚠️ Rejecting GPS reading with poor accuracy: ${position.coords.accuracy}m > ${maxAccuracy}m`);
       return false;
     }
     
-    // Check for large jumps from previous position
+    // Check for large jumps from previous position (less aggressive)
     if (lastStablePositionRef.current) {
       const distance = calculateDistance(
         lastStablePositionRef.current.coords.latitude,
@@ -174,61 +191,30 @@ export const useTravelModeSimple = ({
         position.coords.longitude
       );
       
-      // Reject readings that show >100m jump unless accuracy is very good
-      if (distance > 100 && position.coords.accuracy > 10) {
+      // Reject readings that show >200m jump (increased from 100m)
+      if (distance > 200 && position.coords.accuracy > 20) {
         console.log(`⚠️ Rejecting GPS reading with large jump: ${distance.toFixed(0)}m`);
         return false;
       }
     }
     
     return true;
-  }, [calculateDistance]);
+  }, [calculateDistance, isNative]);
 
-  // Calculate and track user speed
-  const calculateSpeed = useCallback((currentPosition: Position, previousPosition: Position): number => {
-    if (!previousPosition || !currentPosition) return 0;
-    
-    const distance = calculateDistance(
-      previousPosition.coords.latitude,
-      previousPosition.coords.longitude,
-      currentPosition.coords.latitude,
-      currentPosition.coords.longitude
-    );
-    
-    const timeDifference = (currentPosition.timestamp - previousPosition.timestamp) / 1000; // seconds
-    
-    if (timeDifference <= 0) return 0;
-    
-    const speed = distance / timeDifference; // m/s
-    return Math.max(0, speed); // Ensure non-negative speed
-  }, [calculateDistance]);
-
-  // Add speed to buffer and get smoothed speed
+  // Unified speed tracking using the new tracker
   const updateSpeedTracking = useCallback((position: Position) => {
-    const now = Date.now();
+    // Use unified speed tracker for consistent speed calculation
+    const currentSpeed = unifiedSpeedTracker.updatePosition(position);
     
-    // Calculate speed if we have a previous position
-    if (lastStablePositionRef.current) {
-      const speed = calculateSpeed(position, lastStablePositionRef.current);
-      
-      // Add to speed buffer
-      speedBufferRef.current.push({ speed, timestamp: now });
-      
-      // Keep only last 10 readings or readings from last 60 seconds
-      speedBufferRef.current = speedBufferRef.current.filter(
-        entry => speedBufferRef.current.length <= 10 && (now - entry.timestamp) <= 60000
-      );
-      
-      // Calculate smoothed speed (average of recent readings)
-      const recentSpeeds = speedBufferRef.current.slice(-5); // Last 5 readings
-      const smoothedSpeed = recentSpeeds.reduce((sum, entry) => sum + entry.speed, 0) / recentSpeeds.length;
-      
-      currentSpeedRef.current = smoothedSpeed;
-      lastSpeedCalculationRef.current = now;
-      
-      console.log(`🏃 Speed updated: ${(smoothedSpeed * 3.6).toFixed(1)} km/h (${smoothedSpeed.toFixed(2)} m/s)`);
-    }
-  }, [calculateSpeed]);
+    // Update our refs to maintain compatibility
+    currentSpeedRef.current = currentSpeed;
+    lastSpeedCalculationRef.current = Date.now();
+    
+    // Update state
+    setCurrentSpeed(currentSpeed);
+    
+    console.log(`🏃 Unified speed: ${(currentSpeed * 3.6).toFixed(1)} km/h (${currentSpeed.toFixed(2)} m/s) - ${unifiedSpeedTracker.getMovementType()}`);
+  }, []);
 
   // Calculate ETA to nearest place
   const calculateETA = useCallback((distance: number, speed: number): number => {
@@ -236,89 +222,174 @@ export const useTravelModeSimple = ({
     return distance / speed; // Time in seconds
   }, []);
 
-  // Intelligent interval calculation based on speed, distance, and ETA
+  // Enhanced stationary detection using unified speed tracker
+  const checkStationaryStatus = useCallback((position: Position) => {
+    const now = Date.now();
+    const STATIONARY_TIME_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+    const MOVEMENT_THRESHOLD = 40; // increased from 20m for less false positives
+    
+    // Use unified speed tracker for movement detection
+    const movementType = unifiedSpeedTracker.getMovementType();
+    const isCurrentlyStationary = movementType === 'stationary';
+    
+    if (currentPosition) {
+      const distance = calculateDistance(
+        currentPosition.coords.latitude,
+        currentPosition.coords.longitude,
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      
+      // Check for significant movement (increased threshold)
+      if (distance > MOVEMENT_THRESHOLD || !isCurrentlyStationary) {
+        setLastSignificantMovement(now);
+        setIsStationary(false);
+        setStationaryStartTime(null);
+        setEnergyMode('normal');
+      } else if (isCurrentlyStationary) {
+        // User is stationary based on speed
+        if (!isStationary && !stationaryStartTime) {
+          setStationaryStartTime(now);
+        } else if (stationaryStartTime && (now - stationaryStartTime) > STATIONARY_TIME_THRESHOLD) {
+          setIsStationary(true);
+          setEnergyMode('ultra-saving');
+        }
+      }
+    }
+  }, [currentPosition, isStationary, stationaryStartTime, calculateDistance]);
+
+  // Phase 2: Platform-specific proximity optimization configuration
+  const PROXIMITY_CONFIG = useMemo(() => {
+    return {
+      native: {
+        consecutiveRequired: 1, // Immediate response for better UX
+        minInterval: 3000, // 3s minimum para permitir 1s cerca de POIs
+        maxInterval: 60000, // 60s maximum (reduced from 120s)
+        accuracyThreshold: 30, // 30m accuracy threshold
+        proximityBoost: 0.8, // More aggressive proximity detection
+        hysteresisDistance: 5, // 5m hysteresis for state changes
+      },
+      web: {
+        consecutiveRequired: 2, // Keep 2 for less accurate web GPS
+        minInterval: 5000, // 5s minimum para permitir 1s cerca de POIs
+        maxInterval: 90000, // 90s maximum  
+        accuracyThreshold: 50, // 50m accuracy threshold (less strict)
+        proximityBoost: 0.9, // Slightly less aggressive
+        hysteresisDistance: 10, // 10m hysteresis for web GPS noise
+      }
+    };
+  }, []);
+
+  const currentProximityConfig = isNative ? PROXIMITY_CONFIG.native : PROXIMITY_CONFIG.web;
+
+  // Intelligent interval calculation with Phase 2 optimizations
   const getIntelligentInterval = useCallback(
     (minDistanceToPlace: number): number => {
       const currentSpeed = currentSpeedRef.current; // m/s
-      const platformMultiplier = isNative ? 1 : 0.8; // Web needs slightly more frequent checks
+      const config = currentProximityConfig;
       
-      // Base intervals based on movement state
-      const staticInterval = 30000; // 30s when not moving
-      const slowMovingInterval = 15000; // 15s when moving slowly
-      const movingInterval = 8000; // 8s when moving normally
-      const fastMovingInterval = 4000; // 4s when moving fast
+      // Ultra-saving mode for stationary users (optimized)
+      if (isStationary || energyMode === 'ultra-saving') {
+        return config.maxInterval; // Use platform-specific max interval
+      }
       
-      // Speed thresholds (m/s)
-      const isStationary = currentSpeed < 0.5; // < 1.8 km/h
-      const isSlowMoving = currentSpeed < 2.0; // < 7.2 km/h (walking)
-      const isMovingNormally = currentSpeed < 8.0; // < 28.8 km/h (cycling/slow driving)
-      const isFastMoving = currentSpeed >= 8.0; // >= 28.8 km/h (driving)
+      // Base intervals - Activity Recognition has priority over speed-based detection
+      let baseInterval: number;
+      
+      if (activitySupported && currentActivity && currentActivity.confidence > 0.6) {
+        // Use Activity Recognition for base interval
+        baseInterval = activityDetectionService.getIntelligentInterval(config.minInterval);
+        console.log(`🎯 Activity-based interval: ${baseInterval}ms for ${currentActivity.activity} (confidence: ${currentActivity.confidence})`);
+      } else {
+        // Platform-optimized speed-based intervals
+        const movementType = unifiedSpeedTracker.getMovementType();
+        
+        switch (movementType) {
+          case 'stationary':
+            baseInterval = config.maxInterval * 0.8; // 80% of max for stationary
+            break;
+          case 'walking':
+            baseInterval = config.minInterval * 1.2; // 20% above min for walking
+            break;
+          case 'vehicle':
+            baseInterval = config.minInterval; // Minimum for vehicle movement
+            break;
+          default:
+            baseInterval = (config.minInterval + config.maxInterval) / 2; // Average fallback
+        }
+      }
       
       // Calculate ETA to nearest place
       const eta = calculateETA(minDistanceToPlace, currentSpeed);
       
-      // Determine base interval based on movement
-      let baseInterval: number;
-      if (isStationary) {
-        baseInterval = staticInterval;
-      } else if (isSlowMoving) {
-        baseInterval = slowMovingInterval;
-      } else if (isMovingNormally) {
-        baseInterval = movingInterval;
-      } else {
-        baseInterval = fastMovingInterval;
-      }
-      
-      // Proximity-based adjustments (more frequent when closer)
+      // Phase 2: Enhanced proximity-based adjustments
       let proximityMultiplier = 1;
-      if (minDistanceToPlace <= 50) {
-        proximityMultiplier = 0.3; // Very close - much more frequent
+      const boostFactor = config.proximityBoost;
+      
+      if (minDistanceToPlace <= 60) {
+        proximityMultiplier = 0.2 * boostFactor; // ≤60m = 1 segundo (5000ms × 0.2)
       } else if (minDistanceToPlace <= 100) {
-        proximityMultiplier = 0.5; // Close - more frequent
+        proximityMultiplier = 0.3 * boostFactor; // ≤100m = 1.5 segundos
       } else if (minDistanceToPlace <= 200) {
-        proximityMultiplier = 0.7; // Medium close
+        proximityMultiplier = 0.5 * boostFactor; // ≤200m = 2.5 segundos
       } else if (minDistanceToPlace <= 500) {
-        proximityMultiplier = 0.8; // Medium distance
+        proximityMultiplier = 0.7 * boostFactor; // ≤500m = 3.5 segundos
       } else if (minDistanceToPlace <= 1000) {
-        proximityMultiplier = 0.9; // Far
+        proximityMultiplier = 0.8; // ≤1000m = 4 segundos
+      } else {
+        proximityMultiplier = 0.9; // >1000m = 4.5 segundos
       }
       // For > 1000m, use full base interval
       
-      // ETA-based adjustments (more frequent when approaching)
+      // Enhanced ETA-based adjustments
       let etaMultiplier = 1;
-      if (eta < 30 && !isStationary) { // Less than 30 seconds to arrival
-        etaMultiplier = 0.2; // Very frequent checking
-      } else if (eta < 60 && !isStationary) { // Less than 1 minute
-        etaMultiplier = 0.4; // Frequent checking
-      } else if (eta < 300 && !isStationary) { // Less than 5 minutes
-        etaMultiplier = 0.6; // More frequent
+      const currentlyStationary = currentSpeed < 0.5; // < 1.8 km/h
+      
+      if (!currentlyStationary) {
+        if (eta < 20) { // Less than 20 seconds to arrival
+          etaMultiplier = 0.15; // Ultra frequent checking
+        } else if (eta < 45) { // Less than 45 seconds
+          etaMultiplier = 0.25; // Very frequent checking
+        } else if (eta < 90) { // Less than 1.5 minutes
+          etaMultiplier = 0.4; // Frequent checking
+        } else if (eta < 300) { // Less than 5 minutes
+          etaMultiplier = 0.6; // More frequent
+        }
       }
       
+      // Apply battery optimization based on activity recognition
+      const batteryFactor = activitySupported ? activityDetectionService.getBatteryOptimizationFactor() : 1;
+      
       // Combine all factors
-      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * platformMultiplier);
+      const finalInterval = Math.round(baseInterval * proximityMultiplier * etaMultiplier * batteryFactor);
       
-      // Enforce reasonable bounds
-      const minInterval = isNative ? 2000 : 1500; // 2s native, 1.5s web
-      const maxInterval = isNative ? 60000 : 45000; // 1min native, 45s web
+      // Enforce platform-specific bounds
+      const clampedInterval = Math.max(config.minInterval, Math.min(config.maxInterval, finalInterval));
       
-      const clampedInterval = Math.max(minInterval, Math.min(maxInterval, finalInterval));
-      
-      // Log interval decision for debugging
-      if (Math.random() < 0.1) { // Log 10% of calculations to avoid spam
-        console.log(`🔄 Interval calculation:`, {
+      // ENHANCED logging for debugging interval issues - Always log when close to POI
+      const shouldLog = minDistanceToPlace <= 200 || Math.random() < 0.1; // Always log when close OR 10% random
+      if (shouldLog) {
+        console.log(`🔄 Interval calculation (${isNative ? 'Native' : 'Web'}):`, {
           distance: `${minDistanceToPlace.toFixed(0)}m`,
           speed: `${(currentSpeed * 3.6).toFixed(1)} km/h`,
+          movement: unifiedSpeedTracker.getMovementType(),
           eta: eta === Infinity ? 'stationary' : `${(eta / 60).toFixed(1)}min`,
           baseInterval: `${baseInterval / 1000}s`,
-          proximityMult: proximityMultiplier,
-          etaMult: etaMultiplier,
-          finalInterval: `${clampedInterval / 1000}s`
+          proximityMult: proximityMultiplier.toFixed(2),
+          etaMult: etaMultiplier.toFixed(2),
+          finalInterval: `${clampedInterval / 1000}s`,
+          platform: isNative ? 'native' : 'web',
+          appliedFactors: {
+            stationary: isStationary,
+            energyMode: energyMode,
+            hasActivity: !!currentActivity
+          }
         });
       }
       
       return clampedInterval;
     },
-    [calculateETA, isNative]
+    [isNative, currentProximityConfig, calculateETA, isStationary, energyMode, activitySupported, currentActivity]
   );
 
   // Check and request location permissions - Enhanced for both platforms
@@ -558,7 +629,7 @@ export const useTravelModeSimple = ({
     }
   }, [isNative, isCapacitor, toast, validateNewReading, addToLocationBuffer, getStablePosition]);
 
-  // Check if there's an active trip today (only for owned trips)
+  // Check if there's an active trip today (including both owned trips and collaborations)
   const getActiveTripToday = useCallback((): Trip | null => {
     if (!trips || !user) return null;
 
@@ -568,16 +639,25 @@ export const useTravelModeSimple = ({
     console.log(`🔍 Checking trips for user: ${user.id}`);
     console.log(`📅 Today: ${todayStr}`);
     
-    // Filter trips to only include those owned by the current user
-    const userOwnedTrips = trips.filter((trip: Trip) => {
+    // Filter trips to include both owned trips and collaborations
+    const accessibleTrips = trips.filter((trip: Trip) => {
       const isOwner = trip.user_id === user.id;
-      console.log(`🎯 Trip "${trip.name}" - Owner: ${trip.user_id}, Current User: ${user.id}, Is Owner: ${isOwner}`);
-      return isOwner;
+      const isCollaborator = trip.collaborators && trip.collaborators.some(
+        (collaborator: any) => collaborator.user_id === user.id
+      );
+      const hasAccess = isOwner || isCollaborator;
+      
+      console.log(`🎯 Trip "${trip.name}"`);
+      console.log(`   - Owner: ${trip.user_id}, Current User: ${user.id}`);
+      console.log(`   - Is Owner: ${isOwner}, Is Collaborator: ${isCollaborator}`);
+      console.log(`   - Collaborators:`, trip.collaborators);
+      console.log(`   - Has Access: ${hasAccess}`);
+      return hasAccess;
     });
     
-    console.log(`👤 Found ${userOwnedTrips.length} trips owned by user out of ${trips.length} total accessible trips`);
+    console.log(`👤 Found ${accessibleTrips.length} accessible trips (owned + collaborations) out of ${trips.length} total trips`);
 
-    const activeTrip = userOwnedTrips.find((trip: Trip) => {
+    const activeTrip = accessibleTrips.find((trip: Trip) => {
       if (!trip.startDate || !trip.endDate) return false;
 
       const startDate = new Date(trip.startDate);
@@ -586,7 +666,8 @@ export const useTravelModeSimple = ({
       const endDateStr = endDate.toISOString().split("T")[0];
 
       const isActive = todayStr >= startDateStr && todayStr <= endDateStr;
-      console.log(`📅 Trip "${trip.name}": ${startDateStr} to ${endDateStr} - Active: ${isActive}`);
+      const tripType = trip.user_id === user.id ? "OWNED" : "COLLABORATION";
+      console.log(`📅 Trip "${trip.name}" (${tripType}): ${startDateStr} to ${endDateStr} - Active: ${isActive}`);
       
       return isActive;
     });
@@ -595,14 +676,15 @@ export const useTravelModeSimple = ({
     setStatus(prev => ({ ...prev, hasActiveTrip }));
 
     if (activeTrip) {
+      const tripType = activeTrip.user_id === user.id ? "OWNED" : "COLLABORATION";
       console.log(
-        `🎯 Active OWNED trip today: ${activeTrip.name} (${activeTrip.startDate} to ${activeTrip.endDate})`
+        `🎯 Active ${tripType} trip today: ${activeTrip.name} (${activeTrip.startDate} to ${activeTrip.endDate})`
       );
       console.log(`📍 Trip has ${activeTrip.savedPlaces?.length || 0} saved places`);
     } else {
-      console.log(`❌ No active OWNED trip today (${todayStr})`);
-      if (userOwnedTrips.length === 0) {
-        console.log(`⚠️ User has no owned trips - may be viewing collaborations only`);
+      console.log(`❌ No active trip today (${todayStr})`);
+      if (accessibleTrips.length === 0) {
+        console.log(`⚠️ User has no accessible trips (owned or collaborations)`);
       }
     }
 
@@ -719,6 +801,9 @@ export const useTravelModeSimple = ({
     if (positionChanged) {
       console.log("📍 Position changed! New location:", position.coords);
       
+      // Check stationary status for ultra-saving mode
+      checkStationaryStatus(position);
+      
       // Update speed tracking with new position
       updateSpeedTracking(position);
       
@@ -755,7 +840,7 @@ export const useTravelModeSimple = ({
           `   📍 Place coords: ${place.lat.toFixed(6)}, ${place.lng.toFixed(6)}`
         );
 
-        // Implement hysteresis and consecutive confirmation system
+        // Phase 2: Platform-optimized hysteresis and consecutive confirmation system
         const placeStateKey = place.id;
         const currentState = nearPlacesStateRef.current.get(placeStateKey) || { 
           isNear: false, 
@@ -765,7 +850,9 @@ export const useTravelModeSimple = ({
         // Calculate adaptive proximity thresholds based on place type/category
         const adaptiveThresholds = getAdaptiveProximityThresholds(place);
         const { NEAR_THRESHOLD, FAR_THRESHOLD, ARRIVAL_THRESHOLD } = adaptiveThresholds;
-        const CONSECUTIVE_REQUIRED = 2; // readings required to confirm state change
+        
+        // Phase 2: Platform-specific consecutive confirmation requirements
+        const CONSECUTIVE_REQUIRED = currentProximityConfig.consecutiveRequired;
         
         // Log adaptive radius info for debugging (first time only)
         const debugKey = `${place.id}-debug-logged`;
@@ -1004,14 +1091,17 @@ export const useTravelModeSimple = ({
     const previousMinDistance = minDistanceRef.current;
     minDistanceRef.current = minDistance;
 
-      // Schedule next check with dynamic interval if distance changed significantly
-    if (
-      Math.abs(minDistance - previousMinDistance) > 100 ||
-      nearby.length === 0
-    ) {
-      const nextInterval = getIntelligentInterval(minDistance);
+    // ENHANCED: Always recalculate interval for better responsiveness
+    const nextInterval = getIntelligentInterval(minDistance);
+    const shouldUpdateInterval = (
+      Math.abs(minDistance - previousMinDistance) > 50 || // Reduced threshold for more responsive updates
+      nearby.length === 0 ||
+      minDistance <= 200 // Always update when very close to POI
+    );
+
+    if (shouldUpdateInterval) {
       console.log(
-        `🔄 Updating check interval: ${nextInterval}ms (closest place: ${minDistance.toFixed(0)}m)`
+        `🔄 Updating check interval: ${nextInterval}ms (closest: ${minDistance.toFixed(0)}m, prev: ${previousMinDistance.toFixed(0)}m)`
       );
 
       // Clear current interval and set new one with interval ID tracking
@@ -1028,10 +1118,16 @@ export const useTravelModeSimple = ({
         intervalRef.current = setInterval(() => {
           // Double-check we're still using the same interval before executing
           if (intervalIdRef.current === newIntervalId && isTrackingRef.current) {
+            console.log(`⏰ Proximity check triggered (interval: ${nextInterval}ms)`);
             checkProximity();
           }
         }, nextInterval);
+        
+        console.log(`⏰ New interval set: ${nextInterval}ms (ID: ${newIntervalId})`);
       }
+    } else {
+      // Log that we kept the same interval for debugging
+      console.log(`⏰ Keeping current interval (distance change: ${Math.abs(minDistance - previousMinDistance).toFixed(0)}m)`);
     }
 
     console.log(
@@ -1090,6 +1186,18 @@ export const useTravelModeSimple = ({
 
       // Initialize notification service
       await travelNotificationService.initialize();
+
+      // Initialize activity detection service
+      if (activityDetectionService.isSupported()) {
+        try {
+          await activityDetectionService.startDetection();
+          setActivitySupported(true);
+          console.log('✅ Activity detection service started');
+        } catch (error) {
+          console.warn('⚠️ Activity detection initialization failed:', error);
+          setActivitySupported(false);
+        }
+      }
 
       // Request location permissions
       if (isNative) {
@@ -1161,6 +1269,13 @@ export const useTravelModeSimple = ({
     }
     intervalIdRef.current = 0; // Reset interval ID
 
+    // Stop activity detection service
+    if (activitySupported) {
+      activityDetectionService.stopDetection();
+      setActivitySupported(false);
+      console.log('🛑 Activity detection service stopped');
+    }
+
     if (watchIdRef.current) {
       try {
         if (!isNative) {
@@ -1182,10 +1297,27 @@ export const useTravelModeSimple = ({
     notifiedPlacesRef.current.clear();
     lastPositionRef.current = null;
 
+    // Update status to reflect that systems are now inactive
+    // Keep hasActiveTrip as it is (trip still exists, just not tracking)
+    // Keep permissions as they are still available
+    // Set isLocationAvailable to false as we're no longer actively tracking location
+    setStatus(prev => ({ 
+      ...prev, 
+      isLocationAvailable: false,
+      lastError: null
+    }));
+
+    // Reset speed and movement tracking
+    setCurrentSpeed(0);
+    setIsStationary(false);
+    setStationaryStartTime(null);
+    setCurrentActivity(null);
+    unifiedSpeedTracker.reset();
+
     // Clear persisted state when manually stopped
     localStorage.removeItem('travelModeEnabled');
 
-    console.log("✅ Travel Mode stopped");
+    console.log("✅ Travel Mode stopped - all systems inactive");
   }, [isNative]);
 
   // Toggle Travel Mode with comprehensive validation and debouncing
@@ -1312,6 +1444,18 @@ export const useTravelModeSimple = ({
     getActiveTripToday(); // This will update the hasActiveTrip status
   }, [trips, getActiveTripToday]);
 
+  // Effect to setup activity detection callback
+  useEffect(() => {
+    if (!activitySupported) return;
+
+    const unsubscribe = activityDetectionService.onActivityUpdate((activity) => {
+      setCurrentActivity(activity);
+      console.log(`🎯 Activity detected: ${activity.activity} (confidence: ${activity.confidence.toFixed(2)})`);
+    });
+
+    return unsubscribe;
+  }, [activitySupported]);
+
   return {
     // State
     config,
@@ -1320,7 +1464,11 @@ export const useTravelModeSimple = ({
     isTracking,
     loading,
     status,
-    currentSpeed: currentSpeedRef.current,
+    currentSpeed: currentSpeed,
+    energyMode,
+    compassEnabled,
+    currentActivity,
+    activitySupported,
 
     // Actions
     toggleTravelMode,
@@ -1333,5 +1481,6 @@ export const useTravelModeSimple = ({
 
     // Utils
     calculateDistance,
+    isStationary,
   };
 };

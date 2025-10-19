@@ -26,6 +26,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { Trip, TripCardProps } from "@/types";
 import { useLanguage } from "@/hooks/useLanguage";
+import { TripChatModal } from "./TripChatModal";
 
 const TripCard = ({
   trip,
@@ -132,6 +133,7 @@ const TripCard = ({
 
   const [countryImage, setCountryImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
   const countries = getCountriesFromDestination(trip.destination);
   const firstCountry = countries[0] || "Unknown";
@@ -198,16 +200,28 @@ const TripCard = ({
                     {(trip.isGroupTrip ||
                       (trip.collaborators &&
                         trip.collaborators.length > 0)) && (
-                      <Button
-                        onClick={() => onGroupOptions(trip)}
-                        className="flex items-center space-x-1 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-full h-auto"
-                        variant="ghost"
-                      >
-                        <Users size={12} className="text-purple-600" />
-                        <span className="text-xs text-purple-600 font-medium">
-                          {t("trips.map.group")}
-                        </span>
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          onClick={() => onGroupOptions(trip)}
+                          className="flex items-center space-x-1 bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded-full h-auto"
+                          variant="ghost"
+                        >
+                          <Users size={12} className="text-purple-600" />
+                          <span className="text-xs text-purple-600 font-medium">
+                            {t("trips.map.group")}
+                          </span>
+                        </Button>
+                        <Button
+                          onClick={() => setIsChatModalOpen(true)}
+                          className="flex items-center space-x-1 bg-blue-100 hover:bg-blue-200 px-2 py-1 rounded-full h-auto"
+                          variant="ghost"
+                        >
+                          <Heart size={12} className="text-blue-600" />
+                          <span className="text-xs text-blue-600 font-medium">
+                            Chat
+                          </span>
+                        </Button>
+                      </div>
                     )}
                   </div>
 
@@ -361,6 +375,17 @@ const TripCard = ({
           </div>
         </div>
       </CardContent>
+      
+      {/* Chat Modal */}
+      {isChatModalOpen && (
+        <TripChatModal
+          isOpen={isChatModalOpen}
+          onClose={() => setIsChatModalOpen(false)}
+          tripId={trip.id}
+          tripName={trip.name}
+          collaborators={trip.collaborators || []}
+        />
+      )}
     </Card>
   );
 };

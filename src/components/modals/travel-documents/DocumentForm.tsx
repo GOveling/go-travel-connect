@@ -69,14 +69,9 @@ const DocumentForm = ({
     range: { start: CalendarDate | null; end: CalendarDate | null } | null
   ) => {
     if (range?.start && range?.end) {
-      const issueDate = format(
-        new Date(range.start.year, range.start.month - 1, range.start.day),
-        "yyyy-MM-dd"
-      );
-      const expiryDate = format(
-        new Date(range.end.year, range.end.month - 1, range.end.day),
-        "yyyy-MM-dd"
-      );
+      // Use string formatting to preserve exact date without timezone issues
+      const issueDate = `${range.start.year}-${String(range.start.month).padStart(2, '0')}-${String(range.start.day).padStart(2, '0')}`;
+      const expiryDate = `${range.end.year}-${String(range.end.month).padStart(2, '0')}-${String(range.end.day).padStart(2, '0')}`;
       onDocumentChange({
         ...document,
         issueDate,
@@ -88,10 +83,8 @@ const DocumentForm = ({
 
   const handleIssueDateChange = (date: CalendarDate | null) => {
     if (date) {
-      const issueDate = format(
-        new Date(date.year, date.month - 1, date.day),
-        "yyyy-MM-dd"
-      );
+      // Use string formatting to preserve exact date without timezone issues
+      const issueDate = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
       onDocumentChange({
         ...document,
         issueDate,
@@ -119,14 +112,19 @@ const DocumentForm = ({
 
   const formatDateRange = () => {
     if (document.issueDate && document.expiryDate) {
-      return `${format(new Date(document.issueDate), "dd/MM/yyyy")} - ${format(new Date(document.expiryDate), "dd/MM/yyyy")}`;
+      // Parse date strings without timezone conversion
+      const issueDate = document.issueDate.split('-');
+      const expiryDate = document.expiryDate.split('-');
+      return `${issueDate[2]}/${issueDate[1]}/${issueDate[0]} - ${expiryDate[2]}/${expiryDate[1]}/${expiryDate[0]}`;
     }
     return "Seleccionar período de validez";
   };
 
   const formatIssueDate = () => {
     if (document.issueDate) {
-      return format(new Date(document.issueDate), "dd/MM/yyyy");
+      // Parse date string without timezone conversion
+      const dateParts = document.issueDate.split('-');
+      return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
     }
     return "Seleccionar fecha de emisión";
   };
@@ -176,31 +174,6 @@ const DocumentForm = ({
         </div>
 
         <div className="space-y-4">
-          <div>
-            <Label>Fecha de Emisión</Label>
-            <Popover open={isIssueDateOpen} onOpenChange={setIsIssueDateOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !document.issueDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formatIssueDate()}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <JollyCalendar
-                  value={getIssueDateValue()}
-                  onChange={handleIssueDateChange}
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
           <div>
             <Label>Período de Validez (Emisión - Vencimiento)</Label>
             <Popover open={isDateRangeOpen} onOpenChange={setIsDateRangeOpen}>

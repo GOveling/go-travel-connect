@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Settings, Users } from "lucide-react";
+import { PlusCircle, Settings, Users, MessageCircle } from "lucide-react";
 import { InviteCollaboratorModal } from "./InviteCollaboratorModal";
 import { ManageTeam } from "@/components/teams/ManageTeam";
+import { TripChatModal } from "./TripChatModal";
 import { useAuth } from "@/hooks/useAuth";
 
 interface CollaboratorProps {
@@ -21,15 +22,20 @@ export const TripCollaborators = ({
   tripId,
   userRole,
   onUpdate,
+  tripName = "",
+  isGroupTrip = false,
 }: {
   collaborators: CollaboratorProps[];
   tripId: string;
   userRole: string;
   onUpdate: () => void;
+  tripName?: string;
+  isGroupTrip?: boolean;
 }) => {
   const { user } = useAuth();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showManageTeamModal, setShowManageTeamModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
 
   const getRoleBadge = (role: string) => {
     if (role === "owner")
@@ -56,6 +62,17 @@ export const TripCollaborators = ({
           Colaboradores ({collaborators.length})
         </h2>
         <div className="flex gap-2">
+          {isGroupTrip && collaborators.length > 1 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowChatModal(true)}
+              className="flex items-center gap-1"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Chat Grupal</span>
+            </Button>
+          )}
           {canInvite && (
             <Button
               variant="outline"
@@ -140,6 +157,16 @@ export const TripCollaborators = ({
           isOpen={showManageTeamModal}
           onClose={() => setShowManageTeamModal(false)}
           refreshData={onUpdate}
+        />
+      )}
+
+      {showChatModal && (
+        <TripChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          tripId={tripId}
+          tripName={tripName}
+          collaborators={collaborators}
         />
       )}
     </div>

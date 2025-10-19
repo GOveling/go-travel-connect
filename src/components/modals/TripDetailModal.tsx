@@ -22,6 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import { supabase } from "@/integrations/supabase/client";
 import {
   calculateTripStatus,
@@ -38,6 +39,7 @@ import {
   ExternalLink,
   Hotel,
   MapPin,
+  MessageCircle,
   Plane,
   Share2,
   UserPlus,
@@ -47,6 +49,7 @@ import { useEffect, useMemo, useState } from "react";
 import { EditTripModal } from "./EditTripModal";
 import InviteFriendsModal from "./InviteFriendsModal";
 import { TripLocationsModal } from "./TripLocationsModal";
+import { TripChatModal } from "@/components/trips/TripChatModal";
 
 import { SavedPlace, Trip, TripCoordinate } from "@/types";
 import PlaceDetailModal from "./PlaceDetailModal";
@@ -110,6 +113,7 @@ const TripDetailModal = ({
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [placeToRemove, setPlaceToRemove] = useState<SavedPlace | null>(null);
   const [showLocationsModal, setShowLocationsModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
   const [userRole, setUserRole] = useState<string>("viewer");
   const [memberCount, setMemberCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -126,6 +130,9 @@ const TripDetailModal = ({
   const [transferType, setTransferType] = useState<
     "arrival" | "departure" | "between"
   >("arrival");
+
+  // Get owner profile
+  const { ownerProfile } = useOwnerProfile(trip?.user_id || null, trip?.id || null);
 
   // Fetch user role and member count
   useEffect(() => {
@@ -1101,9 +1108,36 @@ const TripDetailModal = ({
                         )}
                       </div>
 
-                      {trip.collaborators && trip.collaborators.length > 0 ? (
+                      {(ownerProfile || (trip.collaborators && trip.collaborators.length > 0)) ? (
                         <div className="space-y-3">
-                          {trip.collaborators.map((collaborator) => (
+                          {/* Show owner first */}
+                          {ownerProfile && (
+                            <Card>
+                              <CardContent className="p-4">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3 flex-1">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
+                                      {ownerProfile.full_name?.charAt(0).toUpperCase() || ownerProfile.email?.charAt(0).toUpperCase() || 'O'}
+                                    </div>
+                                    <div className="flex-1">
+                                      <h5 className="font-medium text-gray-800">
+                                        {ownerProfile.full_name || 'Trip Owner'}
+                                      </h5>
+                                      <p className="text-gray-600 text-sm truncate">
+                                        {ownerProfile.email}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Badge className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 border-amber-200">
+                                    Owner
+                                  </Badge>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+                          
+                          {/* Show collaborators */}
+                          {trip.collaborators?.map((collaborator) => (
                             <Card key={collaborator.id}>
                               <CardContent className="p-4">
                                 <div className="flex items-center justify-between">
@@ -1153,10 +1187,10 @@ const TripDetailModal = ({
                     <>
                       <Button
                         className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600"
-                        onClick={() => setShowLocationsModal(true)}
+                        onClick={() => setShowChatModal(true)}
                       >
-                        <MapPin size={16} className="mr-2" />
-                        Ubicaciones
+                        <MessageCircle size={16} className="mr-2" />
+                        Chat Grupal
                       </Button>
                       <Button
                         className="flex-1 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600"
@@ -1309,6 +1343,17 @@ const TripDetailModal = ({
           isOpen={showLocationsModal}
           onClose={() => setShowLocationsModal(false)}
           tripId={trip.id}
+          collaborators={trip.collaborators || []}
+        />
+      )}
+
+      {/* Trip Chat Modal */}
+      {showChatModal && trip && (
+        <TripChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          tripId={trip.id}
+          tripName={trip.name}
           collaborators={trip.collaborators || []}
         />
       )}

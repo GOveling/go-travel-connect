@@ -7,7 +7,8 @@ import AcceptInvitation from "./pages/AcceptInvitation";
 import Index from "./pages/Index";
 import InvitationLanding from "./pages/InvitationLanding";
 import NotFound from "./pages/NotFound";
-import TravelModePage from "./pages/TravelModePage";
+import RecoverPin from "./pages/RecoverPin";
+import TravelModeRedirect from "./components/travel/TravelModeRedirect";
 
 import AuthGate from "./components/auth/AuthGate";
 import NewUserPersonalInfoModal from "./components/modals/NewUserPersonalInfoModal";
@@ -97,7 +98,8 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Index onSignOut={signOut} />} />
-                  <Route path="/travel-mode" element={<TravelModePage />} />
+                  <Route path="/travel-mode" element={<TravelModeRedirect />} />
+                  <Route path="/recover-pin" element={<RecoverPin />} />
                   <Route
                     path="/accept-invitation"
                     element={<AcceptInvitation />}

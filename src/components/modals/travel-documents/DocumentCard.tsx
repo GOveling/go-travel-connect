@@ -20,9 +20,10 @@ interface DocumentCardProps {
   onDelete: (id: string) => void;
   onView?: (document: TravelDocument) => void;
   isEncrypted?: boolean;
+  storageMode?: 'online' | 'offline'; // New prop to indicate storage mode
 }
 
-const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false }: DocumentCardProps) => {
+const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false, storageMode = 'online' }: DocumentCardProps) => {
   const calculateDaysToExpiry = (expiryDate: string) => {
     if (!expiryDate || expiryDate === "••••••••") return null;
 
@@ -91,8 +92,21 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
               <div className="flex items-center space-x-2">
                 <FileText className="w-4 h-4 text-blue-600" />
                 <h3 className="font-medium">{document.type}</h3>
+                
+                {/* Storage Mode Badge */}
+                <Badge 
+                  variant={storageMode === 'offline' ? 'default' : 'secondary'} 
+                  className={`text-xs ${
+                    storageMode === 'offline' 
+                      ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                      : 'bg-gray-100 text-gray-800 border-gray-200'
+                  }`}
+                >
+                  {storageMode === 'offline' ? 'OFFLINE' : 'ONLINE'}
+                </Badge>
+
                 {isEncrypted && (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                  <Badge variant="outline" className="bg-green-100 text-green-800 text-xs border-green-300">
                     <Lock className="w-3 h-3 mr-1" />
                     Encriptado
                   </Badge>
@@ -115,13 +129,25 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
 
             <div className="flex space-x-4">
               {/* Document Photo */}
-              {document.photo && (
+              {document.photo && document.photo !== "encrypted" && (
                 <div className="flex-shrink-0">
                   <img
                     src={document.photo}
                     alt="Document"
                     className="w-20 h-20 object-cover rounded-lg border"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
                   />
+                </div>
+              )}
+              
+              {/* Encrypted Document Placeholder */}
+              {document.photo === "encrypted" && (
+                <div className="flex-shrink-0">
+                  <div className="w-20 h-20 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center">
+                    <Lock className="w-6 h-6 text-green-600" />
+                  </div>
                 </div>
               )}
 
@@ -179,10 +205,14 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
                   )}
                 </div>
 
-                {document.notes && (
+                {document.notes && document.notes !== "••••••••" && (
                   <div className="mt-3">
                     <p className="text-gray-600 text-sm">Notes</p>
-                    <p className="text-sm">{document.notes}</p>
+                    <p className="text-sm">{isEncrypted ? (
+                      <span className="text-gray-900 font-medium">{document.notes}</span>
+                    ) : (
+                      document.notes
+                    )}</p>
                   </div>
                 )}
               </div>
@@ -194,19 +224,14 @@ const DocumentCard = ({ document, onEdit, onDelete, onView, isEncrypted = false 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onEdit(document)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(document);
+                }}
               >
                 <Edit className="w-4 h-4" />
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete(document.id)}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </CardContent>

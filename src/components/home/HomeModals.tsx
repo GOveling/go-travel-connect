@@ -4,6 +4,7 @@ import NewTripModal from "@/components/modals/NewTripModal";
 import TripDetailModal from "@/components/modals/TripDetailModal";
 import LoginModal from "@/components/modals/LoginModal";
 import SignUpModal from "@/components/modals/SignUpModal";
+import TravelModeModal from "@/components/modals/TravelModeModal";
 import ClientOnly from "@/components/ui/ClientOnly";
 import { useHomeState } from "@/hooks/useHomeState";
 import { useHomeHandlers } from "@/hooks/useHomeHandlers";
@@ -31,14 +32,27 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
       }
     };
 
+    const handleOpenTravelModeModal = () => {
+      homeState.setIsTravelModeModalOpen && homeState.setIsTravelModeModalOpen(true);
+    };
+
     window.addEventListener(
       "openTripDetailModal",
       handleOpenTripDetailModal as EventListener
     );
+    window.addEventListener(
+      "openTravelModeModal", 
+      handleOpenTravelModeModal
+    );
+    
     return () => {
       window.removeEventListener(
         "openTripDetailModal",
         handleOpenTripDetailModal as EventListener
+      );
+      window.removeEventListener(
+        "openTravelModeModal",
+        handleOpenTravelModeModal
       );
     };
   }, [homeState]);
@@ -138,6 +152,15 @@ const HomeModals = ({ homeState, handlers }: HomeModalsProps) => {
           onSignUp={handleEmailSignUp}
           onGoogleSignUp={handleGoogleAuth}
           onSwitchToLogin={handleSwitchToLogin}
+        />
+
+        {/* Travel Mode Modal */}
+        <TravelModeModal
+          isOpen={homeState.isTravelModeModalOpen || false}
+          onClose={() =>
+            homeState.setIsTravelModeModalOpen &&
+            homeState.setIsTravelModeModalOpen(false)
+          }
         />
       </ClientOnly>
     </>

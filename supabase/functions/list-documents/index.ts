@@ -12,22 +12,66 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    console.log('Starting list-documents function');
+    
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     const authHeader = req.headers.get('Authorization');
+    console.log('Auth header present:', !!authHeader);
+    
     if (!authHeader) {
-      throw new Error('No authorization header');
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Authentication required'
+        }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    const token = authHeader.replace('Bearer ', '');
+    console.log('Token length:', token.length);
 
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    console.log('User authentication result:', { 
+      userId: user?.id, 
+      authError: authError?.message 
+    });
+
+    if (authError) {
+      console.error('Authentication error:', authError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid authentication token'
+        }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
+    }
+
+    if (!user) {
+      console.error('No user found in token');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'User not found'
+        }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
 
     console.log(`Listing documents for user: ${user.id}`);
@@ -83,13 +127,30 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error('Error listing documents:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Determine appropriate status code
+    let statusCode = 500;
+    let errorMessage = 'Internal server error';
+    
+    if (error.message.includes('auth') || error.message.includes('Unauthorized')) {
+      statusCode = 401;
+      errorMessage = 'Authentication failed';
+    } else if (error.message.includes('Database error')) {
+      statusCode = 500;
+      errorMessage = 'Database access error';
+    } else {
+      errorMessage = error.message || 'Failed to list documents';
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to list documents'
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       }),
       {
-        status: 500,
+        status: statusCode,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );

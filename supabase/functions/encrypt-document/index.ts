@@ -48,6 +48,62 @@ async function generateEncryptionKey(userId: string): Promise<CryptoKey> {
   );
 }
 
+// Helper function to convert ArrayBuffer to base64 without stack overflow
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000; // 32KB chunks to avoid stack overflow
+  let binary = '';
+  
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.slice(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  
+  return btoa(binary);
+}
+
+// Helper function to convert Uint8Array to base64
+function uint8ArrayToBase64(uint8Array: Uint8Array): string {
+  const chunkSize = 0x8000; // 32KB chunks
+  let binary = '';
+  
+  for (let i = 0; i < uint8Array.length; i += chunkSize) {
+    const chunk = uint8Array.slice(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, Array.from(chunk));
+  }
+  
+  return btoa(binary);
+}
+
+// Validate file size (max 2MB for individual files after compression)
+function validateFileSize(fileData: string): boolean {
+  // Base64 encoding increases size by ~33%, so check original size
+  const sizeInBytes = (fileData.length * 3) / 4;
+  const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+  return sizeInBytes <= maxSizeInBytes;
+}
+
+// Validate Base64 format
+function isValidBase64(str: string): boolean {
+  try {
+    // Handle data URLs by extracting the base64 part
+    const base64Part = str.includes(',') ? str.split(',')[1] : str;
+    
+    // Check if it's valid base64
+    if (!base64Part || base64Part.length === 0) return false;
+    
+    // Validate base64 format
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+    if (!base64Regex.test(base64Part)) return false;
+    
+    // Try to decode and encode to verify
+    return btoa(atob(base64Part)) === base64Part;
+  } catch (err) {
+    console.error('Base64 validation error:', err);
+    return false;
+  }
+}
+
 async function encryptData(data: string, key: CryptoKey): Promise<{ encrypted: string; iv: string }> {
   const encoder = new TextEncoder();
   const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for GCM
@@ -59,8 +115,8 @@ async function encryptData(data: string, key: CryptoKey): Promise<{ encrypted: s
   );
   
   return {
-    encrypted: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-    iv: btoa(String.fromCharCode(...iv))
+    encrypted: arrayBufferToBase64(encrypted),
+    iv: uint8ArrayToBase64(iv)
   };
 }
 
@@ -92,6 +148,31 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { documentType, metadata, fileData, fileName }: EncryptDocumentRequest = await req.json();
 
+    // Validate required fields
+    if (!documentType || !metadata) {
+      throw new Error('Document type and metadata are required');
+    }
+
+    // Validate file data if provided
+    if (fileData) {
+      if (!fileName) {
+        throw new Error('File name is required when file data is provided');
+      }
+
+      // Validate Base64 format
+      if (!isValidBase64(fileData)) {
+        console.error('Invalid Base64 format. Data preview:', fileData.substring(0, 100));
+        throw new Error('Invalid file format: File must be Base64 encoded');
+      }
+
+      // Validate file size (max 2MB after compression)
+      if (!validateFileSize(fileData)) {
+        throw new Error('File too large: Maximum file size is 2MB (images are automatically compressed)');
+      }
+
+      console.log(`Processing file: ${fileName}, size: ${Math.round((fileData.length * 3) / 4 / 1024)} KB`);
+    }
+
     console.log(`Encrypting document for user: ${user.id}, type: ${documentType}`);
 
     // Generate user-specific encryption key
@@ -111,7 +192,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Handle file encryption if provided
     if (fileData && fileName) {
-      const { encrypted: encryptedFile, iv: fileIv } = await encryptData(fileData, encryptionKey);
+      // Extract base64 part if it's a data URL
+      const base64Data = fileData.includes(',') ? fileData.split(',')[1] : fileData;
+      
+      const { encrypted: encryptedFile, iv: fileIv } = await encryptData(base64Data, encryptionKey);
       
       // Combine encrypted file with IV
       const encryptedFileWithIv = JSON.stringify({

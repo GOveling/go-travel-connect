@@ -14,6 +14,7 @@ interface CurrentTripContentProps {
   onViewDetail: () => void;
   onPlanNewTrip: () => void;
   onNavigateToTrips: () => void;
+  onOpenTravelModeModal?: () => void;
 }
 
 const CurrentTripContent = memo(({
@@ -23,6 +24,7 @@ const CurrentTripContent = memo(({
   onViewDetail,
   onPlanNewTrip,
   onNavigateToTrips,
+  onOpenTravelModeModal,
 }: CurrentTripContentProps) => {
   const navigate = useNavigate();
   const { config } = useTravelModeContext();
@@ -34,9 +36,9 @@ const CurrentTripContent = memo(({
   } | null>(null);
 
   // Memoize handlers to prevent unnecessary re-renders
-  const handleNavigateToTravelMode = useCallback(() => {
-    navigate("/travel-mode");
-  }, [navigate]);
+  const handleOpenTravelModeModal = useCallback(() => {
+    onOpenTravelModeModal?.();
+  }, [onOpenTravelModeModal]);
 
   const handleViewDetail = useCallback(() => {
     onViewDetail();
@@ -139,7 +141,7 @@ const CurrentTripContent = memo(({
           <div className="space-y-2">
             <Button
               className="w-full bg-gradient-to-r from-green-600 to-blue-500 border-0 hover:from-green-700 hover:to-blue-600"
-              onClick={handleNavigateToTravelMode}
+              onClick={handleOpenTravelModeModal}
             >
               <Navigation className="w-4 h-4 mr-2" />
               {t("home.travelMode.accessTravelMode")}
