@@ -7,13 +7,23 @@
 3. [Comparativa Detallada](#comparativa-detallada)
 4. [Análisis de Costos por Escala](#análisis-de-costos-por-escala)
 5. [Recomendaciones por Etapa](#recomendaciones-por-etapa)
-6. [Implementación Recomendada](#implementación-recomendada)
+6. [⏰ Cuándo Implementar Firebase Analytics + Crashlytics](#-cuándo-implementar-firebase-analytics--crashlytics)
+7. [Implementación Recomendada](#implementación-recomendada)
 
 ---
 
 ## 🎯 Resumen Ejecutivo
 
+### ⚠️ IMPORTANTE: ¿En qué fase estás?
+
+**Si estás en Ideación/Pre-Launch (sin usuarios reales):**
+- ❌ **NO implementes analytics complejo todavía**
+- ✅ Enfócate en feedback cualitativo (entrevistas, prototipos)
+- ✅ Lee primero la [Fase 0](#fase-0-ideación--pre-launch-0-500-usuarios) de este documento
+
 ### Recomendación Principal para Goveling (React Native + Monetización con Ads)
+
+**Aplica cuando:** Ya estés en stores o tengas >500 usuarios reales
 
 **Stack Base:** Firebase Analytics (GA4) + AdMob + Consent Management + Sentry
 
@@ -27,6 +37,8 @@
 **Agregar Después:**
 - PostHog o Mixpanel cuando necesites analítica de producto avanzada (funnels, cohortes, retención)
 - MMP (Adjust/AppsFlyer) solo si escalarás UA pagada multi-canal (Meta, TikTok, etc.)
+
+**⏭️ Salta directo a:** [Fase 0 (Pre-Launch)](#fase-0-ideación--pre-launch-0-500-usuarios) si aún no estás en stores
 
 ---
 
@@ -497,10 +509,11 @@ Herramientas ligeras de web analytics enfocadas en privacidad (sin cookies, GDPR
 ### Resumen Visual de Costos
 
 ```
-Escala          MAU Range     Eventos/mes    Stack Recomendado                   Costo/mes
+Fase            MAU Range     Eventos/mes    Stack Recomendado                   Costo/mes
 ──────────────────────────────────────────────────────────────────────────────────────────────
-🌱 MVP          0-5K          0-300K         Firebase + AdMob + Sentry Free       $0
-🚀 Early Growth 5K-25K        300K-1.5M      + PostHog/Mixpanel Free              $0-26
+🔬 Pre-Launch   0-500         0-30K          Feedback cualitativo + Crashlytics   $0
+🌱 MVP          500-5K        30K-300K       Firebase + Crashlytics (sin ads)     $0
+🚀 Early Growth 5K-25K        300K-1.5M      + PostHog/Mixpanel Free + Sentry     $0-26
 📈 Growth       25K-100K      1.5M-6M        + Sentry Biz + PostHog Paid + MMP    $435-2K
 🏢 Scale        100K-500K     6M-30M         + Amplitude/Mixpanel + AppsFlyer     $3K-10K
 🌍 Enterprise   500K+         30M+           Todo enterprise/custom               $15K-50K+
@@ -510,28 +523,178 @@ Escala          MAU Range     Eventos/mes    Stack Recomendado                  
 
 ## 🎯 Recomendaciones por Etapa
 
-### Fase 1: Pre-Launch / MVP (0-1K MAU)
+### Fase 0: Ideación / Pre-Launch (0-500 usuarios)
 
-**Objetivo:** Validar product-market fit con costo $0.
+**Situación:** App en desarrollo, no está en stores, beta cerrada o sin usuarios reales.
+
+**Objetivo:** Validar concepto y construir MVP sin distracciones de analytics complejos.
+
+#### ❌ El Error Común (Startup Death Pattern)
+
+```
+1. Implementar analytics complejo en MVP
+2. Pasar 2 semanas configurando 50 eventos
+3. Lanzar con dashboards vacíos
+4. Obsesionarse con métricas sin significancia estadística
+5. Perder foco del producto real
+6. Quedarse sin runway antes de validar PMF
+```
+
+#### ✅ Lo que SÍ Debes Hacer
+
+**1. Feedback Cualitativo (80% de tu tiempo)**
+```
+✅ Entrevistas 1-on-1 con 20-30 usuarios potenciales
+✅ Prototipos en Figma + pruebas de usabilidad
+✅ WhatsApp/Telegram group con 5-10 beta testers
+✅ Google Forms para feedback estructurado
+✅ Llamadas post-uso (15 min cada una)
+```
+
+**Regla de oro:** 10 conversaciones > 10,000 eventos anónimos
+
+**2. Analytics Ultra-Básico (Solo si tienes prototipo funcional)**
+```javascript
+// SOLO estos 3-5 eventos, nada más:
+✅ app_open          // ¿La gente vuelve?
+✅ sign_up           // ¿Completan onboarding?
+✅ [tu_accion_core]  // Ej: trip_created, place_saved
+
+❌ NO implementes: Funnels, cohortes, eventos complejos, ads
+```
+
+**3. Monitoreo de Crashes (Si tienes >5 beta testers)**
+```
+✅ Firebase Crashlytics (gratis, incluido) 
+   O
+✅ Sentry Developer Free (5K errores/mes)
+
+Razón: Necesitas saber si la app se rompe
+```
+
+#### ❌ Lo que NO Debes Hacer Todavía
+
+```
+❌ AdMob: Arruinarás UX antes de validar PMF
+❌ Eventos complejos: Perderás tiempo sin datos suficientes
+❌ Funnels sofisticados: Sin volumen, es solo ruido
+❌ PostHog/Mixpanel: Prematuro para <500 usuarios
+❌ MMPs: No hay UA pagada todavía
+❌ Dashboards elaborados: Vanity metrics
+```
+
+#### Stack Recomendado para Fase 0
+
+**Opción A: Solo Wireframes/Prototipos**
+```
+Analytics: ❌ NINGUNO
+Enfoque: ✅ Entrevistas + Validación de concepto
+```
+
+**Opción B: Prototipo Funcional (5-50 beta testers)**
+```
+✅ Firebase Analytics básico (3-5 eventos)
+✅ Crashlytics (incluido)
+✅ WhatsApp group para feedback
+❌ Skip: Todo lo demás
+```
+
+**Opción C: Beta Privada (50-500 usuarios)**
+```
+✅ Firebase Analytics (~10 eventos core)
+✅ Crashlytics
+✅ Sentry Developer Free
+⚠️ (Considerar) Mixpanel Free para 1-2 funnels críticos:
+   - Sign up → Primer viaje creado
+   - App open → Acción core completada
+❌ Skip: AdMob, MMPs, herramientas pagas
+```
+
+#### Métricas que Importan en Fase 0
+
+**No son:**
+- ❌ Total de eventos disparados
+- ❌ Dashboards complejos
+- ❌ Funnels con 10 steps
+
+**Son:**
+```
+✅ ¿Cuántos de tus 10 amigos siguen usando la app después de 1 semana?
+✅ ¿Qué dice la gente en llamadas 1-on-1?
+✅ ¿Completan la acción core sin confusión?
+✅ ¿Se crashea? (Crashlytics)
+✅ ¿Vuelven al día siguiente? (retention básica)
+```
+
+#### Cuándo Pasar a la Siguiente Fase
+
+**Señales para graduar a Fase 1 (MVP en Stores):**
+```
+✅ 20+ beta testers usando consistentemente (>3x/semana)
+✅ Retention D1 >30%, D7 >15%
+✅ Feedback cualitativo es mayormente positivo
+✅ La acción core funciona sin bugs críticos
+✅ Entiendes qué hace que la gente retenga
+✅ Listo para lanzar en App Store / Play Store
+```
+
+**Costo total Fase 0:** $0/mes
+
+---
+
+### Fase 1: Lanzamiento Público / MVP (500-5K MAU)
+
+**Situación:** App publicada en App Store / Play Store, primeros usuarios orgánicos llegando.
+
+**Objetivo:** Validar product-market fit y optimizar onboarding. Costo: $0.
 
 **Stack:**
 ```
-✅ Firebase Analytics (free, ilimitado)
-✅ AdMob (setup pero no activar hasta tener tracción)
-✅ Crashlytics (incluido)
-⏭️ Skip: PostHog/Mixpanel (aún no necesitas funnels avanzados)
-⏭️ Skip: MMP (no hay UA pagada todavía)
+✅ Firebase Analytics (setup completo, ~15-20 eventos)
+✅ Firebase Crashlytics (incluido)
+✅ Sentry Developer Free (5K errores/mes) - mejor UX que Crashlytics
+⚠️ (Considerar) AdMob con banners MUY conservadores
+   - Solo si monetización es crítica desde día 1
+   - Evaluar impacto en retención después de 2 semanas
+   - Mejor: Esperar hasta tener 2K+ MAU y retention D7 >20%
+⏭️ Skip: PostHog/Mixpanel (añadir cuando tengas >2K MAU)
+⏭️ Skip: MMPs (no hay UA pagada todavía)
 ```
 
-**Eventos clave a trackear:**
-- `app_open`, `auth_sign_in`, `auth_sign_up`
-- `trip_created`, `place_saved`
-- `screen_view` (automático en Firebase)
+**Eventos clave a trackear (Tier 1 - Core):**
+```javascript
+// Autenticación (automático en Firebase)
+- sign_up, login
 
-**Por qué:**
-- Necesitas entender adopción básica
-- No tienes volumen para justificar herramientas pagas
-- Firebase suficiente para reportar a stakeholders
+// Core loop
+- trip_created
+- place_saved
+- place_visit_detected
+- travel_mode_start
+- ai_route_generated
+
+// Engagement
+- app_open
+- screen_view (automático)
+
+// Monetización básica
+- booking_click (si tienes widgets de reserva)
+```
+
+**Métricas críticas a monitorear:**
+```
+✅ DAU, MAU, DAU/MAU ratio
+✅ Retention D1, D7, D30
+✅ Tiempo en completar onboarding
+✅ % usuarios que crean primer viaje
+✅ Crashes por sesión
+```
+
+**Por qué este stack:**
+- Suficiente para entender adopción y retención básica
+- Gratis pero robusto
+- No distrae del producto
+- Firebase + Sentry cubren el 90% de necesidades
 
 ---
 
@@ -656,6 +819,380 @@ Escala          MAU Range     Eventos/mes    Stack Recomendado                  
 - Data es ventaja competitiva
 - Equipos grandes necesitan infraestructura robusta
 - Custom solutions rentables vs. pagar por SaaS caro
+
+---
+
+## ⏰ Cuándo Implementar Firebase Analytics + Crashlytics
+
+### Pregunta Clave: ¿Cuál es el momento ideal para empezar?
+
+**Respuesta corta:**
+- **Crashlytics:** Cuando tengas 5+ personas probando la app (beta testers reales)
+- **Analytics:** Cuando tengas un flujo funcional completo (sign up → acción core → retención medible)
+
+---
+
+### 📍 Timeline Detallado por Etapa
+
+#### 🔴 Etapa 0: NO LO HAGAS (Demasiado Temprano)
+
+**Momento:** Wireframes, mockups, prototipos de diseño en Figma
+
+**Situación:**
+```
+❌ NO implementes nada de analytics/crashlytics
+✅ Enfócate en: Validar concepto, entrevistas, prototipos clickeables
+```
+
+**Por qué:** No hay código que crashee ni eventos que medir. Es distracción pura.
+
+**Tiempo ahorrado:** 8-16 horas que puedes usar en validación de concepto.
+
+---
+
+#### 🟡 Etapa 1: CRASHLYTICS SOLO (Momento Óptimo)
+
+**Momento:** Primer prototipo funcional que das a 5-10 amigos/familia
+
+**Señales para implementar:**
+- ✅ La app abre y tiene 1-2 flujos básicos funcionando
+- ✅ Tienes 5-10 personas que la van a probar activamente
+- ✅ Sabes que habrá bugs (¡obvio, es un prototipo!)
+- ✅ Necesitas saber CUÁNDO y DÓNDE se rompe
+
+**Setup recomendado:**
+```bash
+# Solo Crashlytics (5 minutos de instalación)
+npm install @react-native-firebase/app
+npm install @react-native-firebase/crashlytics
+
+# Configurar Firebase project (10 min)
+# - Descargar google-services.json (Android)
+# - Descargar GoogleService-Info.plist (iOS)
+# - Rebuild app
+```
+
+**Eventos a trackear:** NINGUNO todavía, solo crashes
+
+**Esfuerzo:** 15-30 minutos (setup Firebase project + integración básica)
+
+**Beneficio:** Recibes notificaciones cuando la app se rompe, con stack traces completos
+
+**Costo:** $0/mes
+
+---
+
+#### 🟢 Etapa 2: CRASHLYTICS + ANALYTICS BÁSICO (Momento Óptimo)
+
+**Momento:** Beta privada con 20-50 testers reales (no solo amigos)
+
+**Señales para implementar:**
+- ✅ Flujo completo funciona: Sign up → Acción core → Usuario puede "completar" algo
+- ✅ 20+ personas usando la app activamente (>2-3 veces/semana)
+- ✅ Ya no son solo amigos que te hacen el favor, son testers reales
+- ✅ Necesitas responder: "¿La gente vuelve?" "¿Completan onboarding?" "¿Usan la feature core?"
+
+**Setup recomendado:**
+```bash
+# Crashlytics + Analytics (mismo paquete Firebase)
+npm install @react-native-firebase/app
+npm install @react-native-firebase/crashlytics
+npm install @react-native-firebase/analytics
+```
+
+**Eventos a trackear (SOLO 3-5):**
+```javascript
+// Básicos automáticos (no implementas nada)
+- first_open (automático)
+- session_start (automático)
+
+// Los 3 que TÚ implementas manualmente:
+✅ sign_up               // ¿Completan registro?
+✅ trip_created          // ¿Usan la feature core?
+✅ travel_mode_start     // ¿Activan modo viaje? (feature distintiva de Goveling)
+
+// Ejemplo de implementación:
+await analytics().logEvent('trip_created', {
+  trip_type: 'beach_vacation',
+  has_companions: true
+});
+```
+
+**Esfuerzo:** 1-2 horas (incluye setup + implementar 3 eventos)
+
+**Beneficio:**
+- ✅ Crashes resueltos rápido
+- ✅ Sabes si la gente retiene (DAU, sessions)
+- ✅ Sabes si completan onboarding
+- ✅ Sabes si usan la feature core
+
+**Costo:** $0/mes
+
+**⚠️ Lo que NO debes hacer todavía:**
+- ❌ Implementar 20+ eventos (pérdida de tiempo)
+- ❌ Crear dashboards complejos (sin volumen es ruido)
+- ❌ Añadir PostHog/Mixpanel (prematuro)
+- ❌ Activar AdMob (arruinarás UX)
+
+---
+
+#### 🟢 Etapa 3: ANALYTICS COMPLETO (Pre-Launch en Stores)
+
+**Momento:** 1-2 semanas ANTES de lanzar en App Store / Play Store
+
+**Señales para implementar:**
+- ✅ App es estable (crash rate <2%)
+- ✅ Retention D7 >15% en beta
+- ✅ Feedback cualitativo es positivo
+- ✅ Listos para lanzar público en 2-4 semanas
+- ✅ Necesitas dashboards para reportar a stakeholders
+
+**Setup recomendado:**
+```bash
+# Full stack fase 1
+npm install @react-native-firebase/app
+npm install @react-native-firebase/crashlytics
+npm install @react-native-firebase/analytics
+npm install @sentry/react-native  # Mejor UX que solo Crashlytics
+```
+
+**Eventos a trackear (15-20):**
+```javascript
+// Tier 1: Críticos (del documento principal)
+- Autenticación: sign_up, login (automáticos)
+- Core loop: trip_created, place_saved, place_visit_detected, travel_mode_start
+- Engagement: app_open, screen_view
+- Monetización: booking_click, esim_click
+- Social: invite_sent, invite_accepted
+- Gamificación: level_up, badge_unlocked
+```
+
+**Esfuerzo:** 4-8 horas (setup + 15-20 eventos + dashboards básicos)
+
+**Beneficio:**
+- ✅ Dashboards listos para el día del launch
+- ✅ Puedes iterar basado en datos desde día 1 en stores
+- ✅ Reportes para inversores/equipo
+- ✅ Funnels básicos configurados
+
+**Costo:** $0-26/mes (si añades Sentry Team)
+
+---
+
+### 🎯 Roadmap Específico para Goveling
+
+#### Si estás en Ideación/Desarrollo Inicial (AHORA):
+```
+📍 Etapa: Desarrollo inicial, sin usuarios reales
+👥 Usuarios: 0 (aún no en stores)
+```
+
+**Tu Timeline:**
+
+**Semanas 1-4: Validación de Concepto**
+```
+✅ Enfoque: Entrevistas, prototipos Figma, feedback directo
+❌ Analytics: NINGUNO
+❌ Crashlytics: NINGUNO
+⏱️ Tiempo invertido en analytics: 0 horas
+```
+
+**Semanas 5-8: Prototipo Funcional**
+```
+✅ Dar app a 5-10 amigos/familia
+✅ Implementar: Crashlytics SOLO
+❌ Eventos: NINGUNO, solo crashes
+⏱️ Tiempo de setup: 30 minutos
+📊 Beneficio: Sabes cuando se rompe y dónde
+```
+
+**Semanas 9-12: Beta Privada (TestFlight/Internal Testing)**
+```
+✅ 20-50 beta testers reales
+✅ Implementar: Crashlytics + Analytics básico
+✅ Eventos: sign_up, trip_created, travel_mode_start (3 eventos)
+⏱️ Tiempo de setup: 1-2 horas
+📊 Beneficio: Retention básica + crashes resueltos
+```
+
+**Semanas 13-14: Pre-Launch (2 semanas antes de stores)**
+```
+✅ Implementar: Analytics completo (15-20 eventos)
+✅ Setup: Dashboards básicos en Firebase Console
+✅ Añadir: Sentry para mejor error tracking
+⏱️ Tiempo de setup: 4-8 horas
+📊 Beneficio: Todo listo para day-1 en stores
+```
+
+**Semana 15+: Launch en App Store / Play Store**
+```
+✅ Todo configurado, solo monitoras dashboards
+✅ Iteras basado en datos reales
+📊 Dashboards activos: DAU/MAU, Retention, Funnels básicos
+```
+
+---
+
+### ⚡ Setup Ultra-Rápido (Si necesitas empezar HOY)
+
+Si ya tienes un prototipo funcional y quieres el mínimo absoluto:
+
+#### Opción Express: Solo Crashlytics (30 minutos)
+
+```bash
+# 1. Instalar dependencias (5 min)
+npm install @react-native-firebase/app @react-native-firebase/crashlytics
+
+# 2. Crear proyecto Firebase (10 min)
+# - Ir a https://console.firebase.google.com
+# - Click "Add project" → Seguir wizard
+# - Añadir app Android → Descargar google-services.json
+# - Añadir app iOS → Descargar GoogleService-Info.plist
+
+# 3. Configurar en tu app (15 min)
+# Android: Copiar google-services.json a android/app/
+# iOS: Copiar GoogleService-Info.plist a ios/
+# Seguir docs: https://rnfirebase.io/crashlytics/usage
+
+# 4. Rebuild app
+cd android && ./gradlew clean && cd ..
+cd ios && pod install && cd ..
+npx react-native run-android  # o run-ios
+
+# ¡Listo! Ya recibes notificaciones de crashes
+```
+
+**Resultado:** Empiezas a recibir reportes de crashes con stack traces completos.
+
+**Siguiente paso:** Cuando tengas 20+ testers, añade Analytics básico (3 eventos).
+
+---
+
+### 💡 Reglas de Oro para Decidir
+
+#### ¿Debo implementar Crashlytics HOY?
+
+**Pregúntate:**
+- ¿Tienes una app que abre y hace algo funcional? → **SÍ** = Hazlo
+- ¿Tienes 5+ personas que la van a usar? → **SÍ** = Hazlo
+- ¿Aún estás en Figma/mockups? → **NO** = Espera
+
+#### ¿Debo implementar Analytics HOY?
+
+**Pregúntate:**
+- ¿Tienes un flujo completo (sign up → acción → posible retención)? → **SÍ** = Hazlo (básico: 3 eventos)
+- ¿Tienes 20+ testers activos (>2x/semana)? → **SÍ** = Hazlo (básico: 3 eventos)
+- ¿Vas a lanzar en stores en <4 semanas? → **SÍ** = Hazlo (completo: 15-20 eventos)
+- ¿Tienes <10 usuarios o solo pruebas internas? → **NO** = Espera
+
+#### ¿Debo implementar AdMob HOY?
+
+**Pregúntate:**
+- ¿Ya estás en stores con >2K MAU? → **SÍ** = Considéralo
+- ¿Tu retention D7 es >20%? → **SÍ** = Considéralo
+- ¿Aún estás pre-launch o con <1K usuarios? → **NO** = Espera (arruinarás UX)
+
+---
+
+### 📊 Tabla de Decisión Rápida
+
+| Situación | Usuarios | Crashlytics | Analytics | Eventos | AdMob | Tiempo Setup |
+|-----------|----------|-------------|-----------|---------|-------|--------------|
+| Wireframes/Figma | 0 | ❌ No | ❌ No | 0 | ❌ No | 0h |
+| Prototipo funcional | 5-20 (amigos) | ✅ Sí | ❌ No | 0 | ❌ No | 0.5h |
+| Beta privada | 20-100 | ✅ Sí | ✅ Básico | 3-5 | ❌ No | 1-2h |
+| Pre-launch (2 sem) | 100-500 | ✅ Sí | ✅ Completo | 15-20 | ⚠️ Setup (sin activar) | 4-8h |
+| Launch en stores | 500+ | ✅ Sí | ✅ Completo | 15-20 | ⚠️ Considerar | - |
+| Growth (>2K MAU) | 2K+ | ✅ Sí | ✅ Completo | 20-30 | ✅ Activar | - |
+
+---
+
+### 🚨 Errores Comunes a Evitar
+
+#### Error #1: Implementar todo desde día 1
+```
+❌ "Voy a configurar los 50 eventos ahora para no hacerlo después"
+✅ Correcto: 3 eventos → luego 15 → luego 30+ (según necesidad)
+```
+
+#### Error #2: Analytics sin usuarios
+```
+❌ "Configuré analytics perfectos pero solo yo uso la app"
+✅ Correcto: Espera a tener 20+ testers antes de analytics
+```
+
+#### Error #3: Crashlytics demasiado tarde
+```
+❌ "La gente dice que se crashea pero no sé dónde"
+✅ Correcto: Crashlytics desde que 5+ personas prueban
+```
+
+#### Error #4: AdMob demasiado temprano
+```
+❌ "Puse ads en la beta para probar monetización"
+✅ Correcto: Espera a tener >2K MAU con retention >20%
+```
+
+#### Error #5: Dashboards prematuros
+```
+❌ "Creé 10 dashboards con métricas para 3 usuarios"
+✅ Correcto: Dashboards cuando tengas significancia estadística (>500 MAU)
+```
+
+---
+
+### ✅ Checklist de Implementación por Fase
+
+#### Fase 0: Pre-Beta (0-20 usuarios)
+```
+[ ] ❌ NO implementar nada todavía
+[ ] ✅ Enfocarse en feedback cualitativo
+[ ] ✅ Validar concepto con entrevistas
+```
+
+#### Fase 1: Beta Cerrada (20-100 usuarios)
+```
+[ ] ✅ Setup Firebase project (Android + iOS)
+[ ] ✅ Instalar Crashlytics
+[ ] ✅ Verificar que reportes de crashes lleguen
+[ ] ✅ Instalar Analytics (básico)
+[ ] ✅ Implementar 3 eventos core (sign_up, trip_created, travel_mode_start)
+[ ] ✅ Verificar eventos en Firebase Console DebugView
+[ ] ❌ NO implementar más de 5 eventos todavía
+```
+
+#### Fase 2: Pre-Launch (100-500 usuarios)
+```
+[ ] ✅ Analytics completo: 15-20 eventos (Tier 1)
+[ ] ✅ Añadir Sentry (mejor que solo Crashlytics)
+[ ] ✅ Configurar dashboards básicos en Firebase
+[ ] ✅ Setup AdMob (sin activar ads todavía)
+[ ] ✅ Implementar UMP SDK + ATT (consent)
+[ ] ✅ Probar todo en staging antes de launch
+```
+
+#### Fase 3: Launch en Stores (500+ usuarios)
+```
+[ ] ✅ Monitorear dashboards día 1
+[ ] ✅ Tener alertas configuradas (crash rate, retention)
+[ ] ⚠️ Considerar activar AdMob (después de validar retention)
+[ ] ⚠️ Considerar añadir Mixpanel Free (funnels avanzados)
+```
+
+---
+
+### 🎓 Recursos para Setup
+
+**Documentación oficial:**
+- Firebase Crashlytics RN: https://rnfirebase.io/crashlytics/usage
+- Firebase Analytics RN: https://rnfirebase.io/analytics/usage
+- Sentry React Native: https://docs.sentry.io/platforms/react-native/
+- AdMob RN: https://docs.page/invertase/react-native-google-mobile-ads
+
+**Tiempo estimado total:**
+- Setup básico (Crashlytics): 30 minutos
+- Setup intermedio (+ Analytics básico): 1-2 horas
+- Setup completo (+ 15-20 eventos + Sentry): 4-8 horas
 
 ---
 
@@ -1056,19 +1593,41 @@ analytics().logEvent('notification_received', {
 
 ### Stack por Fase
 
-#### Fase 1: MVP → 10K MAU (Costo: $0/mes)
+#### Fase 0: Pre-Launch / Ideación → 500 usuarios (Costo: $0/mes)
+```
+🚨 IMPORTANTE: Si estás aquí, NO implementes analytics complejo todavía
+
+Core:
+✅ Feedback cualitativo (entrevistas, WhatsApp groups, llamadas)
+✅ Firebase Crashlytics (solo si tienes beta testers)
+
+Opcional (solo si tienes prototipo funcional):
+✅ Firebase Analytics ultra-básico (3-5 eventos: app_open, sign_up, trip_created)
+
+Lo que NO debes hacer:
+❌ AdMob (arruinarás UX sin validar PMF)
+❌ Eventos complejos (pérdida de tiempo)
+❌ PostHog/Mixpanel (prematuro)
+❌ Funnels/dashboards elaborados (vanity metrics)
+```
+
+#### Fase 1: MVP en Stores → 5K MAU (Costo: $0/mes)
 ```
 Core:
-✅ Firebase Analytics (base + Google Ads integration)
-✅ Firebase Crashlytics (crashes)
-✅ AdMob (monetization)
+✅ Firebase Analytics (setup completo, 15-20 eventos)
+✅ Firebase Crashlytics
+✅ Sentry Developer Free
 ✅ UMP SDK + ATT (consent)
 
-Opcional:
-✅ Mixpanel Free (funnels) - añadir cuando tengas 1K+ MAU
+Considerar (cuando tengas >2K MAU):
+⚠️ AdMob con banners conservadores (solo si retención es sana)
+⚠️ Mixpanel Free para 1-2 funnels críticos
+
+Skip:
+❌ MMPs (no hay UA pagada)
 ```
 
-#### Fase 2: 10K → 50K MAU (Costo: $26-200/mes)
+#### Fase 2: Early Growth → 5K-25K MAU (Costo: $26-200/mes)
 ```
 Core:
 ✅ Firebase Analytics
@@ -1136,27 +1695,62 @@ Opcional:
 
 **Para Goveling (React Native + Ads), la recomendación es:**
 
-1. **Arranca con:** Firebase Analytics + AdMob + Crashlytics (gratis)
-2. **Añade ASAP:** Mixpanel Free (cuando tengas 1K+ MAU) para funnels
-3. **Añade en Growth:** Sentry Team ($26) cuando errores afecten UX
-4. **Añade en Scale:** AppsFlyer ($800+) solo cuando UA sea >$20K/mes
+### Si estás en Pre-Launch / Ideación (Fase 0):
+1. **Enfócate en:** Feedback cualitativo, entrevistas, prototipos
+2. **Analytics mínimo:** Firebase Analytics básico (3-5 eventos) + Crashlytics
+3. **NO implementes:** AdMob, funnels complejos, herramientas pagas
+4. **Criterio de graduación:** 20+ beta testers activos, retention D7 >15%, listo para stores
+
+### Si ya estás en stores con usuarios reales (Fase 1+):
+1. **Arranca con:** Firebase Analytics + Crashlytics + Sentry Free
+2. **Añade cuando tengas >2K MAU:** Mixpanel Free para funnels
+3. **Añade cuando tengas >5K MAU:** AdMob con banners conservadores (evalúa impacto)
+4. **Añade en Growth (>25K MAU):** Sentry Team ($26) + herramientas de producto
+5. **Añade en Scale (>50K MAU):** AppsFlyer ($800+) solo cuando UA sea >$20K/mes
 
 **Costo total por fase:**
-- MVP → 10K MAU: **$0/mes**
-- 10K → 50K MAU: **$26-200/mes**
-- 50K → 200K MAU: **$500-2K/mes**
-- 200K+ MAU: **$3K-10K+/mes**
+- **Pre-Launch (0-500):** $0/mes (solo feedback cualitativo)
+- **MVP → 5K MAU:** $0/mes (Firebase + Crashlytics + Sentry Free)
+- **5K → 25K MAU:** $0-26/mes (+ PostHog/Mixpanel Free)
+- **25K → 100K MAU:** $435-2K/mes (+ Sentry Biz + herramientas pagas)
+- **100K → 500K MAU:** $3K-10K/mes (+ Amplitude + MMP)
+- **500K+ MAU:** $15K-50K+/mes (enterprise tiers)
 
 **Esta estrategia te permite:**
-- ✅ Empezar sin costos de analytics
+- ✅ NO perder tiempo en analytics antes de validar PMF
+- ✅ Empezar sin costos cuando lances en stores
 - ✅ Escalar herramientas conforme crece revenue
 - ✅ Mantener integración con Google Ads/AdMob (clave para monetización)
 - ✅ Tener funnels avanzados cuando los necesites (no antes)
 - ✅ Optimizar LTV/CAC cuando hagas UA seria
 
+**🚨 Recuerda:** En Fase 0, 10 conversaciones con usuarios > 10,000 eventos anónimos
+
 ---
 
-**Última actualización:** Octubre 18, 2025  
-**Versión:** 1.0  
+**Última actualización:** Octubre 19, 2025  
+**Versión:** 1.1 (añadida Fase 0: Pre-Launch/Ideación)  
 **Autor:** AI Assistant para Goveling Team
+
+---
+
+## 📌 Changelog
+
+### v1.1 (Oct 19, 2025)
+- ✅ Añadida **Fase 0: Pre-Launch/Ideación (0-500 usuarios)**
+- ✅ Añadida sección completa **"⏰ Cuándo Implementar Firebase Analytics + Crashlytics"**
+  - Timeline detallado por etapa (4 etapas: NO implementar / Crashlytics solo / Analytics básico / Analytics completo)
+  - Roadmap específico para Goveling (semana por semana)
+  - Setup ultra-rápido (30 minutos para Crashlytics)
+  - Reglas de oro para decidir
+  - Tabla de decisión rápida
+  - 5 errores comunes a evitar
+  - Checklist de implementación por fase
+- ✅ Actualizado Resumen Ejecutivo con advertencia para fase pre-launch
+- ✅ Clarificado que AdMob NO debe implementarse en MVP
+- ✅ Añadido "Startup Death Pattern" y cómo evitarlo
+- ✅ Énfasis en feedback cualitativo sobre métricas prematuras
+
+### v1.0 (Oct 18, 2025)
+- Versión inicial del documento
 
